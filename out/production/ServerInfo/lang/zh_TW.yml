@@ -1,6 +1,0 @@
-REGISTER_NAME: "伺服器資訊"
-
-NO_PERMISSION: "缺少封鎖權限"
-PERMISSION_DENIED: "權限比該成員低"
-SUCCESS: "已封鎖"
-UNKNOWN_ERROR: "未知的錯誤"
