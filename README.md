@@ -34,4 +34,4 @@ now, you can add these blow:
   public CommandData[] globalCommands() {}
 ```
 
-Example: https://github.com/IceLeiYu/DC_Ban_Plugin
+For more examples, please visit plugins in Plugins folder 
