@@ -1,5 +1,7 @@
 # XsDiscordBotLoader
 
+Copyright © 2022 IceXinShou. All rights reserved.
+
 ## API Usage:
 
 Create a class and make it `extends PluginEvent`
