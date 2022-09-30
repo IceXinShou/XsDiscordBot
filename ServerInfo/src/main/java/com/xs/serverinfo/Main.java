@@ -1,3 +1,5 @@
+package com.xs.serverinfo;
+
 import com.xs.loader.PluginEvent;
 import com.xs.loader.util.BasicUtil;
 import com.xs.loader.util.FileGetter;

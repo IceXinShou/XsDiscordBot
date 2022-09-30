@@ -1,3 +1,5 @@
+package com.xs.emoji;
+
 import com.wavjaby.json.JsonArray;
 import com.xs.loader.PluginEvent;
 import com.xs.loader.util.BasicUtil;
