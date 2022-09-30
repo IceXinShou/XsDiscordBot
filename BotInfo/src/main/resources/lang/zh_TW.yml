@@ -1,0 +1,5 @@
+REGISTER_NAME: "顯示機器人訊息"
+
+GUILD_TOTAL_COUNT: "**伺服器總數: **"
+MEMBER_TOTAL_COUNT: "**成員總數: **"
+INFORMATION: "機器人資訊"

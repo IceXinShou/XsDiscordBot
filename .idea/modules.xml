@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/Ban/Ban.iml" filepath="$PROJECT_DIR$/Ban/Ban.iml" />
+      <module fileurl="file://$PROJECT_DIR$/BotInfo/BotInfo.iml" filepath="$PROJECT_DIR$/BotInfo/BotInfo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/CustomRoom/CustomRoom.iml" filepath="$PROJECT_DIR$/CustomRoom/CustomRoom.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Emoji/Emoji.iml" filepath="$PROJECT_DIR$/Emoji/Emoji.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Kick/Kick.iml" filepath="$PROJECT_DIR$/Kick/Kick.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Poll/Poll.iml" filepath="$PROJECT_DIR$/Poll/Poll.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ServerInfo/ServerInfo.iml" filepath="$PROJECT_DIR$/ServerInfo/ServerInfo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/XsDiscordBot.iml" filepath="$PROJECT_DIR$/.idea/XsDiscordBot.iml" />
+    </modules>
+  </component>
+</project>

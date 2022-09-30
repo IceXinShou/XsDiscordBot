@@ -1,0 +1,5 @@
+REGISTER_NAME: "Show about Bot"
+
+GUILD_TOTAL_COUNT: "**Server Total: **"
+MEMBER_TOTAL_COUNT: "**Member Total: **"
+INFORMATION: "Bot Info"
