@@ -4,7 +4,6 @@
     <artifacts-to-build>
       <artifact name="Ban:jar" />
       <artifact name="BotInfo:jar" />
-      <artifact name="Emoji:jar" />
       <artifact name="Kick:jar" />
       <artifact name="Poll:jar" />
       <artifact name="ServerInfo:jar" />
@@ -14,33 +13,48 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="115b6b02-7322-4f7a-96af-1324d4169cc1" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea_/XsDiscordBot.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Plugins/Ban/Ban1.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Plugins/BotInfo/BotInfo1.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Plugins/CustomRoom/CustomRoom1.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Plugins/Emoji/Emoji1.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Plugins/Kick/Kick1.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Plugins/Poll/Poll1.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Plugins/ServerInfo/ServerInfo1.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/XsDiscordBotLoader/XsDiscordBotLoader1.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/XsDiscordBot.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/XsDiscordBot.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/XsDiscordBotLoader_1_0.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/XsDiscordBotLoader_1_0.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/uiDesigner.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/Ban/Ban.iml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Ban/Ban.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/BotInfo/BotInfo.iml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/BotInfo/BotInfo.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CustomRoom/CustomRoom.iml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/CustomRoom/CustomRoom.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/Emoji/Emoji.iml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Emoji/Emoji.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/Kick/Kick.iml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Kick/Kick.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/Poll/Poll.iml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Poll/Poll.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ServerInfo/ServerInfo.iml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ServerInfo/ServerInfo.iml" afterDir="false" />
+    <list default="true" id="115b6b02-7322-4f7a-96af-1324d4169cc1" name="Changes" comment="yeeeee">
+      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/logger/Color.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Ban/Ban1.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Ban/src/main/java/com/xs/ban/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Ban/src/main/java/com/xs/ban/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/BotInfo/BotInfo1.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/BotInfo/src/main/java/com/xs/botinfo/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/BotInfo/src/main/java/com/xs/botinfo/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/CustomRoom/CustomRoom1.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/CustomRoom/src/main/java/com/xs/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/CustomRoom/src/main/java/com/xs/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/CustomRoom/src/main/java/com/xs/Main2.java" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/CustomRoom/src/main/java/com/xs/Main2.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Emoji/Emoji1.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Emoji/src/main/java/com/xs/emoji/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Emoji/src/main/java/com/xs/emoji/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Emoji/src/main/resources/config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Emoji/src/main/resources/config.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Kick/Kick1.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Kick/src/main/java/com/xs/kick/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Kick/src/main/java/com/xs/kick/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Poll/Poll1.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Poll/src/main/java/com/xs/poll/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Poll/src/main/java/com/xs/poll/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Poll/src/main/resources/config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Poll/src/main/resources/config.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/ServerInfo/ServerInfo1.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/ServerInfo/src/main/java/com/xs/serverinfo/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ServerInfo/src/main/java/com/xs/serverinfo/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/checksums/checksums.lock" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/checksums/checksums.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/checksums/md5-checksums.bin" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/checksums/md5-checksums.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/checksums/sha1-checksums.bin" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/checksums/sha1-checksums.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/executionHistory/executionHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/executionHistory/executionHistory.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/executionHistory/executionHistory.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/fileHashes/fileHashes.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/fileHashes/fileHashes.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/fileHashes/resourceHashesCache.bin" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/fileHashes/resourceHashesCache.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/file-system.probe" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/file-system.probe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/build/classes/java/main/com/xs/loader/ConfigSetting.class" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/build/classes/java/main/com/xs/loader/ConfigSetting.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/build/classes/java/main/com/xs/loader/MainLoader.class" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/build/classes/java/main/com/xs/loader/MainLoader.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/build/classes/java/main/com/xs/loader/util/BasicUtil.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/build/classes/java/main/com/xs/loader/util/FileGetter.class" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/build/classes/java/main/com/xs/loader/util/FileGetter.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/build/tmp/compileJava/previous-compilation-data.bin" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/build/tmp/compileJava/previous-compilation-data.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/ConfigSetting.java" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/ConfigSetting.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/MainLoader.java" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/MainLoader.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/util/BasicUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/logger/Logger.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/util/FileGetter.java" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/util/FileGetter.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -68,6 +82,13 @@
         </projects_view>
       </state>
     </system>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -100,11 +121,38 @@
     "project.structure.side.proportion": "0.24597701"
   }
 }]]></component>
-  <component name="RunManager">
-    <configuration name="Server" type="JarApplication">
+  <component name="RunManager" selected="JAR Application.Server">
+    <configuration name="Server" type="JarApplication" activateToolWindowBeforeRun="false">
       <option name="JAR_PATH" value="$PROJECT_DIR$/Server/XsDiscordBotLoader-1.0.jar" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Server" />
       <option name="ALTERNATIVE_JRE_PATH" />
+      <method v="2">
+        <option name="Gradle.BeforeRunTask" enabled="false" tasks="jar" externalProjectPath="$PROJECT_DIR$/XsDiscordBotLoader" vmOptions="" scriptParameters="" />
+        <option name="BuildArtifacts" enabled="true">
+          <artifact name="Emoji:jar" />
+        </option>
+        <option name="BuildArtifacts" enabled="true">
+          <artifact name="Ban:jar" />
+          <artifact name="BotInfo:jar" />
+          <artifact name="Kick:jar" />
+          <artifact name="Poll:jar" />
+          <artifact name="ServerInfo:jar" />
+        </option>
+      </method>
+    </configuration>
+    <configuration name="shell start" type="ShConfigurationType">
+      <option name="SCRIPT_TEXT" value="" />
+      <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
+      <option name="SCRIPT_PATH" value="$PROJECT_DIR$/Server/start.bat" />
+      <option name="SCRIPT_OPTIONS" value="" />
+      <option name="INDEPENDENT_SCRIPT_WORKING_DIRECTORY" value="true" />
+      <option name="SCRIPT_WORKING_DIRECTORY" value="$PROJECT_DIR$/Server" />
+      <option name="INDEPENDENT_INTERPRETER_PATH" value="true" />
+      <option name="INTERPRETER_PATH" value="/bin/zsh" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="EXECUTE_IN_TERMINAL" value="true" />
+      <option name="EXECUTE_SCRIPT_FILE" value="true" />
+      <envs />
       <method v="2">
         <option name="Gradle.BeforeRunTask" enabled="true" tasks="jar" externalProjectPath="$PROJECT_DIR$/XsDiscordBotLoader" vmOptions="" scriptParameters="" />
         <option name="BuildArtifacts" enabled="true">
@@ -117,6 +165,10 @@
         </option>
       </method>
     </configuration>
+    <list>
+      <item itemvalue="JAR Application.Server" />
+      <item itemvalue="Shell Script.shell start" />
+    </list>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -128,8 +180,30 @@
       <updated>1664518720829</updated>
       <workItem from="1664518721997" duration="318000" />
       <workItem from="1664519059254" duration="68000" />
-      <workItem from="1664519157685" duration="227000" />
+      <workItem from="1664519157685" duration="7797000" />
     </task>
+    <task id="LOCAL-00001" summary="wtf">
+      <created>1664519422653</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1664519422653</updated>
+    </task>
+    <task id="LOCAL-00002" summary="yeeeee">
+      <created>1664519465275</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1664519465275</updated>
+    </task>
+    <task id="LOCAL-00003" summary="yeeeee">
+      <created>1664519509011</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1664519509011</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -145,5 +219,10 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="wtf" />
+    <MESSAGE value="yeeeee" />
+    <option name="LAST_COMMIT_MESSAGE" value="yeeeee" />
   </component>
 </project>

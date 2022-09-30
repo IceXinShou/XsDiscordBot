@@ -1,12 +1,13 @@
 package com.xs.loader;
 
-import com.xs.loader.util.BasicUtil;
+import com.xs.loader.logger.Logger;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
+import org.fusesource.jansi.AnsiConsole;
 import org.yaml.snakeyaml.Yaml;
 
 import javax.security.auth.login.LoginException;
@@ -29,10 +30,9 @@ public class MainLoader {
     public static final String ROOT_PATH = new File(System.getProperty("user.dir")).toString();
 
     private final Deque<PluginEvent> listeners = new ArrayDeque<>();
-    private final BasicUtil util = new BasicUtil("[Main]");
+    private final Logger logger = new Logger("Main");
 
     MainLoader() {
-
         defaultFileInit();
         JDABuilder builder = JDABuilder.createDefault(ConfigSetting.botToken)
                 .setBulkDeleteSplittingEnabled(false)
@@ -45,7 +45,7 @@ public class MainLoader {
         try {
             jdaBot = builder.build();
         } catch (LoginException e) {
-            util.printErrln("Token is Invalid");
+            logger.error("Token is Invalid");
             return;
         }
 
@@ -58,13 +58,13 @@ public class MainLoader {
         }
 
         jdaBot.updateCommands().addCommands(globalCommands).queue();
-        util.println("Bot Started!");
+        logger.log("Bot Started!");
     }
 
     void defaultFileInit() {
-        util.println("File Initializing...");
+        logger.log("File Initializing...");
         new File("plugins").mkdir();
-        util.println("File Initialized Successfully");
+        logger.log("File Initialized Successfully");
     }
 
     String getExtensionName(String fileName) {
@@ -78,7 +78,7 @@ public class MainLoader {
     void loadPlugins() {
         int count = 0;
         int fail = 0;
-        util.println("Plugin(s) Loading...");
+        logger.log("Plugin(s) Loading...");
         String tmp;
         for (var file : new File("plugins").listFiles()) {
             try {
@@ -124,15 +124,17 @@ public class MainLoader {
                 ++count;
             } catch (Exception e) {
                 ++fail;
-                util.printErrln(file.getName() + '\n' + Arrays.toString(e.getStackTrace()));
+                logger.error(file.getName() + '\n' + Arrays.toString(e.getStackTrace()));
             }
         }
         if (fail > 0)
-            util.printErrln(fail + " Plugin(s) Loading Failed!");
-        util.println(count + " Plugin(s) Loading Successfully");
+            logger.error(fail + " Plugin(s) Loading Failed!");
+        logger.log(count + " Plugin(s) Loading Successfully");
     }
 
     public static void main(String[] args) {
+        AnsiConsole.systemInstall();
         new MainLoader();
+        AnsiConsole.systemUninstall();
     }
 }

@@ -3,6 +3,7 @@ package com.xs.loader.util;
 import com.wavjaby.json.JsonArray;
 import com.wavjaby.json.JsonObject;
 import com.xs.loader.MainLoader;
+import com.xs.loader.logger.Logger;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
@@ -17,10 +18,10 @@ public class FileGetter {
     private final String TAG;
     private final String PATH_FOLDER_NAME;
     private final ClassLoader LOADER;
-    private final BasicUtil util;
+    private final Logger logger;
 
     public FileGetter(final String TAG, final String PATH_FOLDER_NAME, final ClassLoader LOADER) {
-        util = new BasicUtil(TAG);
+        logger = new Logger(TAG);
         this.TAG = TAG;
         this.PATH_FOLDER_NAME = PATH_FOLDER_NAME;
         this.LOADER = LOADER;
@@ -61,14 +62,14 @@ public class FileGetter {
         new File(MainLoader.ROOT_PATH + "/" + path).mkdirs();
         File settingFile = new File(MainLoader.ROOT_PATH + "/" + path + "/" + fileName);
         if (!settingFile.exists()) {
-            util.printErrln(fileName + " not found, create default " + fileName);
+            logger.error(fileName + " not found, create default " + fileName);
             settingFile = exportResource(fileName, path);
             if (settingFile == null) {
-                util.printErrln("read " + fileName + " failed");
+                logger.error("read " + fileName + " failed");
                 return null;
             }
         }
-        util.println("load " + settingFile.getPath());
+        logger.log("load " + settingFile.getPath());
 
         return readFile(settingFile);
     }
@@ -93,14 +94,14 @@ public class FileGetter {
 
         try {
             if (fileInJar == null) {
-                util.printErrln("can not find resource: " + fileName);
+                logger.error("can not find resource: " + fileName);
                 return null;
             }
             Files.copy(fileInJar, Paths.get(MainLoader.ROOT_PATH + "/" + path + "/" + fileName), StandardCopyOption.REPLACE_EXISTING);
             return new File(MainLoader.ROOT_PATH + "/" + path + "/" + fileName);
         } catch (IOException e) {
             e.printStackTrace();
-            util.printErrln("read resource failed");
+            logger.error("read resource failed");
         }
         return null;
     }
@@ -110,14 +111,14 @@ public class FileGetter {
 
         try {
             if (fileInJar == null) {
-                util.printErrln("can not find resource: " + originFileName);
+                logger.error("can not find resource: " + originFileName);
                 return null;
             }
             Files.copy(fileInJar, Paths.get(MainLoader.ROOT_PATH + "/" + path + "/" + outputName), StandardCopyOption.REPLACE_EXISTING);
             return new File(MainLoader.ROOT_PATH + "/" + path + "/" + outputName);
         } catch (IOException e) {
             e.printStackTrace();
-            util.printErrln("read resource failed");
+            logger.error("read resource failed");
         }
         return null;
     }
@@ -140,7 +141,7 @@ public class FileGetter {
                 var fileData = readFile(lang_file);
                 for (var parameter : parameters) {
                     if (!fileData.containsKey(parameter)) {
-                        util.printErrln("file " + lang + ".yml lost " + parameter + " parameter!");
+                        logger.error("file " + lang + ".yml lost " + parameter + " parameter!");
                         try {
                             copyFile(lang_file, MainLoader.ROOT_PATH + "/plugins/" + PATH_FOLDER_NAME + "/Lang/-" + lang + ".yml");
                             //exportResource(prefix + lang + ".yml", lang + ".yml", "plugins/Lang/" + PLUGIN_NAME);

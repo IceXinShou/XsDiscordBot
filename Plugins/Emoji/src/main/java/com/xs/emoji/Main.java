@@ -2,7 +2,7 @@ package com.xs.emoji;
 
 import com.wavjaby.json.JsonArray;
 import com.xs.loader.PluginEvent;
-import com.xs.loader.util.BasicUtil;
+import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
@@ -27,8 +27,8 @@ public class Main extends PluginEvent {
     };
 
     FileGetter getter;
-    BasicUtil util;
-    final String TAG = "[Emoji]";
+    Logger logger;
+    final String TAG = "Emoji";
     final String PATH_FOLDER_NAME = "Emoji";
     private JsonArray ids;
     public static Map<String, Map<Long, Emoji>> emojis = new HashMap<>();
@@ -36,22 +36,22 @@ public class Main extends PluginEvent {
     @Override
     public void initLoad() {
         getter = new FileGetter(TAG, PATH_FOLDER_NAME, Main.class.getClassLoader());
-        util = new BasicUtil(TAG);
+        logger = new Logger(TAG);
         loadConfigFile();
         loadVariables();
         loadLang();
-        util.println("Loaded");
+        logger.log("Loaded");
     }
 
     @Override
     public void unload() {
-        util.println("UnLoaded");
+        logger.log("UnLoaded");
     }
 
     @Override
     public void loadConfigFile() {
         config = getter.readYml("config.yml", "plugins/" + PATH_FOLDER_NAME);
-        util.println("Setting File Loaded Successfully");
+        logger.log("Setting File Loaded Successfully");
     }
 
     @Override
@@ -71,7 +71,7 @@ public class Main extends PluginEvent {
                 } else {
                     emojis.get(i.getName()).put(guild.getIdLong(), i);
                 }
-                util.println("Loaded " + i.getName());
+                logger.log("Loaded " + i.getName());
             }
         }
     }

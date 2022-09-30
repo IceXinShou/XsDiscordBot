@@ -26,7 +26,7 @@ public class Main2 extends PluginEvent {
 
     public static Map<String, Object> config = new HashMap<>();
     public static Map<String, String> lang = new HashMap<>();
-    private final String TAG = "[CustomRoom]";
+    private final String TAG = "CustomRoom";
     private Map<Long, Pair<Integer, Long>> step = new HashMap<>();
     FileGetter getter;
     JsonFileManager manager;

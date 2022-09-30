@@ -1,5 +1,6 @@
 package com.xs.loader;
 
+import com.xs.loader.logger.Logger;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
@@ -12,18 +13,19 @@ import java.util.Map;
 
 public class ConfigSetting {
     public static Map<String, Object> settings;
-    private final String TAG = "[Setting]";
+    private final Logger logger;
     public static String botToken;
     public static long botID;
 
     public ConfigSetting() {
+        logger = new Logger("Main CM");
         loadConfigFile();
         loadVariables();
     }
 
     private void loadConfigFile() {
         settings = readYml("config_0A2F7C.yml", "config.yml");
-        System.out.println(TAG + " Setting file loaded");
+        logger.log("Setting file loaded");
     }
 
     private void loadVariables() {
@@ -36,14 +38,14 @@ public class ConfigSetting {
     public Map<String, Object> readYml(String name, String outName) {
         File settingFile = new File(System.getProperty("user.dir") + '/' + outName);
         if (!settingFile.exists()) {
-            System.err.println(TAG + ' ' + outName + " not found, create default " + outName);
+            logger.error(outName + " not found, create default " + outName);
             settingFile = exportResource(name, outName);
             if (settingFile == null) {
-                System.err.println(TAG + " read " + name + " failed");
+                logger.error("read " + name + " failed");
                 return null;
             }
         }
-        System.out.println(TAG + " load " + settingFile.getPath());
+        logger.log("load " + settingFile.getPath());
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
@@ -54,7 +56,7 @@ public class ConfigSetting {
                 out.write(buff, 0, length);
 
         } catch (IOException e) {
-            System.err.println(TAG + " read " + name + " failed");
+            logger.error("read " + name + " failed");
             return null;
         }
         String settingText = out.toString(StandardCharsets.UTF_8);
@@ -67,13 +69,13 @@ public class ConfigSetting {
 
         try {
             if (fileInJar == null) {
-                System.err.println(TAG + " can not find resource: " + outName);
+                logger.error("can not find resource: " + outName);
                 return null;
             }
             Files.copy(fileInJar, Paths.get(System.getProperty("user.dir") + "/" + outName), StandardCopyOption.REPLACE_EXISTING);
             return new File(System.getProperty("user.dir") + "/" + outName);
         } catch (IOException e) {
-            System.err.println(TAG + " read resource failed");
+            logger.error("read resource failed");
         }
         return null;
     }

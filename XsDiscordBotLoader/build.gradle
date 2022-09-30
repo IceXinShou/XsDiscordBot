@@ -13,8 +13,10 @@ repositories {
 dependencies {
     implementation 'net.dv8tion:JDA:5.0.0-alpha.18'
     implementation group: 'org.yaml', name: 'snakeyaml', version: '1.32'
-    implementation group: 'org.slf4j', name: 'slf4j-simple', version: '2.0.0'
     implementation 'io.github.WavJaby:tiny-json:0.0.2'
+    implementation 'org.fusesource.jansi:jansi:2.4.0'
+    implementation group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.36'
+
 }
 
 test {

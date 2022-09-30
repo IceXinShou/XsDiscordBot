@@ -1,7 +1,7 @@
 package com.xs.serverinfo;
 
 import com.xs.loader.PluginEvent;
-import com.xs.loader.util.BasicUtil;
+import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -28,24 +28,24 @@ public class Main extends PluginEvent {
     };
 
     FileGetter getter;
-    BasicUtil util;
+    Logger logger;
 
-    final String TAG = "[ServerInfo]";
+    final String TAG = "ServerInfo";
     final String PATH_FOLDER_NAME = "ServerInfo";
 
     @Override
     public void initLoad() {
         getter = new FileGetter(TAG, PATH_FOLDER_NAME, Main.class.getClassLoader());
-        util = new BasicUtil(TAG);
+        logger = new Logger(TAG);
         loadConfigFile();
         loadVariables();
         loadLang();
-        util.println("Loaded");
+        logger.log("Loaded");
     }
 
     @Override
     public void unload() {
-        util.println("UnLoaded");
+        logger.log("UnLoaded");
     }
 
     @Override
@@ -58,7 +58,7 @@ public class Main extends PluginEvent {
     @Override
     public void loadConfigFile() {
         config = getter.readYml("config.yml", "plugins/" + PATH_FOLDER_NAME);
-        util.println("Setting File Loaded Successfully");
+        logger.log("Setting File Loaded Successfully");
     }
 
     @Override
@@ -137,7 +137,7 @@ public class Main extends PluginEvent {
             event.getHook().editOriginalEmbeds(
                     createEmbed(event.getGuild().getName(), guild.getIconUrl(), "", fields, "- Server Information", owner.getUser().getAsTag(), owner.getEffectiveAvatarUrl(), 0xff0000)).queue();
         }).onError(i -> {
-            util.printErrln("ERROR");
+            logger.error("ERROR");
         });
     }
 }

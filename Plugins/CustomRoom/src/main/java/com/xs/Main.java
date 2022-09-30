@@ -19,9 +19,8 @@ import static com.xs.util.JsonKeys.*;
 import static com.xs.util.PermissionERROR.permissionCheck;
 import static net.dv8tion.jda.api.Permission.ADMINISTRATOR;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.*;
-
 public class Main extends PluginEvent {
-    private final String TAG = "[CustomRoom]";
+    private final String TAG = "CustomRoom";
     FileSetting setting;
 
     @Override
