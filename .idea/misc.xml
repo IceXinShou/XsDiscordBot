@@ -5,6 +5,6 @@
     <file type="web" url="file://$PROJECT_DIR$/XsDiscordBotLoader" />
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_17" default="true" project-jdk-name="17" project-jdk-type="JavaSDK">
-    <output url="file://$USER_HOME$/XsDiscordBot/out" />
+    <output url="file://$PROJECT_DIR$/out" />
   </component>
 </project>

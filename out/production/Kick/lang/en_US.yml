@@ -1,0 +1,8 @@
+REGISTER_NAME: "Kick_Member"
+REGISTER_OPTION_MEMBER_YOU_CHOOSE: "Member"
+REGISTER_OPTION_REASON: "Reason"
+
+NO_PERMISSION: "I do not have kick permission."
+PERMISSION_DENIED: "My permission level is lower than user's."
+SUCCESS: "Kick Successfully"
+UNKNOWN_ERROR: "Unknown ERROR!"

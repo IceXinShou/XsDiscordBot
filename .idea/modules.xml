@@ -8,9 +8,8 @@
       <module fileurl="file://$PROJECT_DIR$/Plugins/Emoji/Emoji.iml" filepath="$PROJECT_DIR$/Plugins/Emoji/Emoji.iml" />
       <module fileurl="file://$PROJECT_DIR$/Plugins/Kick/Kick.iml" filepath="$PROJECT_DIR$/Plugins/Kick/Kick.iml" />
       <module fileurl="file://$PROJECT_DIR$/Plugins/Poll/Poll.iml" filepath="$PROJECT_DIR$/Plugins/Poll/Poll.iml" />
-      <module fileurl="file://$PROJECT_DIR$/Server/Server.iml" filepath="$PROJECT_DIR$/Server/Server.iml" />
       <module fileurl="file://$PROJECT_DIR$/Plugins/ServerInfo/ServerInfo.iml" filepath="$PROJECT_DIR$/Plugins/ServerInfo/ServerInfo.iml" />
-      <module fileurl="file://$PROJECT_DIR$/XsDiscordBotLoader/XsDiscordBotLoader.iml" filepath="$PROJECT_DIR$/XsDiscordBotLoader/XsDiscordBotLoader.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/XsDiscordBot.iml" filepath="$PROJECT_DIR$/.idea/XsDiscordBot.iml" />
     </modules>
   </component>
 </project>

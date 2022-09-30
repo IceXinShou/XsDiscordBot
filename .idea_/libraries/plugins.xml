@@ -1,0 +1,14 @@
+<component name="libraryTable">
+  <library name="plugins">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/Server/plugins/ServerInfo.jar!/" />
+      <root url="jar://$PROJECT_DIR$/Server/plugins/Kick.jar!/" />
+      <root url="jar://$PROJECT_DIR$/Server/plugins/Emoji.jar!/" />
+      <root url="jar://$PROJECT_DIR$/Server/plugins/Ban.jar!/" />
+      <root url="jar://$PROJECT_DIR$/Server/plugins/BotInfo.jar!/" />
+      <root url="jar://$PROJECT_DIR$/Server/plugins/Poll.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
