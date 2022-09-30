@@ -2,14 +2,15 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Ban/Ban.iml" filepath="$PROJECT_DIR$/Ban/Ban.iml" />
-      <module fileurl="file://$PROJECT_DIR$/BotInfo/BotInfo.iml" filepath="$PROJECT_DIR$/BotInfo/BotInfo.iml" />
-      <module fileurl="file://$PROJECT_DIR$/CustomRoom/CustomRoom.iml" filepath="$PROJECT_DIR$/CustomRoom/CustomRoom.iml" />
-      <module fileurl="file://$PROJECT_DIR$/Emoji/Emoji.iml" filepath="$PROJECT_DIR$/Emoji/Emoji.iml" />
-      <module fileurl="file://$PROJECT_DIR$/Kick/Kick.iml" filepath="$PROJECT_DIR$/Kick/Kick.iml" />
-      <module fileurl="file://$PROJECT_DIR$/Poll/Poll.iml" filepath="$PROJECT_DIR$/Poll/Poll.iml" />
-      <module fileurl="file://$PROJECT_DIR$/ServerInfo/ServerInfo.iml" filepath="$PROJECT_DIR$/ServerInfo/ServerInfo.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/XsDiscordBot.iml" filepath="$PROJECT_DIR$/.idea/XsDiscordBot.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Plugins/Ban/Ban.iml" filepath="$PROJECT_DIR$/Plugins/Ban/Ban.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Plugins/BotInfo/BotInfo.iml" filepath="$PROJECT_DIR$/Plugins/BotInfo/BotInfo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Plugins/CustomRoom/CustomRoom.iml" filepath="$PROJECT_DIR$/Plugins/CustomRoom/CustomRoom.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Plugins/Emoji/Emoji.iml" filepath="$PROJECT_DIR$/Plugins/Emoji/Emoji.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Plugins/Kick/Kick.iml" filepath="$PROJECT_DIR$/Plugins/Kick/Kick.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Plugins/Poll/Poll.iml" filepath="$PROJECT_DIR$/Plugins/Poll/Poll.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Server/Server.iml" filepath="$PROJECT_DIR$/Server/Server.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Plugins/ServerInfo/ServerInfo.iml" filepath="$PROJECT_DIR$/Plugins/ServerInfo/ServerInfo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/XsDiscordBotLoader/XsDiscordBotLoader.iml" filepath="$PROJECT_DIR$/XsDiscordBotLoader/XsDiscordBotLoader.iml" />
     </modules>
   </component>
 </project>

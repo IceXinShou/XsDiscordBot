@@ -64,7 +64,7 @@ public class MainLoader {
     void defaultFileInit() {
         util.println("File Initializing...");
         new File("plugins").mkdir();
-        util.println("File Initialized Successfully!");
+        util.println("File Initialized Successfully");
     }
 
     String getExtensionName(String fileName) {
@@ -77,6 +77,7 @@ public class MainLoader {
 
     void loadPlugins() {
         int count = 0;
+        int fail = 0;
         util.println("Plugin(s) Loading...");
         String tmp;
         for (var file : new File("plugins").listFiles()) {
@@ -122,10 +123,13 @@ public class MainLoader {
                 jarFile.close();
                 ++count;
             } catch (Exception e) {
-                util.printErrln(file.getName() + '\n' + e.getMessage());
+                ++fail;
+                util.printErrln(file.getName() + '\n' + Arrays.toString(e.getStackTrace()));
             }
         }
-        util.println(count + " Plugin(s) Loading Successfully!");
+        if (fail > 0)
+            util.printErrln(fail + " Plugin(s) Loading Failed!");
+        util.println(count + " Plugin(s) Loading Successfully");
     }
 
     public static void main(String[] args) {

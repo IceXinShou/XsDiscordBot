@@ -1,0 +1,10 @@
+REGISTER_NAME: "Server_Info"
+
+NO_PERMISSION: "I do not have ban permission."
+PERMISSION_DENIED: "My permission level is lower than user's."
+SUCCESS: "Ban Successfully"
+UNKNOWN_ERROR: "Unknown ERROR!"
+
+GUILD_TOTAL_COUNT: "**伺服器總數: **"
+MEMBER_TOTAL_COUNT: "**成員總數: **"
+INFORMATION: "機器人資訊"
