@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.fusesource.jansi.AnsiConsole;
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,8 +24,8 @@ import static net.dv8tion.jda.api.interactions.commands.OptionType.*;
 
 public class Main extends PluginEvent {
 
-    public Map<String, Object> config = new HashMap<>();
-    public Map<String, String> lang;
+    private JSONObject config;
+    private Map<String, String> lang;
     private final String[] LANG_DEFAULT = {"en_US", "zh_TW"};
     private final String[] LANG_PARAMETERS_DEFAULT = {
             "REGISTER_NAME", "REGISTER_OPTION_MEMBER_YOU_CHOOSE", "REGISTER_OPTION_TIME_DAY",
@@ -64,7 +65,7 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadConfigFile() {
-        config = getter.readYml("config.yml", "plugins/" + PATH_FOLDER_NAME);
+        config = new JSONObject(getter.readYml("config.yml", "plugins/" + PATH_FOLDER_NAME));
         logger.log("Setting File Loaded Successfully");
     }
 
@@ -77,7 +78,7 @@ public class Main extends PluginEvent {
     public void loadLang() {
         // expert files
         getter.exportLang(LANG_DEFAULT, LANG_PARAMETERS_DEFAULT);
-        lang = getter.getLangFileData((String) config.get("Lang"));
+        lang = getter.getLangFileData(config.getString("Lang"));
     }
 
     @Override

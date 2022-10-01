@@ -1,8 +1,8 @@
 package com.xs.loader.util;
 
-import com.wavjaby.json.JsonArray;
-import com.wavjaby.json.JsonObject;
 import com.xs.loader.MainLoader;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -19,12 +19,12 @@ public class JsonFileManager {
         this.PLUGIN_NAME = PLUGIN_NAME;
     }
 
-    public JsonObject getDataObject(long id) {
-        return new JsonObject(readFile(guildData.get(id)));
+    public JSONObject getDataObject(long id) {
+        return new JSONObject(readFile(guildData.get(id)));
     }
 
-    public JsonArray getDataArray(long id) {
-        return new JsonArray(readFile(guildData.get(id)));
+    public JSONArray getDataArray(long id) {
+        return new JSONArray(readFile(guildData.get(id)));
     }
 
     public void addGuild(long id) {
@@ -44,7 +44,7 @@ public class JsonFileManager {
         guildData.remove(id);
     }
 
-    public void saveGuildData(long id, JsonObject object) {
+    public void saveGuildData(long id, JSONObject object) {
         try {
             FileOutputStream fileWriter = new FileOutputStream(guildData.get(id));
             ByteArrayInputStream in = new ByteArrayInputStream(object.toString().getBytes(StandardCharsets.UTF_8));

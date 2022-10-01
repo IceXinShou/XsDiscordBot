@@ -1,9 +1,9 @@
-REGISTER_NAME: "Ban_Member"
-REGISTER_OPTION_MEMBER_YOU_CHOOSE: "User"
-REGISTER_OPTION_TIME_DAY: "Time (Day)"
-REGISTER_OPTION_BAN_REASON: "Reason"
+REGISTER_NAME: Ban_Member
+REGISTER_OPTION_MEMBER_YOU_CHOOSE: User
+REGISTER_OPTION_TIME_DAY: Time (Day)
+REGISTER_OPTION_BAN_REASON: Reason
 
-NO_PERMISSION: "I do not have kick permission."
-PERMISSION_DENIED: "My permission level is lower than  user's."
-SUCCESS: "Kick Successfully"
-UNKNOWN_ERROR: "Unknown ERROR!"
+NO_PERMISSION: I do not have kick permission.
+PERMISSION_DENIED: My permission level is lower than  user's.
+SUCCESS: Kick Successfully
+UNKNOWN_ERROR: Unknown ERROR!

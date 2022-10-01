@@ -1,3 +1,6 @@
-Lang: "en_US"
+Lang: en_US
 
-Emojis: "[]"
+Emojis:
+#  817940392418607124: # guildID
+#    - DotBrown
+#    - DotPurple

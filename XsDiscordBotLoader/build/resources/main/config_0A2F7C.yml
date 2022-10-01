@@ -3,7 +3,7 @@
 ##################################################
 
 GeneralSettings:
-  botToken: "WTFWTFWTFWTFWTFWTFWTFWTFWTFWTFWTF"
+  botToken: WTFWTFWTFWTFWTFWTFWTFWTFWTFWTFWTF
 
-  noPermissionERROR: "You Have No Permission."
-  helpBlockFooter: "Server Name"
+  noPermissionERROR: You Have No Permission
+  helpBlockFooter: Server Name

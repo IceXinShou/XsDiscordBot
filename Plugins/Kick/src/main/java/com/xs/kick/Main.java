@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +24,7 @@ import static net.dv8tion.jda.api.interactions.commands.OptionType.USER;
 
 public class Main extends PluginEvent {
 
-    public static Map<String, Object> config = new HashMap<>();
+    public static JSONObject config;
     public static Map<String, String> lang = new HashMap<>();
     private final String[] LANG_DEFAULT = {"en_US", "zh_TW"};
     private final String[] LANG_PARAMETERS_DEFAULT = {
@@ -63,7 +64,7 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadConfigFile() {
-        config = getter.readYml("config.yml", "plugins/" + PATH_FOLDER_NAME);
+        config = new JSONObject(getter.readYml("config.yml", "plugins/" + PATH_FOLDER_NAME));
         logger.log("Setting File Loaded Successfully");
     }
 
@@ -76,7 +77,7 @@ public class Main extends PluginEvent {
     public void loadLang() {
 
         getter.exportLang(LANG_DEFAULT, LANG_PARAMETERS_DEFAULT);
-        lang = getter.getLangFileData((String) config.get("Lang"));
+        lang = getter.getLangFileData(config.getString("Lang"));
     }
 
 

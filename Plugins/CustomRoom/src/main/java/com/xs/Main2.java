@@ -1,6 +1,6 @@
 package com.xs;
 
-import com.wavjaby.json.JsonObject;
+import com.wavjaby.json.JSONObject;
 import com.xs.loader.PluginEvent;
 import com.xs.loader.util.FileGetter;
 import com.xs.util.JsonFileManager;
@@ -81,7 +81,7 @@ public class Main2 extends PluginEvent {
             }
         }
         if (manager.guildData.containsKey(event.getGuild().getIdLong())) {
-            JsonObject object;
+            JSONObject object;
             if ((object = manager.getDataObject(event.getGuild().getIdLong())).containsKey(event.getChannelJoined().getId())) {
                 newChannel(event, object);
             }
@@ -102,12 +102,12 @@ public class Main2 extends PluginEvent {
                 .replace("%nickname%", member.getNickname() == null ? member.getUser().getName() : member.getNickname());
     }
 
-    private void newChannel(GuildVoiceJoinEvent event, JsonObject inputData) {
+    private void newChannel(GuildVoiceJoinEvent event, JSONObject inputData) {
         Collection<Permission> allow = new ArrayList<>();
         allow.add(Permission.VIEW_CHANNEL);
         allow.add(Permission.MANAGE_CHANNEL);
 
-        JsonObject data = inputData.getJson(event.getChannelJoined().getId());
+        JSONObject data = inputData.getJson(event.getChannelJoined().getId());
         final net.dv8tion.jda.api.entities.Category textCategory;
         net.dv8tion.jda.api.entities.Category voiceCategory = event.getGuild().getCategoryById(data.getString(ROOM_VOICE_CATEGORY_ID));
         boolean hasTextChannel;
@@ -247,7 +247,7 @@ public class Main2 extends PluginEvent {
         fields.add(new MessageEmbed.Field("語音人數限制", memberLimit == null ? "`無`" : "`" + memberLimit + "`", false));
         fields.add(new MessageEmbed.Field("語音位元率", "`" + voiceBitrate + " kbps`", false));
 
-        JsonObject channelData = new JsonObject();
+        JSONObject channelData = new JSONObject();
         channelData.put(ROOM_VOICE_CATEGORY_ID, voiceCategoryID);
         if (hasTextChannel) {
             channelData.put(ROOM_TEXT_CATEGORY_ID, textCategoryID);
@@ -258,7 +258,7 @@ public class Main2 extends PluginEvent {
         if (memberLimit != null)
             channelData.put(ROOM_VOICE_MEMBER_LIMIT, memberLimit);
 
-        JsonObject roomSetting = settingHelper.getSettingData(guild, ROOM_SETTING);
+        JSONObject roomSetting = settingHelper.getSettingData(guild, ROOM_SETTING);
         roomSetting.put(detectID, channelData);
 
         settingHelper.getGuildSettingManager(guild.getId()).saveFile();
@@ -270,7 +270,7 @@ public class Main2 extends PluginEvent {
         Guild guild = event.getGuild();
         String detectID = event.getOption("detectchannel").getAsGuildChannel().getId();
 
-        JsonObject data = settingHelper.getSettingData(guild, ROOM_SETTING);
+        JSONObject data = settingHelper.getSettingData(guild, ROOM_SETTING);
         if (voiceState.get(guild.getId()).size() > 0) {
             Map<String, List<String>> memberData = voiceState.get(guild.getId());
             for (String key : memberData.keySet()) {

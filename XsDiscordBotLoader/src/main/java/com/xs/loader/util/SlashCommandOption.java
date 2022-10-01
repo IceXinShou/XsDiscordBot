@@ -2,6 +2,7 @@ package com.xs.loader.util;
 
 public class SlashCommandOption {
     // clear command option
+    public final static String VALUE = "value";
     public final static String COUNT = "count";
     public final static String INDEX = "index";
     public final static String USER_TAG = "user";

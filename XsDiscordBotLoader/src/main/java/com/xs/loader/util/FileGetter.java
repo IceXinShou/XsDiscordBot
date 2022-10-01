@@ -1,9 +1,9 @@
 package com.xs.loader.util;
 
-import com.wavjaby.json.JsonArray;
-import com.wavjaby.json.JsonObject;
 import com.xs.loader.MainLoader;
 import com.xs.loader.logger.Logger;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
@@ -27,21 +27,21 @@ public class FileGetter {
         this.LOADER = LOADER;
     }
 
-    public static JsonObject getOrDefault(JsonObject input, String key) {
-        if (input.containsKey(key))
-            return input.getJson(key);
+    public static JSONObject getOrDefault(JSONObject input, String key) {
+        if (input.has(key))
+            return input.getJSONObject(key);
         else {
-            JsonObject data = new JsonObject();
+            JSONObject data = new JSONObject();
             input.put(key, data);
             return data;
         }
     }
 
-    public static JsonArray getOrDefaultArray(JsonObject input, String key) {
-        if (input.containsKey(key))
-            return input.getArray(key);
+    public static JSONArray getOrDefaultArray(JSONObject input, String key) {
+        if (input.has(key))
+            return input.getJSONArray(key);
         else {
-            JsonArray data = new JsonArray();
+            JSONArray data = new JSONArray();
             input.put(key, data);
             return data;
         }

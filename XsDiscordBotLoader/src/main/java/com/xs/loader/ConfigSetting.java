@@ -18,7 +18,7 @@ public class ConfigSetting {
     public static long botID;
 
     public ConfigSetting() {
-        logger = new Logger("Main CM");
+        logger = new Logger("MainCS");
         loadConfigFile();
         loadVariables();
     }

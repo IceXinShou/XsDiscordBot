@@ -10,9 +10,9 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,8 +20,8 @@ import static com.xs.loader.util.EmbedCreator.createEmbed;
 
 public class Main extends PluginEvent {
 
-    public Map<String, Object> config = new HashMap<>();
-    public Map<String, String> lang;
+    private JSONObject config;
+    private Map<String, String> lang;
     private final String[] LANG_DEFAULT = {"en_US", "zh_TW"};
     private final String[] LANG_PARAMETERS_DEFAULT = {
             "REGISTER_NAME"
@@ -57,7 +57,7 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadConfigFile() {
-        config = getter.readYml("config.yml", "plugins/" + PATH_FOLDER_NAME);
+        config = new JSONObject(getter.readYml("config.yml", "plugins/" + PATH_FOLDER_NAME));
         logger.log("Setting File Loaded Successfully");
     }
 
@@ -69,7 +69,7 @@ public class Main extends PluginEvent {
     public void loadLang() {
         // expert files
         getter.exportLang(LANG_DEFAULT, LANG_PARAMETERS_DEFAULT);
-        lang = getter.getLangFileData((String) config.get("Lang"));
+        lang = getter.getLangFileData(config.getString("Lang"));
     }
 
     @Override

@@ -1,13 +1,10 @@
 package com.xs.poll;
 
-import com.wavjaby.json.Item;
-import com.wavjaby.json.JsonArray;
-import com.wavjaby.json.JsonObject;
 import com.xs.loader.PluginEvent;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
-import kotlin.Pair;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.entities.emoji.RichCustomEmoji;
@@ -17,6 +14,7 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONObject;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -32,7 +30,7 @@ import static com.xs.loader.util.Tag.getMemberNick;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.STRING;
 
 public class Main extends PluginEvent {
-    public static Map<String, Object> config = new HashMap<>();
+    public static JSONObject config;
     public static Map<String, String> lang = new HashMap<>();
     private final String[] LANG_DEFAULT = {"en_US", "zh_TW"};
     private final String[] LANG_PARAMETERS_DEFAULT = {
@@ -42,11 +40,13 @@ public class Main extends PluginEvent {
             , "REGISTER_OPTION_G", "REGISTER_OPTION_H", "REGISTER_OPTION_I"
             , "REGISTER_OPTION_J", "FOOTER", "SUCCESS"
     };
-    FileGetter getter;
-    Logger logger;
-    final String TAG = "Poll";
-    final String PATH_FOLDER_NAME = "Poll";
+    private FileGetter getter;
+    private Logger logger;
+    private final String TAG = "Poll";
+    private final String PATH_FOLDER_NAME = "Poll";
+    private JSONObject emojiData;
     List<Emoji> votes = new ArrayList<>();
+    boolean noSet = false;
 
     @Override
     public void initLoad() {
@@ -84,25 +84,36 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadConfigFile() {
-        config = getter.readYml("config.yml", "plugins/" + PATH_FOLDER_NAME);
+        config = new JSONObject(getter.readYml("config.yml", "plugins/" + PATH_FOLDER_NAME));
         logger.log("Setting File Loaded Successfully");
     }
 
     @Override
     public void loadVariables() {
+        if (config.has("Emojis") && !config.getJSONObject("Emojis").isEmpty()) {
+            emojiData = config.getJSONObject("Emojis");
+        } else {
+            logger.error("Please configure /plugins/" + PATH_FOLDER_NAME + "/config.yml");
+            noSet = true;
+        }
     }
 
+    @SuppressWarnings("unchecked warning")
     @Override
     public void onReady(@NotNull ReadyEvent event) {
-        for (Object guild : new JsonArray(config.get("Emojis").toString())) {
-            for (Item emojis : ((JsonObject) guild).Items()) {
-                List<RichCustomEmoji> e = jdaBot.getGuildById(emojis.getKey()).retrieveEmojis().complete();
-                for (Object emoji : (JsonArray) emojis.getValue()) {
-                    JsonObject object = ((JsonObject) emoji);
-                    for (var i : e) {
-                        if (i.getName().equals(object.getString("name")) && (i.isAnimated() == object.getBoolean("a"))) {
-                            votes.add(i);
-                        }
+        if (!noSet) {
+            for (Map.Entry<String, Object> i : emojiData.toMap().entrySet()) {
+                Guild guild = jdaBot.getGuildById(i.getKey());
+                if (guild == null) {
+                    logger.error("Cannot found guild by id: " + i.getKey());
+                } else {
+                    for (RichCustomEmoji e : guild.retrieveEmojis().complete()) {
+                        ((List<Object>) (i.getValue())).forEach(j -> {
+                            if (e.getName().equals(j)) {
+                                votes.add(e);
+                                logger.log("Added " + e.getName());
+                            }
+                        });
                     }
                 }
             }
@@ -113,7 +124,7 @@ public class Main extends PluginEvent {
     public void loadLang() {
         // expert files
         getter.exportLang(LANG_DEFAULT, LANG_PARAMETERS_DEFAULT);
-        lang = getter.getLangFileData((String) config.get("Lang"));
+        lang = getter.getLangFileData(config.getString("Lang"));
     }
 
 

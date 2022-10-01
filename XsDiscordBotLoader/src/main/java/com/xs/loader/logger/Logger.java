@@ -4,8 +4,8 @@ public class Logger {
     public final String TAG, ERRTAG;
 
     public Logger(final String TAG) {
-        this.TAG = Color.GREEN + '[' + Color.RESET + TAG + Color.GREEN + ']' + Color.RESET + ' ';
-        this.ERRTAG = Color.RED + '[' + Color.RESET + TAG + Color.RED + ']' + Color.RESET + ' ';
+        this.TAG = Color.RESET + '[' + Color.GREEN + TAG + Color.RESET + ']' + ' ';
+        this.ERRTAG = Color.RESET + '[' + Color.RED + TAG + Color.RESET + ']' + ' ';
     }
 
     public void log(final String msg) {

@@ -4,6 +4,8 @@
       <root url="jar://$PROJECT_DIR$/Server/XsDiscordBotLoader-1.0.jar!/" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES />
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/Server/XsDiscordBotLoader-1.0.jar!/" />
+    </SOURCES>
   </library>
 </component>

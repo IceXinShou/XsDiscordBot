@@ -58,7 +58,7 @@ public class MainLoader {
         }
 
         jdaBot.updateCommands().addCommands(globalCommands).queue();
-        logger.log("Bot Started!");
+        logger.log("Bot Initialized");
     }
 
     void defaultFileInit() {

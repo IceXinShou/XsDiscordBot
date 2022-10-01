@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/Plugins/Ban/Ban.iml" filepath="$PROJECT_DIR$/Plugins/Ban/Ban.iml" />
       <module fileurl="file://$PROJECT_DIR$/Plugins/BotInfo/BotInfo.iml" filepath="$PROJECT_DIR$/Plugins/BotInfo/BotInfo.iml" />
       <module fileurl="file://$PROJECT_DIR$/Plugins/CustomRoom/CustomRoom.iml" filepath="$PROJECT_DIR$/Plugins/CustomRoom/CustomRoom.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Plugins/Economy/Economy.iml" filepath="$PROJECT_DIR$/Plugins/Economy/Economy.iml" />
       <module fileurl="file://$PROJECT_DIR$/Plugins/Emoji/Emoji.iml" filepath="$PROJECT_DIR$/Plugins/Emoji/Emoji.iml" />
       <module fileurl="file://$PROJECT_DIR$/Plugins/Kick/Kick.iml" filepath="$PROJECT_DIR$/Plugins/Kick/Kick.iml" />
       <module fileurl="file://$PROJECT_DIR$/Plugins/Poll/Poll.iml" filepath="$PROJECT_DIR$/Plugins/Poll/Poll.iml" />
