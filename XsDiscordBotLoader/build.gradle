@@ -3,7 +3,7 @@ plugins {
 }
 
 group 'com.xs.loader'
-version '1.0'
+version '1.1'
 compileJava.options.encoding = 'UTF-8'
 
 repositories {
@@ -16,8 +16,6 @@ dependencies {
     implementation 'org.fusesource.jansi:jansi:2.4.0'
     implementation group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.36'
     implementation group: 'org.json', name: 'json', version: '20220924'
-
-
 }
 
 test {
