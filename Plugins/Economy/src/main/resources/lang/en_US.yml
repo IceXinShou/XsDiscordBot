@@ -15,3 +15,10 @@ REGISTER_SET_MONEY_TOTAL_NAME: Set_Total_Money
 REGISTER_OPTION_SET_MONEY_TOTAL_VALUE: Value
 REGISTER_GET_MONEY_TOP_NAME: Get_Money_Scoreboard
 REGISTER_GET_MONEY_TOP_TOTAL_NAME: Get_Total_Money_Scoreboard
+
+MONEY_BOARD: Balance Board
+TOTAL_BOARD: Total Balance Board
+CURRENT_MONEY: "Current Balance: %money%"
+CURRENT_TOTAL_MONEY: "Current Total Balance: %total_money%"
+
+NO_PERMISSION: You Cannot Do This!

@@ -1,5 +1,6 @@
 package com.xs.loader.util;
 
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.events.guild.voice.GenericGuildVoiceEvent;
 import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
@@ -21,6 +22,9 @@ public class Tag {
         return "<#" + channel.getId() + '>';
     }
 
+    public static String getNameByID(Guild guild, long id) {
+        return guild.retrieveMemberById(id).complete().getEffectiveName();
+    }
 
     public static <T> String tagRoleID(T ID) {
         return "<@&" + ID + '>';

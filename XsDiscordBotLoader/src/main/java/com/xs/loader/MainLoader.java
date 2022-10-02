@@ -105,15 +105,15 @@ public class MainLoader {
                 pluginMain.initLoad();
 
                 if (pluginMain.guildCommands() != null) {
-                    guildCommands.addAll(Arrays.stream(pluginMain.guildCommands()).toList());
+                    Collections.addAll(guildCommands, pluginMain.guildCommands());
                 }
 
                 if (pluginMain.subGuildCommands() != null) {
-                    subGuildCommands.addAll(Arrays.stream(pluginMain.subGuildCommands()).toList());
+                    Collections.addAll(subGuildCommands, pluginMain.subGuildCommands());
                 }
 
                 if (pluginMain.globalCommands() != null) {
-                    globalCommands.addAll(Arrays.stream(pluginMain.globalCommands()).toList());
+                    Collections.addAll(globalCommands, pluginMain.globalCommands());
                 }
 
                 listeners.add(pluginMain);

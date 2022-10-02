@@ -12,7 +12,7 @@ import static com.xs.loader.MainLoader.subGuildCommands;
 public class ListenerManager extends ListenerAdapter {
     @Override
     public void onGuildReady(@NotNull GuildReadyEvent event) {
-        if (!subGuildCommands.isEmpty()) {
+        if (!guildCommands.isEmpty()) {
             event.getGuild().updateCommands().addCommands(guildCommands).queue();
         }
         if (!subGuildCommands.isEmpty()) {

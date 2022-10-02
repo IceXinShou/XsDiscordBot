@@ -1,10 +1,12 @@
 package com.xs.loader.util;
 
+import com.xs.loader.MainLoader;
 import com.xs.loader.logger.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 public class JsonFileManager {
     private final String TAG;
@@ -14,17 +16,36 @@ public class JsonFileManager {
 
     public JsonFileManager(String FILE_PATH, String TAG) {
         this.TAG = TAG;
-        this.FILE = new File(FILE_PATH);
+        this.FILE = new File(MainLoader.ROOT_PATH + '/' + FILE_PATH);
         this.logger = new Logger(TAG);
         initData();
     }
 
     private void initData() {
         try {
-            data = new JSONObject(new FileReader(FILE));
-        } catch (FileNotFoundException e) {
+            if (!FILE.exists()) {
+                FILE.createNewFile();
+                FileWriter writer = new FileWriter(FILE);
+                writer.write("{}");
+                writer.flush();
+                writer.close();
+            }
+
+            FileInputStream inputStream = new FileInputStream(FILE);
+            ByteArrayOutputStream result = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            for (int length; (length = inputStream.read(buffer)) != -1; ) {
+                result.write(buffer, 0, length);
+            }
+            data = new JSONObject(result.toString(StandardCharsets.UTF_8));
+        } catch (IOException e) {
             logger.error(e.getMessage());
         }
+    }
+
+
+    public JSONObject get() {
+        return data;
     }
 
     public JSONObject getOrDefault(String key) {
@@ -63,7 +84,7 @@ public class JsonFileManager {
             writer.flush();
             writer.close();
         } catch (IOException e) {
-            logger.error("Cannot save file");
+            logger.error("Cannot save file: " + e.getMessage());
         }
     }
 }

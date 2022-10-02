@@ -57,7 +57,6 @@ public class Main extends PluginEvent {
                 new CommandDataImpl("kick", lang.get("REGISTER_NAME")).addOptions(
                         new OptionData(USER, USER_TAG, lang.get("REGISTER_OPTION_MEMBER_YOU_CHOOSE"), true),
                         new OptionData(STRING, REASON, lang.get("REGISTER_OPTION_REASON"))
-
                 )
         };
     }
