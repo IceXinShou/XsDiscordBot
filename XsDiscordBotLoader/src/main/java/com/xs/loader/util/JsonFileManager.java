@@ -1,99 +1,69 @@
 package com.xs.loader.util;
 
-import com.xs.loader.MainLoader;
+import com.xs.loader.logger.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
 
 public class JsonFileManager {
     private final String TAG;
-    private final String PLUGIN_NAME;
-    public Map<Long, File> guildData;
+    private final File FILE;
+    private JSONObject data;
+    private final Logger logger;
 
-    public JsonFileManager(String dirPath, String TAG, String PLUGIN_NAME) {
-        initALlFileData(new File(dirPath));
+    public JsonFileManager(String FILE_PATH, String TAG) {
         this.TAG = TAG;
-        this.PLUGIN_NAME = PLUGIN_NAME;
+        this.FILE = new File(FILE_PATH);
+        this.logger = new Logger(TAG);
+        initData();
     }
 
-    public JSONObject getDataObject(long id) {
-        return new JSONObject(readFile(guildData.get(id)));
-    }
-
-    public JSONArray getDataArray(long id) {
-        return new JSONArray(readFile(guildData.get(id)));
-    }
-
-    public void addGuild(long id) {
+    private void initData() {
         try {
-            new File(MainLoader.ROOT_PATH + "\\plugins\\" + PLUGIN_NAME + "\\" + id + ".json").createNewFile();
-            File file = new File(MainLoader.ROOT_PATH + "\\plugins\\" + PLUGIN_NAME + "\\" + id + ".json");
-            guildData.put(id, file);
-        } catch (IOException e) {
-            e.printStackTrace();
+            data = new JSONObject(new FileReader(FILE));
+        } catch (FileNotFoundException e) {
+            logger.error(e.getMessage());
         }
     }
+
+    public JSONObject getOrDefault(String key) {
+        if (data.has(key))
+            return data.getJSONObject(key);
+        else {
+            JSONObject tmp = new JSONObject();
+            data.put(key, tmp);
+            return tmp;
+        }
+    }
+
+    public JSONArray getOrDefaultArray(String key) {
+        if (data.has(key))
+            return data.getJSONArray(key);
+        else {
+            JSONArray tmp = new JSONArray();
+            data.put(key, tmp);
+            return tmp;
+        }
+    }
+
 
     public void removeGuild(long id) {
-        if (guildData.get(id).delete()) {
-            System.err.println(TAG + " can not remove file");
+        if (data.has(String.valueOf(id))) {
+            data.remove(String.valueOf(id));
+        } else {
+            logger.error("Cannot remove guild data by id: " + id);
         }
-        guildData.remove(id);
     }
 
-    public void saveGuildData(long id, JSONObject object) {
+    public void save() {
         try {
-            FileOutputStream fileWriter = new FileOutputStream(guildData.get(id));
-            ByteArrayInputStream in = new ByteArrayInputStream(object.toString().getBytes(StandardCharsets.UTF_8));
-            byte[] buff = new byte[1024];
-            int length;
-            while ((length = in.read(buff)) > 0) {
-                fileWriter.write(buff, 0, length);
-            }
-            in.close();
-            fileWriter.close();
+            FileWriter writer = new FileWriter(FILE);
+            writer.write(data.toString());
+            writer.flush();
+            writer.close();
         } catch (IOException e) {
-            System.err.println(TAG + " can not save file");
-        }
-    }
-
-    private void initALlFileData(final File folder) {
-        try {
-            folder.mkdirs();
-            for (final File file : folder.listFiles()) {
-                guildData.put(Long.parseLong(file.getName()), file);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private String readFile(String filepath) {
-        File file = new File(filepath);
-        return readFile(file);
-    }
-
-    private String readFile(File file) {
-        if (!file.exists())
-            return null;
-
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        try {
-            InputStream in = new FileInputStream(file);
-            byte[] buff = new byte[1024];
-            int length;
-            while ((length = in.read(buff)) > 0) {
-                out.write(buff, 0, length);
-            }
-            in.close();
-            out.close();
-            return out.toString(StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
+            logger.error("Cannot save file");
         }
     }
 }
