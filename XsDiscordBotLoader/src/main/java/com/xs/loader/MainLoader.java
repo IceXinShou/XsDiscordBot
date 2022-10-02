@@ -10,9 +10,11 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.fusesource.jansi.AnsiConsole;
 import org.yaml.snakeyaml.Yaml;
 
+import javax.net.ssl.HttpsURLConnection;
 import javax.security.auth.login.LoginException;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -33,6 +35,7 @@ public class MainLoader {
     private final Logger logger = new Logger("Main");
 
     MainLoader() {
+//        versionCheck();
         defaultFileInit();
         JDABuilder builder = JDABuilder.createDefault(ConfigSetting.botToken)
                 .setBulkDeleteSplittingEnabled(false)
@@ -59,6 +62,26 @@ public class MainLoader {
 
         jdaBot.updateCommands().addCommands(globalCommands).queue();
         logger.log("Bot Initialized");
+    }
+
+    private void versionCheck() {
+        String versionTag = "null";
+        String downloadURL = "null";
+        URL url;
+        try {
+            url = new URL("https://github.com/IceLeiYu/XsDiscordBot/releases/latest ");
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+            conn.connect();
+            conn.getInputStream().close();
+            String tmp = conn.getURL().toString();
+            versionTag = tmp.substring(tmp.lastIndexOf('/') + 1);
+            downloadURL = "https://github.com/IceLeiYu/XsDiscordBot/releases/download/" + versionTag + "/XsDiscordBotLoader_" + versionTag + ".jar";
+            conn.disconnect();
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+        }
+        logger.log(versionTag);
+        logger.log(downloadURL);
     }
 
     void defaultFileInit() {

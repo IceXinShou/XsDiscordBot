@@ -9,11 +9,9 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
-import org.fusesource.jansi.AnsiConsole;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import static com.xs.loader.util.EmbedCreator.createEmbed;

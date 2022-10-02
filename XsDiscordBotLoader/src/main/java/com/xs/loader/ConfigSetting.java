@@ -54,7 +54,7 @@ public class ConfigSetting {
             byte[] buff = new byte[1024];
             while ((length = in.read(buff)) > 0)
                 out.write(buff, 0, length);
-
+            in.close();
         } catch (IOException e) {
             logger.error("read " + name + " failed");
             return null;
@@ -73,6 +73,7 @@ public class ConfigSetting {
                 return null;
             }
             Files.copy(fileInJar, Paths.get(System.getProperty("user.dir") + "/" + outName), StandardCopyOption.REPLACE_EXISTING);
+            fileInJar.close();
             return new File(System.getProperty("user.dir") + "/" + outName);
         } catch (IOException e) {
             logger.error("read resource failed");

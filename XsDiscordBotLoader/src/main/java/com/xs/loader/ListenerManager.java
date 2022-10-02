@@ -1,5 +1,6 @@
 package com.xs.loader;
 
+import com.xs.loader.logger.Logger;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -10,6 +11,12 @@ import static com.xs.loader.MainLoader.guildCommands;
 import static com.xs.loader.MainLoader.subGuildCommands;
 
 public class ListenerManager extends ListenerAdapter {
+    Logger logger;
+
+    public ListenerManager() {
+        logger = new Logger("CMD");
+    }
+
     @Override
     public void onGuildReady(@NotNull GuildReadyEvent event) {
         if (!guildCommands.isEmpty()) {
@@ -24,5 +31,9 @@ public class ListenerManager extends ListenerAdapter {
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
         event.getInteraction().deferReply(true).queue();
+
+        if (event.isFromGuild()) {
+            logger.log(event.getMember().getEffectiveName() + ": " + event.getCommandString());
+        }
     }
 }

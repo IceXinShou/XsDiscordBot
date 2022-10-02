@@ -20,6 +20,7 @@ public class UserData {
     long getID() {
         return ID;
     }
+
     int get() {
         return money;
     }

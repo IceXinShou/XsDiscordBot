@@ -2,10 +2,9 @@ package com.xs.loader.util;
 
 import com.xs.loader.MainLoader;
 import com.xs.loader.logger.Logger;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.yaml.snakeyaml.Yaml;
 
+import javax.annotation.Nullable;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -35,9 +34,11 @@ public class FileGetter {
             e.printStackTrace();
         }
 
+
         return new Yaml().load(inputStream);
     }
 
+    @Nullable
     public Map<String, Object> readYml(String fileName, String path) {
         new File(MainLoader.ROOT_PATH + "/" + path).mkdirs();
         File settingFile = new File(MainLoader.ROOT_PATH + "/" + path + "/" + fileName);
@@ -69,6 +70,7 @@ public class FileGetter {
 //        return readFile(settingFile);
 //    }
 
+    @Nullable
     public File exportResource(String fileName, String path) {
         InputStream fileInJar = LOADER.getResourceAsStream(fileName);
 
@@ -78,6 +80,7 @@ public class FileGetter {
                 return null;
             }
             Files.copy(fileInJar, Paths.get(MainLoader.ROOT_PATH + "/" + path + "/" + fileName), StandardCopyOption.REPLACE_EXISTING);
+            fileInJar.close();
             return new File(MainLoader.ROOT_PATH + "/" + path + "/" + fileName);
         } catch (IOException e) {
             e.printStackTrace();
@@ -86,6 +89,7 @@ public class FileGetter {
         return null;
     }
 
+    @Nullable
     public File exportResource(String originFileName, String outputName, String path) {
         InputStream fileInJar = LOADER.getResourceAsStream(originFileName);
 
@@ -95,11 +99,13 @@ public class FileGetter {
                 return null;
             }
             Files.copy(fileInJar, Paths.get(MainLoader.ROOT_PATH + "/" + path + "/" + outputName), StandardCopyOption.REPLACE_EXISTING);
+            fileInJar.close();
             return new File(MainLoader.ROOT_PATH + "/" + path + "/" + outputName);
         } catch (IOException e) {
             e.printStackTrace();
             logger.error("read resource failed");
         }
+
         return null;
     }
 

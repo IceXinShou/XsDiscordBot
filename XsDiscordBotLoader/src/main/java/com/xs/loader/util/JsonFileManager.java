@@ -21,6 +21,15 @@ public class JsonFileManager {
         initData();
     }
 
+    public static String streamToString(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream result = new ByteArrayOutputStream();
+        byte[] buffer = new byte[1024];
+        for (int length; (length = inputStream.read(buffer)) != -1; ) {
+            result.write(buffer, 0, length);
+        }
+        return result.toString(StandardCharsets.UTF_8);
+    }
+
     private void initData() {
         try {
             if (!FILE.exists()) {
@@ -32,12 +41,8 @@ public class JsonFileManager {
             }
 
             FileInputStream inputStream = new FileInputStream(FILE);
-            ByteArrayOutputStream result = new ByteArrayOutputStream();
-            byte[] buffer = new byte[1024];
-            for (int length; (length = inputStream.read(buffer)) != -1; ) {
-                result.write(buffer, 0, length);
-            }
-            data = new JSONObject(result.toString(StandardCharsets.UTF_8));
+            data = new JSONObject(streamToString(inputStream));
+            inputStream.close();
         } catch (IOException e) {
             logger.error(e.getMessage());
         }

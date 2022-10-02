@@ -5,7 +5,6 @@ import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
