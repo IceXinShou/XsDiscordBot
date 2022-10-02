@@ -4,6 +4,8 @@ Copyright © 2022 IceXinShou. All rights reserved.
 
 ## API Usage:
 
+Require Java 17
+
 Create a class and make it `extends PluginEvent`
 
 now, you can add these blow:
