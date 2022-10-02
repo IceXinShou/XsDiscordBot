@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -61,8 +62,8 @@ public class Main extends PluginEvent {
     final String TAG = "Economy";
     final String PATH_FOLDER_NAME = "Economy";
     JsonFileManager manager;
-    private long ownerID;
-
+    private List<Long> ownerIDs = new ArrayList<>();
+    private int boardUserShowLimit;
 
     @Override
     public void initLoad() {
@@ -117,7 +118,14 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadVariables() {
-        ownerID = config.getLong("OwnerID");
+        JSONArray array = config.getJSONArray("OwnerID");
+        for (int i = 0; i < array.length(); ++i) {
+            ownerIDs.add(array.getLong(i));
+        }
+
+        boardUserShowLimit = config.getInt("BoardUserShowLimit");
+        if (boardUserShowLimit < 0)
+            boardUserShowLimit = 0;
 
         new File(ROOT_PATH + "/plugins/" + PATH_FOLDER_NAME + "/data").mkdirs();
         manager = new JsonFileManager("/plugins/" + PATH_FOLDER_NAME + "/data/data.json", TAG);
@@ -152,13 +160,21 @@ public class Main extends PluginEvent {
                     event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id), userData.get(id).getTotal() + " $", 0x00FFFF)).queue();
                 }
                 case "moneytop" -> {
+                    if (!ownerIDs.contains(event.getUser().getIdLong())) {
+                        event.getHook().editOriginalEmbeds(createEmbed(lang.get("NO_PERMISSION"), 0xFF0000)).queue();
+                        return;
+                    }
                     event.getHook().editOriginalEmbeds(createEmbed(lang.get("MONEY_BOARD"), fieldGetter(moneyBoard, true, event.getGuild()), 0x00FFFF)).queue();
                 }
                 case "moneytoptotal" -> {
+                    if (!ownerIDs.contains(event.getUser().getIdLong())) {
+                        event.getHook().editOriginalEmbeds(createEmbed(lang.get("NO_PERMISSION"), 0xFF0000)).queue();
+                        return;
+                    }
                     event.getHook().editOriginalEmbeds(createEmbed(lang.get("TOTAL_BOARD"), fieldGetter(totalBoard, false, event.getGuild()), 0x00FFFF)).queue();
                 }
                 case "addmoney" -> {
-                    if (event.getUser().getIdLong() != ownerID) {
+                    if (!ownerIDs.contains(event.getUser().getIdLong())) {
                         event.getHook().editOriginalEmbeds(createEmbed(lang.get("NO_PERMISSION"), 0xFF0000)).queue();
                         return;
                     }
@@ -185,7 +201,7 @@ public class Main extends PluginEvent {
                     updateTotal();
                 }
                 case "removemoney" -> {
-                    if (event.getUser().getIdLong() != ownerID) {
+                    if (!ownerIDs.contains(event.getUser().getIdLong())) {
                         event.getHook().editOriginalEmbeds(createEmbed(lang.get("NO_PERMISSION"), 0xFF0000)).queue();
                         return;
                     }
@@ -208,7 +224,7 @@ public class Main extends PluginEvent {
                     updateMoney();
                 }
                 case "setmoney" -> {
-                    if (event.getUser().getIdLong() != ownerID) {
+                    if (!ownerIDs.contains(event.getUser().getIdLong())) {
                         event.getHook().editOriginalEmbeds(createEmbed(lang.get("NO_PERMISSION"), 0xFF0000)).queue();
                         return;
                     }
@@ -226,7 +242,7 @@ public class Main extends PluginEvent {
                     updateMoney();
                 }
                 case "addmoneytotal" -> {
-                    if (event.getUser().getIdLong() != ownerID) {
+                    if (!ownerIDs.contains(event.getUser().getIdLong())) {
                         event.getHook().editOriginalEmbeds(createEmbed(lang.get("NO_PERMISSION"), 0xFF0000)).queue();
                         return;
                     }
@@ -250,7 +266,7 @@ public class Main extends PluginEvent {
                     updateTotal();
                 }
                 case "removemoneytotal" -> {
-                    if (event.getUser().getIdLong() != ownerID) {
+                    if (!ownerIDs.contains(event.getUser().getIdLong())) {
                         event.getHook().editOriginalEmbeds(createEmbed(lang.get("NO_PERMISSION"), 0xFF0000)).queue();
                         return;
                     }
@@ -274,7 +290,7 @@ public class Main extends PluginEvent {
                     updateTotal();
                 }
                 case "setmoneytotal" -> {
-                    if (event.getUser().getIdLong() != ownerID) {
+                    if (!ownerIDs.contains(event.getUser().getIdLong())) {
                         event.getHook().editOriginalEmbeds(createEmbed(lang.get("NO_PERMISSION"), 0xFF0000)).queue();
                         return;
                     }
@@ -301,11 +317,11 @@ public class Main extends PluginEvent {
     }
 
     long getUserID(SlashCommandInteractionEvent event) {
-        if (event.getOption(USER_TAG) != null) {
-            return event.getOption(USER_TAG).getAsUser().getIdLong();
-        } else {
-            return event.getUser().getIdLong();
-        }
+        if (event.getOption(USER_TAG) != null)
+            if (ownerIDs.contains(event.getUser().getIdLong()))
+                return event.getOption(USER_TAG).getAsLong();
+
+        return event.getUser().getIdLong();
     }
 
     void updateMoney() {
@@ -320,7 +336,7 @@ public class Main extends PluginEvent {
 
     List<MessageEmbed.Field> fieldGetter(List<UserData> board, boolean money, Guild guild) {
         List<MessageEmbed.Field> fields = new ArrayList<>();
-        int count = Math.min(board.size(), 10);
+        int count = Math.min(board.size(), boardUserShowLimit);
         for (int i = 0; i < count; ++i) {
             fields.add(new MessageEmbed.Field(
                     (i + 1) + ". " + getNameByID(guild, board.get(i).getID()),

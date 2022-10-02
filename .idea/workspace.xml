@@ -14,32 +14,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="115b6b02-7322-4f7a-96af-1324d4169cc1" name="Changes" comment="Add JsonFileManager">
+    <list default="true" id="115b6b02-7322-4f7a-96af-1324d4169cc1" name="Changes" comment="Economy Plugin Added">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Plugins/Economy/src/main/java/com/xs/economy/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Economy/src/main/java/com/xs/economy/Main.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Plugins/Economy/src/main/resources/config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Economy/src/main/resources/config.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/Economy/src/main/resources/lang/en_US.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Economy/src/main/resources/lang/en_US.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Plugins/Economy/src/main/resources/lang/zh_TW.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Economy/src/main/resources/lang/zh_TW.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/Kick/src/main/java/com/xs/kick/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Kick/src/main/java/com/xs/kick/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/executionHistory/executionHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/executionHistory/executionHistory.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/executionHistory/executionHistory.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/fileHashes/fileHashes.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/fileHashes/fileHashes.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/fileHashes/resourceHashesCache.bin" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/fileHashes/resourceHashesCache.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/file-system.probe" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/file-system.probe" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/build/classes/java/main/com/xs/loader/MainLoader.class" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/build/classes/java/main/com/xs/loader/MainLoader.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/build/classes/java/main/com/xs/loader/util/FileGetter.class" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/build/classes/java/main/com/xs/loader/util/FileGetter.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/build/classes/java/main/com/xs/loader/util/JsonFileManager.class" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/build/classes/java/main/com/xs/loader/util/JsonFileManager.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/build/classes/java/main/com/xs/loader/util/Tag.class" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/build/classes/java/main/com/xs/loader/util/Tag.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/build/resources/main/config_0A2F7C.yml" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/build/resources/main/config_0A2F7C.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/build/tmp/compileJava/previous-compilation-data.bin" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/build/tmp/compileJava/previous-compilation-data.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/ListenerManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/ListenerManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/MainLoader.java" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/MainLoader.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/util/JsonFileManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/util/JsonFileManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/util/Tag.java" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/util/Tag.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/resources/config_0A2F7C.yml" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/resources/config_0A2F7C.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/config.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/build/classes/java/main/com/xs/loader/ListenerManager.class" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/build/classes/java/main/com/xs/loader/ListenerManager.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -125,7 +105,7 @@
       <recent name="com.xs.economy" />
     </key>
   </component>
-  <component name="RunManager" selected="Gradle.XsDiscordBotLoader [jar]">
+  <component name="RunManager" selected="JAR Application.Server">
     <configuration name="XsDiscordBotLoader [jar]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -215,7 +195,7 @@
       <workItem from="1664519059254" duration="68000" />
       <workItem from="1664519157685" duration="7797000" />
       <workItem from="1664619690094" duration="4508000" />
-      <workItem from="1664624430763" duration="32354000" />
+      <workItem from="1664624430763" duration="36879000" />
     </task>
     <task id="LOCAL-00001" summary="wtf">
       <created>1664519422653</created>
@@ -259,7 +239,14 @@
       <option name="project" value="LOCAL" />
       <updated>1664681746277</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="Economy Plugin Added">
+      <created>1664694474003</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1664694474003</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -281,7 +268,8 @@
     <MESSAGE value="yeeeee" />
     <MESSAGE value="FixBug, Add Economy (80%)" />
     <MESSAGE value="Add JsonFileManager" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add JsonFileManager" />
+    <MESSAGE value="Economy Plugin Added" />
+    <option name="LAST_COMMIT_MESSAGE" value="Economy Plugin Added" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

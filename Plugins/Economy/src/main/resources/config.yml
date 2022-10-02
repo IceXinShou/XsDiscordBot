@@ -1,2 +1,6 @@
 Lang: en_US
-OwnerID: -1
+OwnerID:
+  - -1
+  - -2
+  - -3
+BoardUserShowLimit: 10
