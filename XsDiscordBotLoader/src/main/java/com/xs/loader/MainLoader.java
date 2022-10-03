@@ -1,5 +1,6 @@
 package com.xs.loader;
 
+import com.xs.loader.logger.Color;
 import com.xs.loader.logger.Logger;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -8,15 +9,13 @@ import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
+import org.apache.commons.io.FileUtils;
 import org.fusesource.jansi.AnsiConsole;
 import org.yaml.snakeyaml.Yaml;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.security.auth.login.LoginException;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
@@ -34,9 +33,12 @@ public class MainLoader {
 
     private final Deque<PluginEvent> listeners = new ArrayDeque<>();
     private final Logger logger = new Logger("Main");
+    private final String version = "v1.1";
 
     MainLoader() {
-        versionCheck();
+        if (versionCheck()) {
+            return;
+        }
 
         defaultFileInit();
         JDABuilder builder = JDABuilder.createDefault(ConfigSetting.botToken)
@@ -67,9 +69,10 @@ public class MainLoader {
         logger.log("Bot Initialized");
     }
 
-    private void versionCheck() {
-        String versionTag = "null";
-        String downloadURL = "null";
+    private boolean versionCheck() {
+        String latestVersion;
+        String fileName;
+        URL downloadURL;
         URL url;
         try {
             url = new URL("https://github.com/IceLeiYu/XsDiscordBot/releases/latest ");
@@ -77,14 +80,32 @@ public class MainLoader {
             conn.connect();
             conn.getInputStream().close();
             String tmp = conn.getURL().toString();
-            versionTag = tmp.substring(tmp.lastIndexOf('/') + 1);
-            downloadURL = "https://github.com/IceLeiYu/XsDiscordBot/releases/download/" + versionTag + "/XsDiscordBotLoader_" + versionTag + ".jar";
+            latestVersion = tmp.substring(tmp.lastIndexOf('/') + 1);
+            fileName = "XsDiscordBotLoader_" + latestVersion + ".jar";
+//            downloadURL = new URL("https://github.com/IceLeiYu/XsDiscordBot/releases/download/" + latestVersion + '/' + fileName);
             conn.disconnect();
+
+
+            if (version.equals(latestVersion)) {
+                logger.log("You are running on the latest version: " + Color.GREEN + version + Color.RESET);
+                return false;
+            } else {
+                logger.error("Your current version: " + Color.RED + version + Color.RESET + ", latest version: " + Color.GREEN + latestVersion + Color.RESET);
+                logger.log("Downloading latest version file...");
+                logger.log("Please wait...");
+//                FileUtils.copyURLToFile(downloadURL, new File(ROOT_PATH + '/' + fileName));
+                logger.log("Download Successfully");
+
+                Process proc = Runtime.getRuntime().exec("java -jar " + fileName);
+                InputStream in = proc.getInputStream();
+                OutputStream err = proc.getOutputStream();
+
+                return true;
+            }
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
-        logger.log(versionTag);
-        logger.log(downloadURL);
+        return true;
     }
 
     void defaultFileInit() {

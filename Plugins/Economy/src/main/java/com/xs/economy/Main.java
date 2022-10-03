@@ -5,11 +5,12 @@ import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
 import com.xs.loader.util.JsonFileManager;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.ReadyEvent;
-import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
-import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.user.update.UserUpdateNameEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
@@ -21,6 +22,7 @@ import java.io.File;
 import java.util.*;
 
 import static com.xs.loader.MainLoader.ROOT_PATH;
+import static com.xs.loader.MainLoader.jdaBot;
 import static com.xs.loader.util.EmbedCreator.createEmbed;
 import static com.xs.loader.util.SlashCommandOption.USER_TAG;
 import static com.xs.loader.util.SlashCommandOption.VALUE;
@@ -31,6 +33,7 @@ import static net.dv8tion.jda.api.interactions.commands.OptionType.USER;
 public class Main extends PluginEvent {
     private JSONObject config;
     private Map<String, String> lang;
+    private Map<Long, String> nameCache = new HashMap<>();
     private Map<Long, UserData> userData = new HashMap<>();
     private List<UserData> moneyBoard = new ArrayList<>();
     private List<UserData> totalBoard = new ArrayList<>();
@@ -64,7 +67,7 @@ public class Main extends PluginEvent {
     final String TAG = "Economy";
     final String PATH_FOLDER_NAME = "Economy";
     JsonFileManager manager;
-    private List<Long> ownerIDs = new ArrayList<>();
+    private final List<Long> ownerIDs = new ArrayList<>();
     private int boardUserShowLimit;
 
     @Override
@@ -131,10 +134,17 @@ public class Main extends PluginEvent {
 
         new File(ROOT_PATH + "/plugins/" + PATH_FOLDER_NAME + "/data").mkdirs();
         manager = new JsonFileManager("/plugins/" + PATH_FOLDER_NAME + "/data/data.json", TAG);
+    }
 
+    @Override
+    public void onReady(@NotNull ReadyEvent event) {
         for (var i : manager.get().keySet()) {
-            JSONObject object = manager.getOrDefault(i);
-            userData.put(Long.parseLong(i), new UserData(Long.parseLong(i), object.getInt("money"), object.getInt("total")));
+            User user;
+            if ((user = jdaBot.retrieveUserById(Long.parseLong(i)).complete()) != null) {
+                JSONObject object = manager.getOrDefault(i);
+                userData.put(Long.parseLong(i), new UserData(Long.parseLong(i), object.getInt("money"), object.getInt("total")));
+                nameCache.put(Long.parseLong(i), user.getAsTag());
+            }
         }
 
         updateMoney();
@@ -148,31 +158,17 @@ public class Main extends PluginEvent {
     }
 
     @Override
-    public void onGuildReady(@NotNull GuildReadyEvent event) {
-        if (!event.getGuild().isLoaded()) {
-            event.getGuild().loadMembers();
-        }
-    }
-
-    @Override
-    public void onGuildMemberJoin(@NotNull GuildMemberJoinEvent event) {
-        if (!event.getGuild().isLoaded()) {
-            event.getGuild().loadMembers();
-        }
-    }
-
-    @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
         if (event.isFromGuild() && event.getGuild() != null) {
             switch (event.getName()) {
                 case "money" -> {
                     long id = getUserID(event);
-                    checkData(id);
+                    checkData(id, event.getUser().getAsTag());
                     event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id), userData.get(id).get() + " $", 0x00FFFF)).queue();
                 }
                 case "moneytotal" -> {
                     long id = getUserID(event);
-                    checkData(id);
+                    checkData(id, event.getUser().getAsTag());
                     event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id), userData.get(id).getTotal() + " $", 0x00FFFF)).queue();
                 }
                 case "moneytop" -> {
@@ -196,7 +192,7 @@ public class Main extends PluginEvent {
                     }
                     long id = getUserID(event);
                     int value = event.getOption(VALUE).getAsInt();
-                    checkData(id);
+                    checkData(id, event.getUser().getAsTag());
                     userData.get(id).add(value);
                     event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id),
                             lang.get("CURRENT_MONEY").replace("%money%", userData.get(id).get() + " $"), 0x00FFFF)).queue();
@@ -224,7 +220,7 @@ public class Main extends PluginEvent {
 
                     long id = getUserID(event);
                     int value = event.getOption(VALUE).getAsInt();
-                    checkData(id);
+                    checkData(id, event.getUser().getAsTag());
                     userData.get(id).remove(value);
                     event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id),
                             lang.get("CURRENT_MONEY").replace("%money%", userData.get(id).get() + " $"), 0x00FFFF)).queue();
@@ -247,7 +243,7 @@ public class Main extends PluginEvent {
 
                     long id = getUserID(event);
                     int value = event.getOption(VALUE).getAsInt();
-                    checkData(id);
+                    checkData(id, event.getUser().getAsTag());
                     userData.get(id).set(value);
                     event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id),
                             lang.get("CURRENT_MONEY").replace("%money%", userData.get(id).get() + " $"), 0x00FFFF)).queue();
@@ -265,7 +261,7 @@ public class Main extends PluginEvent {
 
                     long id = getUserID(event);
                     int value = event.getOption(VALUE).getAsInt();
-                    checkData(id);
+                    checkData(id, event.getUser().getAsTag());
                     userData.get(id).addTotal(value);
                     event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id),
                             lang.get("CURRENT_TOTAL_MONEY").replace("%total_money%", userData.get(id).getTotal() + " $"), 0x00FFFF)).queue();
@@ -289,7 +285,7 @@ public class Main extends PluginEvent {
 
                     long id = getUserID(event);
                     int value = event.getOption(VALUE).getAsInt();
-                    checkData(id);
+                    checkData(id, event.getUser().getAsTag());
                     userData.get(id).removeTotal(value);
                     event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id),
                             lang.get("CURRENT_TOTAL_MONEY").replace("%total_money%", userData.get(id).getTotal() + " $"), 0x00FFFF)).queue();
@@ -313,7 +309,7 @@ public class Main extends PluginEvent {
 
                     long id = getUserID(event);
                     int value = event.getOption(VALUE).getAsInt();
-                    checkData(id);
+                    checkData(id, event.getUser().getAsTag());
                     userData.get(id).setTotal(value);
                     event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id),
                             lang.get("CURRENT_TOTAL_MONEY").replace("%total_money%", userData.get(id).getTotal() + " $"), 0x00FFFF)).queue();
@@ -330,6 +326,11 @@ public class Main extends PluginEvent {
 
         }
 
+    }
+
+    @Override
+    public void onUserUpdateName(@NotNull UserUpdateNameEvent event) {
+        nameCache.put(event.getUser().getIdLong(), event.getUser().getAsTag());
     }
 
     long getUserID(SlashCommandInteractionEvent event) {
@@ -355,8 +356,15 @@ public class Main extends PluginEvent {
         int count = Math.min(board.size(), boardUserShowLimit);
         for (int i = 0; i < count; ++i) {
             UserData data = board.get(i);
+            String name;
+            if (nameCache.containsKey(data.getID())) {
+                name = nameCache.get(data.getID());
+            } else {
+                nameCache.put(data.getID(), (name = guild.retrieveMemberById(data.getID()).complete().getUser().getAsTag()));
+            }
+
             fields.add(new MessageEmbed.Field(
-                            (i + 1) + ". " + guild.getMemberById(data.getID()).getEffectiveName(),
+                            (i + 1) + ". " + name,
                             (money ? data.get() : data.getTotal()) + " $", false
                     )
             );
@@ -364,13 +372,14 @@ public class Main extends PluginEvent {
         return fields;
     }
 
-    void checkData(long id) {
+    void checkData(long id, String name) {
         if (!userData.containsKey(id)) {
             userData.put(id, new UserData(id));
             JSONObject object = manager.getOrDefault(String.valueOf(id));
             object.put("money", 0);
             object.put("total", 0);
             manager.save();
+            nameCache.put(id, name);
             updateMoney();
             updateTotal();
         }
