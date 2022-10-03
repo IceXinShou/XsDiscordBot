@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.fusesource.jansi.AnsiConsole;
 import org.yaml.snakeyaml.Yaml;
@@ -35,11 +36,13 @@ public class MainLoader {
     private final Logger logger = new Logger("Main");
 
     MainLoader() {
-//        versionCheck();
+        versionCheck();
+
         defaultFileInit();
         JDABuilder builder = JDABuilder.createDefault(ConfigSetting.botToken)
                 .setBulkDeleteSplittingEnabled(false)
                 .setLargeThreshold(250)
+                .setMemberCachePolicy(MemberCachePolicy.ALL)
                 .enableCache(CacheFlag.ONLINE_STATUS, CacheFlag.ACTIVITY)
                 .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_PRESENCES);
 

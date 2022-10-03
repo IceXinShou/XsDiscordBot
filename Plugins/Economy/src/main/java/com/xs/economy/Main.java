@@ -6,6 +6,9 @@ import com.xs.loader.util.FileGetter;
 import com.xs.loader.util.JsonFileManager;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.events.ReadyEvent;
+import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -33,7 +36,6 @@ public class Main extends PluginEvent {
     private List<UserData> totalBoard = new ArrayList<>();
     private final String[] LANG_DEFAULT = {"en_US", "zh_TW"};
     private final String[] LANG_PARAMETERS_DEFAULT = {
-
             "REGISTER_GET_MONEY_NAME",
             "REGISTER_OPTION_USER_YOU_CHOOSE",
             "REGISTER_GET_MONEY_TOTAL_NAME",
@@ -143,6 +145,20 @@ public class Main extends PluginEvent {
     public void loadLang() {
         getter.exportLang(LANG_DEFAULT, LANG_PARAMETERS_DEFAULT);
         lang = getter.getLangFileData(config.getString("Lang"));
+    }
+
+    @Override
+    public void onGuildReady(@NotNull GuildReadyEvent event) {
+        if (!event.getGuild().isLoaded()) {
+            event.getGuild().loadMembers();
+        }
+    }
+
+    @Override
+    public void onGuildMemberJoin(@NotNull GuildMemberJoinEvent event) {
+        if (!event.getGuild().isLoaded()) {
+            event.getGuild().loadMembers();
+        }
     }
 
     @Override
@@ -338,9 +354,11 @@ public class Main extends PluginEvent {
         List<MessageEmbed.Field> fields = new ArrayList<>();
         int count = Math.min(board.size(), boardUserShowLimit);
         for (int i = 0; i < count; ++i) {
+            UserData data = board.get(i);
             fields.add(new MessageEmbed.Field(
-                    (i + 1) + ". " + getNameByID(guild, board.get(i).getID()),
-                    (money ? board.get(i).get() : board.get(i).getTotal()) + " $", false)
+                            (i + 1) + ". " + guild.getMemberById(data.getID()).getEffectiveName(),
+                            (money ? data.get() : data.getTotal()) + " $", false
+                    )
             );
         }
         return fields;
