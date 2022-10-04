@@ -4,7 +4,7 @@ Copyright © 2022 IceXinShou. All rights reserved.
 
 ## API Usage:
 
-Require Java 17
+Require Java 1.8 up...
 
 Create a class and make it `extends PluginEvent`
 
@@ -12,10 +12,10 @@ now, you can add these blow:
 
 ```java
   @Override
-  public void initLoad() {}
+  public void initLoad() {super.initLoad();}
 
   @Override
-  public void unload() {}
+  public void unload() {super.initLoad();}
 
   @Override
   public void loadConfigFile() {}

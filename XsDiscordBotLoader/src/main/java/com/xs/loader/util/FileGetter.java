@@ -114,18 +114,18 @@ public class FileGetter {
     }
 
     private void copyFile(File source, String dest) throws IOException {
-        Files.copy(source.toPath(), Path.of(dest));
+        Files.copy(source.toPath(), Paths.get(dest));
     }
 
     public void exportLang(String[] lang_name, String[] parameters) {
         new File(MainLoader.ROOT_PATH + "/plugins/" + PATH_FOLDER_NAME + "/Lang").mkdirs();
-        for (var lang : lang_name) {
+        for (String lang : lang_name) {
             File lang_file;
             if (!(lang_file = new File(MainLoader.ROOT_PATH + "/plugins/" + PATH_FOLDER_NAME + "/Lang/" + lang + ".yml")).exists()) {
                 exportResource("lang/" + lang + ".yml", lang + ".yml", "plugins/" + PATH_FOLDER_NAME + "/Lang");
             } else {
-                var fileData = readFile(lang_file);
-                for (var parameter : parameters) {
+                Map<String, Object>  fileData = readFile(lang_file);
+                for (String parameter : parameters) {
                     if (!fileData.containsKey(parameter)) {
                         logger.error("file " + lang + ".yml lost " + parameter + " parameter!");
                         try {

@@ -4,6 +4,7 @@ import com.xs.loader.PluginEvent;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
@@ -37,6 +38,7 @@ public class Main extends PluginEvent {
 
     @Override
     public void initLoad() {
+        super.initLoad();
         getter = new FileGetter(TAG, PATH_FOLDER_NAME, Main.class.getClassLoader());
         logger = new Logger(TAG);
         loadConfigFile();
@@ -47,6 +49,7 @@ public class Main extends PluginEvent {
 
     @Override
     public void unload() {
+        super.unload();
         logger.log("UnLoaded");
     }
 

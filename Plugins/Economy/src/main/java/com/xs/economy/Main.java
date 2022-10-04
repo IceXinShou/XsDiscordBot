@@ -5,7 +5,6 @@ import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
 import com.xs.loader.util.JsonFileManager;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.ReadyEvent;
@@ -20,6 +19,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.xs.loader.MainLoader.ROOT_PATH;
 import static com.xs.loader.MainLoader.jdaBot;
@@ -72,6 +72,7 @@ public class Main extends PluginEvent {
 
     @Override
     public void initLoad() {
+        super.initLoad();
         getter = new FileGetter(TAG, PATH_FOLDER_NAME, Main.class.getClassLoader());
         logger = new Logger(TAG);
         loadConfigFile();
@@ -82,6 +83,7 @@ public class Main extends PluginEvent {
 
     @Override
     public void unload() {
+        super.unload();
         logger.log("UnLoaded");
     }
 
@@ -138,7 +140,7 @@ public class Main extends PluginEvent {
 
     @Override
     public void onReady(@NotNull ReadyEvent event) {
-        for (var i : manager.get().keySet()) {
+        for (String i : manager.get().keySet()) {
             User user;
             if ((user = jdaBot.retrieveUserById(Long.parseLong(i)).complete()) != null) {
                 JSONObject object = manager.getOrDefault(i);
@@ -161,31 +163,35 @@ public class Main extends PluginEvent {
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
         if (event.isFromGuild() && event.getGuild() != null) {
             switch (event.getName()) {
-                case "money" -> {
+                case "money": {
                     long id = getUserID(event);
                     checkData(id, event.getUser().getAsTag());
                     event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id), userData.get(id).get() + " $", 0x00FFFF)).queue();
+                    break;
                 }
-                case "moneytotal" -> {
+                case "moneytotal": {
                     long id = getUserID(event);
                     checkData(id, event.getUser().getAsTag());
                     event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id), userData.get(id).getTotal() + " $", 0x00FFFF)).queue();
+                    break;
                 }
-                case "moneytop" -> {
+                case "moneytop": {
                     if (!ownerIDs.contains(event.getUser().getIdLong())) {
                         event.getHook().editOriginalEmbeds(createEmbed(lang.get("NO_PERMISSION"), 0xFF0000)).queue();
                         return;
                     }
                     event.getHook().editOriginalEmbeds(createEmbed(lang.get("MONEY_BOARD"), fieldGetter(moneyBoard, true, event.getGuild()), 0x00FFFF)).queue();
+                    break;
                 }
-                case "moneytoptotal" -> {
+                case "moneytoptotal": {
                     if (!ownerIDs.contains(event.getUser().getIdLong())) {
                         event.getHook().editOriginalEmbeds(createEmbed(lang.get("NO_PERMISSION"), 0xFF0000)).queue();
                         return;
                     }
                     event.getHook().editOriginalEmbeds(createEmbed(lang.get("TOTAL_BOARD"), fieldGetter(totalBoard, false, event.getGuild()), 0x00FFFF)).queue();
+                    break;
                 }
-                case "addmoney" -> {
+                case "addmoney": {
                     if (!ownerIDs.contains(event.getUser().getIdLong())) {
                         event.getHook().editOriginalEmbeds(createEmbed(lang.get("NO_PERMISSION"), 0xFF0000)).queue();
                         return;
@@ -211,8 +217,9 @@ public class Main extends PluginEvent {
                     manager.save();
                     updateMoney();
                     updateTotal();
+                    break;
                 }
-                case "removemoney" -> {
+                case "removemoney": {
                     if (!ownerIDs.contains(event.getUser().getIdLong())) {
                         event.getHook().editOriginalEmbeds(createEmbed(lang.get("NO_PERMISSION"), 0xFF0000)).queue();
                         return;
@@ -234,8 +241,9 @@ public class Main extends PluginEvent {
                     }
                     manager.save();
                     updateMoney();
+                    break;
                 }
-                case "setmoney" -> {
+                case "setmoney": {
                     if (!ownerIDs.contains(event.getUser().getIdLong())) {
                         event.getHook().editOriginalEmbeds(createEmbed(lang.get("NO_PERMISSION"), 0xFF0000)).queue();
                         return;
@@ -252,8 +260,9 @@ public class Main extends PluginEvent {
                     manager.save();
 
                     updateMoney();
+                    break;
                 }
-                case "addmoneytotal" -> {
+                case "addmoneytotal": {
                     if (!ownerIDs.contains(event.getUser().getIdLong())) {
                         event.getHook().editOriginalEmbeds(createEmbed(lang.get("NO_PERMISSION"), 0xFF0000)).queue();
                         return;
@@ -276,8 +285,9 @@ public class Main extends PluginEvent {
                     manager.save();
 
                     updateTotal();
+                    break;
                 }
-                case "removemoneytotal" -> {
+                case "removemoneytotal": {
                     if (!ownerIDs.contains(event.getUser().getIdLong())) {
                         event.getHook().editOriginalEmbeds(createEmbed(lang.get("NO_PERMISSION"), 0xFF0000)).queue();
                         return;
@@ -300,8 +310,9 @@ public class Main extends PluginEvent {
                     manager.save();
 
                     updateTotal();
+                    break;
                 }
-                case "setmoneytotal" -> {
+                case "setmoneytotal": {
                     if (!ownerIDs.contains(event.getUser().getIdLong())) {
                         event.getHook().editOriginalEmbeds(createEmbed(lang.get("NO_PERMISSION"), 0xFF0000)).queue();
                         return;
@@ -318,8 +329,9 @@ public class Main extends PluginEvent {
                     manager.save();
 
                     updateTotal();
+                    break;
                 }
-                default -> {
+                default: {
                     return;
                 }
             }
@@ -343,12 +355,12 @@ public class Main extends PluginEvent {
 
     void updateMoney() {
         moneyBoard.clear();
-        moneyBoard.addAll(userData.values().stream().sorted(Comparator.comparingInt(UserData::get).reversed()).toList());
+        moneyBoard.addAll(userData.values().stream().sorted(Comparator.comparingInt(UserData::get).reversed()).collect(Collectors.toList()));
     }
 
     void updateTotal() {
         totalBoard.clear();
-        totalBoard.addAll(userData.values().stream().sorted(Comparator.comparingInt(UserData::getTotal).reversed()).toList());
+        totalBoard.addAll(userData.values().stream().sorted(Comparator.comparingInt(UserData::getTotal).reversed()).collect(Collectors.toList()));
     }
 
     List<MessageEmbed.Field> fieldGetter(List<UserData> board, boolean money, Guild guild) {

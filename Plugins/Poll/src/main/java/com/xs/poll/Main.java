@@ -50,6 +50,7 @@ public class Main extends PluginEvent {
 
     @Override
     public void initLoad() {
+        super.initLoad();
         getter = new FileGetter(TAG, PATH_FOLDER_NAME, Main.class.getClassLoader());
         logger = new Logger(TAG);
         loadConfigFile();
@@ -60,6 +61,7 @@ public class Main extends PluginEvent {
 
     @Override
     public void unload() {
+        super.unload();
         logger.log("UnLoaded");
     }
 

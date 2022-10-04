@@ -30,25 +30,25 @@ public class Tag {
         return "<@&" + ID + '>';
     }
 
-    public static String tagUsersID(List<?> ID) {
+    public static String tagUsersID(List<Object> ID) {
         StringBuilder n = new StringBuilder();
-        for (var str : ID)
+        for (Object str : ID)
             n.append("<@&").append(str).append('>');
 
         return n.toString();
     }
 
-    public static String tagChannelsID(List<?> ID) {
+    public static String tagChannelsID(List<Object> ID) {
         StringBuilder n = new StringBuilder();
-        for (var str : ID)
+        for (Object str : ID)
             n.append("<@&").append(str).append('>');
 
         return n.toString();
     }
 
-    public static String tagRolesID(List<?> ID) {
+    public static String tagRolesID(List<Object> ID) {
         StringBuilder n = new StringBuilder();
-        for (var str : ID)
+        for (Object str : ID)
             n.append("<@&").append(str).append('>');
 
         return n.toString();

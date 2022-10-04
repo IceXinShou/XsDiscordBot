@@ -59,7 +59,12 @@ public class ConfigSetting {
             logger.error("read " + name + " failed");
             return null;
         }
-        String settingText = out.toString(StandardCharsets.UTF_8);
+        String settingText = null;
+        try {
+            settingText = out.toString("UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            logger.error(e.getMessage());
+        }
 
         return new Yaml().load(settingText);
     }

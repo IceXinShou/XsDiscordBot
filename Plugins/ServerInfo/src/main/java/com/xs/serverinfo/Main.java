@@ -35,6 +35,7 @@ public class Main extends PluginEvent {
 
     @Override
     public void initLoad() {
+        super.initLoad();
         getter = new FileGetter(TAG, PATH_FOLDER_NAME, Main.class.getClassLoader());
         logger = new Logger(TAG);
         loadConfigFile();
@@ -45,6 +46,7 @@ public class Main extends PluginEvent {
 
     @Override
     public void unload() {
+        super.unload();
         logger.log("UnLoaded");
     }
 
@@ -95,17 +97,21 @@ public class Main extends PluginEvent {
                 else
                     realMemberCount++;
                 switch (i.getOnlineStatus()) {
-                    case ONLINE -> {
+                    case ONLINE : {
                         online++;
+                        break;
                     }
-                    case DO_NOT_DISTURB -> {
+                    case DO_NOT_DISTURB : {
                         working++;
+                        break;
                     }
-                    case IDLE -> {
+                    case IDLE : {
                         idle++;
+                        break;
                     }
-                    case OFFLINE -> {
+                    case OFFLINE : {
                         offline++;
+                        break;
                     }
                 }
                 guild.unloadMember(i.getIdLong());

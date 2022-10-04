@@ -9,7 +9,6 @@ import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
-import org.apache.commons.io.FileUtils;
 import org.fusesource.jansi.AnsiConsole;
 import org.yaml.snakeyaml.Yaml;
 
@@ -18,12 +17,12 @@ import javax.security.auth.login.LoginException;
 import java.io.*;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.charset.StandardCharsets;
+import java.nio.channels.Channels;
 import java.util.*;
 import java.util.jar.JarFile;
 
 public class MainLoader {
-    public static ConfigSetting loader = new ConfigSetting();
+    public static ConfigSetting loader;
     public static String noPermissionERROR = "You have no permission";
     public static JDA jdaBot;
     public static List<CommandData> guildCommands = new ArrayList<>();
@@ -31,11 +30,13 @@ public class MainLoader {
     public static List<CommandData> globalCommands = new ArrayList<>();
     public static final String ROOT_PATH = new File(System.getProperty("user.dir")).toString();
 
-    private final Deque<PluginEvent> listeners = new ArrayDeque<>();
-    private final Logger logger = new Logger("Main");
-    private final String version = "v1.1";
+    private final Queue<PluginEvent> listeners = new ArrayDeque<>();
+    private final Logger logger;
+    private final String version = "v1.2";
 
     MainLoader() {
+        logger = new Logger("Main");
+        loader = new ConfigSetting();
         if (versionCheck()) {
             return;
         }
@@ -82,7 +83,7 @@ public class MainLoader {
             String tmp = conn.getURL().toString();
             latestVersion = tmp.substring(tmp.lastIndexOf('/') + 1);
             fileName = "XsDiscordBotLoader_" + latestVersion + ".jar";
-//            downloadURL = new URL("https://github.com/IceLeiYu/XsDiscordBot/releases/download/" + latestVersion + '/' + fileName);
+            downloadURL = new URL("https://github.com/IceLeiYu/XsDiscordBot/releases/download/" + latestVersion + '/' + fileName);
             conn.disconnect();
 
 
@@ -93,7 +94,10 @@ public class MainLoader {
                 logger.error("Your current version: " + Color.RED + version + Color.RESET + ", latest version: " + Color.GREEN + latestVersion + Color.RESET);
                 logger.log("Downloading latest version file...");
                 logger.log("Please wait...");
-//                FileUtils.copyURLToFile(downloadURL, new File(ROOT_PATH + '/' + fileName));
+
+                FileOutputStream fos = new FileOutputStream(ROOT_PATH + '/' + fileName);
+                fos.getChannel().transferFrom(Channels.newChannel(downloadURL.openStream()), 0, Long.MAX_VALUE);
+
                 logger.log("Download Successfully");
 
                 Process proc = Runtime.getRuntime().exec("java -jar " + fileName);
@@ -127,7 +131,7 @@ public class MainLoader {
         int fail = 0;
         logger.log("Plugin(s) Loading...");
         String tmp;
-        for (var file : new File("plugins").listFiles()) {
+        for (File file : new File("plugins").listFiles()) {
             try {
                 if (file == null) continue;
                 if ((tmp = getExtensionName(file.getName())) == null || !tmp.equals("jar")) continue;
@@ -146,7 +150,7 @@ public class MainLoader {
                 );
 
                 PluginEvent pluginMain = (PluginEvent) loader
-                        .loadClass((String) (((Map<String, Object>) new Yaml().load(result.toString(StandardCharsets.UTF_8))).get("MainPath")))
+                        .loadClass((String) (((Map<String, Object>) new Yaml().load(result.toString("UTF-8"))).get("MainPath")))
                         .getDeclaredConstructor().newInstance();
 
                 pluginMain.initLoad();

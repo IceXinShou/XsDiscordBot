@@ -33,6 +33,7 @@ public class Main2 extends PluginEvent {
 
     @Override
     public void initLoad() {
+        super.initLoad();
         loadConfigFile();
         loadVariables();
         loadLang();
@@ -41,6 +42,7 @@ public class Main2 extends PluginEvent {
 
     @Override
     public void unload() {
+        super.unload();
         System.out.printf("%s UnLoaded\n", TAG);
     }
 

@@ -3,11 +3,16 @@ package com.xs.loader;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
+import org.fusesource.jansi.AnsiConsole;
 
 public abstract class PluginEvent extends ListenerAdapter {
-    public abstract void initLoad();
+    public void initLoad() {
+        AnsiConsole.systemInstall();
+    }
 
-    abstract public void unload();
+    public void unload() {
+        AnsiConsole.systemUninstall();
+    }
 
     public CommandData[] guildCommands() {
         return null;

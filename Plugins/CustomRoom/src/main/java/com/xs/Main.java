@@ -33,6 +33,7 @@ public class Main extends PluginEvent {
 
     @Override
     public void unload() {
+        super.unload();
         System.out.printf("%s UnLoaded\n", TAG);
     }
 
