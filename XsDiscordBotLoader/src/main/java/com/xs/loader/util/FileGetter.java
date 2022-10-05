@@ -7,7 +7,6 @@ import org.yaml.snakeyaml.Yaml;
 import javax.annotation.Nullable;
 import java.io.*;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
@@ -31,7 +30,7 @@ public class FileGetter {
         try {
             inputStream = new FileInputStream(flie);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage());
         }
 
 
@@ -83,7 +82,7 @@ public class FileGetter {
             fileInJar.close();
             return new File(MainLoader.ROOT_PATH + "/" + path + "/" + fileName);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage());
             logger.error("read resource failed");
         }
         return null;
@@ -102,7 +101,7 @@ public class FileGetter {
             fileInJar.close();
             return new File(MainLoader.ROOT_PATH + "/" + path + "/" + outputName);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage());
             logger.error("read resource failed");
         }
 
@@ -120,20 +119,17 @@ public class FileGetter {
     public void exportLang(String[] lang_name, String[] parameters) {
         new File(MainLoader.ROOT_PATH + "/plugins/" + PATH_FOLDER_NAME + "/Lang").mkdirs();
         for (String lang : lang_name) {
+            String fileName = lang + ".yml";
             File lang_file;
-            if (!(lang_file = new File(MainLoader.ROOT_PATH + "/plugins/" + PATH_FOLDER_NAME + "/Lang/" + lang + ".yml")).exists()) {
-                exportResource("lang/" + lang + ".yml", lang + ".yml", "plugins/" + PATH_FOLDER_NAME + "/Lang");
-            } else {
-                Map<String, Object>  fileData = readFile(lang_file);
-                for (String parameter : parameters) {
-                    if (!fileData.containsKey(parameter)) {
-                        logger.error("file " + lang + ".yml lost " + parameter + " parameter!");
-                        try {
-                            copyFile(lang_file, MainLoader.ROOT_PATH + "/plugins/" + PATH_FOLDER_NAME + "/Lang/-" + lang + ".yml");
-                            //exportResource(prefix + lang + ".yml", lang + ".yml", "plugins/Lang/" + PLUGIN_NAME);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+            if ((lang_file = new File(MainLoader.ROOT_PATH + "/plugins/" + PATH_FOLDER_NAME + "/Lang/" + fileName)).exists()) {
+                Map<String, Object> fileData = readFile(lang_file);
+                if (checkFileParameter(fileData, parameters, fileName)) {
+                    logger.error("Create default lang: " + fileName);
+                    try {
+                        copyFile(lang_file, MainLoader.ROOT_PATH + "/plugins/" + PATH_FOLDER_NAME + "/Lang/-" + fileName);
+                        exportResource("lang/" + fileName, fileName, "plugins/Lang/" + PATH_FOLDER_NAME);
+                    } catch (IOException e) {
+                        logger.error(e.getMessage());
                     }
                 }
             }
@@ -143,16 +139,28 @@ public class FileGetter {
     public Map<String, String> getLangFileData(String langCode) {
         File f;
         Map<String, String> lang = new HashMap<>();
-        if (langCode == null || !(f = new File(MainLoader.ROOT_PATH + "/plugins/" + PATH_FOLDER_NAME + "/Lang/" + langCode + ".yml")).exists()) {
+        if (langCode == null || (!(f = new File(MainLoader.ROOT_PATH + "/plugins/" + PATH_FOLDER_NAME + "/Lang/" + langCode + ".yml")).exists())) {
+            // TODO: checkFileParameter()
             f = new File(MainLoader.ROOT_PATH + "/plugins/" + PATH_FOLDER_NAME + "/Lang/en_US.yml");
         }
 
         try {
             readFile(f).forEach((i, j) -> lang.put(i, (String) j));
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e.getMessage());
         }
 
         return lang;
+    }
+
+    public boolean checkFileParameter(Map<String, Object> data, String[] parameters, String fileName) {
+        boolean error = false;
+        for (String parameter : parameters) {
+            if (!data.containsKey(parameter)) {
+                logger.error("file " + fileName + " lost " + parameter + " parameter!");
+                error = true;
+            }
+        }
+        return error;
     }
 }

@@ -175,7 +175,7 @@ public class MainLoader {
                 ++count;
             } catch (Exception e) {
                 ++fail;
-                logger.error(file.getName() + '\n' + Arrays.toString(e.getStackTrace()));
+                logger.error(file.getName() + '\n' + e.getMessage());
             }
         }
         if (fail > 0)
