@@ -2,6 +2,7 @@ package com.xs.loader.util;
 
 import com.xs.loader.MainLoader;
 import com.xs.loader.logger.Logger;
+import org.jetbrains.annotations.NotNull;
 import org.yaml.snakeyaml.Yaml;
 
 import javax.annotation.Nullable;
@@ -13,28 +14,29 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class FileGetter {
-    private final String TAG;
-    private final String PATH_FOLDER_NAME;
+    private final String FOLDER_PATH;
     private final ClassLoader LOADER;
     private final Logger logger;
+    private final String lang;
+    private final String[] defaultLang;
+    private final String[] parameters;
 
-    public FileGetter(final String TAG, final String PATH_FOLDER_NAME, final ClassLoader LOADER) {
+    public FileGetter(final String TAG, final String PATH_FOLDER_NAME, final String LANG, final String[] DEFAULT_LANG, final String[] PARAMETERS, final ClassLoader LOADER) {
         logger = new Logger(TAG);
-        this.TAG = TAG;
-        this.PATH_FOLDER_NAME = PATH_FOLDER_NAME;
+        this.FOLDER_PATH = MainLoader.ROOT_PATH + "/plugins/" + PATH_FOLDER_NAME;
+        this.lang = LANG;
         this.LOADER = LOADER;
+        this.parameters = PARAMETERS;
+        this.defaultLang = DEFAULT_LANG;
     }
 
-    public Map<String, Object> readFile(File flie) {
-        InputStream inputStream = null;
+    public Map<String, Object> readFile(File f) {
         try {
-            inputStream = new FileInputStream(flie);
+            return new Yaml().load(new FileInputStream(f));
         } catch (FileNotFoundException e) {
             logger.error(e.getMessage());
         }
-
-
-        return new Yaml().load(inputStream);
+        return null;
     }
 
     @Nullable
@@ -53,34 +55,19 @@ public class FileGetter {
 
         return readFile(settingFile);
     }
-//    public Map<String, Object> readYml(String originFileName, String outputFileName, String path) {
-//        new File(ROOT_PATH + "/" + path).mkdirs();
-//        File settingFile = new File(ROOT_PATH + "/" + path + "/" + outputFileName);
-//        if (!settingFile.exists()) {
-//            System.err.println(TAG + ' ' + outputFileName + " not found, create default " + outputFileName);
-//            settingFile = exportResource(originFileName, outputFileName, path);
-//            if (settingFile == null) {
-//                System.err.println(TAG + " read " + outputFileName + " failed");
-//                return null;
-//            }
-//        }
-//        System.out.println(TAG + " load " + settingFile.getPath());
-//
-//        return readFile(settingFile);
-//    }
 
     @Nullable
-    public File exportResource(String fileName, String path) {
-        InputStream fileInJar = LOADER.getResourceAsStream(fileName);
+    public File exportResource(String sourceFileName, String outputPath) {
+        InputStream fileInJar = LOADER.getResourceAsStream(sourceFileName);
 
         try {
             if (fileInJar == null) {
-                logger.error("can not find resource: " + fileName);
+                logger.error("can not find resource: " + sourceFileName);
                 return null;
             }
-            Files.copy(fileInJar, Paths.get(MainLoader.ROOT_PATH + "/" + path + "/" + fileName), StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(fileInJar, Paths.get(MainLoader.ROOT_PATH + "/" + outputPath + "/" + sourceFileName), StandardCopyOption.REPLACE_EXISTING);
             fileInJar.close();
-            return new File(MainLoader.ROOT_PATH + "/" + path + "/" + fileName);
+            return new File(MainLoader.ROOT_PATH + "/" + outputPath + "/" + sourceFileName);
         } catch (IOException e) {
             logger.error(e.getMessage());
             logger.error("read resource failed");
@@ -88,72 +75,65 @@ public class FileGetter {
         return null;
     }
 
-    @Nullable
-    public File exportResource(String originFileName, String outputName, String path) {
-        InputStream fileInJar = LOADER.getResourceAsStream(originFileName);
+    public void exportResource(String sourceFile, String outputName, String outputPath) {
+        InputStream fileInJar = LOADER.getResourceAsStream(sourceFile);
 
         try {
             if (fileInJar == null) {
-                logger.error("can not find resource: " + originFileName);
-                return null;
+                logger.error("can not find resource: " + sourceFile);
+                return;
             }
-            Files.copy(fileInJar, Paths.get(MainLoader.ROOT_PATH + "/" + path + "/" + outputName), StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(fileInJar, Paths.get(FOLDER_PATH + "/" + outputPath + "/" + outputName), StandardCopyOption.REPLACE_EXISTING);
             fileInJar.close();
-            return new File(MainLoader.ROOT_PATH + "/" + path + "/" + outputName);
         } catch (IOException e) {
-            logger.error(e.getMessage());
             logger.error("read resource failed");
+            logger.error(e.getMessage());
         }
-
-        return null;
     }
 
-    private void copyFile(File source, File dest) throws IOException {
-        Files.copy(source.toPath(), dest.toPath());
-    }
+    public void exportDefaultLang() {
+        // init folder
+        new File(FOLDER_PATH + "/Lang").mkdirs();
 
-    private void copyFile(File source, String dest) throws IOException {
-        Files.copy(source.toPath(), Paths.get(dest));
-    }
-
-    public void exportLang(String[] lang_name, String[] parameters) {
-        new File(MainLoader.ROOT_PATH + "/plugins/" + PATH_FOLDER_NAME + "/Lang").mkdirs();
-        for (String lang : lang_name) {
-            String fileName = lang + ".yml";
+        for (String l : defaultLang) {
+            String fileName = l + ".yml";
             File lang_file;
-            if ((lang_file = new File(MainLoader.ROOT_PATH + "/plugins/" + PATH_FOLDER_NAME + "/Lang/" + fileName)).exists()) {
+            if ((lang_file = new File(FOLDER_PATH + "/Lang/" + fileName)).exists()) {
                 Map<String, Object> fileData = readFile(lang_file);
-                if (checkFileParameter(fileData, parameters, fileName)) {
+                if (checkFileParameter(fileData, fileName)) {
                     logger.error("Create default lang: " + fileName);
                     try {
-                        copyFile(lang_file, MainLoader.ROOT_PATH + "/plugins/" + PATH_FOLDER_NAME + "/Lang/-" + fileName);
-                        exportResource("lang/" + fileName, fileName, "plugins/Lang/" + PATH_FOLDER_NAME);
+                        copyFile(lang_file, FOLDER_PATH + "/Lang/-" + fileName);
+                        exportResource("lang/" + fileName, fileName, "Lang");
                     } catch (IOException e) {
                         logger.error(e.getMessage());
                     }
                 }
+                continue;
             }
+
+            // export is not exist
+            exportResource("lang/" + fileName, fileName, "Lang");
         }
     }
 
-    public Map<String, String> getLangFileData(String langCode) {
+    public Map<String, String> getLangFileData() {
         File f;
-        Map<String, String> lang = new HashMap<>();
-        if (langCode == null || (!(f = new File(MainLoader.ROOT_PATH + "/plugins/" + PATH_FOLDER_NAME + "/Lang/" + langCode + ".yml")).exists())) {
-            // TODO: checkFileParameter()
-            f = new File(MainLoader.ROOT_PATH + "/plugins/" + PATH_FOLDER_NAME + "/Lang/en_US.yml");
+        Map<String, String> langMap = new HashMap<>();
+        if (lang == null || (!(f = new File(FOLDER_PATH + "/Lang/" + lang + ".yml")).exists())) {
+            f = new File(FOLDER_PATH + "/Lang/en_US.yml");
         }
 
         try {
-            readFile(f).forEach((i, j) -> lang.put(i, (String) j));
+            readFile(f).forEach((i, j) -> langMap.put(i, (String) j));
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
 
-        return lang;
+        return langMap;
     }
 
-    public boolean checkFileParameter(Map<String, Object> data, String[] parameters, String fileName) {
+    public boolean checkFileParameter(Map<String, Object> data, String fileName) {
         boolean error = false;
         for (String parameter : parameters) {
             if (!data.containsKey(parameter)) {
@@ -162,5 +142,13 @@ public class FileGetter {
             }
         }
         return error;
+    }
+
+    private void copyFile(@NotNull File source, @NotNull File dest) throws IOException {
+        Files.copy(source.toPath(), dest.toPath());
+    }
+
+    private void copyFile(@NotNull File source, @NotNull String dest) throws IOException {
+        Files.copy(source.toPath(), Paths.get(dest));
     }
 }
