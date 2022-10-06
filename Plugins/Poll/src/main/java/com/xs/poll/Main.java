@@ -1,6 +1,7 @@
 package com.xs.poll;
 
 import com.xs.loader.PluginEvent;
+import com.xs.loader.lang.Lang;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
 import net.dv8tion.jda.api.Permission;
@@ -47,11 +48,12 @@ public class Main extends PluginEvent {
     private JSONObject emojiData;
     List<Emoji> votes = new ArrayList<>();
     boolean noSet = false;
+    Lang langGetter;
 
     @Override
     public void initLoad() {
         super.initLoad();
-        getter = new FileGetter(TAG, PATH_FOLDER_NAME, LANG_DEFAULT, LANG_PARAMETERS_DEFAULT, Main.class.getClassLoader());
+        getter = new FileGetter(TAG, PATH_FOLDER_NAME, Main.class.getClassLoader());
         logger = new Logger(TAG);
         loadConfigFile();
         loadVariables();
@@ -98,6 +100,7 @@ public class Main extends PluginEvent {
             logger.error("Please configure /plugins/" + PATH_FOLDER_NAME + "/config.yml");
             noSet = true;
         }
+        langGetter = new Lang(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, LANG_PARAMETERS_DEFAULT, config.getString("Lang"));
     }
 
     @SuppressWarnings("unchecked warning")
@@ -125,8 +128,8 @@ public class Main extends PluginEvent {
     @Override
     public void loadLang() {
         // expert files
-        getter.exportDefaultLang();;
-        lang = getter.getLangFileData(config.getString("Lang"));
+        langGetter.exportDefaultLang();
+        lang = langGetter.getLangFileData();
     }
 
 

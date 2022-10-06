@@ -1,6 +1,7 @@
 package com.xs.botinfo;
 
 import com.xs.loader.PluginEvent;
+import com.xs.loader.lang.Lang;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -21,6 +22,8 @@ public class Main extends PluginEvent {
 
     private JSONObject config;
     private Map<String, String> lang;
+
+    Lang langGetter;
     private final String[] LANG_DEFAULT = {"en_US", "zh_TW"};
     private final String[] LANG_PARAMETERS_DEFAULT = {
             "REGISTER_NAME", "GUILD_TOTAL_COUNT", "MEMBER_TOTAL_COUNT", "INFORMATION"
@@ -34,7 +37,7 @@ public class Main extends PluginEvent {
     @Override
     public void initLoad() {
         super.initLoad();
-        getter = new FileGetter(TAG, PATH_FOLDER_NAME, LANG_DEFAULT, LANG_PARAMETERS_DEFAULT, Main.class.getClassLoader());
+        getter = new FileGetter(TAG, PATH_FOLDER_NAME, Main.class.getClassLoader());
         logger = new Logger(TAG);
         loadConfigFile();
         loadVariables();
@@ -58,6 +61,7 @@ public class Main extends PluginEvent {
     @Override
     public void loadConfigFile() {
         config = new JSONObject(getter.readYml("config.yml", "plugins/" + PATH_FOLDER_NAME));
+        langGetter = new Lang(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, LANG_PARAMETERS_DEFAULT, config.getString("Lang"));
         logger.log("Setting File Loaded Successfully");
     }
 
@@ -69,8 +73,8 @@ public class Main extends PluginEvent {
     @Override
     public void loadLang() {
         // expert files
-        getter.exportDefaultLang();;
-        lang = getter.getLangFileData(config.getString("Lang"));
+        langGetter.exportDefaultLang();
+        lang = langGetter.getLangFileData();
     }
 
     @Override

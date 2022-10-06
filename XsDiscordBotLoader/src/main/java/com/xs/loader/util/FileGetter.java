@@ -10,22 +10,17 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.HashMap;
 import java.util.Map;
 
 public class FileGetter {
     private final String FOLDER_PATH;
     private final ClassLoader LOADER;
     private final Logger logger;
-    private final String[] defaultLang;
-    private final String[] parameters;
 
-    public FileGetter(final String TAG, final String PATH_FOLDER_NAME, final String[] DEFAULT_LANG, final String[] PARAMETERS, final ClassLoader LOADER) {
+    public FileGetter(final String TAG, final String PATH_FOLDER_NAME, final ClassLoader LOADER) {
         logger = new Logger(TAG);
         this.FOLDER_PATH = MainLoader.ROOT_PATH + "/plugins/" + PATH_FOLDER_NAME;
         this.LOADER = LOADER;
-        this.parameters = PARAMETERS;
-        this.defaultLang = DEFAULT_LANG;
     }
 
     public Map<String, Object> readFile(File f) {
@@ -89,49 +84,7 @@ public class FileGetter {
         }
     }
 
-    public void exportDefaultLang() {
-        // init folder
-        new File(FOLDER_PATH + "/Lang").mkdirs();
-
-        for (String l : defaultLang) {
-            String fileName = l + ".yml";
-            File lang_file;
-            if ((lang_file = new File(FOLDER_PATH + "/Lang/" + fileName)).exists()) {
-                Map<String, Object> fileData = readFile(lang_file);
-                if (checkFileParameter(fileData, fileName)) {
-                    logger.error("Create default lang: " + fileName);
-                    try {
-                        copyFile(lang_file, FOLDER_PATH + "/Lang/-" + fileName);
-                        exportResource("lang/" + fileName, fileName, "Lang");
-                    } catch (IOException e) {
-                        logger.error(e.getMessage());
-                    }
-                }
-                continue;
-            }
-
-            // export is not exist
-            exportResource("lang/" + fileName, fileName, "Lang");
-        }
-    }
-
-    public Map<String, String> getLangFileData(final String LANG) {
-        File f;
-        Map<String, String> langMap = new HashMap<>();
-        if (LANG == null || (!(f = new File(FOLDER_PATH + "/Lang/" + LANG + ".yml")).exists())) {
-            f = new File(FOLDER_PATH + "/Lang/en_US.yml");
-        }
-
-        try {
-            readFile(f).forEach((i, j) -> langMap.put(i, (String) j));
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-        }
-
-        return langMap;
-    }
-
-    public boolean checkFileParameter(Map<String, Object> data, String fileName) {
+    public boolean checkFileParameter(Map<String, Object> data, String[] parameters, String fileName) {
         boolean error = false;
         for (String parameter : parameters) {
             if (!data.containsKey(parameter)) {
@@ -146,7 +99,7 @@ public class FileGetter {
         Files.copy(source.toPath(), dest.toPath());
     }
 
-    private void copyFile(@NotNull File source, @NotNull String dest) throws IOException {
+    public void copyFile(@NotNull File source, @NotNull String dest) throws IOException {
         Files.copy(source.toPath(), Paths.get(dest));
     }
 }

@@ -38,11 +38,10 @@ public class Main extends PluginEvent {
     @Override
     public void initLoad() {
         super.initLoad();
-        getter = new FileGetter(TAG, PATH_FOLDER_NAME, null, null, Main.class.getClassLoader());
         logger = new Logger(TAG);
+        getter = new FileGetter(TAG, PATH_FOLDER_NAME, Main.class.getClassLoader());
         loadConfigFile();
         loadVariables();
-        loadLang();
         logger.log("Loaded");
     }
 

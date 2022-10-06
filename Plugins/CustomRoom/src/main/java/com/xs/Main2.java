@@ -27,7 +27,7 @@ public class Main2 extends PluginEvent {
     public static Map<String, Object> config = new HashMap<>();
     public static Map<String, String> lang = new HashMap<>();
     private final String TAG = "CustomRoom";
-    private Map<Long, Pair<Integer, Long>> step = new HashMap<>();
+    private final Map<Long, Pair<Integer, Long>> step = new HashMap<>();
     FileGetter getter;
     JsonFileManager manager;
 
@@ -295,6 +295,7 @@ public class Main2 extends PluginEvent {
     @Override
     public void loadConfigFile() {
         config = getter.readYml("custom_room_poll_config.yml", "config.yml", "plugins\\Poll", TAG, this.getClass().getClassLoader());
+        langGetter = new Lang(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, LANG_PARAMETERS_DEFAULT, config.getString("Lang"));
         getter = new FileGetter();
         manager = new JsonFileManager(Main.ROOT_PATH + "plugins\\CustomRoom", TAG, "CustomRoom");
         System.out.println(TAG + " Setting File Loaded Successfully");

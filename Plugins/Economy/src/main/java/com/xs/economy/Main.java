@@ -1,6 +1,7 @@
 package com.xs.economy;
 
 import com.xs.loader.PluginEvent;
+import com.xs.loader.lang.Lang;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
 import com.xs.loader.util.JsonFileManager;
@@ -33,10 +34,12 @@ import static net.dv8tion.jda.api.interactions.commands.OptionType.USER;
 public class Main extends PluginEvent {
     private JSONObject config;
     private Map<String, String> lang;
-    private Map<Long, String> nameCache = new HashMap<>();
-    private Map<Long, UserData> userData = new HashMap<>();
-    private List<UserData> moneyBoard = new ArrayList<>();
-    private List<UserData> totalBoard = new ArrayList<>();
+
+    Lang langGetter;
+    private final Map<Long, String> nameCache = new HashMap<>();
+    private final Map<Long, UserData> userData = new HashMap<>();
+    private final List<UserData> moneyBoard = new ArrayList<>();
+    private final List<UserData> totalBoard = new ArrayList<>();
     private final String[] LANG_DEFAULT = {"en_US", "zh_TW"};
     private final String[] LANG_PARAMETERS_DEFAULT = {
             "REGISTER_GET_MONEY_NAME",
@@ -73,7 +76,7 @@ public class Main extends PluginEvent {
     @Override
     public void initLoad() {
         super.initLoad();
-        getter = new FileGetter(TAG, PATH_FOLDER_NAME, LANG_DEFAULT, LANG_PARAMETERS_DEFAULT, Main.class.getClassLoader());
+        getter = new FileGetter(TAG, PATH_FOLDER_NAME, Main.class.getClassLoader());
         logger = new Logger(TAG);
         loadConfigFile();
         loadVariables();
@@ -120,6 +123,7 @@ public class Main extends PluginEvent {
     @Override
     public void loadConfigFile() {
         config = new JSONObject(getter.readYml("config.yml", "plugins/" + PATH_FOLDER_NAME));
+        langGetter = new Lang(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, LANG_PARAMETERS_DEFAULT, config.getString("Lang"));
         logger.log("Setting File Loaded Successfully");
     }
 
@@ -155,8 +159,8 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadLang() {
-        getter.exportDefaultLang();
-        lang = getter.getLangFileData(config.getString("Lang"));
+        langGetter.exportDefaultLang();
+        lang = langGetter.getLangFileData();
     }
 
     @Override
@@ -332,7 +336,6 @@ public class Main extends PluginEvent {
                     break;
                 }
                 default: {
-                    return;
                 }
             }
 
