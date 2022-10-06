@@ -51,7 +51,7 @@ public class Main extends PluginEvent {
     @Override
     public void initLoad() {
         super.initLoad();
-        getter = new FileGetter(TAG, PATH_FOLDER_NAME, Main.class.getClassLoader());
+        getter = new FileGetter(TAG, PATH_FOLDER_NAME, LANG_DEFAULT, LANG_PARAMETERS_DEFAULT, Main.class.getClassLoader());
         logger = new Logger(TAG);
         loadConfigFile();
         loadVariables();
@@ -125,7 +125,7 @@ public class Main extends PluginEvent {
     @Override
     public void loadLang() {
         // expert files
-        getter.exportLang(LANG_DEFAULT, LANG_PARAMETERS_DEFAULT);
+        getter.exportDefaultLang();;
         lang = getter.getLangFileData(config.getString("Lang"));
     }
 

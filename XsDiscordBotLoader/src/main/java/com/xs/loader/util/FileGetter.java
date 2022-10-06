@@ -17,14 +17,12 @@ public class FileGetter {
     private final String FOLDER_PATH;
     private final ClassLoader LOADER;
     private final Logger logger;
-    private final String lang;
     private final String[] defaultLang;
     private final String[] parameters;
 
-    public FileGetter(final String TAG, final String PATH_FOLDER_NAME, final String LANG, final String[] DEFAULT_LANG, final String[] PARAMETERS, final ClassLoader LOADER) {
+    public FileGetter(final String TAG, final String PATH_FOLDER_NAME, final String[] DEFAULT_LANG, final String[] PARAMETERS, final ClassLoader LOADER) {
         logger = new Logger(TAG);
         this.FOLDER_PATH = MainLoader.ROOT_PATH + "/plugins/" + PATH_FOLDER_NAME;
-        this.lang = LANG;
         this.LOADER = LOADER;
         this.parameters = PARAMETERS;
         this.defaultLang = DEFAULT_LANG;
@@ -117,10 +115,10 @@ public class FileGetter {
         }
     }
 
-    public Map<String, String> getLangFileData() {
+    public Map<String, String> getLangFileData(final String LANG) {
         File f;
         Map<String, String> langMap = new HashMap<>();
-        if (lang == null || (!(f = new File(FOLDER_PATH + "/Lang/" + lang + ".yml")).exists())) {
+        if (LANG == null || (!(f = new File(FOLDER_PATH + "/Lang/" + LANG + ".yml")).exists())) {
             f = new File(FOLDER_PATH + "/Lang/en_US.yml");
         }
 
