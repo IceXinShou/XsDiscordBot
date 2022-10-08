@@ -17,9 +17,9 @@ public class FileGetter {
     private final ClassLoader LOADER;
     private final Logger logger;
 
-    public FileGetter(final String TAG, final String PATH_FOLDER_NAME, final ClassLoader LOADER) {
-        logger = new Logger(TAG);
-        this.FOLDER_PATH = MainLoader.ROOT_PATH + "/plugins/" + PATH_FOLDER_NAME;
+    public FileGetter(final Logger logger, final String PATH_FOLDER_NAME, final ClassLoader LOADER) {
+        this.logger = logger;
+        this.FOLDER_PATH = MainLoader.ROOT_PATH + "/" + PATH_FOLDER_NAME;
         this.LOADER = LOADER;
     }
 
@@ -52,7 +52,6 @@ public class FileGetter {
     @Nullable
     public File exportResource(String sourceFileName, String outputPath) {
         InputStream fileInJar = LOADER.getResourceAsStream(sourceFileName);
-
         try {
             if (fileInJar == null) {
                 logger.error("can not find resource: " + sourceFileName);
@@ -68,20 +67,22 @@ public class FileGetter {
         return null;
     }
 
-    public void exportResource(String sourceFile, String outputName, String outputPath) {
+    public File exportResource(String sourceFile, String outputName, String outputPath) {
         InputStream fileInJar = LOADER.getResourceAsStream(sourceFile);
 
         try {
             if (fileInJar == null) {
                 logger.error("can not find resource: " + sourceFile);
-                return;
+                return null;
             }
             Files.copy(fileInJar, Paths.get(FOLDER_PATH + "/" + outputPath + "/" + outputName), StandardCopyOption.REPLACE_EXISTING);
             fileInJar.close();
+            return new File(FOLDER_PATH + "/" + outputPath + "/" + outputName);
         } catch (IOException e) {
             logger.error("read resource failed");
             logger.error(e.getMessage());
         }
+        return null;
     }
 
     public boolean checkFileParameter(Map<String, Object> data, String[] parameters, String fileName) {

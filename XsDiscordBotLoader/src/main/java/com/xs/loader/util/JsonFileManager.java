@@ -6,6 +6,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.*;
+import java.nio.file.Files;
 
 public class JsonFileManager {
     private final String TAG;
@@ -39,9 +40,7 @@ public class JsonFileManager {
                 writer.close();
             }
 
-            FileInputStream inputStream = new FileInputStream(FILE);
-            data = new JSONObject(streamToString(inputStream));
-            inputStream.close();
+            data = new JSONObject(streamToString(Files.newInputStream(FILE.toPath())));
         } catch (IOException e) {
             logger.error(e.getMessage());
         }

@@ -15,8 +15,22 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="115b6b02-7322-4f7a-96af-1324d4169cc1" name="Changes" comment="Update">
-      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/util/EmbedCreator.java" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/util/EmbedCreator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/util/StringFormat.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/XsDiscordBot.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/XsDiscordBot.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Ban/src/main/java/com/xs/ban/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Ban/src/main/java/com/xs/ban/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/BotInfo/src/main/java/com/xs/botinfo/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/BotInfo/src/main/java/com/xs/botinfo/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Economy/src/main/java/com/xs/economy/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Economy/src/main/java/com/xs/economy/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Emoji/src/main/java/com/xs/emoji/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Emoji/src/main/java/com/xs/emoji/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Kick/src/main/java/com/xs/kick/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Kick/src/main/java/com/xs/kick/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Poll/src/main/java/com/xs/poll/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Poll/src/main/java/com/xs/poll/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/ServerInfo/src/main/java/com/xs/serverinfo/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ServerInfo/src/main/java/com/xs/serverinfo/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/XsDiscordBotLoader1.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/ConfigSetting.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/MainLoader.java" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/MainLoader.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/lang/Lang.java" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/lang/Lang.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/util/FileGetter.java" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/util/FileGetter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/util/JsonFileManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/util/JsonFileManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/resources/config_0A2F7C.yml" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/resources/config_0A2F7C.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -86,22 +100,24 @@
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "WebServerToolWindowFactoryState": "false",
     "go.import.settings.migrated": "true",
-    "last_opened_file_path": "C:/Users/icexi/IdeaProjects/XsDiscordBot/Server/XsDiscordBotLoader_v1.2.jar",
+    "last_opened_file_path": "C:/Users/icexi/IdeaProjects/XsDiscordBot/Server/plugins/tmp",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Libraries",
+    "project.structure.last.edited": "Modules",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.24597701",
-    "settings.editor.selected.configurable": "preferences.fileTypes"
+    "settings.editor.selected.configurable": "configurable.group.appearance"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\Users\icexi\IdeaProjects\XsDiscordBot" />
+      <recent name="C:\Users\icexi\IdeaProjects\XsDiscordBot\Server\plugins\tmp" />
+      <recent name="C:\Users\icexi\IdeaProjects\XsDiscordBot\Server" />
       <recent name="C:\Users\icexi\IdeaProjects\XsDiscordBot\Plugins" />
+      <recent name="C:\Users\icexi\IdeaProjects\XsDiscordBot" />
     </key>
     <key name="CopyClassDialog.RECENTS_KEY">
       <recent name="com.xs.economy" />
@@ -213,7 +229,10 @@
       <workItem from="1664519157685" duration="7797000" />
       <workItem from="1664619690094" duration="4508000" />
       <workItem from="1664624430763" duration="62608000" />
-      <workItem from="1664891855777" duration="12757000" />
+      <workItem from="1664891855777" duration="13270000" />
+      <workItem from="1665244775548" duration="261000" />
+      <workItem from="1665245046073" duration="1901000" />
+      <workItem from="1665249317537" duration="5257000" />
     </task>
     <task id="LOCAL-00001" summary="wtf">
       <created>1664519422653</created>
@@ -348,7 +367,14 @@
       <option name="project" value="LOCAL" />
       <updated>1665093421963</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL-00020" summary="Update">
+      <created>1665196388616</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1665196388616</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

@@ -32,13 +32,13 @@ public class Main extends PluginEvent {
     FileGetter getter;
     Logger logger;
     final String TAG = "BotInfo";
-    final String PATH_FOLDER_NAME = "BotInfo";
+    final String PATH_FOLDER_NAME = "plugins/BotInfo";
 
     @Override
     public void initLoad() {
         super.initLoad();
-        getter = new FileGetter(TAG, PATH_FOLDER_NAME, Main.class.getClassLoader());
         logger = new Logger(TAG);
+        getter = new FileGetter(logger, PATH_FOLDER_NAME, Main.class.getClassLoader());
         loadConfigFile();
         loadVariables();
         loadLang();
@@ -60,7 +60,7 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadConfigFile() {
-        config = new JSONObject(getter.readYml("config.yml", "plugins/" + PATH_FOLDER_NAME));
+        config = new JSONObject(getter.readYml("config.yml", PATH_FOLDER_NAME));
         langGetter = new Lang(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, LANG_PARAMETERS_DEFAULT, config.getString("Lang"));
         logger.log("Setting File Loaded Successfully");
     }

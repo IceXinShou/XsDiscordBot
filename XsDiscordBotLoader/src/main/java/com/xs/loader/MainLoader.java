@@ -2,14 +2,18 @@ package com.xs.loader;
 
 import com.xs.loader.logger.Color;
 import com.xs.loader.logger.Logger;
+import com.xs.loader.util.FileGetter;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.fusesource.jansi.AnsiConsole;
+import org.jetbrains.annotations.NotNull;
+import org.json.JSONObject;
 import org.yaml.snakeyaml.Yaml;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -18,11 +22,13 @@ import java.io.*;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.channels.Channels;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.jar.JarFile;
 
+import static com.xs.loader.util.JsonFileManager.streamToString;
+
 public class MainLoader {
-    public static ConfigSetting loader;
     public static String noPermissionERROR = "You have no permission";
     public static JDA jdaBot;
     public static List<CommandData> guildCommands = new ArrayList<>();
@@ -33,16 +39,26 @@ public class MainLoader {
     private final Queue<PluginEvent> listeners = new ArrayDeque<>();
     private final Logger logger;
     private final String version = "v1.2";
+    private String BOT_TOKEN;
+    private long botID;
+    private JSONObject settings;
+    private FileGetter getter;
+    private List<String> botStatus = new ArrayList<>();
 
     MainLoader() {
         logger = new Logger("Main");
-        loader = new ConfigSetting();
+
         if (versionCheck()) {
             return;
         }
 
+        getter = new FileGetter(logger, "", MainLoader.class.getClassLoader());
+
         defaultFileInit();
-        JDABuilder builder = JDABuilder.createDefault(ConfigSetting.botToken)
+        loadConfigFile();
+        loadVariables();
+
+        JDABuilder builder = JDABuilder.createDefault(BOT_TOKEN)
                 .setBulkDeleteSplittingEnabled(false)
                 .setLargeThreshold(250)
                 .setMemberCachePolicy(MemberCachePolicy.ALL)
@@ -58,7 +74,7 @@ public class MainLoader {
             return;
         }
 
-        ConfigSetting.botID = jdaBot.getSelfUser().getIdLong();
+        botID = jdaBot.getSelfUser().getIdLong();
         ListenerManager listenerManager = new ListenerManager();
         jdaBot.addEventListener(listenerManager);
 
@@ -67,6 +83,7 @@ public class MainLoader {
         }
 
         jdaBot.updateCommands().addCommands(globalCommands).queue();
+        setStatus();
         logger.log("Bot Initialized");
     }
 
@@ -118,7 +135,7 @@ public class MainLoader {
         logger.log("File Initialized Successfully");
     }
 
-    String getExtensionName(String fileName) {
+    String getExtensionName(@NotNull String fileName) {
         int i = fileName.lastIndexOf('.');
         if (i > 0) {
             return fileName.substring(i + 1);
@@ -181,6 +198,68 @@ public class MainLoader {
         if (fail > 0)
             logger.error(fail + " Plugin(s) Loading Failed!");
         logger.log(count + " Plugin(s) Loading Successfully");
+    }
+
+    private void loadConfigFile() {
+        settings = new JSONObject(readOrDefaultYml("config_0A2F7C.yml", "config.yml"));
+        logger.log("Setting file loaded");
+    }
+
+    private void loadVariables() {
+        JSONObject general = settings.getJSONObject("GeneralSettings");
+        BOT_TOKEN = general.getString("botToken");
+        if (general.has("activityMessage") && !general.getJSONArray("activityMessage").isEmpty()) {
+            for (Object i : general.getJSONArray("activityMessage")) {
+                botStatus.add((String) i);
+            }
+        }
+    }
+
+    void setStatus() {
+        if (botStatus.isEmpty()) return;
+
+        new Thread(() -> {
+            while (true) {
+                for (String i : botStatus) {
+                    String[] arg = i.split(";");
+                    try {
+                        if (arg[0].equals("STREAMING"))
+                            // name, url
+                            jdaBot.getPresence().setActivity(Activity.of(Activity.ActivityType.STREAMING, arg[1], arg[2]));
+                        else {
+                            jdaBot.getPresence().setActivity(Activity.of(Activity.ActivityType.valueOf(arg[0]), arg[1]));
+                        }
+                        Thread.sleep(5000);
+                    } catch (IllegalArgumentException e) {
+                        logger.error("can not find type: " + arg[0]);
+                        return;
+                    } catch (InterruptedException e) {
+                        logger.error(e.getMessage());
+                    }
+                }
+            }
+        }).start();
+    }
+
+    public Map<String, Object> readOrDefaultYml(String name, String outName) {
+        File settingFile = new File(System.getProperty("user.dir") + '/' + outName);
+        if (!settingFile.exists()) {
+            logger.error(outName + " not found, create default " + outName);
+            settingFile = getter.exportResource(name, outName, "");
+            if (settingFile == null) {
+                logger.error("read " + name + " failed");
+                return null;
+            }
+        }
+        logger.log("load " + settingFile.getPath());
+        String settingText = null;
+        try {
+            settingText = streamToString(Files.newInputStream(settingFile.toPath()));
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+        }
+
+        return new Yaml().load(settingText);
     }
 
     public static void main(String[] args) {

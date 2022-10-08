@@ -4,3 +4,8 @@
 
 GeneralSettings:
   botToken: WTFWTFWTFWTFWTFWTFWTFWTFWTFWTFWTF
+
+  # PLAYING / STREAMING / LISTENING / WATCHING / CUSTOM_STATUS / COMPETING
+  activityMessage:
+    - "COMPETING;開發中..."
+    - "COMPETING;Developing..."

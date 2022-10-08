@@ -30,7 +30,7 @@ public class Main extends PluginEvent {
     FileGetter getter;
     Logger logger;
     final String TAG = "Emoji";
-    final String PATH_FOLDER_NAME = "Emoji";
+    final String PATH_FOLDER_NAME = "plugins/Emoji";
     private JSONArray ids;
     public static Map<String, Map<Long, Emoji>> emojis = new HashMap<>();
     boolean noSet = false;
@@ -39,7 +39,7 @@ public class Main extends PluginEvent {
     public void initLoad() {
         super.initLoad();
         logger = new Logger(TAG);
-        getter = new FileGetter(TAG, PATH_FOLDER_NAME, Main.class.getClassLoader());
+        getter = new FileGetter(logger, PATH_FOLDER_NAME, Main.class.getClassLoader());
         loadConfigFile();
         loadVariables();
         logger.log("Loaded");
@@ -53,7 +53,7 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadConfigFile() {
-        config = new JSONObject(getter.readYml("config.yml", "plugins/" + PATH_FOLDER_NAME));
+        config = new JSONObject(getter.readYml("config.yml", PATH_FOLDER_NAME));
         logger.log("Setting File Loaded Successfully");
     }
 
@@ -62,7 +62,7 @@ public class Main extends PluginEvent {
         ids = config.getJSONArray("GuildID");
 
         if (ids.isNull(0)) {
-            logger.error("Please configure /plugins/" + PATH_FOLDER_NAME + "/config.yml");
+            logger.error("Please configure /" + PATH_FOLDER_NAME + "/config.yml");
             noSet = true;
         }
 

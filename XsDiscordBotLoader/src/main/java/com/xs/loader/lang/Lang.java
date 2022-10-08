@@ -19,7 +19,7 @@ public class Lang {
 
     public Lang(final String TAG, final FileGetter GETTER, final String PATH_FOLDER_NAME, final String[] DEFAULT_LANG, final String[] DEFAULT_PARAMETER, final String LANG) {
         logger = new Logger(TAG);
-        this.FOLDER_PATH = MainLoader.ROOT_PATH + "/plugins/" + PATH_FOLDER_NAME;
+        this.FOLDER_PATH = MainLoader.ROOT_PATH + "/" + PATH_FOLDER_NAME;
         this.getter = GETTER;
         this.defaultLang = DEFAULT_LANG;
         this.lang = LANG;

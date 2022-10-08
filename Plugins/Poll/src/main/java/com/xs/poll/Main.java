@@ -44,7 +44,7 @@ public class Main extends PluginEvent {
     private FileGetter getter;
     private Logger logger;
     private final String TAG = "Poll";
-    private final String PATH_FOLDER_NAME = "Poll";
+    private final String PATH_FOLDER_NAME = "plugins/Poll";
     private JSONObject emojiData;
     List<Emoji> votes = new ArrayList<>();
     boolean noSet = false;
@@ -53,8 +53,8 @@ public class Main extends PluginEvent {
     @Override
     public void initLoad() {
         super.initLoad();
-        getter = new FileGetter(TAG, PATH_FOLDER_NAME, Main.class.getClassLoader());
         logger = new Logger(TAG);
+        getter = new FileGetter(logger, PATH_FOLDER_NAME, Main.class.getClassLoader());
         loadConfigFile();
         loadVariables();
         loadLang();
@@ -88,7 +88,7 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadConfigFile() {
-        config = new JSONObject(getter.readYml("config.yml", "plugins/" + PATH_FOLDER_NAME));
+        config = new JSONObject(getter.readYml("config.yml", PATH_FOLDER_NAME));
         logger.log("Setting File Loaded Successfully");
     }
 
@@ -97,7 +97,7 @@ public class Main extends PluginEvent {
         if (config.has("Emojis") && !config.getJSONObject("Emojis").isEmpty()) {
             emojiData = config.getJSONObject("Emojis");
         } else {
-            logger.error("Please configure /plugins/" + PATH_FOLDER_NAME + "/config.yml");
+            logger.error("Please configure /" + PATH_FOLDER_NAME + "/config.yml");
             noSet = true;
         }
         langGetter = new Lang(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, LANG_PARAMETERS_DEFAULT, config.getString("Lang"));
