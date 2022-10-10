@@ -1,1 +1,4 @@
-MainPath: com.xs.Main
+MainPath: com.xs.customroom.Main
+Name: CustomRoom
+Dependencies:
+  - EmojiAPI

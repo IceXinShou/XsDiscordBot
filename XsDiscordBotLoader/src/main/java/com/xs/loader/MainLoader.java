@@ -3,6 +3,7 @@ package com.xs.loader;
 import com.xs.loader.logger.Color;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
+import kotlin.Pair;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -13,6 +14,7 @@ import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.fusesource.jansi.AnsiConsole;
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.yaml.snakeyaml.Yaml;
 
@@ -43,6 +45,8 @@ public class MainLoader {
     private JSONObject settings;
     private FileGetter getter;
     private final List<String> botStatus = new ArrayList<>();
+    private Map<String, Pair<JSONArray, PluginEvent>> plugins = new HashMap<>();
+    Queue<PluginEvent> queue = new ArrayDeque<>();
 
     MainLoader() {
         logger = new Logger("Main");
@@ -142,51 +146,53 @@ public class MainLoader {
         return null;
     }
 
+    void loadDependencies(String currentPlugin, JSONArray dependencies) {
+        if (!dependencies.isEmpty()) {
+            for (Object depend : dependencies) {
+                if (plugins.containsKey((String) depend)) {
+                    loadDependencies((String) depend, plugins.get((String) depend).getFirst());
+                    if (!queue.contains(plugins.get(currentPlugin).component2())) {
+                        queue.add(plugins.get(currentPlugin).component2());
+                    }
+                } else {
+                    logger.error("plugin: " + currentPlugin + " lost dependency: " + depend);
+                }
+            }
+        } else {
+            if (!queue.contains(plugins.get(currentPlugin).component2()))
+                queue.add(plugins.get(currentPlugin).component2());
+        }
+    }
+
     void loadPlugins() {
         int count = 0;
         int fail = 0;
-        logger.log("Plugin(s) Loading...");
         String tmp;
-        File f = new File("plugins");
-        for (File file : f.listFiles()) {
+        logger.log("Plugin(s) Loading...");
+
+        // init loading
+
+        for (File file : new File("plugins").listFiles()) {
             try {
                 if (file == null) continue;
                 if ((tmp = getExtensionName(file.getName())) == null || !tmp.equals("jar")) continue;
                 JarFile jarFile = new JarFile(file);
                 InputStream inputStream = jarFile.getInputStream(jarFile.getEntry("info.yml"));
-                ByteArrayOutputStream result = new ByteArrayOutputStream();
+                JSONObject data = new JSONObject((Map<String, Object>) new Yaml().load(streamToString(inputStream)));
 
-                byte[] buffer = new byte[1024];
-                int length;
-                while ((length = inputStream.read(buffer)) != -1)
-                    result.write(buffer, 0, length);
-
-                URLClassLoader loader = new URLClassLoader(
-                        new URL[]{file.toURI().toURL()},
-                        MainLoader.class.getClassLoader()
-                );
-
-                PluginEvent pluginMain = (PluginEvent) loader
-                        .loadClass((String) (((Map<String, Object>) new Yaml().load(result.toString("UTF-8"))).get("MainPath")))
-                        .getDeclaredConstructor().newInstance();
-
-                pluginMain.initLoad();
-
-                if (pluginMain.guildCommands() != null) {
-                    Collections.addAll(guildCommands, pluginMain.guildCommands());
+                if (!plugins.containsKey(data.getString("Name"))) {
+                    plugins.put(data.getString("Name"), new Pair<>(data.has("Dependencies") ? data.getJSONArray("Dependencies") : new JSONArray(), (PluginEvent)
+                            new URLClassLoader(
+                                    new URL[]{file.toURI().toURL()},
+                                    MainLoader.class.getClassLoader())
+                                    .loadClass(data.getString("MainPath"))
+                                    .getDeclaredConstructor().newInstance()));
+                } else {
+                    logger.error("same plugin!: " + file.getName());
+                    ++fail;
+                    continue;
                 }
 
-                if (pluginMain.subGuildCommands() != null) {
-                    Collections.addAll(subGuildCommands, pluginMain.subGuildCommands());
-                }
-
-                if (pluginMain.globalCommands() != null) {
-                    Collections.addAll(globalCommands, pluginMain.globalCommands());
-                }
-
-                listeners.add(pluginMain);
-
-                result.close();
                 inputStream.close();
                 jarFile.close();
                 ++count;
@@ -195,6 +201,35 @@ public class MainLoader {
                 logger.error(file.getName() + '\n' + e.getMessage());
             }
         }
+
+        plugins.forEach((i, j) -> {
+            if (queue.contains(j.component2())) {
+                return;
+            }
+            logger.log(i);
+            loadDependencies(i, j.component1());
+        });
+
+        while (!queue.isEmpty()) {
+            PluginEvent pluginMain = queue.poll();
+
+            pluginMain.initLoad();
+
+            if (pluginMain.guildCommands() != null) {
+                Collections.addAll(guildCommands, pluginMain.guildCommands());
+            }
+
+            if (pluginMain.subGuildCommands() != null) {
+                Collections.addAll(subGuildCommands, pluginMain.subGuildCommands());
+            }
+
+            if (pluginMain.globalCommands() != null) {
+                Collections.addAll(globalCommands, pluginMain.globalCommands());
+            }
+
+            listeners.add(pluginMain);
+        }
+
         if (fail > 0)
             logger.error(fail + " Plugin(s) Loading Failed!");
         logger.log(count + " Plugin(s) Loading Successfully");
