@@ -14,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static com.xs.loader.util.EmbedCreator.createEmbed;
 import static com.xs.loader.util.PermissionERROR.permissionCheck;
@@ -105,7 +106,7 @@ public class Main extends PluginEvent {
             delDays = (int) Math.max(0, Math.min(7, option.getAsLong()));
 
         String userName = member.getEffectiveName();
-        event.getGuild().ban(member.getUser(), delDays).reason(reason).queue(
+        event.getGuild().ban(member, delDays, TimeUnit.DAYS).reason(reason).queue(
                 success -> {
                     event.getHook().editOriginalEmbeds(createEmbed(lang.get("SUCCESS") + ' ' + userName, 0xffb1b3)).queue();
                 },

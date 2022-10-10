@@ -19,7 +19,6 @@ import org.json.JSONObject;
 import org.yaml.snakeyaml.Yaml;
 
 import javax.net.ssl.HttpsURLConnection;
-import javax.security.auth.login.LoginException;
 import java.io.*;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -31,22 +30,21 @@ import java.util.jar.JarFile;
 import static com.xs.loader.util.JsonFileManager.streamToString;
 
 public class MainLoader {
-    public static String noPermissionERROR = "You have no permission";
     public static JDA jdaBot;
-    public static List<CommandData> guildCommands = new ArrayList<>();
-    public static List<SubcommandData> subGuildCommands = new ArrayList<>();
-    public static List<CommandData> globalCommands = new ArrayList<>();
+    public static long botID;
+    public final List<CommandData> guildCommands = new ArrayList<>();
+    public final List<SubcommandData> subGuildCommands = new ArrayList<>();
+    public final List<CommandData> globalCommands = new ArrayList<>();
     public static final String ROOT_PATH = new File(System.getProperty("user.dir")).toString();
     private final Queue<PluginEvent> listeners = new ArrayDeque<>();
     private final Logger logger;
     private final String version = "v1.3";
     private String BOT_TOKEN;
-    private long botID;
     private JSONObject settings;
     private FileGetter getter;
     private final List<String> botStatus = new ArrayList<>();
-    private Map<String, Pair<JSONArray, PluginEvent>> plugins = new HashMap<>();
-    Queue<PluginEvent> queue = new ArrayDeque<>();
+    private final Map<String, Pair<PluginEvent, JSONArray>> plugins = new HashMap<>();
+    private final Queue<PluginEvent> queue = new ArrayDeque<>();
 
     MainLoader() {
         logger = new Logger("Main");
@@ -70,15 +68,10 @@ public class MainLoader {
 
         loadPlugins();
 
-        try {
-            jdaBot = builder.build();
-        } catch (LoginException e) {
-            logger.error("Token is Invalid");
-            return;
-        }
+        jdaBot = builder.build();
 
         botID = jdaBot.getSelfUser().getIdLong();
-        ListenerManager listenerManager = new ListenerManager();
+        ListenerManager listenerManager = new ListenerManager(guildCommands, subGuildCommands);
         jdaBot.addEventListener(listenerManager);
 
         while (!listeners.isEmpty()) {
@@ -96,7 +89,7 @@ public class MainLoader {
         URL downloadURL;
         URL url;
         try {
-            url = new URL("https://github.com/IceLeiYu/XsDiscordBot/releases/latest ");
+            url = new URL("https://github.com/IceLeiYu/XsDiscordBot/releases/latest");
             HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
             conn.connect();
             conn.getInputStream().close();
@@ -150,17 +143,18 @@ public class MainLoader {
         if (!dependencies.isEmpty()) {
             for (Object depend : dependencies) {
                 if (plugins.containsKey((String) depend)) {
-                    loadDependencies((String) depend, plugins.get((String) depend).getFirst());
-                    queue.add(plugins.get(currentPlugin).component2());
+                    loadDependencies((String) depend, plugins.get((String) depend).component2());
+                    queue.add(plugins.get(currentPlugin).component1());
                 } else {
                     logger.error("plugin: " + currentPlugin + " lost dependency: " + depend);
                 }
             }
         } else {
-            queue.add(plugins.get(currentPlugin).component2());
+            queue.add(plugins.get(currentPlugin).component1());
         }
     }
 
+    @SuppressWarnings("unchecked")
     void loadPlugins() {
         int count = 0;
         int fail = 0;
@@ -176,12 +170,13 @@ public class MainLoader {
                 JSONObject data = new JSONObject((Map<String, Object>) new Yaml().load(streamToString(inputStream)));
 
                 if (!plugins.containsKey(data.getString("Name"))) {
-                    plugins.put(data.getString("Name"), new Pair<>(data.has("Dependencies") ? data.getJSONArray("Dependencies") : new JSONArray(), (PluginEvent)
+                    plugins.put(data.getString("Name"), new Pair<>((PluginEvent)
                             new URLClassLoader(
                                     new URL[]{file.toURI().toURL()},
                                     MainLoader.class.getClassLoader())
                                     .loadClass(data.getString("MainPath"))
-                                    .getDeclaredConstructor().newInstance()));
+                                    .getDeclaredConstructor().newInstance(),
+                            data.has("Dependencies") ? data.getJSONArray("Dependencies") : new JSONArray()));
                 } else {
                     logger.error("same plugin!: " + file.getName());
                     ++fail;
@@ -198,11 +193,11 @@ public class MainLoader {
         }
 
         plugins.forEach((i, j) -> {
-            if (queue.contains(j.component2())) {
+            if (queue.contains(j.component1())) {
                 return;
             }
             logger.log(i);
-            loadDependencies(i, j.component1());
+            loadDependencies(i, j.component2());
         });
 
         while (!queue.isEmpty()) {
@@ -247,7 +242,6 @@ public class MainLoader {
 
     void setStatus() {
         if (botStatus.isEmpty()) return;
-
         new Thread(() -> {
             while (true) {
                 for (String i : botStatus) {

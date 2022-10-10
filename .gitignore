@@ -2,3 +2,4 @@
 /out
 */target/
 *.lock
+/.idea

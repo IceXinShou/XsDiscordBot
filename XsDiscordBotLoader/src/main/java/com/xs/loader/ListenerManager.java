@@ -4,17 +4,22 @@ import com.xs.loader.logger.Logger;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
 
-import static com.xs.loader.MainLoader.guildCommands;
-import static com.xs.loader.MainLoader.subGuildCommands;
+import java.util.List;
 
 public class ListenerManager extends ListenerAdapter {
-    Logger logger;
+    private final Logger logger;
+    private final List<CommandData> guildCommands;
+    private final List<SubcommandData> subGuildCommands;
 
-    public ListenerManager() {
+    public ListenerManager(List<CommandData> guildCommands, List<SubcommandData> subGuildCommands) {
         logger = new Logger("CMD");
+        this.guildCommands = guildCommands;
+        this.subGuildCommands = subGuildCommands;
     }
 
     @Override
@@ -25,6 +30,7 @@ public class ListenerManager extends ListenerAdapter {
         if (!subGuildCommands.isEmpty()) {
             event.getGuild().updateCommands().addCommands(
                     new CommandDataImpl("setting", "設定").addSubcommands(subGuildCommands)).queue();
+
         }
     }
 

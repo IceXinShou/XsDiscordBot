@@ -10,14 +10,14 @@ public class PermissionERROR {
 
     public static MessageEmbed noPermissionERROREmbed(Permission permission) {
         return EmbedCreator.createEmbed(
-                MainLoader.noPermissionERROR + " `(" + permission.getName() + ")`", 0xFF0000);
+                "You have no permission" + " `(" + permission.getName() + ")`", 0xFF0000);
     }
 
     public static boolean permissionCheck(Permission permission, SlashCommandInteractionEvent event) {
         if (event.getMember().hasPermission(permission))
             return true;
         else
-            event.getHook().editOriginalEmbeds(EmbedCreator.createEmbed(MainLoader.noPermissionERROR + " `(" + permission.getName() + ")`", 0xFF0000)).queue();
+            event.getHook().editOriginalEmbeds(EmbedCreator.createEmbed("You have no permission" + " `(" + permission.getName() + ")`", 0xFF0000)).queue();
         return false;
     }
 }

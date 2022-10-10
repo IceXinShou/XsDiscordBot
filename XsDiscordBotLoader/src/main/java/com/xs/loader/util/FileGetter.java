@@ -5,7 +5,6 @@ import com.xs.loader.logger.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.yaml.snakeyaml.Yaml;
 
-import javax.annotation.Nullable;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -32,7 +31,6 @@ public class FileGetter {
         return null;
     }
 
-    @Nullable
     public Map<String, Object> readYml(String fileName, String path) {
         new File(MainLoader.ROOT_PATH + "/" + path).mkdirs();
         File settingFile = new File(MainLoader.ROOT_PATH + "/" + path + "/" + fileName);
@@ -49,7 +47,6 @@ public class FileGetter {
         return readFile(settingFile);
     }
 
-    @Nullable
     public File exportResource(String sourceFileName, String outputPath) {
         InputStream fileInJar = LOADER.getResourceAsStream(sourceFileName);
         try {
