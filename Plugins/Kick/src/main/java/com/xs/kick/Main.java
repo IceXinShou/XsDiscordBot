@@ -73,13 +73,7 @@ public class Main extends PluginEvent {
     }
 
     @Override
-    public void loadVariables() {
-
-    }
-
-    @Override
     public void loadLang() {
-
         langGetter.exportDefaultLang();
         lang = langGetter.getLangFileData();
     }

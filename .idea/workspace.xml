@@ -16,6 +16,12 @@
   <component name="ChangeListManager">
     <list default="true" id="115b6b02-7322-4f7a-96af-1324d4169cc1" name="Changes" comment="Update">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Ban/src/main/java/com/xs/ban/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Ban/src/main/java/com/xs/ban/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/BotInfo/src/main/java/com/xs/botinfo/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/BotInfo/src/main/java/com/xs/botinfo/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/CustomRoom/src/main/java/com/xs/Main2.java" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/CustomRoom/src/main/java/com/xs/Main2.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Emoji/src/main/java/com/xs/emoji/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Emoji/src/main/java/com/xs/emoji/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Kick/src/main/java/com/xs/kick/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Kick/src/main/java/com/xs/kick/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/ServerInfo/src/main/java/com/xs/serverinfo/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ServerInfo/src/main/java/com/xs/serverinfo/Main.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/executionHistory/executionHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/executionHistory/executionHistory.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/executionHistory/executionHistory.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/fileHashes/fileHashes.bin" afterDir="false" />
@@ -23,17 +29,10 @@
       <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/fileHashes/resourceHashesCache.bin" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/fileHashes/resourceHashesCache.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/file-system.probe" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/file-system.probe" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/build/classes/java/main/com/xs/loader/ConfigSetting.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/build/classes/java/main/com/xs/loader/MainLoader.class" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/build/classes/java/main/com/xs/loader/MainLoader.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/build/classes/java/main/com/xs/loader/lang/Lang.class" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/build/classes/java/main/com/xs/loader/lang/Lang.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/build/classes/java/main/com/xs/loader/util/EmbedCreator.class" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/build/classes/java/main/com/xs/loader/util/EmbedCreator.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/build/classes/java/main/com/xs/loader/util/FileGetter.class" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/build/classes/java/main/com/xs/loader/util/FileGetter.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/build/classes/java/main/com/xs/loader/util/JsonFileManager.class" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/build/classes/java/main/com/xs/loader/util/JsonFileManager.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/build/classes/java/main/com/xs/loader/util/StringFormat.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/build/resources/main/config_0A2F7C.yml" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/build/resources/main/config_0A2F7C.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/build/tmp/compileJava/previous-compilation-data.bin" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/build/tmp/compileJava/previous-compilation-data.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/MainLoader.java" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/MainLoader.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/resources/config_0A2F7C.yml" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/resources/config_0A2F7C.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/PluginEvent.java" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/PluginEvent.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/util/EmbedCreator.java" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/util/EmbedCreator.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -93,28 +92,28 @@
     <option name="showLibraryContents" value="true" />
     <option name="sortByType" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.go.format.on.save.advertiser.fired": "true",
-    "RunOnceActivity.go.formatter.settings.were.checked": "true",
-    "RunOnceActivity.go.migrated.go.modules.settings": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "go.import.settings.migrated": "true",
-    "last_opened_file_path": "C:/Users/icexi/IdeaProjects/XsDiscordBot/Server/plugins/tmp",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Modules",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.24597701",
-    "settings.editor.selected.configurable": "configurable.group.appearance"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.format.on.save.advertiser.fired&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/icexi/IdeaProjects/XsDiscordBot/Server/plugins/tmp&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.24597701&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;configurable.group.appearance&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\icexi\IdeaProjects\XsDiscordBot\Server\plugins\tmp" />
@@ -235,7 +234,7 @@
       <workItem from="1664891855777" duration="13270000" />
       <workItem from="1665244775548" duration="261000" />
       <workItem from="1665245046073" duration="1901000" />
-      <workItem from="1665249317537" duration="9210000" />
+      <workItem from="1665249317537" duration="10006000" />
     </task>
     <task id="LOCAL-00001" summary="wtf">
       <created>1664519422653</created>
@@ -384,7 +383,14 @@
       <option name="project" value="LOCAL" />
       <updated>1665256738101</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="Update">
+      <created>1665368025066</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1665368025066</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

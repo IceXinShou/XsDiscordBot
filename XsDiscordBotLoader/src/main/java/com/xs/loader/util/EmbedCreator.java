@@ -2,7 +2,6 @@ package com.xs.loader.util;
 
 import net.dv8tion.jda.api.entities.EmbedType;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import org.jetbrains.annotations.Contract;
 
 import java.time.OffsetDateTime;
 import java.util.Collections;
@@ -14,7 +13,7 @@ public class EmbedCreator {
      * Embed
      */
 
-       public static MessageEmbed createEmbed(String title, String description, String footer, String nickname, String avatarUrl, OffsetDateTime timeStamp, int color) {
+    public static MessageEmbed createEmbed(String title, String description, String footer, String nickname, String avatarUrl, OffsetDateTime timeStamp, int color) {
         return new MessageEmbed(null,
                 title,
                 description,
@@ -44,7 +43,7 @@ public class EmbedCreator {
                 null, fields);
     }
 
-       public static MessageEmbed createEmbed(String title, MessageEmbed.Field field, String footer, String nickname, String avatarUrl, int color) {
+    public static MessageEmbed createEmbed(String title, MessageEmbed.Field field, String footer, String nickname, String avatarUrl, int color) {
         return new MessageEmbed(null,
                 title,
                 null,
@@ -74,7 +73,7 @@ public class EmbedCreator {
                 null, fields);
     }
 
-       public static MessageEmbed createEmbed(String title, String description, String footer, String nickname, String avatarUrl,
+    public static MessageEmbed createEmbed(String title, String description, String footer, String nickname, String avatarUrl,
                                            List<MessageEmbed.Field> fields, OffsetDateTime timeStamp, int color) {
         return new MessageEmbed(null,
                 title,
@@ -90,7 +89,7 @@ public class EmbedCreator {
                 null, fields);
     }
 
-       public static MessageEmbed createEmbed(String title, String description, String footer, OffsetDateTime timeStamp, int color) {
+    public static MessageEmbed createEmbed(String title, String description, String footer, OffsetDateTime timeStamp, int color) {
         return new MessageEmbed(null,
                 title,
                 description,
@@ -105,7 +104,7 @@ public class EmbedCreator {
                 null, null);
     }
 
-       public static MessageEmbed createEmbed(String title, String thumbnail, String description,
+    public static MessageEmbed createEmbed(String title, String thumbnail, String description,
                                            List<MessageEmbed.Field> fields, String footer, String nickname, String avatarUrl, int color) {
         return new MessageEmbed(null,
                 title,
@@ -121,7 +120,7 @@ public class EmbedCreator {
                 null, fields);
     }
 
-       public static MessageEmbed createEmbed(String title, String url, String description, String footer, String nickname, String avatarUrl, int color) {
+    public static MessageEmbed createEmbed(String title, String url, String description, String footer, String nickname, String avatarUrl, int color) {
         return new MessageEmbed(null,
                 title,
                 description,
@@ -136,7 +135,7 @@ public class EmbedCreator {
                 null, null);
     }
 
-       public static MessageEmbed createEmbed(String title, String url, String description, String footer, String nickname, String avatarUrl, int color, String image) {
+    public static MessageEmbed createEmbed(String title, String url, String description, String footer, String nickname, String avatarUrl, int color, String image) {
         return new MessageEmbed(null,
                 title,
                 description,
@@ -152,7 +151,7 @@ public class EmbedCreator {
                 null);
     }
 
-       public static MessageEmbed createEmbed(String title, String image, String url, String description,
+    public static MessageEmbed createEmbed(String title, String image, String url, String description,
                                            String footer, String nickname, String avatarUrl, int color, List<MessageEmbed.Field> fields) {
         return new MessageEmbed(url,
                 title,
@@ -169,7 +168,7 @@ public class EmbedCreator {
                 fields);
     }
 
-       public static MessageEmbed createEmbed(String title, String image, String url, String description, String footer, String nickname, String avatarUrl, int color) {
+    public static MessageEmbed createEmbed(String title, String image, String url, String description, String footer, String nickname, String avatarUrl, int color) {
         return new MessageEmbed(url,
                 title,
                 description,
@@ -184,7 +183,7 @@ public class EmbedCreator {
                 new MessageEmbed.ImageInfo(image, null, 0, 0), null);
     }
 
-       public static MessageEmbed createEmbed(String title, String image, String titleUrl, String nicknameUrl,
+    public static MessageEmbed createEmbed(String title, String image, String titleUrl, String nicknameUrl,
                                            String description, String footer, int color, String nickname, String avatarUrl) {
         return new MessageEmbed(titleUrl,
                 title,
@@ -200,7 +199,7 @@ public class EmbedCreator {
                 new MessageEmbed.ImageInfo(image, null, 0, 0), null);
     }
 
-       public static MessageEmbed createEmbed(String description, int color) {
+    public static MessageEmbed createEmbed(String description, int color) {
         return new MessageEmbed(null,
                 "",
                 description,
@@ -230,7 +229,7 @@ public class EmbedCreator {
                 null, null);
     }
 
-       public static MessageEmbed createEmbed(int color, String title) {
+    public static MessageEmbed createEmbed(int color, String title) {
         return new MessageEmbed(null,
                 title,
                 "",

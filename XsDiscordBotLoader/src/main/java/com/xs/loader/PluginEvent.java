@@ -5,7 +5,7 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import org.fusesource.jansi.AnsiConsole;
 
-public abstract class PluginEvent extends ListenerAdapter {
+public class PluginEvent extends ListenerAdapter {
     public void initLoad() {
         AnsiConsole.systemInstall();
     }
@@ -26,9 +26,12 @@ public abstract class PluginEvent extends ListenerAdapter {
         return null;
     }
 
-    public abstract void loadConfigFile();
+    public void loadConfigFile() {
+    }
 
-    public abstract void loadVariables();
+    public void loadVariables() {
+    }
 
-    public abstract void loadLang();
+    public void loadLang() {
+    }
 }

@@ -88,8 +88,4 @@ public class Main extends PluginEvent {
             }
         }
     }
-
-    @Override
-    public void loadLang() {
-    }
 }

@@ -73,11 +73,6 @@ public class Main extends PluginEvent {
     }
 
     @Override
-    public void loadVariables() {
-
-    }
-
-    @Override
     public void loadLang() {
         // expert files
         langGetter.exportDefaultLang();

@@ -302,11 +302,6 @@ public class Main2 extends PluginEvent {
     }
 
     @Override
-    public void loadVariables() {
-
-    }
-
-    @Override
     public void loadLang() {
         String langCode;
         if ((langCode = (String) config.get("Lang")) == null) langCode = "zh_TW";
