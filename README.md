@@ -11,7 +11,7 @@ Create a class and make it `extends PluginEvent`
 now, you can add these blow:
 
 ```java
-  @Override
+@Override
 public void initLoad(){super.initLoad();}
 
 @Override
