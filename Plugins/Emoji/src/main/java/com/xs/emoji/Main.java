@@ -6,7 +6,6 @@ import com.xs.loader.util.FileGetter;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -69,7 +68,7 @@ public class Main extends PluginEvent {
     }
 
     @Override
-    public void onGuildReady(@NotNull GuildReadyEvent event) {
+    public void onGuildReady(GuildReadyEvent event) {
         if (!noSet) {
             for (int i = 0; i < ids.length(); ++i) {
                 if (ids.getLong(i) == event.getGuild().getIdLong()) {
