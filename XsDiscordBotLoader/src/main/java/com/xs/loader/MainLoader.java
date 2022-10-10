@@ -39,7 +39,7 @@ public class MainLoader {
     public static final String ROOT_PATH = new File(System.getProperty("user.dir")).toString();
     private final Queue<PluginEvent> listeners = new ArrayDeque<>();
     private final Logger logger;
-    private final String version = "v1.2";
+    private final String version = "v1.3";
     private String BOT_TOKEN;
     private long botID;
     private JSONObject settings;
@@ -151,16 +151,13 @@ public class MainLoader {
             for (Object depend : dependencies) {
                 if (plugins.containsKey((String) depend)) {
                     loadDependencies((String) depend, plugins.get((String) depend).getFirst());
-                    if (!queue.contains(plugins.get(currentPlugin).component2())) {
-                        queue.add(plugins.get(currentPlugin).component2());
-                    }
+                    queue.add(plugins.get(currentPlugin).component2());
                 } else {
                     logger.error("plugin: " + currentPlugin + " lost dependency: " + depend);
                 }
             }
         } else {
-            if (!queue.contains(plugins.get(currentPlugin).component2()))
-                queue.add(plugins.get(currentPlugin).component2());
+            queue.add(plugins.get(currentPlugin).component2());
         }
     }
 
@@ -169,8 +166,6 @@ public class MainLoader {
         int fail = 0;
         String tmp;
         logger.log("Plugin(s) Loading...");
-
-        // init loading
 
         for (File file : new File("plugins").listFiles()) {
             try {

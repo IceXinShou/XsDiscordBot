@@ -1,7 +1,7 @@
 <component name="libraryTable">
   <library name="XsDiscordBotLoader-1.0">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/Server/XsDiscordBotLoader_v1.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/Server/XsDiscordBotLoader_v1.3.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
