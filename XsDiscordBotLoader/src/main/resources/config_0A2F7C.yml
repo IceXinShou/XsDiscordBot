@@ -7,5 +7,5 @@ GeneralSettings:
 
   # PLAYING / STREAMING / LISTENING / WATCHING / CUSTOM_STATUS / COMPETING
   activityMessage:
-    - "COMPETING;開發中..."
-    - "COMPETING;Developing..."
+    - "COMPETING;開發中...;5000"
+    - "COMPETING;Developing...;4000"

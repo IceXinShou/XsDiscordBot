@@ -35,7 +35,6 @@ public class MainLoader {
     public static List<SubcommandData> subGuildCommands = new ArrayList<>();
     public static List<CommandData> globalCommands = new ArrayList<>();
     public static final String ROOT_PATH = new File(System.getProperty("user.dir")).toString();
-
     private final Queue<PluginEvent> listeners = new ArrayDeque<>();
     private final Logger logger;
     private final String version = "v1.2";
@@ -43,7 +42,7 @@ public class MainLoader {
     private long botID;
     private JSONObject settings;
     private FileGetter getter;
-    private List<String> botStatus = new ArrayList<>();
+    private final List<String> botStatus = new ArrayList<>();
 
     MainLoader() {
         logger = new Logger("Main");
@@ -148,7 +147,8 @@ public class MainLoader {
         int fail = 0;
         logger.log("Plugin(s) Loading...");
         String tmp;
-        for (File file : new File("plugins").listFiles()) {
+        File f = new File("plugins");
+        for (File file : f.listFiles()) {
             try {
                 if (file == null) continue;
                 if ((tmp = getExtensionName(file.getName())) == null || !tmp.equals("jar")) continue;
@@ -223,13 +223,14 @@ public class MainLoader {
                 for (String i : botStatus) {
                     String[] arg = i.split(";");
                     try {
-                        if (arg[0].equals("STREAMING"))
+                        if (arg[0].equals("STREAMING")) {
                             // name, url
                             jdaBot.getPresence().setActivity(Activity.of(Activity.ActivityType.STREAMING, arg[1], arg[2]));
-                        else {
+                            Thread.sleep(Long.parseLong(arg[3]));
+                        } else {
                             jdaBot.getPresence().setActivity(Activity.of(Activity.ActivityType.valueOf(arg[0]), arg[1]));
+                            Thread.sleep(Long.parseLong(arg[2]));
                         }
-                        Thread.sleep(5000);
                     } catch (IllegalArgumentException e) {
                         logger.error("can not find type: " + arg[0]);
                         return;
