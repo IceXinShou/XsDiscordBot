@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
+import net.dv8tion.jda.api.events.user.update.UserUpdateDiscriminatorEvent;
 import net.dv8tion.jda.api.events.user.update.UserUpdateNameEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -84,6 +85,7 @@ public class Main extends PluginEvent {
         super.unload();
         logger.log("UnLoaded");
     }
+
 
     @Override
     public CommandData[] guildCommands() {
@@ -338,6 +340,11 @@ public class Main extends PluginEvent {
 
     @Override
     public void onUserUpdateName(@NotNull UserUpdateNameEvent event) {
+        nameCache.put(event.getUser().getIdLong(), event.getUser().getAsTag());
+    }
+
+    @Override
+    public void onUserUpdateDiscriminator(UserUpdateDiscriminatorEvent event) {
         nameCache.put(event.getUser().getIdLong(), event.getUser().getAsTag());
     }
 
