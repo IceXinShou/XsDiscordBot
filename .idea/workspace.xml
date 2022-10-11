@@ -14,8 +14,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="115b6b02-7322-4f7a-96af-1324d4169cc1" name="Changes" comment="update to v1.4">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="115b6b02-7322-4f7a-96af-1324d4169cc1" name="Changes" comment="fix bug">
       <change beforePath="$PROJECT_DIR$/Plugins/Economy/src/main/java/com/xs/economy/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Economy/src/main/java/com/xs/economy/Main.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -240,7 +239,7 @@
       <workItem from="1665371480285" duration="95000" />
       <workItem from="1665371584813" duration="26000" />
       <workItem from="1665371679067" duration="3597000" />
-      <workItem from="1665379768412" duration="22206000" />
+      <workItem from="1665379768412" duration="22735000" />
     </task>
     <task id="LOCAL-00001" summary="wtf">
       <created>1664519422653</created>
@@ -445,7 +444,21 @@
       <option name="project" value="LOCAL" />
       <updated>1665521588959</updated>
     </task>
-    <option name="localTasksCounter" value="30" />
+    <task id="LOCAL-00030" summary="fix bug">
+      <created>1665522723080</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1665522723080</updated>
+    </task>
+    <task id="LOCAL-00031" summary="fix bug">
+      <created>1665523033914</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1665523033914</updated>
+    </task>
+    <option name="localTasksCounter" value="32" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -482,7 +495,8 @@
     <MESSAGE value="update" />
     <MESSAGE value="update (Have bugs)" />
     <MESSAGE value="update to v1.4" />
-    <option name="LAST_COMMIT_MESSAGE" value="update to v1.4" />
+    <MESSAGE value="fix bug" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix bug" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

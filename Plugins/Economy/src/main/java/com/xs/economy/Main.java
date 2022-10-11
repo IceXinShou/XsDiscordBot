@@ -344,7 +344,7 @@ public class Main extends PluginEvent {
     }
 
     @Override
-    public void onUserUpdateDiscriminator(UserUpdateDiscriminatorEvent event) {
+    public void onUserUpdateDiscriminator(@NotNull UserUpdateDiscriminatorEvent event) {
         nameCache.put(event.getUser().getIdLong(), event.getUser().getAsTag());
     }
 
