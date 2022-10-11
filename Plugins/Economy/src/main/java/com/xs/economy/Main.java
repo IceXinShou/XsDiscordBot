@@ -186,11 +186,11 @@ public class Main extends PluginEvent {
             String name = event.getName();
             if (name.equals(lang_register_get_money.getString("cmd"))) {
                 long id = getUserID(event);
-                checkData(id, event.getUser().getAsTag());
+                checkData(id, event.getGuild().retrieveMemberById(id).complete().getUser().getAsTag());
                 event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id), userData.get(id).get() + " $", 0x00FFFF)).queue();
             } else if (name.equals(lang_register_get_money_history.getString("cmd"))) {
                 long id = getUserID(event);
-                checkData(id, event.getUser().getAsTag());
+                checkData(id, event.getGuild().retrieveMemberById(id).complete().getUser().getAsTag());
                 event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id), userData.get(id).getTotal() + " $", 0x00FFFF)).queue();
             } else if (name.equals(lang_register_money_board.getString("cmd"))) {
                 if (!ownerIDs.contains(event.getUser().getIdLong())) {
@@ -211,7 +211,7 @@ public class Main extends PluginEvent {
                 }
                 long id = getUserID(event);
                 int value = event.getOption(VALUE).getAsInt();
-                checkData(id, event.getUser().getAsTag());
+                checkData(id, event.getGuild().retrieveMemberById(id).complete().getUser().getAsTag());
                 userData.get(id).add(value);
                 event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id),
                         lang_runtime.getString("current_money").replace("%money%", userData.get(id).get() + " $"), 0x00FFFF)).queue();
@@ -238,7 +238,7 @@ public class Main extends PluginEvent {
 
                 long id = getUserID(event);
                 int value = event.getOption(VALUE).getAsInt();
-                checkData(id, event.getUser().getAsTag());
+                checkData(id, event.getGuild().retrieveMemberById(id).complete().getUser().getAsTag());
                 userData.get(id).remove(value);
                 event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id),
                         lang_runtime.getString("current_money").replace("%money%", userData.get(id).get() + " $"), 0x00FFFF)).queue();
@@ -260,7 +260,7 @@ public class Main extends PluginEvent {
 
                 long id = getUserID(event);
                 int value = event.getOption(VALUE).getAsInt();
-                checkData(id, event.getUser().getAsTag());
+                checkData(id, event.getGuild().retrieveMemberById(id).complete().getUser().getAsTag());
                 userData.get(id).set(value);
                 event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id),
                         lang_runtime.getString("current_money").replace("%money%", userData.get(id).get() + " $"), 0x00FFFF)).queue();
@@ -277,7 +277,7 @@ public class Main extends PluginEvent {
 
                 long id = getUserID(event);
                 int value = event.getOption(VALUE).getAsInt();
-                checkData(id, event.getUser().getAsTag());
+                checkData(id, event.getGuild().retrieveMemberById(id).complete().getUser().getAsTag());
                 userData.get(id).addTotal(value);
                 event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id),
                         lang_runtime.getString("current_money_history").replace("%log_money%", userData.get(id).getTotal() + " $"), 0x00FFFF)).queue();
@@ -300,7 +300,7 @@ public class Main extends PluginEvent {
 
                 long id = getUserID(event);
                 int value = event.getOption(VALUE).getAsInt();
-                checkData(id, event.getUser().getAsTag());
+                checkData(id, event.getGuild().retrieveMemberById(id).complete().getUser().getAsTag());
                 userData.get(id).removeTotal(value);
                 event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id),
                         lang_runtime.getString("current_money_history").replace("%log_money%", userData.get(id).getTotal() + " $"), 0x00FFFF)).queue();
@@ -323,7 +323,7 @@ public class Main extends PluginEvent {
 
                 long id = getUserID(event);
                 int value = event.getOption(VALUE).getAsInt();
-                checkData(id, event.getUser().getAsTag());
+                checkData(id, event.getGuild().retrieveMemberById(id).complete().getUser().getAsTag());
                 userData.get(id).setTotal(value);
                 event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id),
                         lang_runtime.getString("current_money_history").replace("%log_money%", userData.get(id).getTotal() + " $"), 0x00FFFF)).queue();
@@ -362,9 +362,6 @@ public class Main extends PluginEvent {
     List<MessageEmbed.Field> fieldGetter(List<UserData> board, boolean money, Guild guild) {
         List<MessageEmbed.Field> fields = new ArrayList<>();
         int count = Math.min(board.size(), boardUserShowLimit);
-        nameCache.forEach((i, j) -> {
-            logger.log(i + ' ' + j);
-        });
         for (int i = 0; i < count; ++i) {
             UserData data = board.get(i);
             String name;
