@@ -14,23 +14,27 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="115b6b02-7322-4f7a-96af-1324d4169cc1" name="Changes" comment="plugin load sort with dependencies">
+    <list default="true" id="115b6b02-7322-4f7a-96af-1324d4169cc1" name="Changes" comment="update">
       <change afterPath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/test.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/Poll/src/main/resources/lang/en_US.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Poll/src/main/resources/lang/en_US.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Ban/Ban.iml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Ban/Ban.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/BotInfo/BotInfo.iml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/BotInfo/BotInfo.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/CustomRoom/CustomRoom.iml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/CustomRoom/CustomRoom.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Economy/Economy.iml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Economy/Economy.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Emoji/Emoji.iml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Emoji/Emoji.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Kick/Kick.iml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Kick/Kick.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Poll/Poll.iml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Poll/Poll.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/ServerInfo/ServerInfo.iml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ServerInfo/ServerInfo.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/executionHistory/executionHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/executionHistory/executionHistory.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/executionHistory/executionHistory.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/fileHashes/fileHashes.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/fileHashes/fileHashes.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/fileHashes/resourceHashesCache.bin" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/fileHashes/resourceHashesCache.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/buildOutputCleanup/outputFiles.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/file-system.probe" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/file-system.probe" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/build/classes/java/main/com/xs/loader/MainLoader.class" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/build/classes/java/main/com/xs/loader/MainLoader.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/build/resources/main/info_72C67A.yml" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/build/resources/main/info_72C67A.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/build/tmp/compileJava/previous-compilation-data.bin" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/build/tmp/compileJava/previous-compilation-data.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/MainLoader.java" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/MainLoader.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/resources/info_72C67A.yml" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/resources/info_72C67A.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -90,29 +94,29 @@
     <option name="showLibraryContents" value="true" />
     <option name="sortByType" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_MARK_IGNORED_FILES_AS_EXCLUDED&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.format.on.save.advertiser.fired&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/icexi/IdeaProjects/XsDiscordBot/Server/XsDiscordBotLoader_v1.3.jar&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Libraries&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.24597701&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;configurable.group.appearance&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_MARK_IGNORED_FILES_AS_EXCLUDED": "true",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.go.format.on.save.advertiser.fired": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.go.migrated.go.modules.settings": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "go.import.settings.migrated": "true",
+    "last_opened_file_path": "C:/Users/icexi/IdeaProjects/XsDiscordBot/Server/XsDiscordBotLoader_v1.3.jar",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.43218392",
+    "settings.editor.selected.configurable": "preferences.intentionPowerPack"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\icexi\IdeaProjects\XsDiscordBot\Server\plugins\tmp" />
@@ -125,7 +129,7 @@
       <recent name="com.xs.economy" />
     </key>
   </component>
-  <component name="RunManager" selected="JAR Application.Server">
+  <component name="RunManager" selected="Application.test">
     <configuration name="MainLoader" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="com.xs.loader.MainLoader" />
       <module name="XsDiscordBotLoader.main" />
@@ -254,6 +258,7 @@
       <workItem from="1665371480285" duration="95000" />
       <workItem from="1665371584813" duration="26000" />
       <workItem from="1665371679067" duration="3597000" />
+      <workItem from="1665379768412" duration="9539000" />
     </task>
     <task id="LOCAL-00001" summary="wtf">
       <created>1664519422653</created>
@@ -423,7 +428,14 @@
       <option name="project" value="LOCAL" />
       <updated>1665373897782</updated>
     </task>
-    <option name="localTasksCounter" value="25" />
+    <task id="LOCAL-00025" summary="update">
+      <created>1665379837569</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1665379837569</updated>
+    </task>
+    <option name="localTasksCounter" value="26" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -457,7 +469,8 @@
     <MESSAGE value="Backup" />
     <MESSAGE value="Update" />
     <MESSAGE value="plugin load sort with dependencies" />
-    <option name="LAST_COMMIT_MESSAGE" value="plugin load sort with dependencies" />
+    <MESSAGE value="update" />
+    <option name="LAST_COMMIT_MESSAGE" value="update" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>
@@ -472,6 +485,10 @@
         </breakpoint>
       </breakpoints>
     </breakpoint-manager>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/XsDiscordBot$Server.ic" NAME="Server Coverage Results" MODIFIED="1664693721386" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />

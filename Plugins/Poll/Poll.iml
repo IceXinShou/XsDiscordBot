@@ -5,12 +5,12 @@
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/resources" type="java-resource" />
+      <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="Emoji" />
-    <orderEntry type="module" module-name="XsDiscordBotLoader" />
     <orderEntry type="library" name="Gradle: org.json:json:20220924" level="project" />
-    <orderEntry type="library" name="Gradle: net.dv8tion:JDA:5.0.0-alpha.21" level="project" />
+    <orderEntry type="library" name="XsDiscordBotLoader" level="application" />
   </component>
 </module>

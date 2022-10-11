@@ -88,6 +88,8 @@ public class MainLoader {
         String fileName;
         URL downloadURL;
         URL url;
+        logger.log("Version checking...");
+
         try {
             url = new URL("https://github.com/IceLeiYu/XsDiscordBot/releases/latest");
             HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
