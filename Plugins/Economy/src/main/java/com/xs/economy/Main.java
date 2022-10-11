@@ -6,6 +6,7 @@ import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
 import com.xs.loader.util.JsonFileManager;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -140,10 +141,12 @@ public class Main extends PluginEvent {
     public void onReady(@NotNull ReadyEvent event) {
         for (String i : manager.get().keySet()) {
             User user;
+            JSONObject object = manager.getOrDefault(i);
+            userData.put(Long.parseLong(i), new UserData(Long.parseLong(i), object.getInt("money"), object.getInt("total")));
             if ((user = jdaBot.retrieveUserById(Long.parseLong(i)).complete()) != null) {
-                JSONObject object = manager.getOrDefault(i);
-                userData.put(Long.parseLong(i), new UserData(Long.parseLong(i), object.getInt("money"), object.getInt("total")));
                 nameCache.put(Long.parseLong(i), user.getAsTag());
+            } else {
+                nameCache.put(Long.parseLong(i), "unknown");
             }
         }
 
@@ -359,13 +362,23 @@ public class Main extends PluginEvent {
     List<MessageEmbed.Field> fieldGetter(List<UserData> board, boolean money, Guild guild) {
         List<MessageEmbed.Field> fields = new ArrayList<>();
         int count = Math.min(board.size(), boardUserShowLimit);
+        nameCache.forEach((i, j) -> {
+            logger.log(i + ' ' + j);
+        });
         for (int i = 0; i < count; ++i) {
             UserData data = board.get(i);
             String name;
-            if (nameCache.containsKey(data.getID())) {
-                name = nameCache.get(data.getID());
+            long id = data.getID();
+            if (nameCache.containsKey(id)) {
+                name = nameCache.get(id);
             } else {
-                nameCache.put(data.getID(), (name = guild.retrieveMemberById(data.getID()).complete().getUser().getAsTag()));
+                Member member = guild.retrieveMemberById(id).complete();
+                if (member != null) {
+                    nameCache.put(id, (name = member.getUser().getAsTag()));
+                } else {
+                    logger.error("cannot found member by id: " + id);
+                    name = "unknown";
+                }
             }
 
             fields.add(new MessageEmbed.Field(

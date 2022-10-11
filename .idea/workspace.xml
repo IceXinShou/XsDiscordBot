@@ -2,54 +2,21 @@
 <project version="4">
   <component name="ArtifactsWorkspaceSettings">
     <artifacts-to-build>
-      <artifact name="Emoji:jar" />
+      <artifact name="Ban:jar" />
+      <artifact name="BotInfo:jar" />
+      <artifact name="Economy:jar" />
+      <artifact name="Kick:jar" />
+      <artifact name="Poll:jar" />
+      <artifact name="ServerInfo:jar" />
     </artifacts-to-build>
   </component>
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="115b6b02-7322-4f7a-96af-1324d4169cc1" name="Changes" comment="update (Have bugs)">
+    <list default="true" id="115b6b02-7322-4f7a-96af-1324d4169cc1" name="Changes" comment="update to v1.4">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/Ban/src/main/java/com/xs/ban/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Ban/src/main/java/com/xs/ban/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/Ban/src/main/resources/lang/zh_TW.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Ban/src/main/resources/lang/zh_TW.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/BotInfo/src/main/java/com/xs/botinfo/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/BotInfo/src/main/java/com/xs/botinfo/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CustomRoom/src/main/java/com/xs/Main2.java" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/CustomRoom/src/main/java/com/xs/Main2.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CustomRoom/src/main/resources/lang/en_US.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/CustomRoom/src/main/resources/lang/en_US.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/CustomRoom/src/main/resources/lang/zh_TW.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/CustomRoom/src/main/resources/lang/zh_TW.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Plugins/Economy/src/main/java/com/xs/economy/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Economy/src/main/java/com/xs/economy/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/Economy/src/main/resources/lang/zh_TW.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Economy/src/main/resources/lang/zh_TW.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/Emoji/src/main/java/com/xs/emoji/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Emoji/src/main/java/com/xs/emoji/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/Kick/src/main/java/com/xs/kick/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Kick/src/main/java/com/xs/kick/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/Kick/src/main/resources/lang/en_US.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Kick/src/main/resources/lang/en_US.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/Kick/src/main/resources/lang/zh_TW.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Kick/src/main/resources/lang/zh_TW.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/Poll/src/main/java/com/xs/poll/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Poll/src/main/java/com/xs/poll/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/Poll/src/main/resources/lang/en_US.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Poll/src/main/resources/lang/en_US.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReUrl/ReUrl.iml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Reurl/Reurl.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReUrl/src/main/java/com/xs/reurl/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Reurl/src/main/java/com/xs/reurl/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReUrl/src/main/resources/config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Reurl/src/main/resources/config.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReUrl/src/main/resources/info.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Reurl/src/main/resources/info.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReUrl/src/main/resources/lang/en_US.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Reurl/src/main/resources/lang/en_US.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReUrl/src/main/resources/lang/zh_TW.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Reurl/src/main/resources/lang/zh_TW.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReUrl/target/classes/ban_config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Reurl/target/classes/ban_config.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReUrl/target/classes/ban_en_US.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Reurl/target/classes/ban_en_US.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReUrl/target/classes/ban_zh_TW.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Reurl/target/classes/ban_zh_TW.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReUrl/target/classes/info.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Reurl/target/classes/info.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReUrl/target/maven-archiver/pom.properties" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Reurl/target/maven-archiver/pom.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ServerInfo/src/main/java/com/xs/serverinfo/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ServerInfo/src/main/java/com/xs/serverinfo/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ServerInfo/src/main/resources/lang/en_US.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ServerInfo/src/main/resources/lang/en_US.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ServerInfo/src/main/resources/lang/zh_TW.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ServerInfo/src/main/resources/lang/zh_TW.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/executionHistory/executionHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/executionHistory/executionHistory.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/executionHistory/executionHistory.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/fileHashes/fileHashes.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/fileHashes/fileHashes.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/fileHashes/resourceHashesCache.bin" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/fileHashes/resourceHashesCache.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/build/classes/java/main/com/xs/loader/lang/Lang.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/build/classes/java/main/com/xs/loader/util/FileGetter.class" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/build/classes/java/main/com/xs/loader/util/FileGetter.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/build/tmp/compileJava/previous-compilation-data.bin" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/build/tmp/compileJava/previous-compilation-data.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/lang/LangGetter.java" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/lang/LangGetter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/util/FileGetter.java" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/util/FileGetter.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -119,13 +86,13 @@
     "RunOnceActivity.go.migrated.go.modules.settings": "true",
     "WebServerToolWindowFactoryState": "false",
     "go.import.settings.migrated": "true",
-    "last_opened_file_path": "C:/Users/icexi/IdeaProjects/XsDiscordBot/Plugins/ReUrl",
+    "last_opened_file_path": "C:/Users/icexi/IdeaProjects/XsDiscordBot/Server/XsDiscordBotLoader_v1.4.jar",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Modules",
+    "project.structure.last.edited": "Global Libraries",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.43218392",
     "settings.editor.selected.configurable": "preferences.intentionPowerPack"
@@ -193,7 +160,7 @@
       <method v="2" />
     </configuration>
     <configuration name="Server" type="JarApplication" activateToolWindowBeforeRun="false">
-      <option name="JAR_PATH" value="$PROJECT_DIR$/Server/XsDiscordBotLoader_v1.3.jar" />
+      <option name="JAR_PATH" value="$PROJECT_DIR$/Server/XsDiscordBotLoader_v1.4.jar" />
       <option name="WORKING_DIRECTORY" value="C:\Users\icexi\IdeaProjects\XsDiscordBot\Server" />
       <option name="ALTERNATIVE_JRE_PATH" />
       <method v="2">
@@ -273,7 +240,7 @@
       <workItem from="1665371480285" duration="95000" />
       <workItem from="1665371584813" duration="26000" />
       <workItem from="1665371679067" duration="3597000" />
-      <workItem from="1665379768412" duration="20797000" />
+      <workItem from="1665379768412" duration="22206000" />
     </task>
     <task id="LOCAL-00001" summary="wtf">
       <created>1664519422653</created>
@@ -464,7 +431,21 @@
       <option name="project" value="LOCAL" />
       <updated>1665518283807</updated>
     </task>
-    <option name="localTasksCounter" value="28" />
+    <task id="LOCAL-00028" summary="update to v1.4">
+      <created>1665521381980</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1665521381980</updated>
+    </task>
+    <task id="LOCAL-00029" summary="update to v1.4">
+      <created>1665521588959</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1665521588959</updated>
+    </task>
+    <option name="localTasksCounter" value="30" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -500,7 +481,8 @@
     <MESSAGE value="plugin load sort with dependencies" />
     <MESSAGE value="update" />
     <MESSAGE value="update (Have bugs)" />
-    <option name="LAST_COMMIT_MESSAGE" value="update (Have bugs)" />
+    <MESSAGE value="update to v1.4" />
+    <option name="LAST_COMMIT_MESSAGE" value="update to v1.4" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>
