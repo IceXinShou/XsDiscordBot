@@ -2,6 +2,7 @@ package com.xs;
 
 import com.wavjaby.json.JSONObject;
 import com.xs.loader.PluginEvent;
+import com.xs.loader.lang.LangGetter;
 import com.xs.loader.util.FileGetter;
 import com.xs.util.JsonFileManager;
 import kotlin.Pair;
@@ -12,6 +13,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONObject;
 
 import java.util.*;
 
@@ -25,7 +27,7 @@ import static net.dv8tion.jda.api.interactions.commands.OptionType.*;
 public class Main2 extends PluginEvent {
 
     public static Map<String, Object> config = new HashMap<>();
-    public static Map<String, String> lang = new HashMap<>();
+    public static JSONObject lang;
     private final String TAG = "CustomRoom";
     private final Map<Long, Pair<Integer, Long>> step = new HashMap<>();
     FileGetter getter;
@@ -295,7 +297,7 @@ public class Main2 extends PluginEvent {
     @Override
     public void loadConfigFile() {
         config = getter.readYml("custom_room_poll_config.yml", "config.yml", "plugins\\Poll", TAG, this.getClass().getClassLoader());
-        langGetter = new Lang(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, LANG_PARAMETERS_DEFAULT, config.getString("Lang"));
+        langGetter = new LangGetter(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, config.getString("Lang"));
         getter = new FileGetter();
         manager = new JsonFileManager(Main.ROOT_PATH + "plugins\\CustomRoom", TAG, "CustomRoom");
         System.out.println(TAG + " Setting File Loaded Successfully");

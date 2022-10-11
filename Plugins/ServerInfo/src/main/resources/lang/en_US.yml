@@ -1,10 +1,17 @@
-REGISTER_NAME: Server_Info
+# TODO:
+register:
+  cmd: info
+  description: show server info
 
-NO_PERMISSION: I do not have ban permission.
-PERMISSION_DENIED: My permission level is lower than user's.
-SUCCESS: Ban Successfully
-UNKNOWN_ERROR: Unknown ERROR!
+  options:
+    user: 使用者
+    day: 時間長度 (天)
+    reason: 原因
 
-GUILD_TOTAL_COUNT: "**伺服器總數: **"
-MEMBER_TOTAL_COUNT: "**成員總數: **"
-INFORMATION: 機器人資訊
+runtime:
+  success: 已封鎖
+
+  errors:
+    no_permission: 缺少封鎖權限
+    permission_denied: 權限比該成員低
+    unknown: 未知的錯誤!

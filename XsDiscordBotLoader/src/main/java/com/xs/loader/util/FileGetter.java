@@ -82,17 +82,6 @@ public class FileGetter {
         return null;
     }
 
-    public boolean checkFileParameter(Map<String, Object> data, String[] parameters, String fileName) {
-        boolean error = false;
-        for (String parameter : parameters) {
-            if (!data.containsKey(parameter)) {
-                logger.error("file " + fileName + " lost " + parameter + " parameter!");
-                error = true;
-            }
-        }
-        return error;
-    }
-
     private void copyFile(@NotNull File source, @NotNull File dest) throws IOException {
         Files.copy(source.toPath(), dest.toPath());
     }

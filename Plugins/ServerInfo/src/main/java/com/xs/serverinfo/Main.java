@@ -1,7 +1,7 @@
 package com.xs.serverinfo;
 
 import com.xs.loader.PluginEvent;
-import com.xs.loader.lang.Lang;
+import com.xs.loader.lang.LangGetter;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
 import net.dv8tion.jda.api.entities.Guild;
@@ -21,14 +21,10 @@ import static com.xs.loader.util.EmbedCreator.createEmbed;
 
 public class Main extends PluginEvent {
 
-    private JSONObject config;
-    private Map<String, String> lang;
+    private JSONObject lang;
 
-    Lang langGetter;
+    private LangGetter langGetter;
     private final String[] LANG_DEFAULT = {"en_US", "zh_TW"};
-    private final String[] LANG_PARAMETERS_DEFAULT = {
-            "REGISTER_NAME"
-    };
 
     FileGetter getter;
     Logger logger;
@@ -52,18 +48,18 @@ public class Main extends PluginEvent {
         super.unload();
         logger.log("UnLoaded");
     }
-
-    @Override
-    public CommandData[] guildCommands() {
-        return new CommandData[]{
-                new CommandDataImpl("info", lang.get("REGISTER_NAME"))
-        };
-    }
+// TODO:
+//    @Override
+//    public CommandData[] guildCommands() {
+//        return new CommandData[]{
+//                new CommandDataImpl("info", lang.get("REGISTER_NAME"));
+//        };
+//    }
 
     @Override
     public void loadConfigFile() {
-        config = new JSONObject(getter.readYml("config.yml", PATH_FOLDER_NAME));
-        langGetter = new Lang(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, LANG_PARAMETERS_DEFAULT, config.getString("Lang"));
+        JSONObject config = new JSONObject(getter.readYml("config.yml", PATH_FOLDER_NAME));
+        langGetter = new LangGetter(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, config.getString("Lang"));
         logger.log("Setting File Loaded Successfully");
     }
 

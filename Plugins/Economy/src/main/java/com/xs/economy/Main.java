@@ -1,7 +1,7 @@
 package com.xs.economy;
 
 import com.xs.loader.PluginEvent;
-import com.xs.loader.lang.Lang;
+import com.xs.loader.lang.LangGetter;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
 import com.xs.loader.util.JsonFileManager;
@@ -33,8 +33,6 @@ import static net.dv8tion.jda.api.interactions.commands.OptionType.USER;
 
 public class Main extends PluginEvent {
     private JSONObject config;
-    private JSONObject lang;
-    private JSONObject lang_register;
     private JSONObject lang_register_get_money;
     private JSONObject lang_register_get_money_history;
     private JSONObject lang_register_add_money;
@@ -54,35 +52,12 @@ public class Main extends PluginEvent {
     private JSONObject lang_runtime;
     private JSONObject lang_runtime_errors;
 
-    private Lang langGetter;
+    private LangGetter langGetter;
     private final Map<Long, String> nameCache = new HashMap<>();
     private final Map<Long, UserData> userData = new HashMap<>();
     private final List<UserData> moneyBoard = new ArrayList<>();
     private final List<UserData> totalBoard = new ArrayList<>();
     private final String[] LANG_DEFAULT = {"en_US", "zh_TW"};
-    private final String[] LANG_PARAMETERS_DEFAULT = {
-            "REGISTER_GET_MONEY_NAME",
-            "REGISTER_OPTION_USER_YOU_CHOOSE",
-            "REGISTER_GET_MONEY_TOTAL_NAME",
-            "REGISTER_ADD_MONEY_NAME",
-            "REGISTER_OPTION_ADD_MONEY_VALUE",
-            "REGISTER_REMOVE_MONEY_NAME",
-            "REGISTER_OPTION_REMOVE_MONEY_VALUE",
-            "REGISTER_SET_MONEY_NAME",
-            "REGISTER_OPTION_SET_MONEY_VALUE",
-            "REGISTER_ADD_MONEY_TOTAL_NAME",
-            "REGISTER_OPTION_ADD_MONEY_TOTAL_VALUE",
-            "REGISTER_REMOVE_MONEY_TOTAL_NAME",
-            "REGISTER_OPTION_REMOVE_MONEY_TOTAL_VALUE",
-            "REGISTER_SET_MONEY_TOTAL_NAME",
-            "REGISTER_OPTION_SET_MONEY_TOTAL_VALUE",
-            "REGISTER_GET_MONEY_TOP_NAME",
-            "REGISTER_GET_MONEY_TOP_TOTAL_NAME",
-            "MONEY_BOARD",
-            "TOTAL_BOARD",
-            "CURRENT_MONEY",
-            "CURRENT_TOTAL_MONEY"
-    };
 
     FileGetter getter;
     Logger logger;
@@ -142,7 +117,7 @@ public class Main extends PluginEvent {
     @Override
     public void loadConfigFile() {
         config = new JSONObject(getter.readYml("config.yml", PATH_FOLDER_NAME));
-        langGetter = new Lang(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, LANG_PARAMETERS_DEFAULT, config.getString("Lang"));
+        langGetter = new LangGetter(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, config.getString("Lang"));
         logger.log("Setting File Loaded Successfully");
     }
 
@@ -157,8 +132,8 @@ public class Main extends PluginEvent {
         if (boardUserShowLimit < 0)
             boardUserShowLimit = 0;
 
-        new File(ROOT_PATH + "/plugins/" + PATH_FOLDER_NAME + "/data").mkdirs();
-        manager = new JsonFileManager("/plugins/" + PATH_FOLDER_NAME + "/data/data.json", TAG);
+        new File(ROOT_PATH + "/" + PATH_FOLDER_NAME + "/data").mkdirs();
+        manager = new JsonFileManager("/" + PATH_FOLDER_NAME + "/data/data.json", TAG);
     }
 
     @Override
@@ -179,8 +154,8 @@ public class Main extends PluginEvent {
     @Override
     public void loadLang() {
         langGetter.exportDefaultLang();
-        lang = langGetter.getLangFileData();
-        lang_register = lang.getJSONObject("register");
+        JSONObject lang = langGetter.getLangFileData();
+        JSONObject lang_register = lang.getJSONObject("register");
         lang_register_get_money = lang_register.getJSONObject("get_money");
         lang_register_get_money_history = lang_register.getJSONObject("get_money_history");
         lang_register_add_money = lang_register.getJSONObject("add_money");
@@ -204,181 +179,158 @@ public class Main extends PluginEvent {
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
         if (event.isFromGuild() && event.getGuild() != null) {
-            switch (event.getName()) {
-                case "money": {
-                    long id = getUserID(event);
-                    checkData(id, event.getUser().getAsTag());
-                    event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id), userData.get(id).get() + " $", 0x00FFFF)).queue();
-                    break;
+            lang_register_get_money.getString("cmd");
+            String name = event.getName();
+            if (name.equals(lang_register_get_money.getString("cmd"))) {
+                long id = getUserID(event);
+                checkData(id, event.getUser().getAsTag());
+                event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id), userData.get(id).get() + " $", 0x00FFFF)).queue();
+            } else if (name.equals(lang_register_get_money_history.getString("cmd"))) {
+                long id = getUserID(event);
+                checkData(id, event.getUser().getAsTag());
+                event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id), userData.get(id).getTotal() + " $", 0x00FFFF)).queue();
+            } else if (name.equals(lang_register_money_board.getString("cmd"))) {
+                if (!ownerIDs.contains(event.getUser().getIdLong())) {
+                    event.getHook().editOriginalEmbeds(createEmbed(lang_runtime_errors.getString("no_permission"), 0xFF0000)).queue();
+                    return;
                 }
-                case "moneytotal": {
-                    long id = getUserID(event);
-                    checkData(id, event.getUser().getAsTag());
-                    event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id), userData.get(id).getTotal() + " $", 0x00FFFF)).queue();
-                    break;
+                event.getHook().editOriginalEmbeds(createEmbed(lang_runtime.getString("money_board_title"), fieldGetter(moneyBoard, true, event.getGuild()), 0x00FFFF)).queue();
+            } else if (name.equals(lang_register_money_history_board.getString("cmd"))) {
+                if (!ownerIDs.contains(event.getUser().getIdLong())) {
+                    event.getHook().editOriginalEmbeds(createEmbed(lang_runtime_errors.getString("no_permission"), 0xFF0000)).queue();
+                    return;
                 }
-                case "moneytop": {
-                    if (!ownerIDs.contains(event.getUser().getIdLong())) {
-                        event.getHook().editOriginalEmbeds(createEmbed(lang.get("NO_PERMISSION"), 0xFF0000)).queue();
-                        return;
-                    }
-                    event.getHook().editOriginalEmbeds(createEmbed(lang.get("MONEY_BOARD"), fieldGetter(moneyBoard, true, event.getGuild()), 0x00FFFF)).queue();
-                    break;
+                event.getHook().editOriginalEmbeds(createEmbed(lang_runtime.getString("money_history_board_title"), fieldGetter(totalBoard, false, event.getGuild()), 0x00FFFF)).queue();
+            } else if (name.equals(lang_register_add_money.getString("cmd"))) {
+                if (!ownerIDs.contains(event.getUser().getIdLong())) {
+                    event.getHook().editOriginalEmbeds(createEmbed(lang_runtime_errors.getString("no_permission"), 0xFF0000)).queue();
+                    return;
                 }
-                case "moneytoptotal": {
-                    if (!ownerIDs.contains(event.getUser().getIdLong())) {
-                        event.getHook().editOriginalEmbeds(createEmbed(lang.get("NO_PERMISSION"), 0xFF0000)).queue();
-                        return;
-                    }
-                    event.getHook().editOriginalEmbeds(createEmbed(lang.get("TOTAL_BOARD"), fieldGetter(totalBoard, false, event.getGuild()), 0x00FFFF)).queue();
-                    break;
+                long id = getUserID(event);
+                int value = event.getOption(VALUE).getAsInt();
+                checkData(id, event.getUser().getAsTag());
+                userData.get(id).add(value);
+                event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id),
+                        lang_runtime.getString("current_money").replace("%money%", userData.get(id).get() + " $"), 0x00FFFF)).queue();
+                JSONObject object = manager.getOrDefault(String.valueOf(id));
+                if (object.has("money")) {
+                    object.put("money", object.getInt("money") + value);
+                } else {
+                    object.put("money", value);
                 }
-                case "addmoney": {
-                    if (!ownerIDs.contains(event.getUser().getIdLong())) {
-                        event.getHook().editOriginalEmbeds(createEmbed(lang.get("NO_PERMISSION"), 0xFF0000)).queue();
-                        return;
-                    }
-                    long id = getUserID(event);
-                    int value = event.getOption(VALUE).getAsInt();
-                    checkData(id, event.getUser().getAsTag());
-                    userData.get(id).add(value);
-                    event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id),
-                            lang.get("CURRENT_MONEY").replace("%money%", userData.get(id).get() + " $"), 0x00FFFF)).queue();
-                    JSONObject object = manager.getOrDefault(String.valueOf(id));
-                    if (object.has("money")) {
-                        object.put("money", object.getInt("money") + value);
-                    } else {
-                        object.put("money", value);
-                    }
 
-                    if (object.has("total")) {
-                        object.put("total", object.getInt("total") + value);
-                    } else {
-                        object.put("total", value);
-                    }
-                    manager.save();
-                    updateMoney();
-                    updateTotal();
-                    break;
+                if (object.has("total")) {
+                    object.put("total", object.getInt("total") + value);
+                } else {
+                    object.put("total", value);
                 }
-                case "removemoney": {
-                    if (!ownerIDs.contains(event.getUser().getIdLong())) {
-                        event.getHook().editOriginalEmbeds(createEmbed(lang.get("NO_PERMISSION"), 0xFF0000)).queue();
-                        return;
-                    }
-
-                    long id = getUserID(event);
-                    int value = event.getOption(VALUE).getAsInt();
-                    checkData(id, event.getUser().getAsTag());
-                    userData.get(id).remove(value);
-                    event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id),
-                            lang.get("CURRENT_MONEY").replace("%money%", userData.get(id).get() + " $"), 0x00FFFF)).queue();
-
-                    JSONObject object = manager.getOrDefault(String.valueOf(id));
-
-                    if (object.has("money")) {
-                        object.put("money", object.getInt("money") - value);
-                    } else {
-                        object.put("money", -value);
-                    }
-                    manager.save();
-                    updateMoney();
-                    break;
+                manager.save();
+                updateMoney();
+                updateTotal();
+            } else if (name.equals(lang_register_remove_money.getString("cmd"))) {
+                if (!ownerIDs.contains(event.getUser().getIdLong())) {
+                    event.getHook().editOriginalEmbeds(createEmbed(lang_runtime_errors.getString("no_permission"), 0xFF0000)).queue();
+                    return;
                 }
-                case "setmoney": {
-                    if (!ownerIDs.contains(event.getUser().getIdLong())) {
-                        event.getHook().editOriginalEmbeds(createEmbed(lang.get("NO_PERMISSION"), 0xFF0000)).queue();
-                        return;
-                    }
 
-                    long id = getUserID(event);
-                    int value = event.getOption(VALUE).getAsInt();
-                    checkData(id, event.getUser().getAsTag());
-                    userData.get(id).set(value);
-                    event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id),
-                            lang.get("CURRENT_MONEY").replace("%money%", userData.get(id).get() + " $"), 0x00FFFF)).queue();
+                long id = getUserID(event);
+                int value = event.getOption(VALUE).getAsInt();
+                checkData(id, event.getUser().getAsTag());
+                userData.get(id).remove(value);
+                event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id),
+                        lang_runtime.getString("current_money").replace("%money%", userData.get(id).get() + " $"), 0x00FFFF)).queue();
 
-                    manager.getOrDefault(String.valueOf(id)).put("money", value);
-                    manager.save();
+                JSONObject object = manager.getOrDefault(String.valueOf(id));
 
-                    updateMoney();
-                    break;
+                if (object.has("money")) {
+                    object.put("money", object.getInt("money") - value);
+                } else {
+                    object.put("money", -value);
                 }
-                case "addmoneytotal": {
-                    if (!ownerIDs.contains(event.getUser().getIdLong())) {
-                        event.getHook().editOriginalEmbeds(createEmbed(lang.get("NO_PERMISSION"), 0xFF0000)).queue();
-                        return;
-                    }
-
-                    long id = getUserID(event);
-                    int value = event.getOption(VALUE).getAsInt();
-                    checkData(id, event.getUser().getAsTag());
-                    userData.get(id).addTotal(value);
-                    event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id),
-                            lang.get("CURRENT_TOTAL_MONEY").replace("%log_money%", userData.get(id).getTotal() + " $"), 0x00FFFF)).queue();
-
-                    JSONObject object = manager.getOrDefault(String.valueOf(id));
-
-                    if (object.has("total")) {
-                        object.put("total", object.getInt("total") + value);
-                    } else {
-                        object.put("total", value);
-                    }
-                    manager.save();
-
-                    updateTotal();
-                    break;
+                manager.save();
+                updateMoney();
+            } else if (name.equals(lang_register_set_money.getString("cmd"))) {
+                if (!ownerIDs.contains(event.getUser().getIdLong())) {
+                    event.getHook().editOriginalEmbeds(createEmbed(lang_runtime_errors.getString("no_permission"), 0xFF0000)).queue();
+                    return;
                 }
-                case "removemoneytotal": {
-                    if (!ownerIDs.contains(event.getUser().getIdLong())) {
-                        event.getHook().editOriginalEmbeds(createEmbed(lang.get("NO_PERMISSION"), 0xFF0000)).queue();
-                        return;
-                    }
 
-                    long id = getUserID(event);
-                    int value = event.getOption(VALUE).getAsInt();
-                    checkData(id, event.getUser().getAsTag());
-                    userData.get(id).removeTotal(value);
-                    event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id),
-                            lang.get("CURRENT_TOTAL_MONEY").replace("%log_money%", userData.get(id).getTotal() + " $"), 0x00FFFF)).queue();
+                long id = getUserID(event);
+                int value = event.getOption(VALUE).getAsInt();
+                checkData(id, event.getUser().getAsTag());
+                userData.get(id).set(value);
+                event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id),
+                        lang_runtime.getString("current_money").replace("%money%", userData.get(id).get() + " $"), 0x00FFFF)).queue();
 
-                    JSONObject object = manager.getOrDefault(String.valueOf(id));
+                manager.getOrDefault(String.valueOf(id)).put("money", value);
+                manager.save();
 
-                    if (object.has("total")) {
-                        object.put("total", object.getInt("total") - value);
-                    } else {
-                        object.put("total", -value);
-                    }
-                    manager.save();
-
-                    updateTotal();
-                    break;
+                updateMoney();
+            } else if (name.equals(lang_register_add_money_history.getString("cmd"))) {
+                if (!ownerIDs.contains(event.getUser().getIdLong())) {
+                    event.getHook().editOriginalEmbeds(createEmbed(lang_runtime_errors.getString("no_permission"), 0xFF0000)).queue();
+                    return;
                 }
-                case "setmoneytotal": {
-                    if (!ownerIDs.contains(event.getUser().getIdLong())) {
-                        event.getHook().editOriginalEmbeds(createEmbed(lang.get("NO_PERMISSION"), 0xFF0000)).queue();
-                        return;
-                    }
 
-                    long id = getUserID(event);
-                    int value = event.getOption(VALUE).getAsInt();
-                    checkData(id, event.getUser().getAsTag());
-                    userData.get(id).setTotal(value);
-                    event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id),
-                            lang.get("CURRENT_TOTAL_MONEY").replace("%log_money%", userData.get(id).getTotal() + " $"), 0x00FFFF)).queue();
+                long id = getUserID(event);
+                int value = event.getOption(VALUE).getAsInt();
+                checkData(id, event.getUser().getAsTag());
+                userData.get(id).addTotal(value);
+                event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id),
+                        lang_runtime.getString("current_money_history").replace("%log_money%", userData.get(id).getTotal() + " $"), 0x00FFFF)).queue();
 
-                    manager.getOrDefault(String.valueOf(id)).put("total", value);
-                    manager.save();
+                JSONObject object = manager.getOrDefault(String.valueOf(id));
 
-                    updateTotal();
-                    break;
+                if (object.has("total")) {
+                    object.put("total", object.getInt("total") + value);
+                } else {
+                    object.put("total", value);
                 }
-                default: {
+                manager.save();
+
+                updateTotal();
+            } else if (name.equals(lang_register_remove_money_history.getString("cmd"))) {
+                if (!ownerIDs.contains(event.getUser().getIdLong())) {
+                    event.getHook().editOriginalEmbeds(createEmbed(lang_runtime_errors.getString("no_permission"), 0xFF0000)).queue();
+                    return;
                 }
+
+                long id = getUserID(event);
+                int value = event.getOption(VALUE).getAsInt();
+                checkData(id, event.getUser().getAsTag());
+                userData.get(id).removeTotal(value);
+                event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id),
+                        lang_runtime.getString("current_money_history").replace("%log_money%", userData.get(id).getTotal() + " $"), 0x00FFFF)).queue();
+
+                JSONObject object = manager.getOrDefault(String.valueOf(id));
+
+                if (object.has("total")) {
+                    object.put("total", object.getInt("total") - value);
+                } else {
+                    object.put("total", -value);
+                }
+                manager.save();
+
+                updateTotal();
+            } else if (name.equals(lang_register_set_money_history.getString("cmd"))) {
+                if (!ownerIDs.contains(event.getUser().getIdLong())) {
+                    event.getHook().editOriginalEmbeds(createEmbed(lang_runtime_errors.getString("no_permission"), 0xFF0000)).queue();
+                    return;
+                }
+
+                long id = getUserID(event);
+                int value = event.getOption(VALUE).getAsInt();
+                checkData(id, event.getUser().getAsTag());
+                userData.get(id).setTotal(value);
+                event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id),
+                        lang_runtime.getString("current_money_history").replace("%log_money%", userData.get(id).getTotal() + " $"), 0x00FFFF)).queue();
+
+                manager.getOrDefault(String.valueOf(id)).put("total", value);
+                manager.save();
+
+                updateTotal();
             }
-
         }
-
     }
 
     @Override

@@ -1,8 +1,15 @@
-REGISTER_NAME: Kick_Member
-REGISTER_OPTION_MEMBER_YOU_CHOOSE: Member
-REGISTER_OPTION_REASON: Reason
+register:
+  cmd: kick
+  description: kick a member from your server
 
-NO_PERMISSION: I do not have kick permission.
-PERMISSION_DENIED: My permission level is lower than user's.
-SUCCESS: Kick Successfully
-UNKNOWN_ERROR: Unknown ERROR!
+  options:
+    user: user
+    reason: reason
+
+runtime:
+  success: Kick Successfully
+
+  errors:
+    no_permission: I do not have kick permission.
+    permission_denied: My permission level is lower than user's.
+    unknown: Unknown ERROR!

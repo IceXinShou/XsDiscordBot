@@ -1,7 +1,7 @@
 package com.xs.poll;
 
 import com.xs.loader.PluginEvent;
-import com.xs.loader.lang.Lang;
+import com.xs.loader.lang.LangGetter;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
 import net.dv8tion.jda.api.Permission;
@@ -37,21 +37,14 @@ public class Main extends PluginEvent {
     private JSONObject lang_command;
 
     private final String[] LANG_DEFAULT = {"en_US", "zh_TW"};
-    private final String[] LANG_PARAMETERS_DEFAULT = {
-            "REGISTER_NAME", "REGISTER_QUESTION"
-            , "REGISTER_OPTION_A", "REGISTER_OPTION_B", "REGISTER_OPTION_C"
-            , "REGISTER_OPTION_D", "REGISTER_OPTION_E", "REGISTER_OPTION_F"
-            , "REGISTER_OPTION_G", "REGISTER_OPTION_H", "REGISTER_OPTION_I"
-            , "REGISTER_OPTION_J", "FOOTER", "SUCCESS"
-    };
     private FileGetter getter;
     private Logger logger;
     private final String TAG = "Poll";
     private final String PATH_FOLDER_NAME = "plugins/Poll";
     private JSONObject emojiData;
-    List<Emoji> votes = new ArrayList<>();
-    boolean noSet = false;
-    Lang langGetter;
+    private final List<Emoji> votes = new ArrayList<>();
+    private boolean noSet = false;
+    private LangGetter langGetter;
 
     @Override
     public void initLoad() {
@@ -103,7 +96,7 @@ public class Main extends PluginEvent {
             logger.error("Please configure /" + PATH_FOLDER_NAME + "/config.yml");
             noSet = true;
         }
-        langGetter = new Lang(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, LANG_PARAMETERS_DEFAULT, config.getString("Lang"));
+        langGetter = new LangGetter(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, config.getString("Lang"));
     }
 
 
@@ -143,7 +136,7 @@ public class Main extends PluginEvent {
 
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
-        if (!event.getName().equals("poll")) return;
+        if (!event.getName().equals(lang_register.getString("cmd"))) return;
         if (!permissionCheck(Permission.MANAGE_CHANNEL, event))
             return;
 

@@ -1,7 +1,7 @@
 package com.xs.botinfo;
 
 import com.xs.loader.PluginEvent;
-import com.xs.loader.lang.Lang;
+import com.xs.loader.lang.LangGetter;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -22,11 +22,8 @@ public class Main extends PluginEvent {
     private JSONObject lang_register;
     private JSONObject lang_runtime;
 
-    private Lang langGetter;
+    private LangGetter langGetter;
     private final String[] LANG_DEFAULT = {"en_US", "zh_TW"};
-    private final String[] LANG_PARAMETERS_DEFAULT = {
-            "REGISTER_NAME", "GUILD_TOTAL_COUNT", "MEMBER_TOTAL_COUNT", "INFORMATION"
-    };
 
     private FileGetter getter;
     private Logger logger;
@@ -60,7 +57,7 @@ public class Main extends PluginEvent {
     @Override
     public void loadConfigFile() {
         JSONObject config = new JSONObject(getter.readYml("config.yml", PATH_FOLDER_NAME));
-        langGetter = new Lang(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, LANG_PARAMETERS_DEFAULT, config.getString("Lang"));
+        langGetter = new LangGetter(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, config.getString("Lang"));
         logger.log("Setting File Loaded Successfully");
     }
 
@@ -75,7 +72,7 @@ public class Main extends PluginEvent {
 
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
-        if (!event.getName().equals("botinfo")) return;
+        if (!event.getName().equals(lang_register.getString("cmd"))) return;
 
         int members = 0;
         for (int i = 0; i < event.getJDA().getGuilds().size(); i++)

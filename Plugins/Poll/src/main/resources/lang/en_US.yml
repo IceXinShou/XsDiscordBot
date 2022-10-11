@@ -1,6 +1,7 @@
 register:
   cmd: poll
   description: make a poll
+
   options:
     name: question
     a: option A

@@ -1,8 +1,15 @@
-REGISTER_NAME: 踢出成員
-REGISTER_OPTION_MEMBER_YOU_CHOOSE: 踢出你所選的成員
-REGISTER_OPTION_REASON: 原因
+register:
+  cmd: 踢出
+  description: 自伺服器踢出成員使用者
 
-NO_PERMISSION: 缺少踢出權限
-PERMISSION_DENIED: 權限比該成員低
-SUCCESS: 已踢出
-UNKNOWN_ERROR: 未知的錯誤
+  options:
+    user: 使用者
+    reason: 原因
+
+runtime:
+  success: 已踢出
+
+  errors:
+    no_permission: 缺少踢出權限
+    permission_denied: 權限比該成員低
+    unknown: 未知的錯誤!

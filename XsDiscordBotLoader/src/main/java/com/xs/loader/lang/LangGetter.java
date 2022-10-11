@@ -13,17 +13,15 @@ public class LangGetter {
     private final String FOLDER_PATH;
     private final Logger logger;
     private final String[] defaultLang;
-    private final String[] defaultParameter;
     private final String lang;
     private final FileGetter getter;
 
-    public LangGetter(final String TAG, final FileGetter GETTER, final String PATH_FOLDER_NAME, final String[] DEFAULT_LANG, final String[] DEFAULT_PARAMETER, final String LANG) {
+    public LangGetter(final String TAG, final FileGetter GETTER, final String PATH_FOLDER_NAME, final String[] DEFAULT_LANG, final String LANG) {
         logger = new Logger(TAG);
         this.FOLDER_PATH = MainLoader.ROOT_PATH + "/" + PATH_FOLDER_NAME;
         this.getter = GETTER;
         this.defaultLang = DEFAULT_LANG;
         this.lang = LANG;
-        this.defaultParameter = DEFAULT_PARAMETER;
     }
 
 
@@ -35,16 +33,14 @@ public class LangGetter {
             String fileName = l + ".yml";
             File lang_file;
             if ((lang_file = new File(FOLDER_PATH + "/Lang/" + fileName)).exists()) {
-                Map<String, Object> fileData = getter.readFile(lang_file);
-                if (getter.checkFileParameter(fileData, defaultParameter, fileName)) {
-                    logger.error("Create default lang: " + fileName);
-                    try {
-                        getter.copyFile(lang_file, FOLDER_PATH + "/Lang/-" + fileName);
-                        getter.exportResource("lang/" + fileName, fileName, "Lang");
-                    } catch (IOException e) {
-                        logger.error(e.getMessage());
-                    }
-                }
+//                logger.error("Create default lang: " + fileName);
+//                try {
+//                    getter.copyFile(lang_file, FOLDER_PATH + "/Lang/-" + fileName);
+//                    getter.exportResource("lang/" + fileName, fileName, "Lang");
+//                } catch (IOException e) {
+//                    logger.error(e.getMessage());
+//                }
+
                 continue;
             }
 
