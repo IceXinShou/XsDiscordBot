@@ -19,7 +19,6 @@ import org.json.JSONObject;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,8 +30,12 @@ import static com.xs.loader.util.Tag.getMemberNick;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.STRING;
 
 public class Main extends PluginEvent {
-    public static JSONObject config;
-    public static Map<String, String> lang = new HashMap<>();
+    private JSONObject config;
+    private JSONObject lang_register;
+    private JSONObject lang_register_options;
+    private JSONObject lang_embed;
+    private JSONObject lang_command;
+
     private final String[] LANG_DEFAULT = {"en_US", "zh_TW"};
     private final String[] LANG_PARAMETERS_DEFAULT = {
             "REGISTER_NAME", "REGISTER_QUESTION"
@@ -70,18 +73,18 @@ public class Main extends PluginEvent {
     @Override
     public CommandData[] guildCommands() {
         return new CommandData[]{
-                new CommandDataImpl("poll", lang.get("REGISTER_NAME")).addOptions(
-                        new OptionData(STRING, QUESTION, lang.get("REGISTER_QUESTION"), true),
-                        new OptionData(STRING, CHOICE_A, lang.get("REGISTER_OPTION_A"), true),
-                        new OptionData(STRING, CHOICE_B, lang.get("REGISTER_OPTION_B")),
-                        new OptionData(STRING, CHOICE_C, lang.get("REGISTER_OPTION_C")),
-                        new OptionData(STRING, CHOICE_D, lang.get("REGISTER_OPTION_D")),
-                        new OptionData(STRING, CHOICE_E, lang.get("REGISTER_OPTION_E")),
-                        new OptionData(STRING, CHOICE_F, lang.get("REGISTER_OPTION_F")),
-                        new OptionData(STRING, CHOICE_G, lang.get("REGISTER_OPTION_G")),
-                        new OptionData(STRING, CHOICE_H, lang.get("REGISTER_OPTION_H")),
-                        new OptionData(STRING, CHOICE_I, lang.get("REGISTER_OPTION_I")),
-                        new OptionData(STRING, CHOICE_J, lang.get("REGISTER_OPTION_J"))
+                new CommandDataImpl(lang_register.getString("cmd"), lang_register.getString("description")).addOptions(
+                        new OptionData(STRING, QUESTION, lang_register_options.getString("name"), true),
+                        new OptionData(STRING, CHOICE_A, lang_register_options.getString("a"), true),
+                        new OptionData(STRING, CHOICE_B, lang_register_options.getString("b")),
+                        new OptionData(STRING, CHOICE_C, lang_register_options.getString("c")),
+                        new OptionData(STRING, CHOICE_D, lang_register_options.getString("d")),
+                        new OptionData(STRING, CHOICE_E, lang_register_options.getString("e")),
+                        new OptionData(STRING, CHOICE_F, lang_register_options.getString("f")),
+                        new OptionData(STRING, CHOICE_G, lang_register_options.getString("g")),
+                        new OptionData(STRING, CHOICE_H, lang_register_options.getString("h")),
+                        new OptionData(STRING, CHOICE_I, lang_register_options.getString("i")),
+                        new OptionData(STRING, CHOICE_J, lang_register_options.getString("j"))
                 )
         };
     }
@@ -130,7 +133,11 @@ public class Main extends PluginEvent {
     public void loadLang() {
         // expert files
         langGetter.exportDefaultLang();
-        lang = langGetter.getLangFileData();
+        final JSONObject lang = langGetter.getLangFileData();
+        lang_register = lang.getJSONObject("register");
+        lang_register_options = lang_register.getJSONObject("options");
+        lang_embed = lang.getJSONObject("embed");
+        lang_command = lang.getJSONObject("command");
     }
 
 
@@ -146,7 +153,7 @@ public class Main extends PluginEvent {
         }
         event.getChannel().sendMessageEmbeds(createEmbed(
                 event.getOption(QUESTION).getAsString(), null,
-                lang.get("FOOTER"),
+                lang_embed.getString("footer"),
                 getMemberNick(event), event.getUser().getAvatarUrl(),
                 fields,
                 OffsetDateTime.now(), 0x87E5CF
@@ -156,7 +163,7 @@ public class Main extends PluginEvent {
 
         });
 
-        event.getHook().editOriginalEmbeds(createEmbed(lang.get("SUCCESS"), 0x9740b9)).queue();
+        event.getHook().editOriginalEmbeds(createEmbed(lang_command.getString("success"), 0x9740b9)).queue();
     }
 
 }

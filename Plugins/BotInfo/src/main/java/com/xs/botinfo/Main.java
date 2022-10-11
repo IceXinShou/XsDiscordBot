@@ -14,23 +14,22 @@ import org.json.JSONObject;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static com.xs.loader.util.EmbedCreator.createEmbed;
 
 public class Main extends PluginEvent {
 
-    private JSONObject config;
-    private Map<String, String> lang;
+    private JSONObject lang_register;
+    private JSONObject lang_runtime;
 
-    Lang langGetter;
+    private Lang langGetter;
     private final String[] LANG_DEFAULT = {"en_US", "zh_TW"};
     private final String[] LANG_PARAMETERS_DEFAULT = {
             "REGISTER_NAME", "GUILD_TOTAL_COUNT", "MEMBER_TOTAL_COUNT", "INFORMATION"
     };
 
-    FileGetter getter;
-    Logger logger;
+    private FileGetter getter;
+    private Logger logger;
     final String TAG = "BotInfo";
     final String PATH_FOLDER_NAME = "plugins/BotInfo";
 
@@ -54,13 +53,13 @@ public class Main extends PluginEvent {
     @Override
     public CommandData[] globalCommands() {
         return new CommandData[]{
-                new CommandDataImpl("botinfo", lang.get("REGISTER_NAME"))
+                new CommandDataImpl(lang_register.getString("cmd"), lang_register.getString("description"))
         };
     }
 
     @Override
     public void loadConfigFile() {
-        config = new JSONObject(getter.readYml("config.yml", PATH_FOLDER_NAME));
+        JSONObject config = new JSONObject(getter.readYml("config.yml", PATH_FOLDER_NAME));
         langGetter = new Lang(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, LANG_PARAMETERS_DEFAULT, config.getString("Lang"));
         logger.log("Setting File Loaded Successfully");
     }
@@ -69,7 +68,9 @@ public class Main extends PluginEvent {
     public void loadLang() {
         // expert files
         langGetter.exportDefaultLang();
-        lang = langGetter.getLangFileData();
+        JSONObject lang = langGetter.getLangFileData();
+        lang_register = lang.getJSONObject("register");
+        lang_runtime = lang.getJSONObject("runtime");
     }
 
     @Override
@@ -82,9 +83,9 @@ public class Main extends PluginEvent {
 
         List<MessageEmbed.Field> fields = new ArrayList<>();
         if (event.getGuild() != null) {
-            fields.add(new MessageEmbed.Field(lang.get("GUILD_TOTAL_COUNT"), String.valueOf((long) event.getJDA().getGuilds().size()), false));
-            fields.add(new MessageEmbed.Field(lang.get("MEMBER_TOTAL_COUNT"), String.valueOf(members), false));
-            event.getHook().editOriginalEmbeds(createEmbed(lang.get("INFORMATION"), "", "", "", "", fields, OffsetDateTime.now(), 0x00FFFF)).queue();
+            fields.add(new MessageEmbed.Field(lang_runtime.getString("guild_count"), String.valueOf((long) event.getJDA().getGuilds().size()), false));
+            fields.add(new MessageEmbed.Field(lang_runtime.getString("member_count"), String.valueOf(members), false));
+            event.getHook().editOriginalEmbeds(createEmbed(lang_runtime.getString("title"), "", "", "", "", fields, OffsetDateTime.now(), 0x00FFFF)).queue();
         } else {
             fields.add(new MessageEmbed.Field("Guild Count ", String.valueOf((long) event.getJDA().getGuilds().size()), false));
             fields.add(new MessageEmbed.Field("Member Count ", String.valueOf(members), false));

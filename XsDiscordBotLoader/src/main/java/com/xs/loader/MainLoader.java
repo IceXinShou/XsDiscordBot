@@ -141,7 +141,7 @@ public class MainLoader {
         return null;
     }
 
-    void loadDependencies(String currentPlugin, JSONArray dependencies) {
+    void loadDependencies(String currentPlugin, @NotNull JSONArray dependencies) {
         if (!dependencies.isEmpty()) {
             for (Object depend : dependencies) {
                 if (plugins.containsKey((String) depend)) {

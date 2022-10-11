@@ -1,16 +1,18 @@
 register:
-  name: Poll
-  description: Question
-  option_a: Option A
-  option_n: Option B
-  option_c: Option C
-  option_d: Option D
-  option_e: Option E
-  option_f: Option F
-  option_g: Option G
-  option_h: Option H
-  option_i: Option I
-  option_j: Option J
+  cmd: poll
+  description: make a poll
+  options:
+    name: question
+    a: option A
+    b: option B
+    c: option C
+    d: option D
+    e: option E
+    f: option F
+    g: option G
+    h: option H
+    i: option I
+    j: option J
 
 embed:
   footer: Poll

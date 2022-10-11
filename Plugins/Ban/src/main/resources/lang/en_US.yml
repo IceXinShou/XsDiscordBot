@@ -1,9 +1,16 @@
-REGISTER_NAME: Ban_Member
-REGISTER_OPTION_MEMBER_YOU_CHOOSE: User
-REGISTER_OPTION_TIME_DAY: Time (Day)
-REGISTER_OPTION_REASON: Reason
+register:
+  cmd: ban
+  description: ban a member from your server
 
-NO_PERMISSION: I do not have ban permission.
-PERMISSION_DENIED: My permission level is lower than user's.
-SUCCESS: Ban Successfully
-UNKNOWN_ERROR: Unknown ERROR!
+  options:
+    user: user
+    day: time (day)
+    reason: reason
+
+runtime:
+  success: Ban Successfully
+
+  errors:
+    no_permission: I do not have ban permission.
+    permission_denied: My permission level is lower than user's.
+    unknown: Unknown ERROR!

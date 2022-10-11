@@ -24,19 +24,17 @@ import static net.dv8tion.jda.api.interactions.commands.OptionType.*;
 
 public class Main extends PluginEvent {
 
-    private JSONObject lang_register;
-    private JSONObject lang_register_options;
-    private JSONObject lang_runtime;
-    private JSONObject lang_runtime_errors;
-    private Lang langGetter;
+    private JSONObject config;
+    private Map<String, String> lang;
+    Lang langGetter;
     private final String[] LANG_DEFAULT = {"en_US", "zh_TW"};
     private final String[] LANG_PARAMETERS_DEFAULT = {
             "REGISTER_NAME", "REGISTER_OPTION_MEMBER_YOU_CHOOSE", "REGISTER_OPTION_TIME_DAY",
             "REGISTER_OPTION_REASON", "NO_PERMISSION", "PERMISSION_DENIED", "SUCCESS", "UNKNOWN_ERROR"
     };
 
-    private FileGetter getter;
-    private Logger logger;
+    FileGetter getter;
+    Logger logger;
     final String TAG = "Ban";
     final String PATH_FOLDER_NAME = "plugins/Ban";
 
@@ -60,17 +58,15 @@ public class Main extends PluginEvent {
     @Override
     public CommandData[] guildCommands() {
         return new CommandData[]{
-                new CommandDataImpl(lang_register.getString("cmd"), lang_register.getString("description")).addOptions(
-                        new OptionData(USER, USER_TAG, lang_register_options.getString("user"), true),
-                        new OptionData(INTEGER, DAYS, lang_register_options.getString("day")),
-                        new OptionData(STRING, REASON, lang_register_options.getString("reason"))
+                new CommandDataImpl("reurl", lang.get("REGISTER_NAME")).addOptions(
+                        new OptionData(USER, USER_TAG, lang.get("REGISTER_OPTION_MEMBER_YOU_CHOOSE"), true)
                 )
         };
     }
 
     @Override
     public void loadConfigFile() {
-        JSONObject config = new JSONObject(getter.readYml("config.yml", PATH_FOLDER_NAME));
+        config = new JSONObject(getter.readYml("config.yml", PATH_FOLDER_NAME));
         langGetter = new Lang(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, LANG_PARAMETERS_DEFAULT, config.getString("Lang"));
         logger.log("Setting File Loaded Successfully");
     }
@@ -79,11 +75,7 @@ public class Main extends PluginEvent {
     public void loadLang() {
         // expert files
         langGetter.exportDefaultLang();
-        final JSONObject lang = langGetter.getLangFileData();
-        lang_register = lang.getJSONObject("register");
-        lang_register_options = lang_register.getJSONObject("options");
-        lang_runtime = lang.getJSONObject("runtime");
-        lang_runtime_errors = lang_runtime.getJSONObject("errors");
+        lang = langGetter.getLangFileData();
     }
 
     @Override
@@ -97,12 +89,12 @@ public class Main extends PluginEvent {
         String reason = event.getOption(REASON) == null ? "null" : event.getOption(REASON).getAsString();
 
         if (!selfMember.hasPermission(BAN_MEMBERS)) {
-            event.getHook().editOriginalEmbeds(createEmbed(lang_runtime_errors.getString("no_permission"), 0xFF0000)).queue();
+            event.getHook().editOriginalEmbeds(createEmbed(lang.get("NO_PERMISSION"), 0xFF0000)).queue();
             return;
         }
 
         if (!selfMember.canInteract(member)) {
-            event.getHook().editOriginalEmbeds(createEmbed(lang_runtime_errors.getString("permission_denied"), 0xFF0000)).queue();
+            event.getHook().editOriginalEmbeds(createEmbed(lang.get("PERMISSION_DENIED"), 0xFF0000)).queue();
             return;
         }
 
@@ -114,10 +106,10 @@ public class Main extends PluginEvent {
         String userName = member.getEffectiveName();
         event.getGuild().ban(member, delDays, TimeUnit.DAYS).reason(reason).queue(
                 success -> {
-                    event.getHook().editOriginalEmbeds(createEmbed(lang_runtime.getString("success") + ' ' + userName, 0xffb1b3)).queue();
+                    event.getHook().editOriginalEmbeds(createEmbed(lang.get("SUCCESS") + ' ' + userName, 0xffb1b3)).queue();
                 },
                 error -> {
-                    event.getHook().editOriginalEmbeds(createEmbed(lang_runtime_errors.getString("unknown"), 0xFF0000)).queue();
+                    event.getHook().editOriginalEmbeds(createEmbed(lang.get("UNKNOWN_ERROR"), 0xFF0000)).queue();
                 }
         );
     }

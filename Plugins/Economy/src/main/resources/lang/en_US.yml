@@ -1,24 +1,88 @@
-REGISTER_GET_MONEY_NAME: Get_Money
-REGISTER_OPTION_USER_YOU_CHOOSE: User
-REGISTER_GET_MONEY_TOTAL_NAME: Get_Total_Money
-REGISTER_ADD_MONEY_NAME: Add_Money
-REGISTER_OPTION_ADD_MONEY_VALUE: Value
-REGISTER_REMOVE_MONEY_NAME: Remove_Money
-REGISTER_OPTION_REMOVE_MONEY_VALUE: Value
-REGISTER_SET_MONEY_NAME: Set_Money
-REGISTER_OPTION_SET_MONEY_VALUE: Value
-REGISTER_ADD_MONEY_TOTAL_NAME: Add_Total_Money
-REGISTER_OPTION_ADD_MONEY_TOTAL_VALUE: Value
-REGISTER_REMOVE_MONEY_TOTAL_NAME: Remove_Total_Money
-REGISTER_OPTION_REMOVE_MONEY_TOTAL_VALUE: Value
-REGISTER_SET_MONEY_TOTAL_NAME: Set_Total_Money
-REGISTER_OPTION_SET_MONEY_TOTAL_VALUE: Value
-REGISTER_GET_MONEY_TOP_NAME: Get_Money_Scoreboard
-REGISTER_GET_MONEY_TOP_TOTAL_NAME: Get_Total_Money_Scoreboard
+register:
+  get_money:
+    cmd: money
+    description: get current money of user
+    options:
+      user: user
 
-MONEY_BOARD: Balance Board
-TOTAL_BOARD: Total Balance Board
-CURRENT_MONEY: "Current Balance: %money%"
-CURRENT_TOTAL_MONEY: "Current Total Balance: %total_money%"
+  get_money_history:
+    cmd: moneylog
+    description: get money log of user
+    options:
+      user: user
 
-NO_PERMISSION: You Cannot Do This!
+  add_money:
+    cmd: addmoney
+    description: add money to user
+    options:
+      user: user
+      value: value
+
+  remove_money:
+    cmd: removemoney
+    description: remove money to user
+    options:
+      user: user
+      value: value
+
+  set_money:
+    cmd: setmoney
+    description: set money to user
+    options:
+      user: user
+      value: value
+
+  add_money_history:
+    cmd: addmoneylog
+    description: add money log to user
+    options:
+      user: user
+      value: value
+
+  remove_money_history:
+    cmd: removemoneylog
+    description: remove money log to user
+    options:
+      user: user
+      value: value
+
+  set_money_history:
+    cmd: setmoneylog
+    description: set money log to user
+    options:
+      user: user
+      value: value
+
+  money_board:
+    cmd: moneytop
+    description: get board of money
+
+  money_history_board:
+    cmd: moneytoplog
+    description: get board of log money
+
+runtime:
+  money_board_title: Balance Board
+  money_history_board_title: log Balance Board
+  current_money: "Current Balance: %money%"
+  current_money_history: "Current log Balance: %log_money%"
+
+  errors:
+    no_permission: You Cannot Do This!
+#
+#runtime:
+#  - key: money_board_title
+#    value: Balance Board
+#
+#  - type: money_history_board_title
+#    text: log Balance Board
+#
+#  - type: current_money
+#    text: "Current Balance: %money%"
+#
+#  - type: current_money_history
+#    text: "Current log Balance: %log_money%"
+#
+#  - errors:
+#    - type: no_permission
+#      text: You Cannot Do This!

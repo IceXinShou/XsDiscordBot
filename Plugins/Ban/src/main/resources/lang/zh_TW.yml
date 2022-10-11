@@ -1,9 +1,16 @@
-REGISTER_NAME: 封鎖使用者
-REGISTER_OPTION_MEMBER_YOU_CHOOSE: 成員
-REGISTER_OPTION_TIME_DAY: 時間長度 (天)
-REGISTER_OPTION_REASON: 原因
+register:
+  cmd: 封鎖
+  description: 封鎖使用者
 
-NO_PERMISSION: 缺少封鎖權限
-PERMISSION_DENIED: 權限比該成員低
-SUCCESS: 已封鎖
-UNKNOWN_ERROR: 未知的錯誤
+  options:
+    user: 使用者
+    day: 時間長度 (天)
+    reason: 原因
+
+runtime:
+  success: 已封鎖
+
+  errors:
+    no_permission: 缺少封鎖權限
+    permission_denied: 權限比該成員低
+    unknown: 未知的錯誤

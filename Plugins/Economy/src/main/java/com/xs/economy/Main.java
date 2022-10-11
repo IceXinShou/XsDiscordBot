@@ -33,9 +33,28 @@ import static net.dv8tion.jda.api.interactions.commands.OptionType.USER;
 
 public class Main extends PluginEvent {
     private JSONObject config;
-    private Map<String, String> lang;
+    private JSONObject lang;
+    private JSONObject lang_register;
+    private JSONObject lang_register_get_money;
+    private JSONObject lang_register_get_money_history;
+    private JSONObject lang_register_add_money;
+    private JSONObject lang_register_add_money_options;
+    private JSONObject lang_register_remove_money;
+    private JSONObject lang_register_remove_money_options;
+    private JSONObject lang_register_set_money;
+    private JSONObject lang_register_set_money_options;
+    private JSONObject lang_register_add_money_history;
+    private JSONObject lang_register_add_money_history_options;
+    private JSONObject lang_register_remove_money_history;
+    private JSONObject lang_register_remove_money_history_options;
+    private JSONObject lang_register_set_money_history;
+    private JSONObject lang_register_set_money_history_options;
+    private JSONObject lang_register_money_board;
+    private JSONObject lang_register_money_history_board;
+    private JSONObject lang_runtime;
+    private JSONObject lang_runtime_errors;
 
-    Lang langGetter;
+    private Lang langGetter;
     private final Map<Long, String> nameCache = new HashMap<>();
     private final Map<Long, UserData> userData = new HashMap<>();
     private final List<UserData> moneyBoard = new ArrayList<>();
@@ -93,30 +112,30 @@ public class Main extends PluginEvent {
     @Override
     public CommandData[] guildCommands() {
         return new CommandData[]{
-                new CommandDataImpl("money", lang.get("REGISTER_GET_MONEY_NAME")).addOptions(
-                        new OptionData(USER, USER_TAG, lang.get("REGISTER_OPTION_USER_YOU_CHOOSE"))),
-                new CommandDataImpl("moneytotal", lang.get("REGISTER_GET_MONEY_TOTAL_NAME")).addOptions(
-                        new OptionData(USER, USER_TAG, lang.get("REGISTER_OPTION_USER_YOU_CHOOSE"))),
-                new CommandDataImpl("addmoney", lang.get("REGISTER_ADD_MONEY_NAME")).addOptions(
-                        new OptionData(INTEGER, VALUE, lang.get("REGISTER_OPTION_ADD_MONEY_VALUE"), true),
-                        new OptionData(USER, USER_TAG, lang.get("REGISTER_OPTION_USER_YOU_CHOOSE"))),
-                new CommandDataImpl("removemoney", lang.get("REGISTER_REMOVE_MONEY_NAME")).addOptions(
-                        new OptionData(INTEGER, VALUE, lang.get("REGISTER_OPTION_REMOVE_MONEY_VALUE"), true),
-                        new OptionData(USER, USER_TAG, lang.get("REGISTER_OPTION_USER_YOU_CHOOSE"))),
-                new CommandDataImpl("setmoney", lang.get("REGISTER_SET_MONEY_NAME")).addOptions(
-                        new OptionData(INTEGER, VALUE, lang.get("REGISTER_OPTION_SET_MONEY_VALUE"), true),
-                        new OptionData(USER, USER_TAG, lang.get("REGISTER_OPTION_USER_YOU_CHOOSE"))),
-                new CommandDataImpl("addmoneytotal", lang.get("REGISTER_ADD_MONEY_TOTAL_NAME")).addOptions(
-                        new OptionData(INTEGER, VALUE, lang.get("REGISTER_OPTION_ADD_MONEY_TOTAL_VALUE"), true),
-                        new OptionData(USER, USER_TAG, lang.get("REGISTER_OPTION_USER_YOU_CHOOSE"))),
-                new CommandDataImpl("removemoneytotal", lang.get("REGISTER_REMOVE_MONEY_TOTAL_NAME")).addOptions(
-                        new OptionData(INTEGER, VALUE, lang.get("REGISTER_OPTION_REMOVE_MONEY_TOTAL_VALUE"), true),
-                        new OptionData(USER, USER_TAG, lang.get("REGISTER_OPTION_USER_YOU_CHOOSE"))),
-                new CommandDataImpl("setmoneytotal", lang.get("REGISTER_SET_MONEY_TOTAL_NAME")).addOptions(
-                        new OptionData(INTEGER, VALUE, lang.get("REGISTER_OPTION_SET_MONEY_TOTAL_VALUE"), true),
-                        new OptionData(USER, USER_TAG, lang.get("REGISTER_OPTION_USER_YOU_CHOOSE"))),
-                new CommandDataImpl("moneytop", lang.get("REGISTER_GET_MONEY_TOP_NAME")),
-                new CommandDataImpl("moneytoptotal", lang.get("REGISTER_GET_MONEY_TOP_TOTAL_NAME"))
+                new CommandDataImpl(lang_register_get_money.getString("cmd"), lang_register_get_money.getString("description")).addOptions(
+                        new OptionData(USER, USER_TAG, lang_register_get_money.getJSONObject("options").getString("user"))),
+                new CommandDataImpl(lang_register_get_money_history.getString("cmd"), lang_register_get_money_history.getString("description")).addOptions(
+                        new OptionData(USER, USER_TAG, lang_register_get_money_history.getJSONObject("options").getString("user"))),
+                new CommandDataImpl(lang_register_add_money.getString("cmd"), lang_register_add_money.getString("description")).addOptions(
+                        new OptionData(INTEGER, VALUE, lang_register_add_money_options.getString("value"), true),
+                        new OptionData(USER, USER_TAG, lang_register_add_money_options.getString("user"))),
+                new CommandDataImpl(lang_register_remove_money.getString("cmd"), lang_register_remove_money.getString("description")).addOptions(
+                        new OptionData(INTEGER, VALUE, lang_register_remove_money_options.getString("value"), true),
+                        new OptionData(USER, USER_TAG, lang_register_remove_money_options.getString("user"))),
+                new CommandDataImpl(lang_register_set_money.getString("cmd"), lang_register_set_money.getString("description")).addOptions(
+                        new OptionData(INTEGER, VALUE, lang_register_set_money_options.getString("value"), true),
+                        new OptionData(USER, USER_TAG, lang_register_set_money_options.getString("user"))),
+                new CommandDataImpl(lang_register_add_money_history.getString("cmd"), lang_register_add_money_history.getString("description")).addOptions(
+                        new OptionData(INTEGER, VALUE, lang_register_add_money_history_options.getString("value"), true),
+                        new OptionData(USER, USER_TAG, lang_register_add_money_history_options.getString("user"))),
+                new CommandDataImpl(lang_register_remove_money_history.getString("cmd"), lang_register_remove_money_history.getString("description")).addOptions(
+                        new OptionData(INTEGER, VALUE, lang_register_remove_money_history_options.getString("value"), true),
+                        new OptionData(USER, USER_TAG, lang_register_remove_money_history_options.getString("user"))),
+                new CommandDataImpl(lang_register_set_money_history.getString("cmd"), lang_register_set_money_history.getString("description")).addOptions(
+                        new OptionData(INTEGER, VALUE, lang_register_set_money_history_options.getString("value"), true),
+                        new OptionData(USER, USER_TAG, lang_register_set_money_history_options.getString("user"))),
+                new CommandDataImpl(lang_register_money_board.getString("cmd"), lang_register_money_board.getString("description")),
+                new CommandDataImpl(lang_register_money_history_board.getString("cmd"), lang_register_money_history_board.getString("description"))
         };
     }
 
@@ -161,6 +180,25 @@ public class Main extends PluginEvent {
     public void loadLang() {
         langGetter.exportDefaultLang();
         lang = langGetter.getLangFileData();
+        lang_register = lang.getJSONObject("register");
+        lang_register_get_money = lang_register.getJSONObject("get_money");
+        lang_register_get_money_history = lang_register.getJSONObject("get_money_history");
+        lang_register_add_money = lang_register.getJSONObject("add_money");
+        lang_register_add_money_options = lang_register_add_money.getJSONObject("options");
+        lang_register_remove_money = lang_register.getJSONObject("remove_money");
+        lang_register_remove_money_options = lang_register_remove_money.getJSONObject("options");
+        lang_register_set_money = lang_register.getJSONObject("set_money");
+        lang_register_set_money_options = lang_register_set_money.getJSONObject("options");
+        lang_register_add_money_history = lang_register.getJSONObject("add_money_history");
+        lang_register_add_money_history_options = lang_register_add_money_history.getJSONObject("options");
+        lang_register_remove_money_history = lang_register.getJSONObject("remove_money_history");
+        lang_register_remove_money_history_options = lang_register_remove_money_history.getJSONObject("options");
+        lang_register_set_money_history = lang_register.getJSONObject("set_money_history");
+        lang_register_set_money_history_options = lang_register_set_money_history.getJSONObject("options");
+        lang_register_money_board = lang_register.getJSONObject("money_board");
+        lang_register_money_history_board = lang_register.getJSONObject("money_history_board");
+        lang_runtime = lang.getJSONObject("runtime");
+        lang_runtime_errors = lang_runtime.getJSONObject("errors");
     }
 
     @Override
@@ -277,7 +315,7 @@ public class Main extends PluginEvent {
                     checkData(id, event.getUser().getAsTag());
                     userData.get(id).addTotal(value);
                     event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id),
-                            lang.get("CURRENT_TOTAL_MONEY").replace("%total_money%", userData.get(id).getTotal() + " $"), 0x00FFFF)).queue();
+                            lang.get("CURRENT_TOTAL_MONEY").replace("%log_money%", userData.get(id).getTotal() + " $"), 0x00FFFF)).queue();
 
                     JSONObject object = manager.getOrDefault(String.valueOf(id));
 
@@ -302,7 +340,7 @@ public class Main extends PluginEvent {
                     checkData(id, event.getUser().getAsTag());
                     userData.get(id).removeTotal(value);
                     event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id),
-                            lang.get("CURRENT_TOTAL_MONEY").replace("%total_money%", userData.get(id).getTotal() + " $"), 0x00FFFF)).queue();
+                            lang.get("CURRENT_TOTAL_MONEY").replace("%log_money%", userData.get(id).getTotal() + " $"), 0x00FFFF)).queue();
 
                     JSONObject object = manager.getOrDefault(String.valueOf(id));
 
@@ -327,7 +365,7 @@ public class Main extends PluginEvent {
                     checkData(id, event.getUser().getAsTag());
                     userData.get(id).setTotal(value);
                     event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id),
-                            lang.get("CURRENT_TOTAL_MONEY").replace("%total_money%", userData.get(id).getTotal() + " $"), 0x00FFFF)).queue();
+                            lang.get("CURRENT_TOTAL_MONEY").replace("%log_money%", userData.get(id).getTotal() + " $"), 0x00FFFF)).queue();
 
                     manager.getOrDefault(String.valueOf(id)).put("total", value);
                     manager.save();

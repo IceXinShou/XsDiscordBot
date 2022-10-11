@@ -1,5 +1,8 @@
-REGISTER_NAME: Show about Bot
+register:
+  cmd: botinfo
+  description: show about Bot
 
-GUILD_TOTAL_COUNT: "**Server Total: **"
-MEMBER_TOTAL_COUNT: "**Member Total: **"
-INFORMATION: Bot Info
+runtime:
+  title: Bot Info
+  guild_count: "**Server Total: **"
+  member_count: "**Member Total: **"
