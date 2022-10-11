@@ -1,6 +1,5 @@
 package com.xs.loader.util;
 
-import com.xs.loader.MainLoader;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;

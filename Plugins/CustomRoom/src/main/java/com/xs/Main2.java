@@ -1,6 +1,5 @@
 package com.xs;
 
-import com.wavjaby.json.JSONObject;
 import com.xs.loader.PluginEvent;
 import com.xs.loader.lang.LangGetter;
 import com.xs.loader.util.FileGetter;

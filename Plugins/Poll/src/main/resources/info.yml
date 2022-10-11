@@ -1,5 +1,5 @@
 MainPath: com.xs.poll.Main
 Name: Poll
 Dependencies:
-    - EmojiAPI
+  - EmojiAPI
 #  - PlaceholderAPI

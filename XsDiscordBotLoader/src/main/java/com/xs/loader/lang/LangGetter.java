@@ -6,8 +6,6 @@ import com.xs.loader.util.FileGetter;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.Map;
 
 public class LangGetter {
     private final String FOLDER_PATH;

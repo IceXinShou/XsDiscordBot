@@ -38,7 +38,7 @@ public class MainLoader {
     public static final String ROOT_PATH = new File(System.getProperty("user.dir")).toString();
     private final Queue<PluginEvent> listeners = new ArrayDeque<>();
     private final Logger logger;
-    private final String version = "v1.3";
+    private final String version = "v1.4";
     private String BOT_TOKEN;
     private JSONObject settings;
     private FileGetter getter;
@@ -114,11 +114,7 @@ public class MainLoader {
                 fos.getChannel().transferFrom(Channels.newChannel(downloadURL.openStream()), 0, Long.MAX_VALUE);
 
                 logger.log("Download Successfully");
-
-                Process proc = Runtime.getRuntime().exec("java -jar " + fileName);
-                InputStream in = proc.getInputStream();
-                OutputStream err = proc.getOutputStream();
-
+                logger.log("Please change to the latest version");
                 return true;
             }
         } catch (IOException e) {

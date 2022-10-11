@@ -8,20 +8,15 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
-import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static com.xs.loader.util.EmbedCreator.createEmbed;
 
 public class Main extends PluginEvent {
-
-    private JSONObject lang;
 
     private LangGetter langGetter;
     private final String[] LANG_DEFAULT = {"en_US", "zh_TW"};
@@ -67,7 +62,7 @@ public class Main extends PluginEvent {
     public void loadLang() {
         // expert files
         langGetter.exportDefaultLang();
-        lang = langGetter.getLangFileData();
+        JSONObject lang = langGetter.getLangFileData();
     }
 
     @Override

@@ -3,7 +3,7 @@ plugins {
 }
 
 group 'com.xs.loader'
-version 'v1.3'
+version 'v1.4'
 compileJava.options.encoding = 'UTF-8'
 
 repositories {

@@ -13,14 +13,13 @@ import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static com.xs.loader.util.EmbedCreator.createEmbed;
 import static com.xs.loader.util.PermissionERROR.permissionCheck;
 import static com.xs.loader.util.SlashCommandOption.*;
 import static net.dv8tion.jda.api.Permission.BAN_MEMBERS;
-import static net.dv8tion.jda.api.interactions.commands.OptionType.*;
+import static net.dv8tion.jda.api.interactions.commands.OptionType.USER;
 
 public class Main extends PluginEvent {
 
