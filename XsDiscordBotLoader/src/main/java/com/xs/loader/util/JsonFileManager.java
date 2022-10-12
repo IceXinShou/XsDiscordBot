@@ -9,13 +9,11 @@ import java.io.*;
 import java.nio.file.Files;
 
 public class JsonFileManager {
-    private final String TAG;
     private final File FILE;
     private JSONObject data;
     private final Logger logger;
 
     public JsonFileManager(String FILE_PATH, String TAG) {
-        this.TAG = TAG;
         this.FILE = new File(MainLoader.ROOT_PATH + '/' + FILE_PATH);
         this.logger = new Logger(TAG);
         initData();

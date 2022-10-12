@@ -19,7 +19,10 @@ import org.json.JSONObject;
 import org.yaml.snakeyaml.Yaml;
 
 import javax.net.ssl.HttpsURLConnection;
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.channels.Channels;
@@ -40,7 +43,8 @@ public class MainLoader {
     private final Logger logger;
     private final String version = "v1.4";
     private String BOT_TOKEN;
-    private JSONObject settings;
+    private JSONObject configFile;
+    private JSONObject infoFile;
     private FileGetter getter;
     private final List<String> botStatus = new ArrayList<>();
     private final Map<String, Pair<PluginEvent, JSONArray>> plugins = new HashMap<>();
@@ -88,6 +92,7 @@ public class MainLoader {
         String fileName;
         URL downloadURL;
         URL url;
+
         logger.log("Version checking...");
 
         try {
@@ -112,7 +117,7 @@ public class MainLoader {
 
                 FileOutputStream fos = new FileOutputStream(ROOT_PATH + '/' + fileName);
                 fos.getChannel().transferFrom(Channels.newChannel(downloadURL.openStream()), 0, Long.MAX_VALUE);
-
+                fos.close();
                 logger.log("Download Successfully");
                 logger.log("Please change to the latest version");
                 return true;
@@ -224,12 +229,13 @@ public class MainLoader {
     }
 
     private void loadConfigFile() {
-        settings = new JSONObject(readOrDefaultYml("config_0A2F7C.yml", "config.yml"));
+        configFile = new JSONObject(readOrDefaultYml("config_0A2F7C.yml", "config.yml"));
+        infoFile = new JSONObject(readOrDefaultYml("info_72C67A.yml", "info.yml"));
         logger.log("Setting file loaded");
     }
 
     private void loadVariables() {
-        JSONObject general = settings.getJSONObject("GeneralSettings");
+        JSONObject general = configFile.getJSONObject("GeneralSettings");
         BOT_TOKEN = general.getString("botToken");
         if (general.has("activityMessage") && !general.getJSONArray("activityMessage").isEmpty()) {
             for (Object i : general.getJSONArray("activityMessage")) {
