@@ -24,8 +24,13 @@ public class Main extends PluginEvent {
     FileGetter getter;
     Logger logger;
 
-    final String TAG = "ServerInfo";
+    private static final String TAG = "ServerInfo";
+    private static final String VERSION = "1.0";
     final String PATH_FOLDER_NAME = "plugins/ServerInfo";
+
+    public Main() {
+        super(TAG, VERSION);
+    }
 
     @Override
     public void initLoad() {

@@ -18,11 +18,16 @@ public class Main extends PluginEvent {
 
     private FileGetter getter;
     private Logger logger;
-    private final String TAG = "Emoji";
+    private static final String TAG = "Emoji";
+    private static final String VERSION = "1.0";
     private final String PATH_FOLDER_NAME = "plugins/Emoji";
     private JSONArray ids;
     public static Map<String, Map<Long, Emoji>> emojis = new HashMap<>();
     private boolean noSet = false;
+
+    public Main() {
+        super(TAG, VERSION);
+    }
 
     @Override
     public void initLoad() {

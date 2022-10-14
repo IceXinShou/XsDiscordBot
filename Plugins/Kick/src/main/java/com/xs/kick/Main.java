@@ -31,8 +31,13 @@ public class Main extends PluginEvent {
     private FileGetter getter;
     private Logger logger;
     private LangGetter langGetter;
-    private final String TAG = "Kick";
+    private static final String TAG = "Kick";
+    private static final String VERSION = "1.0";
     private final String PATH_FOLDER_NAME = "plugins/Kick";
+
+    public Main() {
+        super(TAG, VERSION);
+    }
 
     @Override
     public void initLoad() {

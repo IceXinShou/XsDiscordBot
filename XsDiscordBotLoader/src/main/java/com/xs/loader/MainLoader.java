@@ -3,7 +3,7 @@ package com.xs.loader;
 import com.xs.loader.logger.Color;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
-import kotlin.Pair;
+import com.xs.loader.util.Pair;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -28,6 +28,8 @@ import java.net.URLClassLoader;
 import java.nio.channels.Channels;
 import java.nio.file.Files;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.jar.JarFile;
 
 import static com.xs.loader.util.JsonFileManager.streamToString;
@@ -44,11 +46,11 @@ public class MainLoader {
     private final String version = "v1.4";
     private String BOT_TOKEN;
     private JSONObject configFile;
-    private JSONObject infoFile;
     private FileGetter getter;
     private final List<String> botStatus = new ArrayList<>();
     private final Map<String, Pair<PluginEvent, JSONArray>> plugins = new HashMap<>();
-    private final Queue<PluginEvent> queue = new ArrayDeque<>();
+    private final List<PluginEvent> queue = new ArrayList<>();
+    private ScheduledExecutorService threadPool;
 
     MainLoader() {
         logger = new Logger("Main");
@@ -85,6 +87,7 @@ public class MainLoader {
         jdaBot.updateCommands().addCommands(globalCommands).queue();
         setStatus();
         logger.log("Bot Initialized");
+        getInput();
     }
 
     private boolean versionCheck() {
@@ -142,18 +145,18 @@ public class MainLoader {
         return null;
     }
 
-    void loadDependencies(String currentPlugin, @NotNull JSONArray dependencies) {
-        if (!dependencies.isEmpty()) {
+    void loadDependencies(String currentPlugin, JSONArray dependencies) {
+        if (dependencies != null && !dependencies.isEmpty()) {
             for (Object depend : dependencies) {
                 if (plugins.containsKey((String) depend)) {
-                    loadDependencies((String) depend, plugins.get((String) depend).component2());
-                    queue.add(plugins.get(currentPlugin).component1());
+                    loadDependencies((String) depend, plugins.get((String) depend).getValue());
+                    queue.add(plugins.get(currentPlugin).getKey());
                 } else {
                     logger.error("plugin: " + currentPlugin + " lost dependency: " + depend);
                 }
             }
         } else {
-            queue.add(plugins.get(currentPlugin).component1());
+            queue.add(plugins.get(currentPlugin).getKey());
         }
     }
 
@@ -179,7 +182,7 @@ public class MainLoader {
                                     MainLoader.class.getClassLoader())
                                     .loadClass(data.getString("MainPath"))
                                     .getDeclaredConstructor().newInstance(),
-                            data.has("Dependencies") ? data.getJSONArray("Dependencies") : new JSONArray()));
+                            data.has("Dependencies") ? data.getJSONArray("Dependencies") : null));
                 } else {
                     logger.error("same plugin!: " + file.getName());
                     ++fail;
@@ -196,31 +199,28 @@ public class MainLoader {
         }
 
         plugins.forEach((i, j) -> {
-            if (queue.contains(j.component1())) {
+            if (queue.contains(j.getKey())) {
                 return;
             }
-            logger.log(i);
-            loadDependencies(i, j.component2());
+            loadDependencies(i, j.getValue());
         });
 
-        while (!queue.isEmpty()) {
-            PluginEvent pluginMain = queue.poll();
+        for (PluginEvent plugin : queue) {
+            plugin.initLoad();
 
-            pluginMain.initLoad();
-
-            if (pluginMain.guildCommands() != null) {
-                Collections.addAll(guildCommands, pluginMain.guildCommands());
+            if (plugin.guildCommands() != null) {
+                Collections.addAll(guildCommands, plugin.guildCommands());
             }
 
-            if (pluginMain.subGuildCommands() != null) {
-                Collections.addAll(subGuildCommands, pluginMain.subGuildCommands());
+            if (plugin.subGuildCommands() != null) {
+                Collections.addAll(subGuildCommands, plugin.subGuildCommands());
             }
 
-            if (pluginMain.globalCommands() != null) {
-                Collections.addAll(globalCommands, pluginMain.globalCommands());
+            if (plugin.globalCommands() != null) {
+                Collections.addAll(globalCommands, plugin.globalCommands());
             }
 
-            listeners.add(pluginMain);
+            listeners.add(plugin);
         }
 
         if (fail > 0)
@@ -230,7 +230,6 @@ public class MainLoader {
 
     private void loadConfigFile() {
         configFile = new JSONObject(readOrDefaultYml("config_0A2F7C.yml", "config.yml"));
-        infoFile = new JSONObject(readOrDefaultYml("info_72C67A.yml", "info.yml"));
         logger.log("Setting file loaded");
     }
 
@@ -246,13 +245,17 @@ public class MainLoader {
 
     void setStatus() {
         if (botStatus.isEmpty()) return;
-        new Thread(() -> {
+        if (threadPool != null && !threadPool.isShutdown())
+            threadPool.shutdown();
+
+        threadPool = Executors.newSingleThreadScheduledExecutor();
+
+        threadPool.execute(() -> {
             while (true) {
                 for (String i : botStatus) {
                     String[] arg = i.split(";");
                     try {
                         if (arg[0].equals("STREAMING")) {
-                            // name, url
                             jdaBot.getPresence().setActivity(Activity.of(Activity.ActivityType.STREAMING, arg[1], arg[2]));
                             Thread.sleep(Long.parseLong(arg[3]));
                         } else {
@@ -267,7 +270,56 @@ public class MainLoader {
                     }
                 }
             }
-        }).start();
+        });
+    }
+
+    void getInput() {
+        Scanner scanner = new Scanner(System.in);
+        String command;
+        while (true) {
+            command = scanner.nextLine();
+            switch (command.toLowerCase()) {
+                case "stop":
+                    for (PluginEvent plugin : queue) {
+                        plugin.unload();
+                    }
+                    plugins.clear();
+                    queue.clear();
+
+                    threadPool.shutdown();
+                    jdaBot.shutdown();
+                    logger.log("Stopped");
+                    return;
+
+                case "reload":
+                    logger.log("Reloading...");
+                    for (PluginEvent plugin : queue) {
+                        plugin.reload();
+                    }
+
+                    threadPool.shutdown();
+                    loadConfigFile();
+                    loadVariables();
+                    setStatus();
+
+                    logger.log("Reloaded");
+                    break;
+//                case "test":
+//                    plugins.forEach((i, j) -> {
+//                        j.clear();
+//                    });
+//
+//                    plugins.clear();
+//                    queue.clear();
+//
+//                    logger.log("CLEAR!");
+//                    break;
+                default:
+                    if (command.length() != 0)
+                        logger.error("Unknown Command");
+                    break;
+            }
+        }
     }
 
     public Map<String, Object> readOrDefaultYml(String name, String outName) {

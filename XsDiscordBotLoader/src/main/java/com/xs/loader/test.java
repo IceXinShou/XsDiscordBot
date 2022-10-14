@@ -1,6 +1,6 @@
 package com.xs.loader;
 
-import kotlin.Pair;
+import com.xs.loader.util.Pair;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -75,9 +75,9 @@ public class test {
             // Collections.shuffle(data);
 
             for (Pair<String, String> i : data) {
-                System.out.print(i.component1());
+                System.out.print(i.getKey());
                 sc.nextLine();
-                System.out.println(i.component2());
+                System.out.println(i.getValue());
             }
         }
     }

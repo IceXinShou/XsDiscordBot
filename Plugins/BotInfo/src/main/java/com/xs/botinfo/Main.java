@@ -27,8 +27,13 @@ public class Main extends PluginEvent {
 
     private FileGetter getter;
     private Logger logger;
-    final String TAG = "BotInfo";
+    private static final String TAG = "BotInfo";
+    private static final String VERSION = "1.0";
     final String PATH_FOLDER_NAME = "plugins/BotInfo";
+
+    public Main() {
+        super(TAG, VERSION);
+    }
 
     @Override
     public void initLoad() {

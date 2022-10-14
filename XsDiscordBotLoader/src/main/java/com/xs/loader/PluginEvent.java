@@ -5,13 +5,27 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import org.fusesource.jansi.AnsiConsole;
 
-public class PluginEvent extends ListenerAdapter {
+public abstract class PluginEvent extends ListenerAdapter {
+    protected String name;
+    protected String version;
+
+    public PluginEvent(final String name, final String version) {
+        this.name = name;
+        this.version = version;
+    }
+
     public void initLoad() {
         AnsiConsole.systemInstall();
     }
 
     public void unload() {
         AnsiConsole.systemUninstall();
+    }
+
+    public void reload() {
+        if (AnsiConsole.isInstalled())
+            AnsiConsole.systemUninstall();
+        AnsiConsole.systemInstall();
     }
 
     public CommandData[] guildCommands() {
@@ -25,6 +39,7 @@ public class PluginEvent extends ListenerAdapter {
     public CommandData[] globalCommands() {
         return null;
     }
+
 
     public void loadConfigFile() {
     }

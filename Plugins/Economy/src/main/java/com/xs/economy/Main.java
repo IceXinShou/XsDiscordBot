@@ -13,6 +13,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.events.user.update.UserUpdateDiscriminatorEvent;
 import net.dv8tion.jda.api.events.user.update.UserUpdateNameEvent;
+import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
@@ -63,11 +64,16 @@ public class Main extends PluginEvent {
 
     FileGetter getter;
     Logger logger;
-    final String TAG = "Economy";
+    private static final String TAG = "Economy";
+    private static final String VERSION = "1.0";
     final String PATH_FOLDER_NAME = "plugins/Economy";
     JsonFileManager manager;
     private final List<Long> ownerIDs = new ArrayList<>();
     private int boardUserShowLimit;
+
+    public Main() {
+        super(TAG, VERSION);
+    }
 
     @Override
     public void initLoad() {
@@ -145,10 +151,11 @@ public class Main extends PluginEvent {
             User user;
             JSONObject object = manager.getOrDefault(i);
             userData.put(Long.parseLong(i), new UserData(Long.parseLong(i), object.getInt("money"), object.getInt("total")));
-            if ((user = jdaBot.retrieveUserById(Long.parseLong(i)).complete()) != null) {
+            try {
+                user = jdaBot.retrieveUserById(Long.parseLong(i)).complete();
                 nameCache.put(Long.parseLong(i), user.getAsTag());
-            } else {
-                nameCache.put(Long.parseLong(i), "unknown");
+            } catch (ErrorResponseException e) {
+                nameCache.put(Long.parseLong(i), "unknown (" + i + ')');
             }
         }
 

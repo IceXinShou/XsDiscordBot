@@ -21,7 +21,7 @@ import static net.dv8tion.jda.api.Permission.ADMINISTRATOR;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.*;
 
 public class Main extends PluginEvent {
-    private final String TAG = "CustomRoom";
+    private static final String TAG = "CustomRoom";
     FileSetting setting;
 
     @Override

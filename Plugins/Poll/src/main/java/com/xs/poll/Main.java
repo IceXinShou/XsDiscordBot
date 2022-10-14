@@ -39,12 +39,17 @@ public class Main extends PluginEvent {
     private final String[] LANG_DEFAULT = {"en_US", "zh_TW"};
     private FileGetter getter;
     private Logger logger;
-    private final String TAG = "Poll";
+    private static final String TAG = "Poll";
+    private static final String VERSION = "1.0";
     private final String PATH_FOLDER_NAME = "plugins/Poll";
     private JSONObject emojiData;
     private final List<Emoji> votes = new ArrayList<>();
     private boolean noSet = false;
     private LangGetter langGetter;
+
+    public Main() {
+        super(TAG, VERSION);
+    }
 
     @Override
     public void initLoad() {

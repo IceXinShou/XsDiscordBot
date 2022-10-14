@@ -32,8 +32,13 @@ public class Main extends PluginEvent {
 
     private FileGetter getter;
     private Logger logger;
-    final String TAG = "Ban";
+    private static final String TAG = "Ban";
+    private static final String VERSION = "1.0";
     final String PATH_FOLDER_NAME = "plugins/Ban";
+
+    public Main() {
+        super(TAG, VERSION);
+    }
 
     @Override
     public void initLoad() {
