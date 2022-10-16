@@ -304,16 +304,6 @@ public class MainLoader {
 
                     logger.log("Reloaded");
                     break;
-//                case "test":
-//                    plugins.forEach((i, j) -> {
-//                        j.clear();
-//                    });
-//
-//                    plugins.clear();
-//                    queue.clear();
-//
-//                    logger.log("CLEAR!");
-//                    break;
                 default:
                     if (command.length() != 0)
                         logger.error("Unknown Command");
