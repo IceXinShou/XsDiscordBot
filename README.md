@@ -8,32 +8,6 @@ Require Java 1.8 up...
 
 Create a class and make it `extends PluginEvent`
 
-now, you can add these blow:
+For more information, please visit plugin's src in Plugins folder 
 
-```java
-@Override
-public void initLoad(){super.initLoad();}
-
-@Override
-public void unload(){super.initLoad();}
-
-@Override
-public void loadConfigFile(){}
-
-@Override
-public void loadVariables(){}
-
-@Override
-public void loadLang(){}
-
-@Override
-public CommandData[]guildCommands(){}
-
-@Override
-public SubcommandData[]subGuildCommands(){}
-
-@Override
-public CommandData[]globalCommands(){}
-```
-
-For more examples, please visit plugins in Plugins folder 
+documentation will update in a while.
