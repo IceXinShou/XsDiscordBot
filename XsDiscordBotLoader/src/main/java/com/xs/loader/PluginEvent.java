@@ -22,12 +22,6 @@ public abstract class PluginEvent extends ListenerAdapter {
         AnsiConsole.systemUninstall();
     }
 
-    public void reload() {
-        if (AnsiConsole.isInstalled())
-            AnsiConsole.systemUninstall();
-        AnsiConsole.systemInstall();
-    }
-
     public CommandData[] guildCommands() {
         return null;
     }

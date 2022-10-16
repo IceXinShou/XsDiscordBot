@@ -280,9 +280,14 @@ public class MainLoader {
             command = scanner.nextLine();
             switch (command.toLowerCase()) {
                 case "stop":
+                    for (Object listener: jdaBot.getRegisteredListeners()){
+                        jdaBot.removeEventListener(listener);
+                    }
+
                     for (PluginEvent plugin : queue) {
                         plugin.unload();
                     }
+
                     plugins.clear();
                     queue.clear();
 
@@ -293,8 +298,10 @@ public class MainLoader {
 
                 case "reload":
                     logger.log("Reloading...");
+
                     for (PluginEvent plugin : queue) {
-                        plugin.reload();
+                        plugin.unload();
+                        plugin.initLoad();
                     }
 
                     threadPool.shutdown();
