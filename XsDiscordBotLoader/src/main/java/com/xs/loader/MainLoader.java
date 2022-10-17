@@ -280,7 +280,7 @@ public class MainLoader {
             command = scanner.nextLine();
             switch (command.toLowerCase()) {
                 case "stop":
-                    for (Object listener: jdaBot.getRegisteredListeners()){
+                    for (Object listener : jdaBot.getRegisteredListeners()) {
                         jdaBot.removeEventListener(listener);
                     }
 
