@@ -7,6 +7,7 @@ import com.xs.loader.util.Pair;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -275,10 +276,43 @@ public class MainLoader {
 
     void getInput() {
         Scanner scanner = new Scanner(System.in);
-        String command;
+
         while (true) {
-            command = scanner.nextLine();
-            switch (command.toLowerCase()) {
+            String[] command = scanner.nextLine().split(" ");
+
+            switch (command[0].toLowerCase()) {
+                case "tell":
+                    jdaBot.retrieveUserById(command[1]).onSuccess(i -> {
+                        i.openPrivateChannel(
+                        ).onSuccess((j) -> {
+                            j.sendMessage(command[2]).queue();
+                        }).onErrorFlatMap(j -> {
+                            logger.error(j.getMessage());
+                            return null;
+                        }).complete();
+                    }).onErrorMap(i -> {
+                        logger.error(i.getMessage());
+                        return null;
+                    }).complete();
+                    break;
+                case "say":
+                    jdaBot.getGuildById(command[1]).getTextChannelById(command[2]).sendMessage(command[3]).queue();
+                    break;
+                case "join":
+                    Guild guild = jdaBot.getGuildById(command[1]);
+                    guild.getAudioManager().openAudioConnection(guild.getVoiceChannelById(command[2]));
+                    break;
+                case "leave":
+                    jdaBot.getGuildById(command[1]).getAudioManager().closeAudioConnection();
+                    break;
+                case "mute":
+                    guild = jdaBot.getGuildById(command[1]);
+                    guild.getAudioManager().setSelfMuted(!guild.getAudioManager().isSelfMuted());
+                    break;
+                case "deafen":
+                    guild = jdaBot.getGuildById(command[1]);
+                    guild.getAudioManager().setSelfDeafened(!guild.getAudioManager().isSelfDeafened());
+                    break;
                 case "stop":
                     for (Object listener : jdaBot.getRegisteredListeners()) {
                         jdaBot.removeEventListener(listener);
@@ -312,8 +346,7 @@ public class MainLoader {
                     logger.log("Reloaded");
                     break;
                 default:
-                    if (command.length() != 0)
-                        logger.error("Unknown Command");
+                    logger.error("Unknown Command");
                     break;
             }
         }
