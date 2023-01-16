@@ -6,30 +6,30 @@ import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.DiscordLocale;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
-import net.dv8tion.jda.internal.interactions.CommandDataImpl;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static com.xs.loader.util.EmbedCreator.createEmbed;
 
 public class Main extends PluginEvent {
-
-    private JSONObject lang_register;
-    private JSONObject lang_runtime;
-
-    private LangGetter langGetter;
-    private final String[] LANG_DEFAULT = {"en_US", "zh_TW"};
+    private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
 
     private FileGetter getter;
     private Logger logger;
     private static final String TAG = "BotInfo";
-    private static final String VERSION = "1.0";
+    private static final String VERSION = "2.0";
     final String PATH_FOLDER_NAME = "plugins/BotInfo";
+    private Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
 
     public Main() {
         super(TAG, VERSION);
@@ -53,45 +53,48 @@ public class Main extends PluginEvent {
     }
 
     @Override
+    public void loadLang() {
+        LangGetter langGetter = new LangGetter(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT);
+        // expert files
+        langGetter.exportDefaultLang();
+        lang = langGetter.readLangFileData();
+    }
+
+    @Override
     public CommandData[] globalCommands() {
-        return new CommandData[]{
-                new CommandDataImpl(lang_register.getString("cmd"), lang_register.getString("description"))
+        return new SlashCommandData[]{
+                Commands.slash("botinfo", "show about the bot data")
+                        .setNameLocalizations(lang.get("register;cmd"))
+                        .setDescriptionLocalizations(lang.get("register;description"))
+                        .setDefaultPermissions(DefaultMemberPermissions.ENABLED)
         };
     }
 
     @Override
     public void loadConfigFile() {
         JSONObject config = new JSONObject(getter.readYml("config.yml", PATH_FOLDER_NAME));
-        langGetter = new LangGetter(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, config.getString("Lang"));
         logger.log("Setting File Loaded Successfully");
     }
 
     @Override
-    public void loadLang() {
-        // expert files
-        langGetter.exportDefaultLang();
-        JSONObject lang = langGetter.getLangFileData();
-        lang_register = lang.getJSONObject("register");
-        lang_runtime = lang.getJSONObject("runtime");
-    }
-
-    @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
-        if (!event.getName().equals(lang_register.getString("cmd"))) return;
+        if (!event.getName().equals("botinfo")) return;
+
+        DiscordLocale local = event.getUserLocale();
 
         int members = 0;
         for (int i = 0; i < event.getJDA().getGuilds().size(); i++)
             members = members + event.getJDA().getGuilds().get(i).getMemberCount();
 
         List<MessageEmbed.Field> fields = new ArrayList<>();
-        if (event.getGuild() != null) {
-            fields.add(new MessageEmbed.Field(lang_runtime.getString("guild_count"), String.valueOf((long) event.getJDA().getGuilds().size()), false));
-            fields.add(new MessageEmbed.Field(lang_runtime.getString("member_count"), String.valueOf(members), false));
-            event.getHook().editOriginalEmbeds(createEmbed(lang_runtime.getString("title"), "", "", "", "", fields, OffsetDateTime.now(), 0x00FFFF)).queue();
-        } else {
-            fields.add(new MessageEmbed.Field("Guild Count ", String.valueOf((long) event.getJDA().getGuilds().size()), false));
-            fields.add(new MessageEmbed.Field("Member Count ", String.valueOf(members), false));
-            event.getHook().editOriginalEmbeds(createEmbed("Bot Info", "", "", "", "", fields, OffsetDateTime.now(), 0x00FFFF)).queue();
-        }
+        fields.add(new MessageEmbed.Field(
+                lang.get("runtime;guild_count").get(local),
+                String.valueOf((long) event.getJDA().getGuilds().size()), false)
+        );
+        fields.add(new MessageEmbed.Field(
+                lang.get("runtime;member_count").get(local),
+                String.valueOf(members), false)
+        );
+        event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;title").get(local), "", "", "", "", fields, OffsetDateTime.now(), 0x00FFFF)).queue();
     }
 }

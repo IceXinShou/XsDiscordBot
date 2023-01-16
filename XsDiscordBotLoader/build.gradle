@@ -3,7 +3,7 @@ plugins {
 }
 
 group 'com.xs.loader'
-version 'v1.4'
+version 'v1.5'
 compileJava.options.encoding = 'UTF-8'
 
 repositories {
@@ -11,8 +11,8 @@ repositories {
 }
 
 dependencies {
-    implementation 'net.dv8tion:JDA:5.0.0-alpha.21'
-    implementation group: 'org.yaml', name: 'snakeyaml', version: '1.32'
+    implementation("net.dv8tion:JDA:5.0.0-beta.2")
+    implementation group: 'org.yaml', name: 'snakeyaml', version: '1.33'
     implementation 'org.fusesource.jansi:jansi:2.4.0'
     implementation group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.36'
     implementation group: 'org.json', name: 'json', version: '20220924'

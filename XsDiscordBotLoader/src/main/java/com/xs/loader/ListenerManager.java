@@ -30,16 +30,17 @@ public class ListenerManager extends ListenerAdapter {
         if (!subGuildCommands.isEmpty()) {
             event.getGuild().updateCommands().addCommands(
                     new CommandDataImpl("setting", "設定").addSubcommands(subGuildCommands)).queue();
-
         }
     }
 
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
-        event.getInteraction().deferReply(true).queue();
+        event.deferReply(true).queue();
 
         if (event.isFromGuild()) {
             logger.log(event.getMember().getEffectiveName() + ": " + event.getCommandString());
+        } else {
+            logger.log(event.getUser().getAsTag() + ": " + event.getCommandString());
         }
     }
 }

@@ -7,6 +7,7 @@ import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Map;
@@ -22,10 +23,10 @@ public class FileGetter {
         this.LOADER = LOADER;
     }
 
-    public Map<String, Object> readFile(File f) {
+    public Map<String, Object> readFile(Path f) {
         try {
-            return new Yaml().load(new FileInputStream(f));
-        } catch (FileNotFoundException e) {
+            return new Yaml().load(Files.newInputStream(f));
+        } catch (IOException e) {
             logger.error(e.getMessage());
         }
         return null;
@@ -44,7 +45,7 @@ public class FileGetter {
         }
         logger.log("load " + settingFile.getPath());
 
-        return readFile(settingFile);
+        return readFile(settingFile.toPath());
     }
 
     public File exportResource(String sourceFileName, String outputPath) {

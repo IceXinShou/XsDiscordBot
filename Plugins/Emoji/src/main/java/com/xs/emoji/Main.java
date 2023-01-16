@@ -15,7 +15,6 @@ import java.util.Map;
 public class Main extends PluginEvent {
 
     private JSONObject config;
-
     private FileGetter getter;
     private Logger logger;
     private static final String TAG = "Emoji";
@@ -23,7 +22,7 @@ public class Main extends PluginEvent {
     private final String PATH_FOLDER_NAME = "plugins/Emoji";
     private JSONArray ids;
     public static Map<String, Map<Long, Emoji>> emojis = new HashMap<>();
-    private boolean noSet = false;
+    private boolean setup = false;
 
     public Main() {
         super(TAG, VERSION);
@@ -53,29 +52,22 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadVariables() {
-        ids = config.getJSONArray("GuildID");
-
-        if (ids.isNull(0)) {
+        if (config.has("GuildID") && !config.getJSONArray("GuildID").isEmpty()) {
+            ids = config.getJSONArray("GuildID");
+            setup = true;
+        } else {
             logger.error("Please configure /" + PATH_FOLDER_NAME + "/config.yml");
-            noSet = true;
         }
-
     }
 
     @Override
     public void onGuildReady(GuildReadyEvent event) {
-        if (!noSet) {
+        if (setup) {
             for (int i = 0; i < ids.length(); ++i) {
                 if (ids.getLong(i) == event.getGuild().getIdLong()) {
                     Guild guild = event.getGuild();
                     for (Emoji j : guild.retrieveEmojis().complete()) {
-                        if (!emojis.containsKey(j.getName())) {
-                            Map<Long, Emoji> tmp = new HashMap<>();
-                            tmp.put(guild.getIdLong(), j);
-                            emojis.put(j.getName(), tmp);
-                        } else {
-                            emojis.get(j.getName()).put(guild.getIdLong(), j);
-                        }
+                        emojis.getOrDefault(j.getName(), new HashMap<>()).put(guild.getIdLong(), j);
                         logger.log("Loaded " + j.getName());
                     }
                 }

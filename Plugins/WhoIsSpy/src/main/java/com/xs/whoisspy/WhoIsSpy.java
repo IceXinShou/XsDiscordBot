@@ -6,7 +6,10 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.PermissionOverride;
 import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
+import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
 import net.dv8tion.jda.internal.interactions.component.ButtonImpl;
 
 import java.util.*;
@@ -22,8 +25,8 @@ public class WhoIsSpy {
     private final int white;
     private final String problem;
     private final String spy_problem;
-    private List<Member> spys = new ArrayList<>();
-    private List<Member> whites = new ArrayList<>();
+    private final List<Member> spys = new ArrayList<>();
+    private final List<Member> whites = new ArrayList<>();
     private final Map<Long, String> data = new HashMap<>();
 
     WhoIsSpy(Guild guild, Category category, List<Member> users, List<Member> admins, int spy, int white, String problem, String spy_problem) {
@@ -75,7 +78,7 @@ public class WhoIsSpy {
             channel.sendMessageEmbeds(createEmbed("按此按鈕得到自己的題目", 0x00FFFF))
                     .setActionRow(
                             new ButtonImpl("getrole", "取得自己的題目", ButtonStyle.SUCCESS, false, null),
-//                            new ButtonImpl("vote", "開啟投票", ButtonStyle.SUCCESS, false, null),
+                            //new ButtonImpl("startvote", "開始投票", ButtonStyle.SUCCESS, false, null),
                             new ButtonImpl("getallrole", "取得所有人的題目", ButtonStyle.PRIMARY, false, null),
                             new ButtonImpl("end", "結算並結束遊戲", ButtonStyle.DANGER, false, null)
                     )
@@ -92,7 +95,16 @@ public class WhoIsSpy {
     }
 
     void removeMember(Member member) {
+        remove(member);
         channel.upsertPermissionOverride(member).reset().queue();
+    }
+
+    void remove(Member member) {
+        if (users.contains(member)) {
+            users.remove(member);
+        } else if (spys.contains(member)) {
+            spys.remove(member);
+        }
     }
 
     String getAllRole() {
@@ -122,5 +134,24 @@ public class WhoIsSpy {
                 .addActionRow(
                         new ButtonImpl("delete:" + channel.getId(), "刪除頻道", ButtonStyle.DANGER, false, null)
                 ).queue();
+    }
+
+    public void startVote() {
+        List<Button> buttons = new ArrayList<>();
+        for (Member i : users) {
+            buttons.add(Button.of(ButtonStyle.SUCCESS, "vote:" + i.getId(), i.getEffectiveName()));
+        }
+
+        for (Member i : spys) {
+            buttons.add(Button.of(ButtonStyle.SUCCESS, "vote:" + i.getId(), i.getEffectiveName()));
+        }
+
+        Collections.shuffle(buttons);
+
+//        options.add(SelectOption.of("棄票", "vote:null"));
+        channel.sendMessageEmbeds(createEmbed("請選出你所認為的臥底: ", 0x00FFFF)).addActionRow(
+                buttons
+//                SelectMenu.create("vote").addOptions(options).setMaxValues(1).setMinValues(1).build()
+        ).addActionRow().queue();
     }
 }

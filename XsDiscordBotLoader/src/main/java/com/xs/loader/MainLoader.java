@@ -44,7 +44,7 @@ public class MainLoader {
     public static final String ROOT_PATH = new File(System.getProperty("user.dir")).toString();
     private final Queue<PluginEvent> listeners = new ArrayDeque<>();
     private final Logger logger;
-    private final String version = "v1.4";
+    private final String version = "v1.5";
     private String BOT_TOKEN;
     private JSONObject configFile;
     private FileGetter getter;
@@ -70,8 +70,16 @@ public class MainLoader {
                 .setBulkDeleteSplittingEnabled(false)
                 .setLargeThreshold(250)
                 .setMemberCachePolicy(MemberCachePolicy.ALL)
-                .enableCache(CacheFlag.ONLINE_STATUS, CacheFlag.ACTIVITY)
-                .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_PRESENCES);
+                .enableCache(
+                        CacheFlag.ONLINE_STATUS,
+                        CacheFlag.ACTIVITY
+                )
+                .enableIntents(
+                        GatewayIntent.GUILD_MEMBERS,
+                        GatewayIntent.GUILD_VOICE_STATES,
+                        GatewayIntent.GUILD_MESSAGES,
+                        GatewayIntent.GUILD_PRESENCES
+                );
 
         loadPlugins();
 
@@ -209,16 +217,19 @@ public class MainLoader {
         for (PluginEvent plugin : queue) {
             plugin.initLoad();
 
-            if (plugin.guildCommands() != null) {
-                Collections.addAll(guildCommands, plugin.guildCommands());
+            CommandData[] guildCommandsTmp;
+            if ((guildCommandsTmp = plugin.guildCommands()) != null) {
+                Collections.addAll(guildCommands, guildCommandsTmp);
             }
 
-            if (plugin.subGuildCommands() != null) {
-                Collections.addAll(subGuildCommands, plugin.subGuildCommands());
+            SubcommandData[] subGuildCommandsTmp;
+            if ((subGuildCommandsTmp = plugin.subGuildCommands()) != null) {
+                Collections.addAll(subGuildCommands, subGuildCommandsTmp);
             }
 
-            if (plugin.globalCommands() != null) {
-                Collections.addAll(globalCommands, plugin.globalCommands());
+            CommandData[] globalCommandsTmp;
+            if ((globalCommandsTmp = plugin.globalCommands()) != null) {
+                Collections.addAll(globalCommands, globalCommandsTmp);
             }
 
             listeners.add(plugin);

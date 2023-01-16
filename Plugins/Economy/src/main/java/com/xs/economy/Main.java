@@ -60,7 +60,7 @@ public class Main extends PluginEvent {
     private final Map<Long, UserData> userData = new HashMap<>();
     private final List<UserData> moneyBoard = new ArrayList<>();
     private final List<UserData> totalBoard = new ArrayList<>();
-    private final String[] LANG_DEFAULT = {"en_US", "zh_TW"};
+    private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
 
     FileGetter getter;
     Logger logger;

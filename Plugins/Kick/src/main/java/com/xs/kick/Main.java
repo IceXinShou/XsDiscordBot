@@ -6,34 +6,33 @@ import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.DiscordLocale;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
+import java.util.Map;
+
 import static com.xs.loader.util.EmbedCreator.createEmbed;
 import static com.xs.loader.util.PermissionERROR.permissionCheck;
-import static com.xs.loader.util.SlashCommandOption.REASON;
-import static com.xs.loader.util.SlashCommandOption.USER_TAG;
+import static com.xs.loader.util.SlashCommandOption.*;
+import static net.dv8tion.jda.api.Permission.BAN_MEMBERS;
 import static net.dv8tion.jda.api.Permission.KICK_MEMBERS;
-import static net.dv8tion.jda.api.interactions.commands.OptionType.STRING;
-import static net.dv8tion.jda.api.interactions.commands.OptionType.USER;
+import static net.dv8tion.jda.api.interactions.commands.OptionType.*;
 
 public class Main extends PluginEvent {
-
-    private JSONObject lang_register;
-    private JSONObject lang_register_options;
-    private JSONObject lang_runtime;
-    private JSONObject lang_runtime_errors;
-    private final String[] LANG_DEFAULT = {"en_US", "zh_TW"};
-
+    private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
     private FileGetter getter;
     private Logger logger;
-    private LangGetter langGetter;
     private static final String TAG = "Kick";
-    private static final String VERSION = "1.0";
+    private static final String VERSION = "2.0";
     private final String PATH_FOLDER_NAME = "plugins/Kick";
+    private Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
 
     public Main() {
         super(TAG, VERSION);
@@ -57,60 +56,70 @@ public class Main extends PluginEvent {
     }
 
     @Override
+    public void loadLang() {
+        LangGetter langGetter = new LangGetter(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT);
+
+        // expert files
+        langGetter.exportDefaultLang();
+        lang = langGetter.readLangFileData();
+    }
+
+    @Override
     public CommandData[] guildCommands() {
-        return new CommandData[]{
-                new CommandDataImpl(lang_register.getString("cmd"), lang_register.getString("description")).addOptions(
-                        new OptionData(USER, USER_TAG, lang_register_options.getString("user"), true),
-                        new OptionData(STRING, REASON, lang_register_options.getString("reason"))
-                )
+        return new SlashCommandData[]{
+                Commands.slash("kick", "kick a member from your server")
+                        .setNameLocalizations(lang.get("register;cmd"))
+                        .setDescriptionLocalizations(lang.get("register;description"))
+                        .addOptions(
+                                new OptionData(USER, USER_TAG, "user", true)
+                                        .setDescriptionLocalizations(lang.get("register;options;user")),
+                                new OptionData(STRING, REASON, "reason")
+                                        .setDescriptionLocalizations(lang.get("register;options;reason"))
+                        )
+                        .setDefaultPermissions(DefaultMemberPermissions.enabledFor(KICK_MEMBERS))
         };
     }
 
     @Override
     public void loadConfigFile() {
         JSONObject config = new JSONObject(getter.readYml("config.yml", PATH_FOLDER_NAME));
-        langGetter = new LangGetter(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, config.getString("Lang"));
         logger.log("Setting File Loaded Successfully");
-    }
-
-    @Override
-    public void loadLang() {
-        langGetter.exportDefaultLang();
-        JSONObject lang = langGetter.getLangFileData();
-        lang_register = lang.getJSONObject("register");
-        lang_register_options = lang_register.getJSONObject("options");
-        lang_runtime = lang.getJSONObject("runtime");
-        lang_runtime_errors = lang_runtime.getJSONObject("errors");
-
     }
 
 
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
-        if (!event.getName().equals(lang_register.getString("cmd"))) return;
+        if (!event.getName().equals("kick")) return;
         if (!permissionCheck(KICK_MEMBERS, event))
             return;
 
+        DiscordLocale local = event.getUserLocale();
         Member selfMember = event.getGuild().getSelfMember();
         Member member = event.getOption(USER_TAG).getAsMember();
+
+        if (member == null) {
+            event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;errors;no_user").get(local), 0xFF0000)).queue();
+            return;
+        }
+
         String reason = event.getOption(REASON) == null ? "null" : event.getOption(REASON).getAsString();
 
         if (!selfMember.hasPermission(KICK_MEMBERS)) {
-            event.getHook().editOriginalEmbeds(createEmbed(lang_runtime_errors.getString("no_permission"), 0xFF0000)).queue();
+            event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;errors;no_permission").get(local), 0xFF0000)).queue();
             return;
         }
 
         if (!selfMember.canInteract(member)) {
-            event.getHook().editOriginalEmbeds(createEmbed(lang_runtime_errors.getString("permission_denied"), 0xFF0000)).queue();
+            event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;errors;permission_denied").get(local), 0xFF0000)).queue();
             return;
         }
 
         event.getGuild().kick(member).reason(reason).queue(
                 success -> {
-                    event.getHook().editOriginalEmbeds(createEmbed(lang_runtime.getString("success") + ' ' + member.getEffectiveName(), 0xffd2c5)).queue();
+                    event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;success").get(local) + ' ' + member.getEffectiveName(), 0xffd2c5)).queue();
                 },
                 error -> {
-                    event.getHook().editOriginalEmbeds(createEmbed(lang_runtime_errors.getString("unknown"), 0xFF0000)).queue();
+                    event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;errors;unknown").get(local), 0xFF0000)).queue();
                 }
         );
     }

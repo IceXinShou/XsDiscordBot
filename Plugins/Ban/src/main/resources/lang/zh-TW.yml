@@ -11,6 +11,7 @@ runtime:
   success: 已封鎖
 
   errors:
+    no_user: 找不到此成員!
     no_permission: 缺少封鎖權限
     permission_denied: 權限比該成員低
     unknown: 未知的錯誤!

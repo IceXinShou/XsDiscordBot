@@ -25,7 +25,7 @@ public class Main extends PluginEvent {
 
     private JSONObject lang;
     private LangGetter langGetter;
-    private final String[] LANG_DEFAULT = {"en_US", "zh_TW"};
+    private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
 
     FileGetter getter;
     Logger logger;

@@ -2,13 +2,7 @@
 <project version="4">
   <component name="ArtifactsWorkspaceSettings">
     <artifacts-to-build>
-      <artifact name="Ban:jar" />
-      <artifact name="BotInfo:jar" />
-      <artifact name="Economy:jar" />
-      <artifact name="Kick:jar" />
-      <artifact name="Poll:jar" />
-      <artifact name="ServerInfo:jar" />
-      <artifact name="WhoIsSpy:jar" />
+      <artifact name="Emoji:jar" />
     </artifacts-to-build>
   </component>
   <component name="AutoImportSettings">
@@ -16,22 +10,68 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="115b6b02-7322-4f7a-96af-1324d4169cc1" name="Changes" comment="update">
-      <change afterPath="$PROJECT_DIR$/Plugins/WhoIsSpy/src/main/java/com/xs/whoisspy/Main.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Plugins/WhoIsSpy/src/main/java/com/xs/whoisspy/WhoIsSpy.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Plugins/WhoIsSpy/src/main/resources/config.yml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Plugins/WhoIsSpy/src/main/resources/info.yml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Plugins/WhoIsSpy/src/main/resources/lang/en_US.yml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Plugins/WhoIsSpy/src/main/resources/lang/zh_TW.yml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Plugins/WhoIsSpy/target/classes/ban_config.yml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Plugins/WhoIsSpy/target/classes/ban_en_US.yml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Plugins/WhoIsSpy/target/classes/ban_zh_TW.yml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Plugins/WhoIsSpy/target/classes/info.yml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Plugins/WhoIsSpy/target/maven-archiver/pom.properties" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Ban/src/main/java/com/xs/ban/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Ban/src/main/java/com/xs/ban/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Ban/src/main/resources/config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Ban/src/main/resources/config.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Ban/src/main/resources/lang/en_US.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Ban/src/main/resources/lang/en-US.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Ban/src/main/resources/lang/zh_TW.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Ban/src/main/resources/lang/zh-TW.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/BotInfo/src/main/java/com/xs/botinfo/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/BotInfo/src/main/java/com/xs/botinfo/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/BotInfo/src/main/resources/config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/BotInfo/src/main/resources/config.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/BotInfo/src/main/resources/lang/en_US.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/BotInfo/src/main/resources/lang/en-US.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/BotInfo/src/main/resources/lang/zh_TW.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/BotInfo/src/main/resources/lang/zh-TW.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/CustomRoom/src/main/java/com/xs/Main2.java" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/CustomRoom/src/main/java/com/xs/Main2.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/CustomRoom/src/main/resources/config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/CustomRoom/src/main/resources/config.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/CustomRoom/src/main/resources/lang/en_US.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/CustomRoom/src/main/resources/lang/en-US.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/CustomRoom/src/main/resources/lang/zh_TW.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/CustomRoom/src/main/resources/lang/zh-TW.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Economy/src/main/java/com/xs/economy/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Economy/src/main/java/com/xs/economy/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Economy/src/main/resources/config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Economy/src/main/resources/config.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Economy/src/main/resources/lang/en_US.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Economy/src/main/resources/lang/en-US.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Economy/src/main/resources/lang/zh_TW.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Economy/src/main/resources/lang/zh-TW.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Emoji/src/main/java/com/xs/emoji/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Emoji/src/main/java/com/xs/emoji/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Emoji/src/main/resources/config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Emoji/src/main/resources/config.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Emoji/src/main/resources/lang/en_US.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Emoji/src/main/resources/lang/en-US.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Emoji/src/main/resources/lang/zh_TW.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Emoji/src/main/resources/lang/zh-TW.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Kick/src/main/java/com/xs/kick/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Kick/src/main/java/com/xs/kick/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Kick/src/main/resources/config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Kick/src/main/resources/config.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Kick/src/main/resources/lang/en_US.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Kick/src/main/resources/lang/en-US.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Kick/src/main/resources/lang/zh_TW.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Kick/src/main/resources/lang/zh-TW.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Poll/src/main/java/com/xs/poll/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Poll/src/main/java/com/xs/poll/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Poll/src/main/resources/config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Poll/src/main/resources/config.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Poll/src/main/resources/info.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Poll/src/main/resources/info.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Poll/src/main/resources/lang/en_US.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Poll/src/main/resources/lang/en-US.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Poll/src/main/resources/lang/zh_TW.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Poll/src/main/resources/lang/zh-TW.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Reurl/src/main/java/com/xs/reurl/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Reurl/src/main/java/com/xs/reurl/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Reurl/src/main/resources/config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Reurl/src/main/resources/config.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Reurl/src/main/resources/lang/en_US.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Reurl/src/main/resources/lang/en-US.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Reurl/src/main/resources/lang/zh_TW.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Reurl/src/main/resources/lang/zh-TW.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/Reurl/target/classes/ban_config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/Reurl/target/classes/ban_config.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/ServerInfo/src/main/java/com/xs/serverinfo/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ServerInfo/src/main/java/com/xs/serverinfo/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/ServerInfo/src/main/resources/config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ServerInfo/src/main/resources/config.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/ServerInfo/src/main/resources/lang/en_US.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ServerInfo/src/main/resources/lang/en-US.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/ServerInfo/src/main/resources/lang/zh_TW.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ServerInfo/src/main/resources/lang/zh-TW.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/WhoIsSpy/src/main/java/com/xs/whoisspy/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/WhoIsSpy/src/main/java/com/xs/whoisspy/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/WhoIsSpy/src/main/java/com/xs/whoisspy/WhoIsSpy.java" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/WhoIsSpy/src/main/java/com/xs/whoisspy/WhoIsSpy.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/WhoIsSpy/src/main/resources/config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/WhoIsSpy/src/main/resources/config.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/WhoIsSpy/src/main/resources/lang/zh_TW.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/WhoIsSpy/src/main/resources/lang/zh_TW.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/WhoIsSpy/target/classes/ban_config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/WhoIsSpy/target/classes/ban_config.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/checksums/checksums.lock" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/checksums/checksums.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/checksums/md5-checksums.bin" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/checksums/md5-checksums.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/checksums/sha1-checksums.bin" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/checksums/sha1-checksums.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/executionHistory/executionHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/executionHistory/executionHistory.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/executionHistory/executionHistory.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/fileHashes/fileHashes.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/fileHashes/fileHashes.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/fileHashes/resourceHashesCache.bin" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/7.4/fileHashes/resourceHashesCache.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/file-system.probe" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/.gradle/file-system.probe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/build/classes/java/main/com/xs/loader/util/FileGetter.class" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/build/classes/java/main/com/xs/loader/util/FileGetter.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/build/tmp/compileJava/previous-compilation-data.bin" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/build/tmp/compileJava/previous-compilation-data.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/ListenerManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/ListenerManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/MainLoader.java" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/MainLoader.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/lang/LangGetter.java" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/lang/LangGetter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/test.java" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/test.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/util/FileGetter.java" beforeDir="false" afterPath="$PROJECT_DIR$/XsDiscordBotLoader/src/main/java/com/xs/loader/util/FileGetter.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -107,10 +147,11 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Artifacts",
+    "project.structure.last.edited": "Global Libraries",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.43218392",
-    "settings.editor.selected.configurable": "preferences.intentionPowerPack"
+    "settings.editor.selected.configurable": "reference.settings.ide.settings.new.ui",
+    "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
   <component name="RecentsManager">
@@ -176,7 +217,7 @@
       <method v="2" />
     </configuration>
     <configuration name="Server" type="JarApplication" activateToolWindowBeforeRun="false">
-      <option name="JAR_PATH" value="$PROJECT_DIR$/Server/XsDiscordBotLoader_v1.4.jar" />
+      <option name="JAR_PATH" value="$PROJECT_DIR$/Server/XsDiscordBotLoader_v1.5.jar" />
       <option name="WORKING_DIRECTORY" value="C:\Users\icexi\IdeaProjects\XsDiscordBot\Server" />
       <option name="ALTERNATIVE_JRE_PATH" />
       <method v="2">
@@ -187,11 +228,8 @@
         <option name="BuildArtifacts" enabled="true">
           <artifact name="Ban:jar" />
           <artifact name="BotInfo:jar" />
-          <artifact name="Economy:jar" />
-          <artifact name="Kick:jar" />
           <artifact name="Poll:jar" />
           <artifact name="ServerInfo:jar" />
-          <artifact name="WhoIsSpy:jar" />
         </option>
       </method>
     </configuration>
@@ -257,7 +295,16 @@
       <workItem from="1665371480285" duration="95000" />
       <workItem from="1665371584813" duration="26000" />
       <workItem from="1665371679067" duration="3597000" />
-      <workItem from="1665379768412" duration="66307000" />
+      <workItem from="1665379768412" duration="77447000" />
+      <workItem from="1667111866490" duration="4708000" />
+      <workItem from="1668228265101" duration="1304000" />
+      <workItem from="1670057222606" duration="8749000" />
+      <workItem from="1671340166596" duration="72000" />
+      <workItem from="1671340250134" duration="722000" />
+      <workItem from="1671340991881" duration="6105000" />
+      <workItem from="1671564698629" duration="2277000" />
+      <workItem from="1672546608641" duration="11894000" />
+      <workItem from="1673694225497" duration="19518000" />
     </task>
     <task id="LOCAL-00001" summary="wtf">
       <created>1664519422653</created>
@@ -553,7 +600,14 @@
       <option name="project" value="LOCAL" />
       <updated>1666190359729</updated>
     </task>
-    <option name="localTasksCounter" value="43" />
+    <task id="LOCAL-00043" summary="update">
+      <created>1666303061155</created>
+      <option name="number" value="00043" />
+      <option name="presentableId" value="LOCAL-00043" />
+      <option name="project" value="LOCAL" />
+      <updated>1666303061155</updated>
+    </task>
+    <option name="localTasksCounter" value="44" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

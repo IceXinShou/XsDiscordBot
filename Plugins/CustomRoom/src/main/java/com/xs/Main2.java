@@ -305,9 +305,9 @@ public class Main2 extends PluginEvent {
     @Override
     public void loadLang() {
         String langCode;
-        if ((langCode = (String) config.get("Lang")) == null) langCode = "zh_TW";
+        if ((langCode = (String) config.get("Lang")) == null) langCode = "zh-TW";
         try {
-            getter.readYml("lang/zh_TW.yml", langCode + ".yml", "plugins\\Poll\\Lang", TAG, this.getClass().getClassLoader()).forEach((i, j) -> {
+            getter.readYml("lang/zh-TW.yml", langCode + ".yml", "plugins\\Poll\\Lang", TAG, this.getClass().getClassLoader()).forEach((i, j) -> {
                 lang.put(i, (String) j);
             });
         } catch (Exception e) {

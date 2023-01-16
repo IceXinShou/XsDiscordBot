@@ -4,29 +4,37 @@ import com.xs.loader.PluginEvent;
 import com.xs.loader.lang.LangGetter;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.channel.concrete.StageChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.DiscordLocale;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static com.xs.loader.util.EmbedCreator.createEmbed;
+import static com.xs.loader.util.PermissionERROR.permissionCheck;
+import static net.dv8tion.jda.api.Permission.ADMINISTRATOR;
 
 public class Main extends PluginEvent {
-
-    private LangGetter langGetter;
-    private final String[] LANG_DEFAULT = {"en_US", "zh_TW"};
-
+    private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
     FileGetter getter;
     Logger logger;
-
     private static final String TAG = "ServerInfo";
-    private static final String VERSION = "1.0";
+    private static final String VERSION = "2.0";
     final String PATH_FOLDER_NAME = "plugins/ServerInfo";
+    private Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
 
     public Main() {
         super(TAG, VERSION);
@@ -48,31 +56,41 @@ public class Main extends PluginEvent {
         super.unload();
         logger.log("UnLoaded");
     }
-// TODO:
-//    @Override
-//    public CommandData[] guildCommands() {
-//        return new CommandData[]{
-//                new CommandDataImpl("info", lang.get("REGISTER_NAME"));
-//        };
-//    }
+
+    @Override
+    public void loadLang() {
+        LangGetter langGetter = new LangGetter(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT);
+
+        // expert files
+        langGetter.exportDefaultLang();
+        lang = langGetter.readLangFileData();
+    }
+
+    @Override
+    public CommandData[] guildCommands() {
+        return new SlashCommandData[]{
+                Commands.slash("info", "show server info")
+                        .setNameLocalizations(lang.get("register;cmd"))
+                        .setDescriptionLocalizations(lang.get("register;description"))
+                        .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR))
+        };
+    }
 
     @Override
     public void loadConfigFile() {
         JSONObject config = new JSONObject(getter.readYml("config.yml", PATH_FOLDER_NAME));
-        langGetter = new LangGetter(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, config.getString("Lang"));
         logger.log("Setting File Loaded Successfully");
-    }
-
-    @Override
-    public void loadLang() {
-        // expert files
-        langGetter.exportDefaultLang();
-        JSONObject lang = langGetter.getLangFileData();
     }
 
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
         if (!event.getName().equals("info")) return;
+        if (!permissionCheck(ADMINISTRATOR, event))
+            return;
+
+        DiscordLocale local = event.getUserLocale();
+
+        event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;loading").get(local), 0x00FFFF)).queue();
         Guild guild = event.getGuild();
         int voiceCount = guild.getVoiceChannels().size();
         int textCount = guild.getTextChannels().size();
@@ -86,12 +104,26 @@ public class Main extends PluginEvent {
             int working = 0;
             int idle = 0;
             int offline = 0;
+            int adminCount = 0;
+
+            int inVoice = 0;
+            int inStage = 0;
+
+            for (VoiceChannel i : guild.getVoiceChannels()) {
+                inVoice += i.getMembers().size();
+            }
+
+            for (StageChannel i : guild.getStageChannels()) {
+                inStage += i.getMembers().size();
+            }
 
             for (Member i : members) {
-                if (i.getUser().isBot())
+                if (i.getUser().isBot()) {
                     botCount++;
-                else
+                } else {
                     realMemberCount++;
+                }
+                if (i.hasPermission(Permission.ADMINISTRATOR)) adminCount++;
                 switch (i.getOnlineStatus()) {
                     case ONLINE: {
                         online++;
@@ -115,31 +147,72 @@ public class Main extends PluginEvent {
 
 
             List<MessageEmbed.Field> fields = new ArrayList<>();
-            fields.add(new MessageEmbed.Field("Members",
-                    "Total " + memberCount + "\n" +
-                            "Human " + realMemberCount + "\n" +
-                            "Bot " + botCount, true));
-            fields.add(new MessageEmbed.Field("Member Status",
-                    "Online " + online + "\n" +
-                            "Working " + working + "\n" +
-                            "Idle " + idle + "\n" +
-                            "Offline " + offline, true));
-            fields.add(new MessageEmbed.Field("Roles", String.valueOf(guild.getRoles().size()), true));
-            fields.add(new MessageEmbed.Field("Channels",
-                    "Total " + (textCount + voiceCount + stageCount) + "\n" +
-                            "Text " + textCount + "\n" +
-                            "Voice " + voiceCount + "\n" +
-                            "Stage " + stageCount, true));
-            fields.add(new MessageEmbed.Field("Emoji", String.valueOf(guild.retrieveEmojis().complete().size()), true));
-            fields.add(new MessageEmbed.Field("Sticker", String.valueOf(guild.retrieveStickers().complete().size()), true));
-            fields.add(new MessageEmbed.Field("Boost", "Tier " + guild.getBoostTier() + "\nCount " + guild.getBoostCount(), true));
-            fields.add(new MessageEmbed.Field("Language", guild.getLocale().getNativeName(), true));
-            Member owner = event.getGuild().retrieveOwner().complete();
+            fields.add(new MessageEmbed.Field(lang.get("runtime;fields;members;title").get(local), String.format("" +
+                            lang.get("runtime;fields;members;total").get(local) + " `%d`\n" +
+                            lang.get("runtime;fields;members;human").get(local) + " `%d`\n" +
+                            lang.get("runtime;fields;members;bot").get(local) + " `%d`\n" +
+                            lang.get("runtime;fields;members;admin").get(local) + " `%d`",
+                    memberCount, realMemberCount, botCount, adminCount), true)
+            );
+            fields.add(new MessageEmbed.Field(lang.get("runtime;fields;members_status;title").get(local), String.format("" +
+                            lang.get("runtime;fields;members_status;online").get(local) + " `%d`\n" +
+                            lang.get("runtime;fields;members_status;working").get(local) + " `%d`\n" +
+                            lang.get("runtime;fields;members_status;idle").get(local) + " `%d`\n" +
+                            lang.get("runtime;fields;members_status;offline").get(local) + " `%d`",
+                    online, working, idle, offline), true)
+            );
 
+            fields.add(new MessageEmbed.Field("\u200e", "\u200e", true));
+            fields.add(new MessageEmbed.Field("\u200e", "\u200e", false));
+
+            fields.add(new MessageEmbed.Field(lang.get("runtime;fields;channels;title").get(local), String.format("" +
+                            lang.get("runtime;fields;channels;total").get(local) + " `%d`\n" +
+                            lang.get("runtime;fields;channels;text").get(local) + " `%d`\n" +
+                            lang.get("runtime;fields;channels;voice").get(local) + " `%d`\n" +
+                            lang.get("runtime;fields;channels;stage").get(local) + " `%d`",
+                    textCount + voiceCount + stageCount, textCount, voiceCount, stageCount), true)
+            );
+            fields.add(new MessageEmbed.Field(lang.get("runtime;fields;channels_status;title").get(local), String.format("" +
+                            lang.get("runtime;fields;channels_status;connect").get(local) + " `%d`\n" +
+                            lang.get("runtime;fields;channels_status;voice").get(local) + " `%d`\n" +
+                            lang.get("runtime;fields;channels_status;stage").get(local) + " `%d`",
+                    inVoice + inStage, inVoice, inStage), true)
+            );
+
+            fields.add(new MessageEmbed.Field("\u200e", "\u200e", true));
+            fields.add(new MessageEmbed.Field("\u200e", "\u200e", false));
+
+            fields.add(new MessageEmbed.Field(lang.get("runtime;fields;roles").get(local),
+                    "`" + guild.getRoles().size() + "`", true)
+            );
+
+            fields.add(new MessageEmbed.Field(lang.get("runtime;fields;emoji").get(local),
+                    "`" + guild.retrieveEmojis().complete().size() + "`", true)
+            );
+
+            fields.add(new MessageEmbed.Field(lang.get("runtime;fields;sticker").get(local),
+                    "`" + guild.retrieveStickers().complete().size() + "`", true)
+            );
+
+            fields.add(new MessageEmbed.Field("\u200e", "\u200e", false));
+
+            fields.add(new MessageEmbed.Field(lang.get("runtime;fields;boost;title").get(local), "" +
+                    lang.get("runtime;fields;boost;level").get(local) + " `" + guild.getBoostTier().getKey() + "`\n" +
+                    lang.get("runtime;fields;boost;amount").get(local) + " `" + guild.getBoostCount() + "`", true)
+            );
+
+            fields.add(new MessageEmbed.Field(lang.get("runtime;fields;language").get(local),
+                    "`" + guild.getLocale().getNativeName() + "`", true)
+            );
+
+            fields.add(new MessageEmbed.Field("\u200e", "\u200e", true));
+
+            Member owner = event.getGuild().retrieveOwner().complete();
             event.getHook().editOriginalEmbeds(
-                    createEmbed(event.getGuild().getName(), guild.getIconUrl(), "", fields, "- Server Information", owner.getUser().getAsTag(), owner.getEffectiveAvatarUrl(), 0xff0000)).queue();
+                    createEmbed(event.getGuild().getName(), guild.getIconUrl(), "", fields, lang.get("runtime;footer").get(local), owner.getUser().getAsTag(), owner.getEffectiveAvatarUrl(), 0xff0000)).queue();
         }).onError(i -> {
             logger.error("ERROR");
+            event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;error").get(local), 0xFF0000)).queue();
         });
     }
 }
