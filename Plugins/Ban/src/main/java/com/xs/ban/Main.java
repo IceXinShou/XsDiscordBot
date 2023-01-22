@@ -44,7 +44,6 @@ public class Main extends PluginEvent {
         logger = new Logger(TAG);
         getter = new FileGetter(logger, PATH_FOLDER_NAME, Main.class.getClassLoader());
         loadConfigFile();
-        loadVariables();
         loadLang();
         logger.log("Loaded");
     }
@@ -76,8 +75,7 @@ public class Main extends PluginEvent {
                                 new OptionData(INTEGER, DAYS, "day")
                                         .setDescriptionLocalizations(lang.get("register;options;day")),
                                 new OptionData(STRING, REASON, "reason")
-                                        .setDescriptionLocalizations(lang.get("register;options;reason"))
-                        )
+                                        .setDescriptionLocalizations(lang.get("register;options;reason")))
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(BAN_MEMBERS))
         };
     }

@@ -34,7 +34,6 @@ public class Main extends PluginEvent {
         logger = new Logger(TAG);
         getter = new FileGetter(logger, PATH_FOLDER_NAME, Main.class.getClassLoader());
         loadConfigFile();
-        loadVariables();
         logger.log("Loaded");
     }
 
@@ -47,14 +46,11 @@ public class Main extends PluginEvent {
     @Override
     public void loadConfigFile() {
         config = new JSONObject(getter.readYml("config.yml", PATH_FOLDER_NAME));
-        logger.log("Setting File Loaded Successfully");
-    }
 
-    @Override
-    public void loadVariables() {
         if (config.has("GuildID") && !config.getJSONArray("GuildID").isEmpty()) {
             ids = config.getJSONArray("GuildID");
             setup = true;
+            logger.log("Setting File Loaded Successfully");
         } else {
             logger.error("Please configure /" + PATH_FOLDER_NAME + "/config.yml");
         }

@@ -20,7 +20,7 @@ register:
 
   remove_money:
     cmd: removemoney
-    description: remove money to user
+    description: remove money from user
     options:
       user: user
       value: value
@@ -69,20 +69,3 @@ runtime:
 
   errors:
     no_permission: You Cannot Do This!
-#
-#runtime:
-#  - key: money_board_title
-#    value: Balance Board
-#
-#  - type: money_history_board_title
-#    text: log Balance Board
-#
-#  - type: current_money
-#    text: "Current Balance: %money%"
-#
-#  - type: current_money_history
-#    text: "Current log Balance: %log_money%"
-#
-#  - errors:
-#    - type: no_permission
-#      text: You Cannot Do This!

@@ -36,7 +36,6 @@ public class Main2 extends PluginEvent {
     public void initLoad() {
         super.initLoad();
         loadConfigFile();
-        loadVariables();
         loadLang();
         System.out.printf("%s Loaded\n", TAG);
     }

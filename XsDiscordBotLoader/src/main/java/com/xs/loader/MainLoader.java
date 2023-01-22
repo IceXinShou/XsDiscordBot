@@ -39,7 +39,6 @@ public class MainLoader {
     public static JDA jdaBot;
     public static long botID;
     public final List<CommandData> guildCommands = new ArrayList<>();
-    public final List<SubcommandData> subGuildCommands = new ArrayList<>();
     public final List<CommandData> globalCommands = new ArrayList<>();
     public static final String ROOT_PATH = new File(System.getProperty("user.dir")).toString();
     private final Queue<PluginEvent> listeners = new ArrayDeque<>();
@@ -52,6 +51,7 @@ public class MainLoader {
     private final Map<String, Pair<PluginEvent, JSONArray>> plugins = new HashMap<>();
     private final List<PluginEvent> queue = new ArrayList<>();
     private ScheduledExecutorService threadPool;
+    private static boolean ignore_version_check = false;
 
     MainLoader() {
         logger = new Logger("Main");
@@ -86,7 +86,7 @@ public class MainLoader {
         jdaBot = builder.build();
 
         botID = jdaBot.getSelfUser().getIdLong();
-        ListenerManager listenerManager = new ListenerManager(guildCommands, subGuildCommands);
+        ListenerManager listenerManager = new ListenerManager(guildCommands);
         jdaBot.addEventListener(listenerManager);
 
         while (!listeners.isEmpty()) {
@@ -121,6 +121,11 @@ public class MainLoader {
 
             if (version.equals(latestVersion)) {
                 logger.log("You are running on the latest version: " + Color.GREEN + version + Color.RESET);
+                return false;
+            } else if (ignore_version_check) {
+                logger.error("You ignored the version check " +
+                        "(current version: " + Color.RED + version + Color.RESET +
+                        ", latest version: " + Color.GREEN + latestVersion + Color.RESET + ')');
                 return false;
             } else {
                 logger.error("Your current version: " + Color.RED + version + Color.RESET + ", latest version: " + Color.GREEN + latestVersion + Color.RESET);
@@ -222,11 +227,6 @@ public class MainLoader {
                 Collections.addAll(guildCommands, guildCommandsTmp);
             }
 
-            SubcommandData[] subGuildCommandsTmp;
-            if ((subGuildCommandsTmp = plugin.subGuildCommands()) != null) {
-                Collections.addAll(subGuildCommands, subGuildCommandsTmp);
-            }
-
             CommandData[] globalCommandsTmp;
             if ((globalCommandsTmp = plugin.globalCommands()) != null) {
                 Collections.addAll(globalCommands, globalCommandsTmp);
@@ -306,24 +306,30 @@ public class MainLoader {
                         return null;
                     }).complete();
                     break;
+
                 case "say":
                     jdaBot.getGuildById(command[1]).getTextChannelById(command[2]).sendMessage(command[3]).queue();
                     break;
+
                 case "join":
                     Guild guild = jdaBot.getGuildById(command[1]);
                     guild.getAudioManager().openAudioConnection(guild.getVoiceChannelById(command[2]));
                     break;
+
                 case "leave":
                     jdaBot.getGuildById(command[1]).getAudioManager().closeAudioConnection();
                     break;
+
                 case "mute":
                     guild = jdaBot.getGuildById(command[1]);
                     guild.getAudioManager().setSelfMuted(!guild.getAudioManager().isSelfMuted());
                     break;
+
                 case "deafen":
                     guild = jdaBot.getGuildById(command[1]);
                     guild.getAudioManager().setSelfDeafened(!guild.getAudioManager().isSelfDeafened());
                     break;
+
                 case "stop":
                     for (Object listener : jdaBot.getRegisteredListeners()) {
                         jdaBot.removeEventListener(listener);
@@ -356,6 +362,7 @@ public class MainLoader {
 
                     logger.log("Reloaded");
                     break;
+
                 default:
                     logger.error("Unknown Command");
                     break;
@@ -385,6 +392,14 @@ public class MainLoader {
     }
 
     public static void main(String[] args) {
+        for (String i : args) {
+            switch (i) {
+                case "-ignore-version-check": {
+                    ignore_version_check = true;
+                    break;
+                }
+            }
+        }
         AnsiConsole.systemInstall();
         new MainLoader();
         AnsiConsole.systemUninstall();

@@ -6,8 +6,8 @@ import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import org.fusesource.jansi.AnsiConsole;
 
 public abstract class PluginEvent extends ListenerAdapter {
-    protected String name;
-    protected String version;
+    protected final String name;
+    protected final String version;
 
     public PluginEvent(final String name, final String version) {
         this.name = name;
@@ -26,19 +26,11 @@ public abstract class PluginEvent extends ListenerAdapter {
         return null;
     }
 
-    public SubcommandData[] subGuildCommands() {
-        return null;
-    }
-
     public CommandData[] globalCommands() {
         return null;
     }
 
-
     public void loadConfigFile() {
-    }
-
-    public void loadVariables() {
     }
 
     public void loadLang() {

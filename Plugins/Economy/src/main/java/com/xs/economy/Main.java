@@ -14,9 +14,12 @@ import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.events.user.update.UserUpdateDiscriminatorEvent;
 import net.dv8tion.jda.api.events.user.update.UserUpdateNameEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
+import net.dv8tion.jda.api.interactions.DiscordLocale;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import net.dv8tion.jda.internal.interactions.CommandDataImpl;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -31,45 +34,26 @@ import static com.xs.loader.util.EmbedCreator.createEmbed;
 import static com.xs.loader.util.SlashCommandOption.USER_TAG;
 import static com.xs.loader.util.SlashCommandOption.VALUE;
 import static com.xs.loader.util.Tag.getNameByID;
+import static net.dv8tion.jda.api.Permission.ADMINISTRATOR;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.INTEGER;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.USER;
 
 public class Main extends PluginEvent {
     private JSONObject config;
-    private JSONObject lang_register_get_money;
-    private JSONObject lang_register_get_money_history;
-    private JSONObject lang_register_add_money;
-    private JSONObject lang_register_add_money_options;
-    private JSONObject lang_register_remove_money;
-    private JSONObject lang_register_remove_money_options;
-    private JSONObject lang_register_set_money;
-    private JSONObject lang_register_set_money_options;
-    private JSONObject lang_register_add_money_history;
-    private JSONObject lang_register_add_money_history_options;
-    private JSONObject lang_register_remove_money_history;
-    private JSONObject lang_register_remove_money_history_options;
-    private JSONObject lang_register_set_money_history;
-    private JSONObject lang_register_set_money_history_options;
-    private JSONObject lang_register_money_board;
-    private JSONObject lang_register_money_history_board;
-    private JSONObject lang_runtime;
-    private JSONObject lang_runtime_errors;
-
-    private LangGetter langGetter;
     private final Map<Long, String> nameCache = new HashMap<>();
     private final Map<Long, UserData> userData = new HashMap<>();
     private final List<UserData> moneyBoard = new ArrayList<>();
     private final List<UserData> totalBoard = new ArrayList<>();
     private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
-
-    FileGetter getter;
-    Logger logger;
+    private FileGetter getter;
+    private Logger logger;
     private static final String TAG = "Economy";
-    private static final String VERSION = "1.0";
-    final String PATH_FOLDER_NAME = "plugins/Economy";
-    JsonFileManager manager;
+    private static final String VERSION = "2.0";
+    private final String PATH_FOLDER_NAME = "plugins/Economy";
+    private JsonFileManager manager;
     private final List<Long> ownerIDs = new ArrayList<>();
     private int boardUserShowLimit;
+    private Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
 
     public Main() {
         super(TAG, VERSION);
@@ -81,7 +65,6 @@ public class Main extends PluginEvent {
         logger = new Logger(TAG);
         getter = new FileGetter(logger, PATH_FOLDER_NAME, Main.class.getClassLoader());
         loadConfigFile();
-        loadVariables();
         loadLang();
         logger.log("Loaded");
     }
@@ -94,44 +77,109 @@ public class Main extends PluginEvent {
 
 
     @Override
+    public void loadLang() {
+        LangGetter langGetter = new LangGetter(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT);
+
+        // expert files
+        langGetter.exportDefaultLang();
+        lang = langGetter.readLangFileData();
+    }
+
+    @Override
     public CommandData[] guildCommands() {
-        return new CommandData[]{
-                new CommandDataImpl(lang_register_get_money.getString("cmd"), lang_register_get_money.getString("description")).addOptions(
-                        new OptionData(USER, USER_TAG, lang_register_get_money.getJSONObject("options").getString("user"))),
-                new CommandDataImpl(lang_register_get_money_history.getString("cmd"), lang_register_get_money_history.getString("description")).addOptions(
-                        new OptionData(USER, USER_TAG, lang_register_get_money_history.getJSONObject("options").getString("user"))),
-                new CommandDataImpl(lang_register_add_money.getString("cmd"), lang_register_add_money.getString("description")).addOptions(
-                        new OptionData(INTEGER, VALUE, lang_register_add_money_options.getString("value"), true),
-                        new OptionData(USER, USER_TAG, lang_register_add_money_options.getString("user"))),
-                new CommandDataImpl(lang_register_remove_money.getString("cmd"), lang_register_remove_money.getString("description")).addOptions(
-                        new OptionData(INTEGER, VALUE, lang_register_remove_money_options.getString("value"), true),
-                        new OptionData(USER, USER_TAG, lang_register_remove_money_options.getString("user"))),
-                new CommandDataImpl(lang_register_set_money.getString("cmd"), lang_register_set_money.getString("description")).addOptions(
-                        new OptionData(INTEGER, VALUE, lang_register_set_money_options.getString("value"), true),
-                        new OptionData(USER, USER_TAG, lang_register_set_money_options.getString("user"))),
-                new CommandDataImpl(lang_register_add_money_history.getString("cmd"), lang_register_add_money_history.getString("description")).addOptions(
-                        new OptionData(INTEGER, VALUE, lang_register_add_money_history_options.getString("value"), true),
-                        new OptionData(USER, USER_TAG, lang_register_add_money_history_options.getString("user"))),
-                new CommandDataImpl(lang_register_remove_money_history.getString("cmd"), lang_register_remove_money_history.getString("description")).addOptions(
-                        new OptionData(INTEGER, VALUE, lang_register_remove_money_history_options.getString("value"), true),
-                        new OptionData(USER, USER_TAG, lang_register_remove_money_history_options.getString("user"))),
-                new CommandDataImpl(lang_register_set_money_history.getString("cmd"), lang_register_set_money_history.getString("description")).addOptions(
-                        new OptionData(INTEGER, VALUE, lang_register_set_money_history_options.getString("value"), true),
-                        new OptionData(USER, USER_TAG, lang_register_set_money_history_options.getString("user"))),
-                new CommandDataImpl(lang_register_money_board.getString("cmd"), lang_register_money_board.getString("description")),
-                new CommandDataImpl(lang_register_money_history_board.getString("cmd"), lang_register_money_history_board.getString("description"))
+        return new SlashCommandData[]{
+                Commands.slash("money", "get current money of user")
+                        .setNameLocalizations(lang.get("register;get_money;cmd"))
+                        .setDescriptionLocalizations(lang.get("register;get_money;description"))
+                        .addOptions(
+                                new OptionData(USER, USER_TAG, "user", true)
+                                        .setDescriptionLocalizations(lang.get("register;get_money;options;user")))
+                        .setDefaultPermissions(DefaultMemberPermissions.ENABLED),
+
+                Commands.slash("moneylog", "get money log of user")
+                        .setNameLocalizations(lang.get("register;get_money_history;cmd"))
+                        .setDescriptionLocalizations(lang.get("register;get_money_history;description"))
+                        .addOptions(
+                                new OptionData(USER, USER_TAG, "user", true)
+                                        .setDescriptionLocalizations(lang.get("register;get_money_history;options;user")))
+                        .setDefaultPermissions(DefaultMemberPermissions.ENABLED),
+
+                Commands.slash("addmoney", "add money to user")
+                        .setNameLocalizations(lang.get("register;add_money;cmd"))
+                        .setDescriptionLocalizations(lang.get("register;add_money;description"))
+                        .addOptions(
+                                new OptionData(INTEGER, VALUE, "value", true)
+                                        .setDescriptionLocalizations(lang.get("register;add_money;options;value")),
+                                new OptionData(USER, USER_TAG, "user", true)
+                                        .setDescriptionLocalizations(lang.get("register;add_money;options;user")))
+                        .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR)),
+
+                Commands.slash("removemoney", "add money from user")
+                        .setNameLocalizations(lang.get("register;remove_money;cmd"))
+                        .setDescriptionLocalizations(lang.get("register;remove_money;description"))
+                        .addOptions(
+                                new OptionData(INTEGER, VALUE, "value", true)
+                                        .setDescriptionLocalizations(lang.get("register;remove_money;options;value")),
+                                new OptionData(USER, USER_TAG, "user", true)
+                                        .setDescriptionLocalizations(lang.get("register;remove_money;options;user")))
+                        .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR)),
+
+                Commands.slash("setmoney", "set money from user")
+                        .setNameLocalizations(lang.get("register;set_money;cmd"))
+                        .setDescriptionLocalizations(lang.get("register;set_money;description"))
+                        .addOptions(
+                                new OptionData(INTEGER, VALUE, "value", true)
+                                        .setDescriptionLocalizations(lang.get("register;set_money;options;value")),
+                                new OptionData(USER, USER_TAG, "user", true)
+                                        .setDescriptionLocalizations(lang.get("register;set_money;options;user")))
+                        .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR)),
+
+                Commands.slash("addmoneylog", "add money log to user")
+                        .setNameLocalizations(lang.get("register;add_money_history;cmd"))
+                        .setDescriptionLocalizations(lang.get("register;add_money_history;description"))
+                        .addOptions(
+                                new OptionData(INTEGER, VALUE, "value", true)
+                                        .setDescriptionLocalizations(lang.get("register;add_money_history;options;value")),
+                                new OptionData(USER, USER_TAG, "user", true)
+                                        .setDescriptionLocalizations(lang.get("register;add_money_history;options;user")))
+                        .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR)),
+
+                Commands.slash("removemoneylog", "remove money log to user")
+                        .setNameLocalizations(lang.get("register;remove_money_history;cmd"))
+                        .setDescriptionLocalizations(lang.get("register;remove_money_history;description"))
+                        .addOptions(
+                                new OptionData(INTEGER, VALUE, "value", true)
+                                        .setDescriptionLocalizations(lang.get("register;remove_money_history;options;value")),
+                                new OptionData(USER, USER_TAG, "user", true)
+                                        .setDescriptionLocalizations(lang.get("register;remove_money_history;options;user")))
+                        .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR)),
+
+                Commands.slash("setmoneylog", "set money log to user")
+                        .setNameLocalizations(lang.get("register;set_money_history;cmd"))
+                        .setDescriptionLocalizations(lang.get("register;set_money_history;description"))
+                        .addOptions(
+                                new OptionData(INTEGER, VALUE, "value", true)
+                                        .setDescriptionLocalizations(lang.get("register;set_money_history;options;value")),
+                                new OptionData(USER, USER_TAG, "user", true)
+                                        .setDescriptionLocalizations(lang.get("register;set_money_history;options;user")))
+                        .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR)),
+
+                Commands.slash("moneytop", "get board of money")
+                        .setNameLocalizations(lang.get("register;money_board;cmd"))
+                        .setDescriptionLocalizations(lang.get("register;money_board;description"))
+                        .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR)),
+
+                Commands.slash("moneytoplog", "get board of log money")
+                        .setNameLocalizations(lang.get("register;money_history_board;cmd"))
+                        .setDescriptionLocalizations(lang.get("register;money_history_board;description"))
+                        .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR)),
         };
     }
 
     @Override
     public void loadConfigFile() {
         config = new JSONObject(getter.readYml("config.yml", PATH_FOLDER_NAME));
-        langGetter = new LangGetter(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, config.getString("Lang"));
-        logger.log("Setting File Loaded Successfully");
-    }
 
-    @Override
-    public void loadVariables() {
         JSONArray array = config.getJSONArray("OwnerID");
         for (int i = 0; i < array.length(); ++i) {
             ownerIDs.add(array.getLong(i));
@@ -143,6 +191,8 @@ public class Main extends PluginEvent {
 
         new File(ROOT_PATH + "/" + PATH_FOLDER_NAME + "/data").mkdirs();
         manager = new JsonFileManager("/" + PATH_FOLDER_NAME + "/data/data.json", TAG);
+
+        logger.log("Setting File Loaded Successfully");
     }
 
     @Override
@@ -164,183 +214,188 @@ public class Main extends PluginEvent {
     }
 
     @Override
-    public void loadLang() {
-        langGetter.exportDefaultLang();
-        JSONObject lang = langGetter.getLangFileData();
-        JSONObject lang_register = lang.getJSONObject("register");
-        lang_register_get_money = lang_register.getJSONObject("get_money");
-        lang_register_get_money_history = lang_register.getJSONObject("get_money_history");
-        lang_register_add_money = lang_register.getJSONObject("add_money");
-        lang_register_add_money_options = lang_register_add_money.getJSONObject("options");
-        lang_register_remove_money = lang_register.getJSONObject("remove_money");
-        lang_register_remove_money_options = lang_register_remove_money.getJSONObject("options");
-        lang_register_set_money = lang_register.getJSONObject("set_money");
-        lang_register_set_money_options = lang_register_set_money.getJSONObject("options");
-        lang_register_add_money_history = lang_register.getJSONObject("add_money_history");
-        lang_register_add_money_history_options = lang_register_add_money_history.getJSONObject("options");
-        lang_register_remove_money_history = lang_register.getJSONObject("remove_money_history");
-        lang_register_remove_money_history_options = lang_register_remove_money_history.getJSONObject("options");
-        lang_register_set_money_history = lang_register.getJSONObject("set_money_history");
-        lang_register_set_money_history_options = lang_register_set_money_history.getJSONObject("options");
-        lang_register_money_board = lang_register.getJSONObject("money_board");
-        lang_register_money_history_board = lang_register.getJSONObject("money_history_board");
-        lang_runtime = lang.getJSONObject("runtime");
-        lang_runtime_errors = lang_runtime.getJSONObject("errors");
-    }
-
-    @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
         if (event.isFromGuild() && event.getGuild() != null) {
-            lang_register_get_money.getString("cmd");
-            String name = event.getName();
-            if (name.equals(lang_register_get_money.getString("cmd"))) {
-                long id = getUserID(event);
-                checkData(id, event.getGuild().retrieveMemberById(id).complete().getUser().getAsTag());
-                event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id), userData.get(id).get() + " $", 0x00FFFF)).queue();
-            } else if (name.equals(lang_register_get_money_history.getString("cmd"))) {
-                long id = getUserID(event);
-                checkData(id, event.getGuild().retrieveMemberById(id).complete().getUser().getAsTag());
-                event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id), userData.get(id).getTotal() + " $", 0x00FFFF)).queue();
-            } else if (name.equals(lang_register_money_board.getString("cmd"))) {
-                if (!ownerIDs.contains(event.getUser().getIdLong())) {
-                    event.getHook().editOriginalEmbeds(createEmbed(lang_runtime_errors.getString("no_permission"), 0xFF0000)).queue();
-                    return;
-                }
-                event.getHook().editOriginalEmbeds(createEmbed(lang_runtime.getString("money_board_title"), fieldGetter(moneyBoard, true, event.getGuild()), 0x00FFFF)).queue();
-            } else if (name.equals(lang_register_money_history_board.getString("cmd"))) {
-                if (!ownerIDs.contains(event.getUser().getIdLong())) {
-                    event.getHook().editOriginalEmbeds(createEmbed(lang_runtime_errors.getString("no_permission"), 0xFF0000)).queue();
-                    return;
-                }
-                event.getHook().editOriginalEmbeds(createEmbed(lang_runtime.getString("money_history_board_title"), fieldGetter(totalBoard, false, event.getGuild()), 0x00FFFF)).queue();
-            } else if (name.equals(lang_register_add_money.getString("cmd"))) {
-                if (!ownerIDs.contains(event.getUser().getIdLong())) {
-                    event.getHook().editOriginalEmbeds(createEmbed(lang_runtime_errors.getString("no_permission"), 0xFF0000)).queue();
-                    return;
-                }
-                long id = getUserID(event);
-                int value = event.getOption(VALUE).getAsInt();
-                checkData(id, event.getGuild().retrieveMemberById(id).complete().getUser().getAsTag());
-                userData.get(id).add(value);
-                event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id),
-                        lang_runtime.getString("current_money").replace("%money%", userData.get(id).get() + " $"), 0x00FFFF)).queue();
-                JSONObject object = manager.getOrDefault(String.valueOf(id));
-                if (object.has("money")) {
-                    object.put("money", object.getInt("money") + value);
-                } else {
-                    object.put("money", value);
+            DiscordLocale local = event.getUserLocale();
+            switch (event.getName()) {
+                case "money": {
+                    long id = getUserID(event);
+                    checkData(id, event.getGuild().retrieveMemberById(id).complete().getUser().getAsTag());
+                    event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id),
+                            userData.get(id).get() + " $", 0x00FFFF)).queue();
+                    break;
                 }
 
-                if (object.has("total")) {
-                    object.put("total", object.getInt("total") + value);
-                } else {
-                    object.put("total", value);
-                }
-                manager.save();
-                updateMoney();
-                updateTotal();
-            } else if (name.equals(lang_register_remove_money.getString("cmd"))) {
-                if (!ownerIDs.contains(event.getUser().getIdLong())) {
-                    event.getHook().editOriginalEmbeds(createEmbed(lang_runtime_errors.getString("no_permission"), 0xFF0000)).queue();
-                    return;
+                case "moneylog": {
+                    long id = getUserID(event);
+                    checkData(id, event.getGuild().retrieveMemberById(id).complete().getUser().getAsTag());
+                    event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id),
+                            userData.get(id).getTotal() + " $", 0x00FFFF)).queue();
+                    break;
                 }
 
-                long id = getUserID(event);
-                int value = event.getOption(VALUE).getAsInt();
-                checkData(id, event.getGuild().retrieveMemberById(id).complete().getUser().getAsTag());
-                userData.get(id).remove(value);
-                event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id),
-                        lang_runtime.getString("current_money").replace("%money%", userData.get(id).get() + " $"), 0x00FFFF)).queue();
+                case "moneytop": {
+                    if (!ownerIDs.contains(event.getUser().getIdLong())) {
+                        event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;errors;no_permission").get(local), 0xFF0000)).queue();
+                        return;
+                    }
 
-                JSONObject object = manager.getOrDefault(String.valueOf(id));
-
-                if (object.has("money")) {
-                    object.put("money", object.getInt("money") - value);
-                } else {
-                    object.put("money", -value);
-                }
-                manager.save();
-                updateMoney();
-            } else if (name.equals(lang_register_set_money.getString("cmd"))) {
-                if (!ownerIDs.contains(event.getUser().getIdLong())) {
-                    event.getHook().editOriginalEmbeds(createEmbed(lang_runtime_errors.getString("no_permission"), 0xFF0000)).queue();
-                    return;
+                    event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;money_board_title").get(local),
+                            fieldGetter(moneyBoard, true, event.getGuild()), 0x00FFFF)).queue();
+                    break;
                 }
 
-                long id = getUserID(event);
-                int value = event.getOption(VALUE).getAsInt();
-                checkData(id, event.getGuild().retrieveMemberById(id).complete().getUser().getAsTag());
-                userData.get(id).set(value);
-                event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id),
-                        lang_runtime.getString("current_money").replace("%money%", userData.get(id).get() + " $"), 0x00FFFF)).queue();
+                case "moneytoplog": {
+                    if (!ownerIDs.contains(event.getUser().getIdLong())) {
+                        event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;errors;no_permission").get(local), 0xFF0000)).queue();
+                        return;
+                    }
 
-                manager.getOrDefault(String.valueOf(id)).put("money", value);
-                manager.save();
-
-                updateMoney();
-            } else if (name.equals(lang_register_add_money_history.getString("cmd"))) {
-                if (!ownerIDs.contains(event.getUser().getIdLong())) {
-                    event.getHook().editOriginalEmbeds(createEmbed(lang_runtime_errors.getString("no_permission"), 0xFF0000)).queue();
-                    return;
+                    event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;money_history_board_title").get(local),
+                            fieldGetter(totalBoard, false, event.getGuild()), 0x00FFFF)).queue();
+                    break;
                 }
 
-                long id = getUserID(event);
-                int value = event.getOption(VALUE).getAsInt();
-                checkData(id, event.getGuild().retrieveMemberById(id).complete().getUser().getAsTag());
-                userData.get(id).addTotal(value);
-                event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id),
-                        lang_runtime.getString("current_money_history").replace("%log_money%", userData.get(id).getTotal() + " $"), 0x00FFFF)).queue();
+                case "addmoney": {
+                    if (!ownerIDs.contains(event.getUser().getIdLong())) {
+                        event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;errors;no_permission").get(local), 0xFF0000)).queue();
+                        return;
+                    }
 
-                JSONObject object = manager.getOrDefault(String.valueOf(id));
+                    long id = getUserID(event);
+                    int value = event.getOption(VALUE).getAsInt();
+                    checkData(id, event.getGuild().retrieveMemberById(id).complete().getUser().getAsTag());
+                    userData.get(id).add(value);
+                    event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id),
+                            lang.get("runtime;current_money").get(local).replace("%money%", userData.get(id).get() + " $"), 0x00FFFF)).queue();
 
-                if (object.has("total")) {
-                    object.put("total", object.getInt("total") + value);
-                } else {
-                    object.put("total", value);
-                }
-                manager.save();
+                    JSONObject object = manager.getOrDefault(String.valueOf(id));
+                    if (object.has("money"))
+                        object.put("money", object.getInt("money") + value);
+                    else
+                        object.put("money", value);
 
-                updateTotal();
-            } else if (name.equals(lang_register_remove_money_history.getString("cmd"))) {
-                if (!ownerIDs.contains(event.getUser().getIdLong())) {
-                    event.getHook().editOriginalEmbeds(createEmbed(lang_runtime_errors.getString("no_permission"), 0xFF0000)).queue();
-                    return;
-                }
+                    if (object.has("total"))
+                        object.put("total", object.getInt("total") + value);
+                    else
+                        object.put("total", value);
 
-                long id = getUserID(event);
-                int value = event.getOption(VALUE).getAsInt();
-                checkData(id, event.getGuild().retrieveMemberById(id).complete().getUser().getAsTag());
-                userData.get(id).removeTotal(value);
-                event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id),
-                        lang_runtime.getString("current_money_history").replace("%log_money%", userData.get(id).getTotal() + " $"), 0x00FFFF)).queue();
-
-                JSONObject object = manager.getOrDefault(String.valueOf(id));
-
-                if (object.has("total")) {
-                    object.put("total", object.getInt("total") - value);
-                } else {
-                    object.put("total", -value);
-                }
-                manager.save();
-
-                updateTotal();
-            } else if (name.equals(lang_register_set_money_history.getString("cmd"))) {
-                if (!ownerIDs.contains(event.getUser().getIdLong())) {
-                    event.getHook().editOriginalEmbeds(createEmbed(lang_runtime_errors.getString("no_permission"), 0xFF0000)).queue();
-                    return;
+                    manager.save();
+                    updateMoney();
+                    updateTotal();
+                    break;
                 }
 
-                long id = getUserID(event);
-                int value = event.getOption(VALUE).getAsInt();
-                checkData(id, event.getGuild().retrieveMemberById(id).complete().getUser().getAsTag());
-                userData.get(id).setTotal(value);
-                event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id),
-                        lang_runtime.getString("current_money_history").replace("%log_money%", userData.get(id).getTotal() + " $"), 0x00FFFF)).queue();
+                case "removemoney": {
+                    if (!ownerIDs.contains(event.getUser().getIdLong())) {
+                        event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;errors;no_permission").get(local), 0xFF0000)).queue();
+                        return;
+                    }
 
-                manager.getOrDefault(String.valueOf(id)).put("total", value);
-                manager.save();
+                    long id = getUserID(event);
+                    int value = event.getOption(VALUE).getAsInt();
+                    checkData(id, event.getGuild().retrieveMemberById(id).complete().getUser().getAsTag());
+                    userData.get(id).remove(value);
+                    event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id),
+                            lang.get("runtime;current_money").get(local).replace("%money%", userData.get(id).get() + " $"), 0x00FFFF)).queue();
 
-                updateTotal();
+                    JSONObject object = manager.getOrDefault(String.valueOf(id));
+                    if (object.has("money"))
+                        object.put("money", object.getInt("money") - value);
+                    else
+                        object.put("money", -value);
+
+                    manager.save();
+                    updateMoney();
+                    break;
+                }
+
+                case "setmoney": {
+                    if (!ownerIDs.contains(event.getUser().getIdLong())) {
+                        event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;errors;no_permission").get(local), 0xFF0000)).queue();
+                        return;
+                    }
+
+                    long id = getUserID(event);
+                    int value = event.getOption(VALUE).getAsInt();
+                    checkData(id, event.getGuild().retrieveMemberById(id).complete().getUser().getAsTag());
+                    userData.get(id).set(value);
+                    event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id),
+                            lang.get("runtime;current_money").get(local).replace("%money%", userData.get(id).get() + " $"), 0x00FFFF)).queue();
+
+                    manager.getOrDefault(String.valueOf(id)).put("money", value);
+                    manager.save();
+                    updateMoney();
+                    break;
+                }
+                case "addmoneylog": {
+                    if (!ownerIDs.contains(event.getUser().getIdLong())) {
+                        event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;errors;no_permission").get(local), 0xFF0000)).queue();
+                        return;
+                    }
+
+                    long id = getUserID(event);
+                    int value = event.getOption(VALUE).getAsInt();
+                    checkData(id, event.getGuild().retrieveMemberById(id).complete().getUser().getAsTag());
+                    userData.get(id).addTotal(value);
+                    event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id),
+                            lang.get("runtime;current_money_history").get(local).replace("%log_money%", userData.get(id).getTotal() + " $"), 0x00FFFF)).queue();
+
+                    JSONObject object = manager.getOrDefault(String.valueOf(id));
+                    if (object.has("total"))
+                        object.put("total", object.getInt("total") + value);
+                    else
+                        object.put("total", value);
+
+                    manager.save();
+                    updateTotal();
+                    break;
+                }
+
+                case "removemoneylog": {
+                    if (!ownerIDs.contains(event.getUser().getIdLong())) {
+                        event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;errors;no_permission").get(local), 0xFF0000)).queue();
+                        return;
+                    }
+
+                    long id = getUserID(event);
+                    int value = event.getOption(VALUE).getAsInt();
+                    checkData(id, event.getGuild().retrieveMemberById(id).complete().getUser().getAsTag());
+                    userData.get(id).removeTotal(value);
+                    event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id),
+                            lang.get("runtime;current_money_history").get(local).replace("%log_money%",
+                                    userData.get(id).getTotal() + " $"), 0x00FFFF)).queue();
+
+                    JSONObject object = manager.getOrDefault(String.valueOf(id));
+
+                    if (object.has("total"))
+                        object.put("total", object.getInt("total") - value);
+                    else
+                        object.put("total", -value);
+
+                    manager.save();
+                    updateTotal();
+                    break;
+                }
+
+                case "setmoneylog": {
+                    if (!ownerIDs.contains(event.getUser().getIdLong())) {
+                        event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;errors;no_permission").get(local), 0xFF0000)).queue();
+                        return;
+                    }
+
+                    long id = getUserID(event);
+                    int value = event.getOption(VALUE).getAsInt();
+                    checkData(id, event.getGuild().retrieveMemberById(id).complete().getUser().getAsTag());
+                    userData.get(id).setTotal(value);
+                    event.getHook().editOriginalEmbeds(createEmbed(getNameByID(event.getGuild(), id),
+                            lang.get("runtime;current_money_history").get(local).replace("%log_money%", userData.get(id).getTotal() + " $"), 0x00FFFF)).queue();
+
+                    manager.getOrDefault(String.valueOf(id)).put("total", value);
+                    manager.save();
+                    updateTotal();
+                    break;
+                }
             }
         }
     }

@@ -41,7 +41,6 @@ public class Main extends PluginEvent {
         logger = new Logger(TAG);
         getter = new FileGetter(logger, PATH_FOLDER_NAME, Main.class.getClassLoader());
         loadConfigFile();
-        loadVariables();
         loadLang();
         logger.log("Loaded");
     }

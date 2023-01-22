@@ -55,8 +55,7 @@ public class Main extends PluginEvent {
         super.initLoad();
         logger = new Logger(TAG);
         getter = new FileGetter(logger, PATH_FOLDER_NAME, Main.class.getClassLoader());
-        loadConfigFile();
-        loadVariables();
+        loadConfigFile();lang.get("runtime;errors;no_permission").get(local)
         loadLang();
         logger.log("Loaded");
     }
@@ -104,8 +103,7 @@ public class Main extends PluginEvent {
                                 new OptionData(STRING, CHOICE_I, "reason")
                                         .setDescriptionLocalizations(lang.get("register;options;i")),
                                 new OptionData(STRING, CHOICE_J, "reason")
-                                        .setDescriptionLocalizations(lang.get("register;options;j"))
-                        )
+                                        .setDescriptionLocalizations(lang.get("register;options;j")))
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(MANAGE_EVENTS))
         };
     }
@@ -114,13 +112,11 @@ public class Main extends PluginEvent {
     public void loadConfigFile() {
         config = new JSONObject(getter.readYml("config.yml", PATH_FOLDER_NAME));
         logger.log("Setting File Loaded Successfully");
-    }
 
-    @Override
-    public void loadVariables() {
         if (config.has("Emojis") && !config.getJSONObject("Emojis").isEmpty()) {
             emojiData = config.getJSONObject("Emojis");
             setup = true;
+            logger.log("Setting File Loaded Successfully");
         } else {
             logger.error("Please configure /" + PATH_FOLDER_NAME + "/config.yml");
         }

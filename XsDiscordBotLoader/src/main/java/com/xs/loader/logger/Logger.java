@@ -5,8 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 
 public class Logger {
-    public final String TAG, ERRTAG;
-    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss");
+    private final String TAG, ERRTAG;
 
     public Logger(final String TAG) {
         this.TAG = Color.RESET + '[' + Color.GREEN + TAG + Color.RESET + ']' + ' ';
