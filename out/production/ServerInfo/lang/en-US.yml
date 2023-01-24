@@ -1,0 +1,50 @@
+register:
+  cmd: info
+  description: show server info
+
+runtime:
+  loading: Please wait... It'll take a few minutes.
+
+  fields:
+    members:
+      title: Members
+      total: Total
+      human: Human
+      bot: Bot
+      admin: Admin
+
+    members_status:
+      title: Status
+      online: Online
+      working: Working
+      idle: Idle
+      offline: Offline
+
+    channels:
+      title: Channels
+      total: Total
+      text: Text
+      voice: Voice
+      stage: Stage
+
+    channels_status:
+      title: Status
+      connect: Connect
+      voice: Voice
+      stage: Stage
+
+    roles: Roles
+
+    emoji: Emoji
+
+    sticker: Sticker
+
+    boost:
+      title: Boost
+      level: Level
+      amount: Amount
+
+    language: Language
+
+  footer: Server Information
+  error: ERROR

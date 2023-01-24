@@ -1,0 +1,22 @@
+register:
+  cmd: poll
+  description: make a poll
+
+  options:
+    name: question
+    a: option A
+    b: option B
+    c: option C
+    d: option D
+    e: option E
+    f: option F
+    g: option G
+    h: option H
+    i: option I
+    j: option J
+
+embed:
+  footer: Poll
+
+command:
+  success: Create Successfully

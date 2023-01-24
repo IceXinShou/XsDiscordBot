@@ -1,0 +1,16 @@
+register:
+  cmd: whoisspy
+  description: a game of spy and
+
+  options:
+    user: 使用者
+    day: 時間長度 (天)
+    reason: 原因
+
+runtime:
+  success: 已封鎖
+
+  errors:
+    no_permission: 缺少封鎖權限
+    permission_denied: 權限比該成員低
+    unknown: 未知的錯誤!

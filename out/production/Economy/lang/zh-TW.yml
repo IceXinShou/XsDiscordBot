@@ -1,0 +1,71 @@
+register:
+  get_money:
+    cmd: 餘額
+    description: 取得使用者餘額
+    options:
+      user: 使用者
+
+  get_money_history:
+    cmd: 消費紀錄
+    description: 取得使用者所有消費紀錄
+    options:
+      user: 使用者
+
+  add_money:
+    cmd: 增加餘額
+    description: 增加使用者餘額
+    options:
+      user: 使用者
+      value: 金額
+
+  remove_money:
+    cmd: 移除餘額
+    description: 移除使用者餘額
+    options:
+      user: 使用者
+      value: 金額
+
+  set_money:
+    cmd: 設定餘額
+    description: 設定使用者餘額
+    options:
+      user: 使用者
+      value: 金額
+
+  add_money_history:
+    cmd: 增加消費紀錄
+    description: 增加使用者消費紀錄
+    options:
+      user: 使用者
+      value: 金額
+
+  remove_money_history:
+    cmd: 移除消費紀錄
+    description: 移除使用者消費紀錄
+    options:
+      user: 使用者
+      value: 金額
+
+  set_money_history:
+    cmd: 設定消費紀錄
+    description: 設定使用者消費紀錄
+    options:
+      user: 使用者
+      value: 金額
+
+  money_board:
+    cmd: 餘額排行
+    description: 取得餘額排行
+
+  money_history_board:
+    cmd: 消費紀錄排行
+    description: 取得消費紀錄排行
+
+runtime:
+  money_board_title: 餘額排行
+  money_history_board_title: 消費紀錄排行
+  current_money: "當前餘額為 %money%"
+  current_money_history: "當前消費紀錄金額為 %log_money%"
+
+  errors:
+    no_permission: 你不能這樣做!

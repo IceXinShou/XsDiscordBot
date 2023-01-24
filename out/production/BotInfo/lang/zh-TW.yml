@@ -1,0 +1,8 @@
+register:
+  cmd: 機器人資訊
+  description: 顯示有關機器人的資訊
+
+runtime:
+  title: 機器人資訊
+  guild_count: "**伺服器總數: **"
+  member_count: "**成員總數: **"

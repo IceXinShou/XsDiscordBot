@@ -1,5 +1,3 @@
-/Server
-/out
-*/target/
-*.lock
 /.idea
+/Server
+/Test

@@ -1,0 +1,8 @@
+register:
+  cmd: botinfo
+  description: show about Bot
+
+runtime:
+  title: Bot Info
+  guild_count: "**Server Total: **"
+  member_count: "**Member Total: **"
