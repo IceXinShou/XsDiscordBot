@@ -1,3 +1,5 @@
-MainPath: com.xs.ban.Main
-Name: Ban
-Dependencies:
+author: IceXinShou
+main: com.xs.ban.Main
+name: Ban
+version: '2.0'
+prefix: Ban

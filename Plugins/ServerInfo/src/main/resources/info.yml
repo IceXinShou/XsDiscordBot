@@ -1,3 +1,5 @@
-MainPath: com.xs.serverinfo.Main
-Name: ServerInfo
-Dependencies:
+author: IceXinShou
+main: com.xs.serverinfo.Main
+name: ServerInfo
+version: '2.0'
+prefix: ServerInfo

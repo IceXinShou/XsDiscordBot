@@ -1,33 +1,32 @@
-package com.xs.botinfo;
+package com.xs.nicknamechanger;
 
 import com.xs.loader.PluginEvent;
 import com.xs.loader.lang.LangGetter;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
-import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import static com.xs.loader.util.EmbedCreator.createEmbed;
+import static com.xs.loader.util.SlashCommandOption.*;
+import static net.dv8tion.jda.api.Permission.BAN_MEMBERS;
+import static net.dv8tion.jda.api.interactions.commands.OptionType.*;
 
 public class Main extends PluginEvent {
     private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
-
     private FileGetter getter;
     private Logger logger;
-    private static final String TAG = "BotInfo";
-    final String PATH_FOLDER_NAME = "plugins/BotInfo";
+    private static final String TAG = "NicknameChanger";
+    private final String PATH_FOLDER_NAME = "plugins/NicknameChanger";
     private Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
 
     public Main() {
@@ -53,18 +52,26 @@ public class Main extends PluginEvent {
     @Override
     public void loadLang() {
         LangGetter langGetter = new LangGetter(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT);
+
         // expert files
         langGetter.exportDefaultLang();
         lang = langGetter.readLangFileData();
     }
 
     @Override
-    public CommandData[] globalCommands() {
+    public CommandData[] guildCommands() {
         return new SlashCommandData[]{
-                Commands.slash("botinfo", "show about the bot data")
+                Commands.slash("ban", "ban a member from your server")
                         .setNameLocalizations(lang.get("register;cmd"))
                         .setDescriptionLocalizations(lang.get("register;description"))
-                        .setDefaultPermissions(DefaultMemberPermissions.ENABLED)
+                        .addOptions(
+                                new OptionData(USER, USER_TAG, "user", true)
+                                        .setDescriptionLocalizations(lang.get("register;options;user")),
+                                new OptionData(INTEGER, DAYS, "day")
+                                        .setDescriptionLocalizations(lang.get("register;options;day")),
+                                new OptionData(STRING, REASON, "reason")
+                                        .setDescriptionLocalizations(lang.get("register;options;reason")))
+                        .setDefaultPermissions(DefaultMemberPermissions.enabledFor(BAN_MEMBERS))
         };
     }
 
@@ -76,23 +83,6 @@ public class Main extends PluginEvent {
 
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
-        if (!event.getName().equals("botinfo")) return;
 
-        DiscordLocale local = event.getUserLocale();
-
-        int members = 0;
-        for (int i = 0; i < event.getJDA().getGuilds().size(); i++)
-            members = members + event.getJDA().getGuilds().get(i).getMemberCount();
-
-        List<MessageEmbed.Field> fields = new ArrayList<>();
-        fields.add(new MessageEmbed.Field(
-                lang.get("runtime;guild_count").get(local),
-                String.valueOf((long) event.getJDA().getGuilds().size()), false)
-        );
-        fields.add(new MessageEmbed.Field(
-                lang.get("runtime;member_count").get(local),
-                String.valueOf(members), false)
-        );
-        event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;title").get(local), "", "", "", "", fields, OffsetDateTime.now(), 0x00FFFF)).queue();
     }
 }

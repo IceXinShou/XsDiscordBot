@@ -39,7 +39,6 @@ public class Main extends PluginEvent {
     private FileGetter getter;
     private Logger logger;
     private static final String TAG = "Poll";
-    private static final String VERSION = "2.0";
     private final String PATH_FOLDER_NAME = "plugins/Poll";
     private Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
     private JSONObject emojiData;
@@ -47,7 +46,7 @@ public class Main extends PluginEvent {
     private boolean setup = false;
 
     public Main() {
-        super(TAG, VERSION);
+        super(true);
     }
 
     @Override
@@ -55,7 +54,7 @@ public class Main extends PluginEvent {
         super.initLoad();
         logger = new Logger(TAG);
         getter = new FileGetter(logger, PATH_FOLDER_NAME, Main.class.getClassLoader());
-        loadConfigFile();lang.get("runtime;errors;no_permission").get(local)
+        loadConfigFile();
         loadLang();
         logger.log("Loaded");
     }
@@ -118,7 +117,7 @@ public class Main extends PluginEvent {
             setup = true;
             logger.log("Setting File Loaded Successfully");
         } else {
-            logger.error("Please configure /" + PATH_FOLDER_NAME + "/config.yml");
+            logger.warn("Please configure /" + PATH_FOLDER_NAME + "/config.yml");
         }
     }
 
@@ -130,7 +129,7 @@ public class Main extends PluginEvent {
             for (Map.Entry<String, Object> i : emojiData.toMap().entrySet()) {
                 Guild guild = jdaBot.getGuildById(i.getKey());
                 if (guild == null) {
-                    logger.error("Cannot found guild by id: " + i.getKey());
+                    logger.warn("Cannot found guild by id: " + i.getKey());
                 } else {
                     for (RichCustomEmoji e : guild.retrieveEmojis().complete()) {
                         ((List<Object>) (i.getValue())).forEach(j -> {

@@ -1,3 +1,5 @@
-MainPath: com.xs.kick.Main
-Name: Kick
-Dependencies:
+author: IceXinShou
+main: com.xs.kick.Main
+name: Kick
+version: '2.0'
+prefix: Kick

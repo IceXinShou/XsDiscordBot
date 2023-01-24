@@ -32,12 +32,11 @@ public class Main extends PluginEvent {
     FileGetter getter;
     Logger logger;
     private static final String TAG = "ServerInfo";
-    private static final String VERSION = "2.0";
     final String PATH_FOLDER_NAME = "plugins/ServerInfo";
     private Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
 
     public Main() {
-        super(TAG, VERSION);
+        super(true);
     }
 
     @Override
@@ -210,7 +209,7 @@ public class Main extends PluginEvent {
             event.getHook().editOriginalEmbeds(
                     createEmbed(event.getGuild().getName(), guild.getIconUrl(), "", fields, lang.get("runtime;footer").get(local), owner.getUser().getAsTag(), owner.getEffectiveAvatarUrl(), 0xff0000)).queue();
         }).onError(i -> {
-            logger.error("ERROR");
+            logger.warn("ERROR");
             event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;error").get(local), 0xFF0000)).queue();
         });
     }

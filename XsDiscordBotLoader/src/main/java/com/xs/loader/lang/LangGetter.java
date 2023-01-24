@@ -8,8 +8,10 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class LangGetter {
     private final Map<String, Map<DiscordLocale, String>> lang = new HashMap<>();
@@ -35,14 +37,14 @@ public class LangGetter {
             File lang_file = new File(FOLDER_PATH + "/Lang/" + fileName);
 
             if (lang_file.exists()) {
-//                logger.error("Create default lang: " + fileName);
+//                logger.warn("Create default lang: " + fileName);
 //                getter.exportResource("lang/" + fileName, fileName, "Lang");
 
 //                try {
 //                    getter.copyFile(lang_file, FOLDER_PATH + "/Lang/-" + fileName);
 //                    getter.exportResource("lang/" + fileName, fileName, "Lang");
 //                } catch (IOException e) {
-//                    logger.error(e.getMessage());
+//                    logger.warn(e.getMessage());
 //                }
 
                 continue;
@@ -57,22 +59,22 @@ public class LangGetter {
         for (File i : new File(FOLDER_PATH + "/Lang/").listFiles()) {
             DiscordLocale local = DiscordLocale.from(i.getName().replaceAll("\\.\\w+$", ""));
             if (local == DiscordLocale.UNKNOWN) {
-                logger.error("Cannot find discord locate by file: " + i.getAbsolutePath() + "");
+                logger.warn("Cannot find discord locate by file: " + i.getAbsolutePath() + "");
                 continue;
             }
 
             try {
-                readLang(new JSONObject(getter.readFile(i.toPath())), "", local);
+                readLang(getter.readFile(i.toPath()), "", local);
             } catch (Exception e) {
-                logger.error(e.getMessage());
+                logger.warn(e.getMessage());
             }
         }
         return lang;
     }
 
     private void readLang(final Object origin_json, final String level, final DiscordLocale locale) {
-        if (origin_json instanceof JSONObject) {
-            JSONObject json = (JSONObject) origin_json;
+        if (origin_json instanceof Map) {
+            Map<String, Object> json = (Map<String, Object>) origin_json;
             for (final String key : json.keySet()) {
                 Object i = json.get(key);
                 if (level.equals("")) {
@@ -81,8 +83,8 @@ public class LangGetter {
                     readLang(i, level + ';' + key, locale);
                 }
             }
-        } else if (origin_json instanceof JSONArray) {
-            for (final Object key : (JSONArray) origin_json) {
+        } else if (origin_json instanceof ArrayList) {
+            for (final Object key : (ArrayList<Object>) origin_json) {
                 readLang(key, level, locale);
             }
         } else if (origin_json instanceof String) {

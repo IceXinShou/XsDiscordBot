@@ -2,20 +2,20 @@ package com.xs.loader;
 
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
-import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import org.fusesource.jansi.AnsiConsole;
 
 public abstract class PluginEvent extends ListenerAdapter {
-    protected final String name;
-    protected final String version;
+    protected final boolean listener;
 
-    public PluginEvent(final String name, final String version) {
-        this.name = name;
-        this.version = version;
+    public PluginEvent(boolean listener) {
+        this.listener = listener;
     }
 
     public void initLoad() {
         AnsiConsole.systemInstall();
+    }
+
+    public void finishLoad() {
     }
 
     public void unload() {

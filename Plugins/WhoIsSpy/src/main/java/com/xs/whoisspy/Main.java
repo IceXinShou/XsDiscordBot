@@ -33,7 +33,6 @@ public class Main extends PluginEvent {
     private FileGetter getter;
     private Logger logger;
     private static final String TAG = "WhoIsSpy";
-    private static final String VERSION = "1.0";
     private final String PATH_FOLDER_NAME = "plugins/WhoIsSpy";
     private Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
     private boolean start = false;
@@ -48,7 +47,7 @@ public class Main extends PluginEvent {
     private WhoIsSpy game;
 
     public Main() {
-        super(TAG, VERSION);
+        super(true);
     }
 
     private void reset() {

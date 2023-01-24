@@ -48,7 +48,6 @@ public class Main extends PluginEvent {
     private FileGetter getter;
     private Logger logger;
     private static final String TAG = "Economy";
-    private static final String VERSION = "2.0";
     private final String PATH_FOLDER_NAME = "plugins/Economy";
     private JsonFileManager manager;
     private final List<Long> ownerIDs = new ArrayList<>();
@@ -56,7 +55,7 @@ public class Main extends PluginEvent {
     private Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
 
     public Main() {
-        super(TAG, VERSION);
+        super(true);
     }
 
     @Override
@@ -442,7 +441,7 @@ public class Main extends PluginEvent {
                 if (member != null) {
                     nameCache.put(id, (name = member.getUser().getAsTag()));
                 } else {
-                    logger.error("cannot found member by id: " + id);
+                    logger.warn("cannot found member by id: " + id);
                     name = "unknown";
                 }
             }

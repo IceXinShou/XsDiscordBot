@@ -27,7 +27,7 @@ public class FileGetter {
         try {
             return new Yaml().load(Files.newInputStream(f));
         } catch (IOException e) {
-            logger.error(e.getMessage());
+            logger.warn(e.getMessage());
         }
         return null;
     }
@@ -36,10 +36,10 @@ public class FileGetter {
         new File(MainLoader.ROOT_PATH + "/" + path).mkdirs();
         File settingFile = new File(MainLoader.ROOT_PATH + "/" + path + "/" + fileName);
         if (!settingFile.exists()) {
-            logger.error(fileName + " not found, create default " + fileName);
+            logger.warn(fileName + " not found, create default " + fileName);
             settingFile = exportResource(fileName, path);
             if (settingFile == null) {
-                logger.error("read " + fileName + " failed");
+                logger.warn("read " + fileName + " failed");
                 return null;
             }
         }
@@ -52,15 +52,15 @@ public class FileGetter {
         InputStream fileInJar = LOADER.getResourceAsStream(sourceFileName);
         try {
             if (fileInJar == null) {
-                logger.error("can not find resource: " + sourceFileName);
+                logger.warn("can not find resource: " + sourceFileName);
                 return null;
             }
             Files.copy(fileInJar, Paths.get(MainLoader.ROOT_PATH + "/" + outputPath + "/" + sourceFileName), StandardCopyOption.REPLACE_EXISTING);
             fileInJar.close();
             return new File(MainLoader.ROOT_PATH + "/" + outputPath + "/" + sourceFileName);
         } catch (IOException e) {
-            logger.error(e.getMessage());
-            logger.error("read resource failed");
+            logger.warn(e.getMessage());
+            logger.warn("read resource failed");
         }
         return null;
     }
@@ -70,15 +70,15 @@ public class FileGetter {
 
         try {
             if (fileInJar == null) {
-                logger.error("can not find resource: " + sourceFile);
+                logger.warn("can not find resource: " + sourceFile);
                 return null;
             }
             Files.copy(fileInJar, Paths.get(FOLDER_PATH + "/" + outputPath + "/" + outputName), StandardCopyOption.REPLACE_EXISTING);
             fileInJar.close();
             return new File(FOLDER_PATH + "/" + outputPath + "/" + outputName);
         } catch (IOException e) {
-            logger.error("read resource failed");
-            logger.error(e.getMessage());
+            logger.warn("read resource failed");
+            logger.warn(e.getMessage());
         }
         return null;
     }

@@ -30,12 +30,11 @@ public class Main extends PluginEvent {
     private FileGetter getter;
     private Logger logger;
     private static final String TAG = "Ban";
-    private static final String VERSION = "2.0";
     private final String PATH_FOLDER_NAME = "plugins/Ban";
     private Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
 
     public Main() {
-        super(TAG, VERSION);
+        super(true);
     }
 
     @Override

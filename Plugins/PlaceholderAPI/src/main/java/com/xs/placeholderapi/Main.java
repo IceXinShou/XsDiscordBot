@@ -1,0 +1,32 @@
+package com.xs.placeholderapi;
+
+import com.xs.loader.PluginEvent;
+import com.xs.loader.logger.Logger;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.xs.loader.util.EmbedCreator.createEmbed;
+
+public class Main extends PluginEvent {
+    protected static final Map<String, ValueGetter> placeholders = new HashMap<>();
+    private Logger logger;
+    private static final String TAG = "PAPI";
+
+    public Main() {
+        super( false);
+    }
+
+    @Override
+    public void initLoad() {
+        super.initLoad();
+        logger = new Logger(TAG);
+        logger.log("Loaded");
+    }
+
+    @Override
+    public void unload() {
+        super.unload();
+        logger.log("UnLoaded");
+    }
+}

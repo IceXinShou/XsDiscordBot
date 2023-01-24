@@ -1,5 +1,8 @@
-MainPath: com.xs.poll.Main
-Name: Poll
-Dependencies:
-#  - EmojiAPI
-#  - PlaceholderAPI
+author: IceXinShou
+main: com.xs.poll.Main
+name: Poll
+version: '2.0'
+prefix: Poll
+soft_depend:
+  - EmojiAPI
+  - PlaceholderAPI

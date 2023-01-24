@@ -3,21 +3,18 @@ package com.xs.loader;
 import com.xs.loader.logger.Color;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
-import com.xs.loader.util.Pair;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
-import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.fusesource.jansi.AnsiConsole;
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.File;
@@ -33,23 +30,21 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.jar.JarFile;
 
-import static com.xs.loader.util.JsonFileManager.streamToString;
-
 public class MainLoader {
     public static JDA jdaBot;
     public static long botID;
-    public final List<CommandData> guildCommands = new ArrayList<>();
-    public final List<CommandData> globalCommands = new ArrayList<>();
+    private final List<CommandData> guildCommands = new ArrayList<>();
+    private final List<CommandData> globalCommands = new ArrayList<>();
     public static final String ROOT_PATH = new File(System.getProperty("user.dir")).toString();
     private final Queue<PluginEvent> listeners = new ArrayDeque<>();
     private final Logger logger;
     private final String version = "v1.5";
     private String BOT_TOKEN;
-    private JSONObject configFile;
+    private MainConfig configFile;
     private FileGetter getter;
     private final List<String> botStatus = new ArrayList<>();
-    private final Map<String, Pair<PluginEvent, JSONArray>> plugins = new HashMap<>();
-    private final List<PluginEvent> queue = new ArrayList<>();
+    private final Map<String, PluginInfo> plugins = new HashMap<>();
+    private final LinkedHashMap<String, PluginEvent> plugin_queue = new LinkedHashMap<>();
     private ScheduledExecutorService threadPool;
     private static boolean ignore_version_check = false;
 
@@ -65,6 +60,7 @@ public class MainLoader {
         defaultFileInit();
         loadConfigFile();
         loadVariables();
+        loadPlugins();
 
         JDABuilder builder = JDABuilder.createDefault(BOT_TOKEN)
                 .setBulkDeleteSplittingEnabled(false)
@@ -78,20 +74,18 @@ public class MainLoader {
                         GatewayIntent.GUILD_MEMBERS,
                         GatewayIntent.GUILD_VOICE_STATES,
                         GatewayIntent.GUILD_MESSAGES,
-                        GatewayIntent.GUILD_PRESENCES
+                        GatewayIntent.GUILD_PRESENCES,
+                        GatewayIntent.MESSAGE_CONTENT
                 );
 
-        loadPlugins();
-
         jdaBot = builder.build();
-
         botID = jdaBot.getSelfUser().getIdLong();
+
         ListenerManager listenerManager = new ListenerManager(guildCommands);
+
         jdaBot.addEventListener(listenerManager);
 
-        while (!listeners.isEmpty()) {
-            jdaBot.addEventListener(listeners.poll());
-        }
+        while (!listeners.isEmpty()) jdaBot.addEventListener(listeners.poll());
 
         jdaBot.updateCommands().addCommands(globalCommands).queue();
         setStatus();
@@ -123,12 +117,12 @@ public class MainLoader {
                 logger.log("You are running on the latest version: " + Color.GREEN + version + Color.RESET);
                 return false;
             } else if (ignore_version_check) {
-                logger.error("You ignored the version check " +
+                logger.warn("You ignored the version check " +
                         "(current version: " + Color.RED + version + Color.RESET +
                         ", latest version: " + Color.GREEN + latestVersion + Color.RESET + ')');
                 return false;
             } else {
-                logger.error("Your current version: " + Color.RED + version + Color.RESET + ", latest version: " + Color.GREEN + latestVersion + Color.RESET);
+                logger.warn("Your current version: " + Color.RED + version + Color.RESET + ", latest version: " + Color.GREEN + latestVersion + Color.RESET);
                 logger.log("Downloading latest version file...");
                 logger.log("Please wait...");
 
@@ -140,15 +134,16 @@ public class MainLoader {
                 return true;
             }
         } catch (IOException e) {
-            logger.error(e.getMessage());
+            logger.warn(e.getMessage());
         }
         return true;
     }
 
     void defaultFileInit() {
         logger.log("File Initializing...");
-        new File("plugins").mkdir();
-        logger.log("File Initialized Successfully");
+        if (new File("plugins").mkdirs())
+            logger.log("File Initialized Successfully");
+        logger.warn("File Initialized failed");
     }
 
     String getExtensionName(@NotNull String fileName) {
@@ -159,67 +154,89 @@ public class MainLoader {
         return null;
     }
 
-    void loadDependencies(String currentPlugin, JSONArray dependencies) {
-        if (dependencies != null && !dependencies.isEmpty()) {
-            for (Object depend : dependencies) {
-                if (plugins.containsKey((String) depend)) {
-                    loadDependencies((String) depend, plugins.get((String) depend).getValue());
-                    queue.add(plugins.get(currentPlugin).getKey());
+    boolean loadPlugin(PluginInfo pluginInfo) {
+        if (pluginInfo.depend != null)
+            for (String depend : pluginInfo.depend) {
+                // plugin list have depend
+                if (plugins.containsKey(depend)) {
+                    // load its depend
+                    if (!plugin_queue.containsKey(depend))
+                        loadPlugin(plugins.get(depend));
                 } else {
-                    logger.error("plugin: " + currentPlugin + " lost dependency: " + depend);
+                    logger.warn("plugin: " + pluginInfo.name + " lost dependency: " + depend);
+                    return true;
                 }
             }
-        } else {
-            queue.add(plugins.get(currentPlugin).getKey());
-        }
+        if (pluginInfo.softDepend != null)
+            for (String depend : pluginInfo.softDepend) {
+                // plugin list have depend
+                if (plugins.containsKey(depend)) {
+                    // load its depend
+                    if (!plugin_queue.containsKey(depend))
+                        loadPlugin(plugins.get(depend));
+                }
+            }
+
+        plugin_queue.put(pluginInfo.name, pluginInfo.pluginInstance);
+
+        return false;
     }
 
-    @SuppressWarnings("unchecked")
     void loadPlugins() {
         int count = 0;
         int fail = 0;
         String tmp;
         logger.log("Plugin(s) Loading...");
+        Yaml configYmlLoader = new Yaml(new Constructor(PluginConfig.class));
 
+        // load all jar files and depends into plugins map
         for (File file : new File("plugins").listFiles()) {
             try {
                 if (file == null) continue;
                 if ((tmp = getExtensionName(file.getName())) == null || !tmp.equals("jar")) continue;
                 JarFile jarFile = new JarFile(file);
-                InputStream inputStream = jarFile.getInputStream(jarFile.getEntry("info.yml"));
-                JSONObject data = new JSONObject((Map<String, Object>) new Yaml().load(streamToString(inputStream)));
+                PluginConfig config = configYmlLoader.load(jarFile.getInputStream(jarFile.getEntry("info.yml")));
 
-                if (!plugins.containsKey(data.getString("Name"))) {
-                    plugins.put(data.getString("Name"), new Pair<>((PluginEvent)
-                            new URLClassLoader(
+                if (!plugins.containsKey(config.name)) {
+                    plugins.put(config.name, new PluginInfo(
+                            config.name,
+
+                            // plugin
+                            (PluginEvent) new URLClassLoader(
                                     new URL[]{file.toURI().toURL()},
                                     MainLoader.class.getClassLoader())
-                                    .loadClass(data.getString("MainPath"))
+                                    .loadClass(config.main)
                                     .getDeclaredConstructor().newInstance(),
-                            data.has("Dependencies") ? data.getJSONArray("Dependencies") : null));
+
+                            // dependencies
+                            config.depend,
+                            config.soft_depend));
                 } else {
-                    logger.error("same plugin!: " + file.getName());
+                    logger.warn("same plugin name: " + file.getName());
                     ++fail;
                     continue;
                 }
 
-                inputStream.close();
                 jarFile.close();
                 ++count;
             } catch (Exception e) {
                 ++fail;
-                logger.error(file.getName() + '\n' + e.getMessage());
+                logger.warn(file.getName() + '\n' + e.getMessage());
             }
         }
 
-        plugins.forEach((i, j) -> {
-            if (queue.contains(j.getKey())) {
+        for (PluginInfo i : plugins.values()) {
+            // if added
+            if (plugin_queue.containsKey(i.name)) continue;
+
+            // load depends
+            if (loadPlugin(i)) {
+                logger.warn("stop loading plugins...");
                 return;
             }
-            loadDependencies(i, j.getValue());
-        });
+        }
 
-        for (PluginEvent plugin : queue) {
+        for (PluginEvent plugin : plugin_queue.values()) {
             plugin.initLoad();
 
             CommandData[] guildCommandsTmp;
@@ -232,27 +249,29 @@ public class MainLoader {
                 Collections.addAll(globalCommands, globalCommandsTmp);
             }
 
-            listeners.add(plugin);
+            if (plugin.listener) listeners.add(plugin);
         }
 
+        for (PluginEvent plugin : plugin_queue.values()) plugin.finishLoad();
+
         if (fail > 0)
-            logger.error(fail + " Plugin(s) Loading Failed!");
+            logger.warn(fail + " Plugin(s) Loading Failed!");
         logger.log(count + " Plugin(s) Loading Successfully");
     }
 
     private void loadConfigFile() {
-        configFile = new JSONObject(readOrDefaultYml("config_0A2F7C.yml", "config.yml"));
+        Yaml yaml = new Yaml(new Constructor(MainConfig.class));
+        configFile = yaml.load(readOrDefaultYml("config_0A2F7C.yml", "config.yml"));
+
+//        configFile = new JSONObject(readOrDefaultYml("config_0A2F7C.yml", "config.yml"));
         logger.log("Setting file loaded");
     }
 
     private void loadVariables() {
-        JSONObject general = configFile.getJSONObject("GeneralSettings");
-        BOT_TOKEN = general.getString("botToken");
-        if (general.has("activityMessage") && !general.getJSONArray("activityMessage").isEmpty()) {
-            for (Object i : general.getJSONArray("activityMessage")) {
-                botStatus.add((String) i);
-            }
-        }
+        MainConfig.GeneralSettings general = configFile.GeneralSettings;
+        BOT_TOKEN = general.botToken;
+        if (general.activityMessage != null)
+            botStatus.addAll(Arrays.asList(general.activityMessage));
     }
 
     void setStatus() {
@@ -275,10 +294,10 @@ public class MainLoader {
                             Thread.sleep(Long.parseLong(arg[2]));
                         }
                     } catch (IllegalArgumentException e) {
-                        logger.error("can not find type: " + arg[0]);
+                        logger.warn("can not find type: " + arg[0]);
                         return;
                     } catch (InterruptedException e) {
-                        logger.error(e.getMessage());
+                        logger.warn(e.getMessage());
                     }
                 }
             }
@@ -289,45 +308,51 @@ public class MainLoader {
         Scanner scanner = new Scanner(System.in);
 
         while (true) {
-            String[] command = scanner.nextLine().split(" ");
+            String[] cmd = scanner.nextLine().split(" ");
 
-            switch (command[0].toLowerCase()) {
+            switch (cmd[0].toLowerCase()) {
                 case "tell":
-                    jdaBot.retrieveUserById(command[1]).onSuccess(i -> {
+                    jdaBot.retrieveUserById(cmd[1]).onSuccess(i -> {
                         i.openPrivateChannel(
                         ).onSuccess((j) -> {
-                            j.sendMessage(command[2]).queue();
+                            j.sendMessage(cmd[2]).queue();
                         }).onErrorFlatMap(j -> {
-                            logger.error(j.getMessage());
+                            logger.warn(j.getMessage());
                             return null;
                         }).complete();
                     }).onErrorMap(i -> {
-                        logger.error(i.getMessage());
+                        logger.warn(i.getMessage());
                         return null;
                     }).complete();
                     break;
 
                 case "say":
-                    jdaBot.getGuildById(command[1]).getTextChannelById(command[2]).sendMessage(command[3]).queue();
+                    jdaBot.getGuildById(cmd[1]).getTextChannelById(cmd[2]).sendMessage(cmd[3]).queue();
                     break;
 
                 case "join":
-                    Guild guild = jdaBot.getGuildById(command[1]);
-                    guild.getAudioManager().openAudioConnection(guild.getVoiceChannelById(command[2]));
+                    Guild guild = jdaBot.getGuildById(cmd[1]);
+                    guild.getAudioManager().openAudioConnection(guild.getVoiceChannelById(cmd[2]));
                     break;
 
                 case "leave":
-                    jdaBot.getGuildById(command[1]).getAudioManager().closeAudioConnection();
+                    jdaBot.getGuildById(cmd[1]).getAudioManager().closeAudioConnection();
                     break;
 
                 case "mute":
-                    guild = jdaBot.getGuildById(command[1]);
-                    guild.getAudioManager().setSelfMuted(!guild.getAudioManager().isSelfMuted());
+                    guild = jdaBot.getGuildById(cmd[1]);
+                    if (guild != null)
+                        guild.getAudioManager().setSelfMuted(!guild.getAudioManager().isSelfMuted());
+                    else
+                        logger.warn("cannot found guild by id: " + cmd[1]);
                     break;
 
                 case "deafen":
-                    guild = jdaBot.getGuildById(command[1]);
-                    guild.getAudioManager().setSelfDeafened(!guild.getAudioManager().isSelfDeafened());
+                    guild = jdaBot.getGuildById(cmd[1]);
+                    if (guild != null)
+                        guild.getAudioManager().setSelfDeafened(!guild.getAudioManager().isSelfDeafened());
+                    else
+                        logger.warn("cannot found guild by id: " + cmd[1]);
                     break;
 
                 case "stop":
@@ -335,12 +360,14 @@ public class MainLoader {
                         jdaBot.removeEventListener(listener);
                     }
 
-                    for (PluginEvent plugin : queue) {
+                    List<PluginEvent> stopPlugins = new ArrayList<>(plugin_queue.values());
+                    Collections.reverse(stopPlugins);
+                    for (PluginEvent plugin : stopPlugins) {
                         plugin.unload();
                     }
 
                     plugins.clear();
-                    queue.clear();
+                    plugin_queue.clear();
 
                     threadPool.shutdown();
                     jdaBot.shutdown();
@@ -350,8 +377,12 @@ public class MainLoader {
                 case "reload":
                     logger.log("Reloading...");
 
-                    for (PluginEvent plugin : queue) {
+                    List<PluginEvent> reloadPlugins = new ArrayList<>(plugin_queue.values());
+                    Collections.reverse(reloadPlugins);
+                    for (PluginEvent plugin : reloadPlugins) {
                         plugin.unload();
+                    }
+                    for (PluginEvent plugin : plugin_queue.values()) {
                         plugin.initLoad();
                     }
 
@@ -364,32 +395,51 @@ public class MainLoader {
                     break;
 
                 default:
-                    logger.error("Unknown Command");
+                    logger.warn("Unknown Command");
                     break;
             }
         }
     }
 
-    public Map<String, Object> readOrDefaultYml(String name, String outName) {
+    public InputStream readOrDefaultYml(String name, String outName) {
         File settingFile = new File(System.getProperty("user.dir") + '/' + outName);
         if (!settingFile.exists()) {
-            logger.error(outName + " not found, create default " + outName);
+            logger.warn(outName + " not found, create default " + outName);
             settingFile = getter.exportResource(name, outName, "");
             if (settingFile == null) {
-                logger.error("read " + name + " failed");
+                logger.warn("read " + name + " failed");
                 return null;
             }
         }
         logger.log("load " + settingFile.getPath());
-        String settingText = null;
         try {
-            settingText = streamToString(Files.newInputStream(settingFile.toPath()));
+            return Files.newInputStream(settingFile.toPath());
         } catch (IOException e) {
-            logger.error(e.getMessage());
+            logger.warn(e.getMessage());
+            return null;
         }
-
-        return new Yaml().load(settingText);
     }
+
+//    public Map<String, Object> readOrDefaultYml(String name, String outName) {
+//        File settingFile = new File(System.getProperty("user.dir") + '/' + outName);
+//        if (!settingFile.exists()) {
+//            logger.warn(outName + " not found, create default " + outName);
+//            settingFile = getter.exportResource(name, outName, "");
+//            if (settingFile == null) {
+//                logger.warn("read " + name + " failed");
+//                return null;
+//            }
+//        }
+//        logger.log("load " + settingFile.getPath());
+//        String settingText = null;
+//        try {
+//            settingText = streamToString(Files.newInputStream(settingFile.toPath()));
+//        } catch (IOException e) {
+//            logger.warn(e.getMessage());
+//        }
+//
+//        return new Yaml().load(settingText);
+//    }
 
     public static void main(String[] args) {
         for (String i : args) {

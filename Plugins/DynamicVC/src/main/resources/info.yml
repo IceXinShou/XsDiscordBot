@@ -1,3 +1,5 @@
-MainPath: com.xs.ban.Main
-Name: Ban
-Dependencies:
+author: IceXinShou
+main: com.xs.dynamicvc.Main
+name: DynamicVC
+version: '1.0'
+prefix: DynamicVC

@@ -20,11 +20,11 @@ public class Logger {
         System.out.print('[' + new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime()) + "] " + TAG + msg);
     }
 
-    public void error(final String msg) {
+    public void warn(final String msg) {
         System.err.println('[' + new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime()) + "] " + TAG + msg);
     }
 
-    public void printErr(final String msg) {
+    public void printWarn(final String msg) {
         System.err.print('[' + new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime()) + "] " + TAG + msg);
     }
 }

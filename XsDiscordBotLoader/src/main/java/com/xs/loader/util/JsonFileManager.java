@@ -40,7 +40,7 @@ public class JsonFileManager {
 
             data = new JSONObject(streamToString(Files.newInputStream(FILE.toPath())));
         } catch (IOException e) {
-            logger.error(e.getMessage());
+            logger.warn(e.getMessage());
         }
     }
 
@@ -74,7 +74,7 @@ public class JsonFileManager {
         if (data.has(String.valueOf(id))) {
             data.remove(String.valueOf(id));
         } else {
-            logger.error("Cannot remove guild data by id: " + id);
+            logger.warn("Cannot remove guild data by id: " + id);
         }
     }
 
@@ -85,7 +85,7 @@ public class JsonFileManager {
             writer.flush();
             writer.close();
         } catch (IOException e) {
-            logger.error("Cannot save file: " + e.getMessage());
+            logger.warn("Cannot save file: " + e.getMessage());
         }
     }
 }
