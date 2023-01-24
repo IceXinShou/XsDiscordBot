@@ -10,12 +10,15 @@ import java.nio.file.Files;
 
 public class JsonFileManager {
     private final File FILE;
-    private JSONObject data;
+    private JSONObject data_obj;
+    private JSONArray data_ary;
     private final Logger logger;
+    private boolean isObject;
 
-    public JsonFileManager(String FILE_PATH, String TAG) {
+    public JsonFileManager(String FILE_PATH, String TAG, boolean isObject) {
         this.FILE = new File(MainLoader.ROOT_PATH + '/' + FILE_PATH);
         this.logger = new Logger(TAG);
+        this.isObject = isObject;
         initData();
     }
 
@@ -29,50 +32,64 @@ public class JsonFileManager {
     }
 
     private void initData() {
+        String tmp;
         try {
-            if (!FILE.exists()) {
+            if (!FILE.exists() || (tmp = streamToString(Files.newInputStream(FILE.toPath()))).length() == 0) {
                 FILE.createNewFile();
                 FileWriter writer = new FileWriter(FILE);
-                writer.write("{}");
+                if (isObject) {
+                    writer.write("{}");
+                    tmp = "{}";
+                } else {
+                    writer.write("[]");
+                    tmp = "[]";
+                }
                 writer.flush();
                 writer.close();
             }
-
-            data = new JSONObject(streamToString(Files.newInputStream(FILE.toPath())));
+            if (isObject)
+                data_obj = new JSONObject(streamToString(Files.newInputStream(FILE.toPath())));
+            else
+                data_ary = new JSONArray(tmp);
         } catch (IOException e) {
             logger.warn(e.getMessage());
         }
     }
 
 
-    public JSONObject get() {
-        return data;
+    public JSONObject getObj() {
+        return data_obj;
+    }
+
+    public JSONArray getAry() {
+        return data_ary;
     }
 
     public JSONObject getOrDefault(String key) {
-        if (data.has(key))
-            return data.getJSONObject(key);
-        else {
-            JSONObject tmp = new JSONObject();
-            data.put(key, tmp);
-            return tmp;
+        if (isObject) {
+            if (data_obj.has(key)) return data_obj.getJSONObject(key);
+            else {
+                JSONObject tmp = new JSONObject();
+                data_obj.put(key, tmp);
+                return tmp;
+            }
         }
+        return null;
     }
 
     public JSONArray getOrDefaultArray(String key) {
-        if (data.has(key))
-            return data.getJSONArray(key);
+        if (data_obj.has(key)) return data_obj.getJSONArray(key);
         else {
             JSONArray tmp = new JSONArray();
-            data.put(key, tmp);
+            data_obj.put(key, tmp);
             return tmp;
         }
     }
 
 
     public void removeGuild(long id) {
-        if (data.has(String.valueOf(id))) {
-            data.remove(String.valueOf(id));
+        if (data_obj.has(String.valueOf(id))) {
+            data_obj.remove(String.valueOf(id));
         } else {
             logger.warn("Cannot remove guild data by id: " + id);
         }
@@ -81,7 +98,10 @@ public class JsonFileManager {
     public void save() {
         try {
             FileWriter writer = new FileWriter(FILE);
-            writer.write(data.toString());
+            if (isObject)
+                writer.write(data_obj.toString());
+            else
+                writer.write(data_ary.toString());
             writer.flush();
             writer.close();
         } catch (IOException e) {

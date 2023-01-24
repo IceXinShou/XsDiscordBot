@@ -48,7 +48,7 @@ public class Main extends PluginEvent {
     private FileGetter getter;
     private Logger logger;
     private static final String TAG = "Economy";
-    private final String PATH_FOLDER_NAME = "plugins/Economy";
+    private final String PATH_FOLDER_NAME = "./plugins/Economy";
     private JsonFileManager manager;
     private final List<Long> ownerIDs = new ArrayList<>();
     private int boardUserShowLimit;
@@ -189,14 +189,14 @@ public class Main extends PluginEvent {
             boardUserShowLimit = 0;
 
         new File(ROOT_PATH + "/" + PATH_FOLDER_NAME + "/data").mkdirs();
-        manager = new JsonFileManager("/" + PATH_FOLDER_NAME + "/data/data.json", TAG);
+        manager = new JsonFileManager("/" + PATH_FOLDER_NAME + "/data/data.json", TAG, true);
 
         logger.log("Setting File Loaded Successfully");
     }
 
     @Override
     public void onReady(@NotNull ReadyEvent event) {
-        for (String i : manager.get().keySet()) {
+        for (String i : manager.getObj().keySet()) {
             User user;
             JSONObject object = manager.getOrDefault(i);
             userData.put(Long.parseLong(i), new UserData(Long.parseLong(i), object.getInt("money"), object.getInt("total")));

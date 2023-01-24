@@ -1,17 +1,15 @@
 register:
-  cmd: 封鎖
-  description: 從伺服器封鎖使用者
+  cmd: 動態語音
+  description: 有關動態語音頻道的指令
 
-  options:
-    user: 使用者
-    day: 時間長度 (天)
-    reason: 原因
-
+  subcommand:
+    create:
+      cmd: 創建動態語音
+      description: 創建動態語音頻道
+      options:
+        detect: 被偵測的頻道
 runtime:
-  success: 已封鎖
+  success: 設定完成
 
   errors:
-    no_user: 找不到此成員!
-    no_permission: 缺少封鎖權限
-    permission_denied: 權限比該成員低
     unknown: 未知的錯誤!

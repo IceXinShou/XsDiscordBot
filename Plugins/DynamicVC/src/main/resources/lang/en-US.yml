@@ -1,17 +1,16 @@
 register:
-  cmd: ban
-  description: ban a member from your server
+  cmd: dynamicvc
+  description: commands about dynamic voice chat
 
-  options:
-    user: user
-    day: time (day)
-    reason: reason
+  subcommand:
+    create:
+      cmd: createbychannel
+      description: create a dynamic voice chat by channel
+      options:
+        detect: the channel be detected
 
 runtime:
-  success: Ban Successfully
+  success: Setting successfully
 
   errors:
-    no_user: Cannot find the member!
-    no_permission: I do not have ban permission.
-    permission_denied: My permission level is lower than member's.
     unknown: Unknown ERROR!

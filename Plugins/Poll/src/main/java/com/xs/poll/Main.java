@@ -39,7 +39,7 @@ public class Main extends PluginEvent {
     private FileGetter getter;
     private Logger logger;
     private static final String TAG = "Poll";
-    private final String PATH_FOLDER_NAME = "plugins/Poll";
+    private final String PATH_FOLDER_NAME = "./plugins/Poll";
     private Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
     private JSONObject emojiData;
     private final List<Emoji> votes = new ArrayList<>();

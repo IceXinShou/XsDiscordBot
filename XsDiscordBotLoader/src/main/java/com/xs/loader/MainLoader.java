@@ -98,7 +98,10 @@ public class MainLoader {
         String fileName;
         URL downloadURL;
         URL url;
-
+        if (ignore_version_check) {
+            logger.log("You ignored the version check");
+            return false;
+        }
         logger.log("Version checking...");
 
         try {
@@ -116,11 +119,11 @@ public class MainLoader {
             if (version.equals(latestVersion)) {
                 logger.log("You are running on the latest version: " + Color.GREEN + version + Color.RESET);
                 return false;
-            } else if (ignore_version_check) {
-                logger.warn("You ignored the version check " +
-                        "(current version: " + Color.RED + version + Color.RESET +
-                        ", latest version: " + Color.GREEN + latestVersion + Color.RESET + ')');
-                return false;
+//            } else if (ignore_version_check) {
+//                logger.warn("You ignored the version check " +
+//                        "(current version: " + Color.RED + version + Color.RESET +
+//                        ", latest version: " + Color.GREEN + latestVersion + Color.RESET + ')');
+//                return false;
             } else {
                 logger.warn("Your current version: " + Color.RED + version + Color.RESET + ", latest version: " + Color.GREEN + latestVersion + Color.RESET);
                 logger.log("Downloading latest version file...");
@@ -262,8 +265,6 @@ public class MainLoader {
     private void loadConfigFile() {
         Yaml yaml = new Yaml(new Constructor(MainConfig.class));
         configFile = yaml.load(readOrDefaultYml("config_0A2F7C.yml", "config.yml"));
-
-//        configFile = new JSONObject(readOrDefaultYml("config_0A2F7C.yml", "config.yml"));
         logger.log("Setting file loaded");
     }
 
@@ -394,6 +395,8 @@ public class MainLoader {
                     logger.log("Reloaded");
                     break;
 
+                case "" :
+                    break;
                 default:
                     logger.warn("Unknown Command");
                     break;

@@ -8,11 +8,6 @@ import java.util.Collections;
 import java.util.List;
 
 public class EmbedCreator {
-
-    /**
-     * Embed
-     */
-
     public static MessageEmbed createEmbed(String title, String description, String footer, String nickname, String avatarUrl, OffsetDateTime timeStamp, int color) {
         return new MessageEmbed(null,
                 title,

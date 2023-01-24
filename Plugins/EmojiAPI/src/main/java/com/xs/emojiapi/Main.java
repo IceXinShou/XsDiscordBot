@@ -18,7 +18,7 @@ public class Main extends PluginEvent {
     private FileGetter getter;
     private Logger logger;
     private static final String TAG = "EmojiAPI";
-    private final String PATH_FOLDER_NAME = "plugins/EmojiAPI";
+    private final String PATH_FOLDER_NAME = "./plugins/EmojiAPI";
     private JSONArray ids;
     public static Map<String, Map<Long, Emoji>> emojis = new HashMap<>();
     private boolean setup = false;

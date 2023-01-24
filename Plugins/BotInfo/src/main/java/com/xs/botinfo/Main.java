@@ -27,7 +27,7 @@ public class Main extends PluginEvent {
     private FileGetter getter;
     private Logger logger;
     private static final String TAG = "BotInfo";
-    final String PATH_FOLDER_NAME = "plugins/BotInfo";
+    private final String PATH_FOLDER_NAME = "./plugins/BotInfo";
     private Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
 
     public Main() {
