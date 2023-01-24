@@ -1,6 +1,6 @@
 # XsDiscordBotLoader
 
-Copyright © 2022 IceXinShou. All rights reserved.
+Copyright © 2022-2023 IceXinShou. All rights reserved.
 
 ## API Usage:
 
