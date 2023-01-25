@@ -119,7 +119,7 @@ public class Main extends PluginEvent {
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
         if (!event.getName().equals("dynamicvc")) return;
         if (!event.getSubcommandName().equals("createbychannel")) return;
-        DiscordLocale local = event.getGuildLocale();
+        DiscordLocale local = event.getUserLocale();
         try {
             long guildID = event.getGuild().getIdLong();
             long category;

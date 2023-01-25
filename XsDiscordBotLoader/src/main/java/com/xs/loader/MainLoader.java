@@ -143,10 +143,14 @@ public class MainLoader {
     }
 
     void defaultFileInit() {
+        File pluginsFolder = new File("plugins");
+        if (pluginsFolder.exists()) return;
+
         logger.log("File Initializing...");
-        if (new File("plugins").mkdirs())
+        if (pluginsFolder.mkdirs())
             logger.log("File Initialized Successfully");
-        logger.warn("File Initialized failed");
+        else
+            logger.warn("File Initialized failed");
     }
 
     String getExtensionName(@NotNull String fileName) {
@@ -224,7 +228,7 @@ public class MainLoader {
                 ++count;
             } catch (Exception e) {
                 ++fail;
-                logger.warn(file.getName() + '\n' + e.getMessage());
+                logger.warn(file.getName() + '\n' + Arrays.toString(e.getStackTrace()).replace(',', '\n'));
             }
         }
 
@@ -395,7 +399,7 @@ public class MainLoader {
                     logger.log("Reloaded");
                     break;
 
-                case "" :
+                case "":
                     break;
                 default:
                     logger.warn("Unknown Command");
