@@ -38,7 +38,6 @@ public class Main extends PluginEvent {
         super.initLoad();
         logger = new Logger(TAG);
         getter = new FileGetter(logger, PATH_FOLDER_NAME, Main.class.getClassLoader());
-        loadConfigFile();
         loadLang();
         logger.log("Loaded");
     }
@@ -73,12 +72,6 @@ public class Main extends PluginEvent {
                                         .setDescriptionLocalizations(lang.get("register;options;reason")))
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(BAN_MEMBERS))
         };
-    }
-
-    @Override
-    public void loadConfigFile() {
-        JSONObject config = new JSONObject(getter.readYml("config.yml", PATH_FOLDER_NAME));
-        logger.log("Setting File Loaded Successfully");
     }
 
     @Override

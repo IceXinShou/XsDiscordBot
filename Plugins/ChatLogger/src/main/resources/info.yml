@@ -1,0 +1,7 @@
+author: IceXinShou
+main: com.xs.chatlogger.Main
+name: ChatLogger
+version: '1.0'
+prefix: ChatLogger
+depend:
+  - SQLiteAPI

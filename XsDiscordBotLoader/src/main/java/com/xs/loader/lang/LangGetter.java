@@ -4,14 +4,11 @@ import com.xs.loader.MainLoader;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 public class LangGetter {
     private final Map<String, Map<DiscordLocale, String>> lang = new HashMap<>();
@@ -35,20 +32,7 @@ public class LangGetter {
         for (String l : defaultLang) {
             String fileName = l + ".yml";
             File lang_file = new File(FOLDER_PATH + "/Lang/" + fileName);
-
-            if (lang_file.exists()) {
-//                logger.warn("Create default lang: " + fileName);
-//                getter.exportResource("lang/" + fileName, fileName, "Lang");
-
-//                try {
-//                    getter.copyFile(lang_file, FOLDER_PATH + "/Lang/-" + fileName);
-//                    getter.exportResource("lang/" + fileName, fileName, "Lang");
-//                } catch (IOException e) {
-//                    logger.warn(e.getMessage());
-//                }
-
-                continue;
-            }
+            if (lang_file.exists()) continue;
 
             // export is not exist
             getter.exportResource("lang/" + fileName, fileName, "Lang");
@@ -64,7 +48,7 @@ public class LangGetter {
             }
 
             try {
-                readLang(getter.readFile(i.toPath()), "", local);
+                readLang(getter.readFileMap(i.toPath()), "", local);
             } catch (Exception e) {
                 logger.warn(e.getMessage());
             }

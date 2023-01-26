@@ -1,0 +1,16 @@
+register:
+  cmd: chatlogger
+  description: commands about dynamic voice chat
+
+  subcommand:
+    create:
+      cmd: createbychannel
+      description: create a dynamic voice chat by channel
+      options:
+        detect: the channel be detected
+
+runtime:
+  success: Setting successfully
+
+  errors:
+    unknown: Unknown ERROR!

@@ -1,0 +1,15 @@
+register:
+  cmd: 動態語音
+  description: 有關動態語音頻道的指令
+
+  subcommand:
+    create:
+      cmd: 創建動態語音
+      description: 創建動態語音頻道
+      options:
+        detect: 被偵測的頻道
+runtime:
+  success: 設定完成
+
+  errors:
+    unknown: 未知的錯誤!

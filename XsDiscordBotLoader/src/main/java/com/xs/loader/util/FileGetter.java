@@ -5,7 +5,9 @@ import com.xs.loader.logger.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -23,7 +25,7 @@ public class FileGetter {
         this.LOADER = LOADER;
     }
 
-    public Map<String, Object> readFile(Path f) {
+    public Map<String, Object> readFileMap(Path f) {
         try {
             return new Yaml().load(Files.newInputStream(f));
         } catch (IOException e) {
@@ -45,7 +47,29 @@ public class FileGetter {
         }
         logger.log("load " + settingFile.getPath());
 
-        return readFile(settingFile.toPath());
+        return readFileMap(settingFile.toPath());
+    }
+
+    public InputStream readYmlInputStream(String fileName, String path) {
+        new File(MainLoader.ROOT_PATH + "/" + path).mkdirs();
+        File settingFile = new File(MainLoader.ROOT_PATH + "/" + path + "/" + fileName);
+        if (!settingFile.exists()) {
+            logger.warn(fileName + " not found, create default " + fileName);
+            settingFile = exportResource(fileName, path);
+            if (settingFile == null) {
+                logger.warn("read " + fileName + " failed");
+                return null;
+            }
+        }
+        logger.log("load " + settingFile.getPath());
+
+        try {
+            return Files.newInputStream(settingFile.toPath());
+        } catch (IOException e) {
+            logger.warn(e.getMessage());
+        }
+
+        return null;
     }
 
     public File exportResource(String sourceFileName, String outputPath) {

@@ -1,0 +1,5 @@
+author: IceXinShou
+main: com.xs.googlesheetapi.Main
+name: GoogleSheetAPI
+version: '1.0'
+prefix: GoogleSheetAPI

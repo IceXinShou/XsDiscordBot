@@ -1,0 +1,5 @@
+author: JDBC
+main: com.jdbc.sqliteapi.Main
+name: SQLiteAPI
+version: '1.0'
+prefix: SQLiteAPI

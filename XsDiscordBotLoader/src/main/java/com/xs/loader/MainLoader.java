@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
@@ -119,11 +120,6 @@ public class MainLoader {
             if (version.equals(latestVersion)) {
                 logger.log("You are running on the latest version: " + Color.GREEN + version + Color.RESET);
                 return false;
-//            } else if (ignore_version_check) {
-//                logger.warn("You ignored the version check " +
-//                        "(current version: " + Color.RED + version + Color.RESET +
-//                        ", latest version: " + Color.GREEN + latestVersion + Color.RESET + ')');
-//                return false;
             } else {
                 logger.warn("Your current version: " + Color.RED + version + Color.RESET + ", latest version: " + Color.GREEN + latestVersion + Color.RESET);
                 logger.log("Downloading latest version file...");
@@ -267,8 +263,8 @@ public class MainLoader {
     }
 
     private void loadConfigFile() {
-        Yaml yaml = new Yaml(new Constructor(MainConfig.class));
-        configFile = yaml.load(readOrDefaultYml("config_0A2F7C.yml", "config.yml"));
+        configFile = new Yaml(new Constructor(MainConfig.class))
+                .load(readOrDefaultYml("config_0A2F7C.yml", "config.yml"));
         logger.log("Setting file loaded");
     }
 
@@ -311,99 +307,112 @@ public class MainLoader {
 
     void getInput() {
         Scanner scanner = new Scanner(System.in);
-
         while (true) {
-            String[] cmd = scanner.nextLine().split(" ");
+            try {
+                String[] cmd = scanner.nextLine().split(" ");
 
-            switch (cmd[0].toLowerCase()) {
-                case "tell":
-                    jdaBot.retrieveUserById(cmd[1]).onSuccess(i -> {
-                        i.openPrivateChannel(
-                        ).onSuccess((j) -> {
-                            j.sendMessage(cmd[2]).queue();
-                        }).onErrorFlatMap(j -> {
-                            logger.warn(j.getMessage());
+                switch (cmd[0].toLowerCase()) {
+                    case "dm":
+                        jdaBot.retrieveUserById(cmd[1]).onSuccess(i -> {
+                            i.openPrivateChannel(
+                            ).onSuccess((j) -> {
+                                j.sendMessage(cmd[2]).queue();
+                            }).onErrorFlatMap(j -> {
+                                logger.warn(j.getMessage());
+                                return null;
+                            }).complete();
+                        }).onErrorMap(i -> {
+                            logger.warn(i.getMessage());
                             return null;
                         }).complete();
-                    }).onErrorMap(i -> {
-                        logger.warn(i.getMessage());
-                        return null;
-                    }).complete();
-                    break;
+                        break;
 
-                case "say":
-                    jdaBot.getGuildById(cmd[1]).getTextChannelById(cmd[2]).sendMessage(cmd[3]).queue();
-                    break;
+                    case "say":
+                        jdaBot.getGuildById(cmd[1]).getTextChannelById(cmd[2]).sendMessage(cmd[3]).queue();
+                        break;
 
-                case "join":
-                    Guild guild = jdaBot.getGuildById(cmd[1]);
-                    guild.getAudioManager().openAudioConnection(guild.getVoiceChannelById(cmd[2]));
-                    break;
+                    case "join":
+                        Guild guild = jdaBot.getGuildById(cmd[1]);
+                        guild.getAudioManager().openAudioConnection(guild.getVoiceChannelById(cmd[2]));
+                        break;
 
-                case "leave":
-                    jdaBot.getGuildById(cmd[1]).getAudioManager().closeAudioConnection();
-                    break;
+                    case "leave":
+                        jdaBot.getGuildById(cmd[1]).getAudioManager().closeAudioConnection();
+                        break;
 
-                case "mute":
-                    guild = jdaBot.getGuildById(cmd[1]);
-                    if (guild != null)
-                        guild.getAudioManager().setSelfMuted(!guild.getAudioManager().isSelfMuted());
-                    else
-                        logger.warn("cannot found guild by id: " + cmd[1]);
-                    break;
+                    case "mute":
+                        guild = jdaBot.getGuildById(cmd[1]);
+                        if (guild != null)
+                            guild.getAudioManager().setSelfMuted(!guild.getAudioManager().isSelfMuted());
+                        else
+                            logger.warn("cannot found guild by id: " + cmd[1]);
+                        break;
 
-                case "deafen":
-                    guild = jdaBot.getGuildById(cmd[1]);
-                    if (guild != null)
-                        guild.getAudioManager().setSelfDeafened(!guild.getAudioManager().isSelfDeafened());
-                    else
-                        logger.warn("cannot found guild by id: " + cmd[1]);
-                    break;
+                    case "deafen":
+                        guild = jdaBot.getGuildById(cmd[1]);
+                        if (guild != null)
+                            guild.getAudioManager().setSelfDeafened(!guild.getAudioManager().isSelfDeafened());
+                        else
+                            logger.warn("cannot found guild by id: " + cmd[1]);
+                        break;
 
-                case "stop":
-                    for (Object listener : jdaBot.getRegisteredListeners()) {
-                        jdaBot.removeEventListener(listener);
-                    }
+                    case "deafenm":
+                        guild = jdaBot.getGuildById(cmd[1]);
+                        if (guild != null) {
+                            Member member = guild.retrieveMemberById(cmd[2]).complete();
+                            member.deafen(!member.getVoiceState().isDeafened()).queue();
+                        } else {
+                            logger.warn("cannot found guild by id: " + cmd[1]);
+                        }
+                        break;
 
-                    List<PluginEvent> stopPlugins = new ArrayList<>(plugin_queue.values());
-                    Collections.reverse(stopPlugins);
-                    for (PluginEvent plugin : stopPlugins) {
-                        plugin.unload();
-                    }
+                    case "stop":
+                        for (Object listener : jdaBot.getRegisteredListeners()) {
+                            jdaBot.removeEventListener(listener);
+                        }
 
-                    plugins.clear();
-                    plugin_queue.clear();
+                        List<PluginEvent> stopPlugins = new ArrayList<>(plugin_queue.values());
+                        Collections.reverse(stopPlugins);
+                        for (PluginEvent plugin : stopPlugins) {
+                            plugin.unload();
+                        }
 
-                    threadPool.shutdown();
-                    jdaBot.shutdown();
-                    logger.log("Stopped");
-                    return;
+                        plugins.clear();
+                        plugin_queue.clear();
 
-                case "reload":
-                    logger.log("Reloading...");
+                        threadPool.shutdown();
+                        jdaBot.shutdown();
+                        logger.log("Stopped");
+                        return;
 
-                    List<PluginEvent> reloadPlugins = new ArrayList<>(plugin_queue.values());
-                    Collections.reverse(reloadPlugins);
-                    for (PluginEvent plugin : reloadPlugins) {
-                        plugin.unload();
-                    }
-                    for (PluginEvent plugin : plugin_queue.values()) {
-                        plugin.initLoad();
-                    }
+                    case "reload":
+                        logger.log("Reloading...");
 
-                    threadPool.shutdown();
-                    loadConfigFile();
-                    loadVariables();
-                    setStatus();
+                        List<PluginEvent> reloadPlugins = new ArrayList<>(plugin_queue.values());
+                        Collections.reverse(reloadPlugins);
+                        for (PluginEvent plugin : reloadPlugins) {
+                            plugin.unload();
+                        }
+                        for (PluginEvent plugin : plugin_queue.values()) {
+                            plugin.initLoad();
+                        }
 
-                    logger.log("Reloaded");
-                    break;
+                        threadPool.shutdown();
+                        loadConfigFile();
+                        loadVariables();
+                        setStatus();
 
-                case "":
-                    break;
-                default:
-                    logger.warn("Unknown Command");
-                    break;
+                        logger.log("Reloaded");
+                        break;
+
+                    case "":
+                        break;
+                    default:
+                        logger.warn("Unknown Command");
+                        break;
+                }
+            } catch (Exception e) {
+                logger.warn(e.getMessage());
             }
         }
     }
