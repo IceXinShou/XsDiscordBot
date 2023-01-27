@@ -1,13 +1,13 @@
 register:
   get_money:
     cmd: money
-    description: get current money of user
+    description: get current money from user
     options:
       user: user
 
   get_money_history:
     cmd: moneylog
-    description: get money log of user
+    description: get money log from user
     options:
       user: user
 
@@ -41,7 +41,7 @@ register:
 
   remove_money_history:
     cmd: removemoneylog
-    description: remove money log to user
+    description: remove money log from user
     options:
       user: user
       value: value
@@ -55,11 +55,11 @@ register:
 
   money_board:
     cmd: moneytop
-    description: get board of money
+    description: get board from money
 
   money_history_board:
     cmd: moneytoplog
-    description: get board of log money
+    description: get board from log money
 
 runtime:
   money_board_title: Balance Board

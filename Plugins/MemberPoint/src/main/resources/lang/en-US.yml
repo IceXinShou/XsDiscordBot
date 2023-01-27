@@ -1,0 +1,39 @@
+register:
+  get_point:
+    cmd: point
+    description: get current point from user
+    options:
+      user: user
+
+
+  add_point:
+    cmd: addpoint
+    description: add point to user
+    options:
+      user: user
+      value: value
+
+  remove_point:
+    cmd: removepoint
+    description: remove point from user
+    options:
+      user: user
+      value: value
+
+  set_point:
+    cmd: setpoint
+    description: set point to user
+    options:
+      user: user
+      value: value
+
+  point_board:
+    cmd: pointtop
+    description: get board from point
+
+runtime:
+  point_board_title: Balance Board
+  current_point: "Current Balance: %point%"
+
+  errors:
+    no_permission: You Cannot Do This!

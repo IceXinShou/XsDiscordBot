@@ -1,0 +1,38 @@
+register:
+  get_money:
+    cmd: 餘額
+    description: 取得使用者餘額
+    options:
+      user: 使用者
+
+  add_money:
+    cmd: 增加餘額
+    description: 增加使用者餘額
+    options:
+      user: 使用者
+      value: 金額
+
+  remove_money:
+    cmd: 移除餘額
+    description: 移除使用者餘額
+    options:
+      user: 使用者
+      value: 金額
+
+  set_money:
+    cmd: 設定餘額
+    description: 設定使用者餘額
+    options:
+      user: 使用者
+      value: 金額
+
+  money_board:
+    cmd: 餘額排行
+    description: 取得餘額排行
+
+runtime:
+  money_board_title: 餘額排行
+  current_money: "當前餘額為 %money%"
+
+  errors:
+    no_permission: 你不能這樣做!

@@ -87,7 +87,7 @@ public class Main extends PluginEvent {
     @Override
     public CommandData[] guildCommands() {
         return new SlashCommandData[]{
-                Commands.slash("money", "get current money of user")
+                Commands.slash("money", "get current money from user")
                         .setNameLocalizations(lang.get("register;get_money;cmd"))
                         .setDescriptionLocalizations(lang.get("register;get_money;description"))
                         .addOptions(
@@ -95,7 +95,7 @@ public class Main extends PluginEvent {
                                         .setDescriptionLocalizations(lang.get("register;get_money;options;user")))
                         .setDefaultPermissions(DefaultMemberPermissions.ENABLED),
 
-                Commands.slash("moneylog", "get money log of user")
+                Commands.slash("moneylog", "get money log from user")
                         .setNameLocalizations(lang.get("register;get_money_history;cmd"))
                         .setDescriptionLocalizations(lang.get("register;get_money_history;description"))
                         .addOptions(
@@ -113,7 +113,7 @@ public class Main extends PluginEvent {
                                         .setDescriptionLocalizations(lang.get("register;add_money;options;user")))
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR)),
 
-                Commands.slash("removemoney", "add money from user")
+                Commands.slash("removemoney", "remove money from user")
                         .setNameLocalizations(lang.get("register;remove_money;cmd"))
                         .setDescriptionLocalizations(lang.get("register;remove_money;description"))
                         .addOptions(
@@ -123,7 +123,7 @@ public class Main extends PluginEvent {
                                         .setDescriptionLocalizations(lang.get("register;remove_money;options;user")))
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR)),
 
-                Commands.slash("setmoney", "set money from user")
+                Commands.slash("setmoney", "set money to user")
                         .setNameLocalizations(lang.get("register;set_money;cmd"))
                         .setDescriptionLocalizations(lang.get("register;set_money;description"))
                         .addOptions(
@@ -143,7 +143,7 @@ public class Main extends PluginEvent {
                                         .setDescriptionLocalizations(lang.get("register;add_money_history;options;user")))
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR)),
 
-                Commands.slash("removemoneylog", "remove money log to user")
+                Commands.slash("removemoneylog", "remove money log from user")
                         .setNameLocalizations(lang.get("register;remove_money_history;cmd"))
                         .setDescriptionLocalizations(lang.get("register;remove_money_history;description"))
                         .addOptions(
@@ -163,12 +163,12 @@ public class Main extends PluginEvent {
                                         .setDescriptionLocalizations(lang.get("register;set_money_history;options;user")))
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR)),
 
-                Commands.slash("moneytop", "get board of money")
+                Commands.slash("moneytop", "get board from money")
                         .setNameLocalizations(lang.get("register;money_board;cmd"))
                         .setDescriptionLocalizations(lang.get("register;money_board;description"))
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR)),
 
-                Commands.slash("moneytoplog", "get board of log money")
+                Commands.slash("moneytoplog", "get board from log money")
                         .setNameLocalizations(lang.get("register;money_history_board;cmd"))
                         .setDescriptionLocalizations(lang.get("register;money_history_board;description"))
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR)),

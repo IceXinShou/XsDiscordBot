@@ -23,6 +23,6 @@
 # 步驟 5. 複製 「您的用戶端 ID」與「您的用戶端密碼」至下方兩欄
 # 步驟 6. 更新驗證狀態 https://reurl.cc/KX7g9n
 
-client_id: 523947150599-fiadblb0ht09bt6nhkb67llor4brpi86.apps.googleusercontent.com
-client_secret: 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
+client_id: xxxxxx.xxxx.com
+client_secret: xxx-xxx-xxx
 port: 8888 # default
