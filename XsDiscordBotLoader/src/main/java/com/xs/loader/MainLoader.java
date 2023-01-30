@@ -13,7 +13,6 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.fusesource.jansi.AnsiConsole;
-import org.jetbrains.annotations.NotNull;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
@@ -23,7 +22,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.channels.Channels;
 import java.nio.file.Files;
 import java.util.*;
@@ -149,7 +147,7 @@ public class MainLoader {
             logger.warn("File Initialized failed");
     }
 
-    String getExtensionName(@NotNull String fileName) {
+    String getExtensionName(String fileName) {
         int i = fileName.lastIndexOf('.');
         if (i > 0) {
             return fileName.substring(i + 1);
@@ -192,6 +190,9 @@ public class MainLoader {
         logger.log("Plugin(s) Loading...");
         Yaml configYmlLoader = new Yaml(new Constructor(PluginConfig.class));
 
+        ClassLoader loader = new ClassLoader();
+
+
         // load all jar files and depends into plugins map
         for (File file : new File("plugins").listFiles()) {
             try {
@@ -201,19 +202,19 @@ public class MainLoader {
                 PluginConfig config = configYmlLoader.load(jarFile.getInputStream(jarFile.getEntry("info.yml")));
 
                 if (!plugins.containsKey(config.name)) {
+                    loader.addJar(file, config.main);
                     plugins.put(config.name, new PluginInfo(
-                            config.name,
+                                    config.name,
 
-                            // plugin
-                            (PluginEvent) new URLClassLoader(
-                                    new URL[]{file.toURI().toURL()},
-                                    MainLoader.class.getClassLoader())
-                                    .loadClass(config.main)
-                                    .getDeclaredConstructor().newInstance(),
+                                    // plugin
+                                    (PluginEvent) loader.getClass(config.main)
+                                            .getDeclaredConstructor().newInstance(),
 
-                            // dependencies
-                            config.depend,
-                            config.soft_depend));
+                                    // dependencies
+                                    config.depend,
+                                    config.soft_depend
+                            )
+                    );
                 } else {
                     logger.warn("same plugin name: " + file.getName());
                     ++fail;
@@ -264,7 +265,7 @@ public class MainLoader {
 
     private void loadConfigFile() {
         configFile = new Yaml(new Constructor(MainConfig.class))
-                .load(readOrDefaultYml("config_0A2F7C.yml", "config.yml"));
+                .load(readOrDefaultYml("config_0A2F7C.yml", "config.yml", this.getClass()));
         logger.log("Setting file loaded");
     }
 
@@ -417,11 +418,11 @@ public class MainLoader {
         }
     }
 
-    public InputStream readOrDefaultYml(String name, String outName) {
+    public InputStream readOrDefaultYml(String name, String outName, Class<?> fromClass) {
         File settingFile = new File(System.getProperty("user.dir") + '/' + outName);
         if (!settingFile.exists()) {
             logger.warn(outName + " not found, create default " + outName);
-            settingFile = getter.exportResource(name, outName, "");
+            settingFile = getter.exportResource(name, outName, "", fromClass);
             if (settingFile == null) {
                 logger.warn("read " + name + " failed");
                 return null;

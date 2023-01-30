@@ -14,7 +14,6 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.build.*;
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -82,7 +81,7 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadLang() {
-        LangGetter langGetter = new LangGetter(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT);
+        LangGetter langGetter = new LangGetter(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, this.getClass());
 
         // expert files
         langGetter.exportDefaultLang();
@@ -109,7 +108,7 @@ public class Main extends PluginEvent {
     }
 
     @Override
-    public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
+    public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         if (!event.getName().equals("dynamicvc")) return;
         if (!event.getSubcommandName().equals("createbychannel")) return;
         DiscordLocale local = event.getUserLocale();

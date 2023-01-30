@@ -16,8 +16,6 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import net.dv8tion.jda.internal.interactions.component.ButtonImpl;
-import org.jetbrains.annotations.NotNull;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -80,7 +78,7 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadLang() {
-        LangGetter langGetter = new LangGetter(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT);
+        LangGetter langGetter = new LangGetter(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, this.getClass());
 
         // expert files
         langGetter.exportDefaultLang();
@@ -99,8 +97,9 @@ public class Main extends PluginEvent {
                 )
         };
     }
+
     @Override
-    public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
+    public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         if (!event.getName().equals("whoisspy")) return;
         if (!permissionCheck(Permission.ADMINISTRATOR, event))
             return;
@@ -127,7 +126,7 @@ public class Main extends PluginEvent {
     }
 
     @Override
-    public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
+    public void onButtonInteraction(ButtonInteractionEvent event) {
         String[] args = event.getComponentId().split(":");
         switch (args[0]) {
             case "join": {
@@ -272,7 +271,7 @@ public class Main extends PluginEvent {
 
 
 //    @Override
-//    public void onSelectMenuInteraction(@NotNull SelectMenuInteractionEvent event) {
+//    public void onSelectMenuInteraction(SelectMenuInteractionEvent event) {
 //        String[] args = event.getComponentId().split(":");
 //
 //        switch (args[0]) {

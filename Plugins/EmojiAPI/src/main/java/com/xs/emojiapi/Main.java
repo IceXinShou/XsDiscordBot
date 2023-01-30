@@ -44,7 +44,7 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadConfigFile() {
-        config = new JSONObject(getter.readYml("config.yml", PATH_FOLDER_NAME));
+        config = new JSONObject(getter.readYml("config.yml", this.getClass(), PATH_FOLDER_NAME));
 
         if (config.has("GuildID") && !config.getJSONArray("GuildID").isEmpty()) {
             ids = config.getJSONArray("GuildID");

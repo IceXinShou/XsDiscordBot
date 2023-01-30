@@ -11,12 +11,9 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
-import org.jetbrains.annotations.NotNull;
-import org.json.JSONObject;
 
 import java.util.Map;
 
-import static com.xs.loader.util.EmbedCreator.createEmbed;
 import static com.xs.loader.util.SlashCommandOption.*;
 import static net.dv8tion.jda.api.Permission.BAN_MEMBERS;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.*;
@@ -50,7 +47,7 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadLang() {
-        LangGetter langGetter = new LangGetter(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT);
+        LangGetter langGetter = new LangGetter(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, this.getClass());
 
         // expert files
         langGetter.exportDefaultLang();
@@ -75,7 +72,7 @@ public class Main extends PluginEvent {
     }
 
     @Override
-    public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
+    public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
 
     }
 }

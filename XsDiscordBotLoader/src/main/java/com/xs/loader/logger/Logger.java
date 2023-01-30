@@ -1,7 +1,6 @@
 package com.xs.loader.logger;
 
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 
 public class Logger {

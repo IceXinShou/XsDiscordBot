@@ -40,7 +40,7 @@ public class Main extends PluginEvent {
     @Override
     public void loadConfigFile() {
         configFile = new Yaml(new Constructor(MainConfig.class))
-                .load(getter.readYmlInputStream("config.yml", PATH_FOLDER_NAME));
+                .load(getter.readYmlInputStream("config.yml", this.getClass(), PATH_FOLDER_NAME));
         logger.log("Setting File Loaded Successfully");
     }
 
@@ -50,5 +50,9 @@ public class Main extends PluginEvent {
         } catch (IOException | GeneralSecurityException e) {
             logger.warn(e.getMessage());
         }
+    }
+
+    public static SheetRequest getSheet() {
+        return sheet;
     }
 }

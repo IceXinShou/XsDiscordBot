@@ -11,8 +11,6 @@ import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
-import org.jetbrains.annotations.NotNull;
-import org.json.JSONObject;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -51,7 +49,7 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadLang() {
-        LangGetter langGetter = new LangGetter(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT);
+        LangGetter langGetter = new LangGetter(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, this.getClass());
         // expert files
         langGetter.exportDefaultLang();
         lang = langGetter.readLangFileData();
@@ -68,7 +66,7 @@ public class Main extends PluginEvent {
     }
 
     @Override
-    public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
+    public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         if (!event.getName().equals("botinfo")) return;
 
         DiscordLocale local = event.getUserLocale();

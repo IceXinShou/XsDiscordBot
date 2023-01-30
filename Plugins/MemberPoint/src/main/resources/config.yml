@@ -1,5 +1,11 @@
-OwnerID:
-  - -1
-  - -2
-  - -3
-BoardUserShowLimit: 10
+guildID: 858672865355890708
+
+adminRoleID:
+  - 858672865444626433
+
+adminID:
+  - 810822763601461318
+
+sheetID: 1ND4FGi8pgWtbQ1o_8sPbCq_cCNFUWejBEtkebz9szxs
+pointSheetLabel: 點數紀錄
+checkInSheetLabel: 簽到記錄

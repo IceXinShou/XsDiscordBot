@@ -1,38 +1,38 @@
 register:
-  get_money:
-    cmd: 餘額
-    description: 取得使用者餘額
+  refresh:
+    cmd: 重新讀取點數
+    description: 重新讀取點數資料
+
+  get_point:
+    cmd: 點數
+    description: 取得使用者點數
     options:
       user: 使用者
 
-  add_money:
-    cmd: 增加餘額
-    description: 增加使用者餘額
+  add_point:
+    cmd: 增加點數
+    description: 增加使用者點數
     options:
       user: 使用者
-      value: 金額
+      value: 數值
 
-  remove_money:
-    cmd: 移除餘額
-    description: 移除使用者餘額
+  remove_point:
+    cmd: 移除點數
+    description: 移除使用者點數
     options:
       user: 使用者
-      value: 金額
+      value: 數值
 
-  set_money:
-    cmd: 設定餘額
-    description: 設定使用者餘額
+  set_point:
+    cmd: 設定點數
+    description: 設定使用者點數
     options:
       user: 使用者
-      value: 金額
-
-  money_board:
-    cmd: 餘額排行
-    description: 取得餘額排行
+      value: 數值
 
 runtime:
-  money_board_title: 餘額排行
-  current_money: "當前餘額為 %money%"
+  current_point: "當前點數為 %point%"
+  refresh_success: "已重新讀取"
 
   errors:
     no_permission: 你不能這樣做!

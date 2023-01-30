@@ -2,7 +2,6 @@ package com.xs.loader.util;
 
 import com.xs.loader.MainLoader;
 import com.xs.loader.logger.Logger;
-import org.jetbrains.annotations.NotNull;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
@@ -34,12 +33,12 @@ public class FileGetter {
         return null;
     }
 
-    public Map<String, Object> readYml(String fileName, String path) {
+    public Map<String, Object> readYml(String fileName, Class<?> fromClass, String path) {
         new File(MainLoader.ROOT_PATH + "/" + path).mkdirs();
         File settingFile = new File(MainLoader.ROOT_PATH + "/" + path + "/" + fileName);
         if (!settingFile.exists()) {
             logger.warn(fileName + " not found, create default " + fileName);
-            settingFile = exportResource(fileName, path);
+            settingFile = exportResource(fileName, path, fromClass);
             if (settingFile == null) {
                 logger.warn("read " + fileName + " failed");
                 return null;
@@ -50,12 +49,12 @@ public class FileGetter {
         return readFileMap(settingFile.toPath());
     }
 
-    public InputStream readYmlInputStream(String fileName, String path) {
+    public InputStream readYmlInputStream(String fileName, Class<?> fromClass, String path) {
         new File(MainLoader.ROOT_PATH + "/" + path).mkdirs();
         File settingFile = new File(MainLoader.ROOT_PATH + "/" + path + "/" + fileName);
         if (!settingFile.exists()) {
             logger.warn(fileName + " not found, create default " + fileName);
-            settingFile = exportResource(fileName, path);
+            settingFile = exportResource(fileName, path, fromClass);
             if (settingFile == null) {
                 logger.warn("read " + fileName + " failed");
                 return null;
@@ -72,8 +71,8 @@ public class FileGetter {
         return null;
     }
 
-    public File exportResource(String sourceFileName, String outputPath) {
-        InputStream fileInJar = LOADER.getResourceAsStream(sourceFileName);
+    public File exportResource(String sourceFileName, String outputPath, Class<?> fromClass) {
+        InputStream fileInJar = fromClass.getResourceAsStream(sourceFileName);
         try {
             if (fileInJar == null) {
                 logger.warn("can not find resource: " + sourceFileName);
@@ -89,8 +88,8 @@ public class FileGetter {
         return null;
     }
 
-    public File exportResource(String sourceFile, String outputName, String outputPath) {
-        InputStream fileInJar = LOADER.getResourceAsStream(sourceFile);
+    public File exportResource(String sourceFile, String outputName, String outputPath, Class<?> fromClass) {
+        InputStream fileInJar = fromClass.getResourceAsStream(sourceFile);
 
         try {
             if (fileInJar == null) {
@@ -107,11 +106,11 @@ public class FileGetter {
         return null;
     }
 
-    private void copyFile(@NotNull File source, @NotNull File dest) throws IOException {
+    private void copyFile(File source, File dest) throws IOException {
         Files.copy(source.toPath(), dest.toPath());
     }
 
-    public void copyFile(@NotNull File source, @NotNull String dest) throws IOException {
+    public void copyFile(File source, String dest) throws IOException {
         Files.copy(source.toPath(), Paths.get(dest));
     }
 }

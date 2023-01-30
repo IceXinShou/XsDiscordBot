@@ -6,15 +6,13 @@ import com.xs.loader.logger.Logger;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.xs.loader.util.EmbedCreator.createEmbed;
-
 public class Main extends PluginEvent {
     protected static final Map<String, ValueGetter> placeholders = new HashMap<>();
     private Logger logger;
     private static final String TAG = "PAPI";
 
     public Main() {
-        super( false);
+        super(false);
     }
 
     @Override

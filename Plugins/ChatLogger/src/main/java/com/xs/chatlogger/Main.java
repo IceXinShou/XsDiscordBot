@@ -1,29 +1,23 @@
 package com.xs.chatlogger;
 
+import com.sun.jmx.remote.util.ClassLogger;
+import com.xs.loader.ClassLoader;
 import com.xs.loader.PluginEvent;
 import com.xs.loader.lang.LangGetter;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
-import com.xs.loader.util.Pair;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
-import org.jetbrains.annotations.NotNull;
-import org.json.JSONObject;
 
 import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.sql.*;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
 
@@ -38,8 +32,6 @@ public class Main extends PluginEvent {
     private final String PATH_FOLDER_NAME = "./plugins/ChatLogger";
     private Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
     private final Map<Long, Connection> dbConns = new HashMap<>();
-    private BlockingQueue<Pair<Long, String>> blockingQueue;
-    private BlockingQueue<ResultSet> output;
     private ScheduledExecutorService threadPool;
 
     public Main() {
@@ -52,30 +44,11 @@ public class Main extends PluginEvent {
         super.initLoad();
         logger = new Logger(TAG);
         getter = new FileGetter(logger, PATH_FOLDER_NAME, Main.class.getClassLoader());
-        loadDepend();
         loadLang();
         initData();
         logger.log("Loaded");
     }
 
-    private void loadDepend() {
-        String driverJar = "SQLiteAPI.jar";
-        File api = new File(ROOT_PATH + "/plugins/" + driverJar);
-        String driverClassname = "org.sqlite.JDBC";
-        try {
-            URLClassLoader ucl = new URLClassLoader(new URL[]{api.toURI().toURL()});
-            Driver driver = (Driver) Class.forName(driverClassname, true, ucl).newInstance();
-            DriverManager.registerDriver(new DriverShim(driver));
-        } catch (MalformedURLException | SQLException | ClassNotFoundException | InstantiationException |
-                 IllegalAccessException e) {
-            logger.warn(e.getClass().getName() + ": " + e.getMessage() + '\n' +
-                    "\tat " + Arrays.stream(e.getStackTrace())
-                    .filter(i -> !i.getClassName().startsWith("org.sqlite"))
-                    .map(StackTraceElement::toString)
-                    .collect(Collectors.joining("\n\tat "))
-            );
-        }
-    }
     private void initData() {
         File f = new File(ROOT_PATH + "/" + PATH_FOLDER_NAME + "/data");
         f.mkdirs();
@@ -108,7 +81,7 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadLang() {
-        LangGetter langGetter = new LangGetter(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT);
+        LangGetter langGetter = new LangGetter(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, this.getClass());
 
         // expert files
         langGetter.exportDefaultLang();
@@ -135,7 +108,7 @@ public class Main extends PluginEvent {
 //    }
 
     @Override
-    public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
+    public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         if (!event.getName().equals("chatlogger")) return;
         if (!event.getSubcommandName().equals("createbychannel")) return;
     }
@@ -207,20 +180,20 @@ public class Main extends PluginEvent {
             ));
 
             Statement stmt = conn.createStatement();
-
+            String create = "";
             if (!stmt.executeQuery(String.format("SELECT name FROM sqlite_master WHERE type='table' AND name='%d';", channelID)).next()) {
                 // create a table
-                String create = String.format("" +
+                create = String.format("" +
                                 "CREATE TABLE \"%d\" (" +
-                                "message_id INT PRIMARY KEY  NOT NULL   ON CONFLICT FAIL," +
+                                "message_id INT PRIMARY KEY  NOT NULL   ON CONFLICT FAIL, " +
                                 "user_id                INT  NOT NULL, " +
                                 "message               TEXT  NOT NULL  " +
                                 ")",
                         channelID
                 );
-                stmt.executeUpdate(create);
             }
 
+            if (!create.equals("")) stmt.executeUpdate(create);
             String insert = String.format("INSERT INTO \"%d\" VALUES (?, ?, ?)", channelID);
             PreparedStatement createMessage = conn.prepareStatement(insert);
             createMessage.setLong(1, messageID);
@@ -237,26 +210,5 @@ public class Main extends PluginEvent {
                     .collect(Collectors.joining("\n\tat "))
             );
         }
-    }
-
-    void database() {
-        if (threadPool != null && !threadPool.isShutdown())
-            threadPool.shutdown();
-
-        threadPool = Executors.newSingleThreadScheduledExecutor();
-
-        threadPool.execute(() -> {
-            try {
-                while (true) {
-                    Pair<Long, String> data = blockingQueue.take();
-                    Connection conn = dbConns.getOrDefault(data.getKey(), DriverManager.getConnection(
-                            "jdbc:sqlite:" + ROOT_PATH + "/" + PATH_FOLDER_NAME + "/data/" + data.getKey() + ".db"
-                    ));
-                    conn.createStatement().executeUpdate(data.getValue());
-                }
-            } catch (InterruptedException | SQLException e) {
-                logger.warn(e.getMessage());
-            }
-        });
     }
 }

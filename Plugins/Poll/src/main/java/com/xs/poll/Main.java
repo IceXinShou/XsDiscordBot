@@ -17,7 +17,6 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
 import java.time.OffsetDateTime;
@@ -67,7 +66,7 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadLang() {
-        LangGetter langGetter = new LangGetter(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT);
+        LangGetter langGetter = new LangGetter(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, this.getClass());
 
         // expert files
         langGetter.exportDefaultLang();
@@ -109,7 +108,7 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadConfigFile() {
-        config = new JSONObject(getter.readYml("config.yml", PATH_FOLDER_NAME));
+        config = new JSONObject(getter.readYml("config.yml", this.getClass(), PATH_FOLDER_NAME));
         logger.log("Setting File Loaded Successfully");
 
         if (config.has("Emojis") && !config.getJSONObject("Emojis").isEmpty()) {
@@ -124,7 +123,7 @@ public class Main extends PluginEvent {
 
     @SuppressWarnings("unchecked warning")
     @Override
-    public void onReady(@NotNull ReadyEvent event) {
+    public void onReady(ReadyEvent event) {
         if (setup) {
             for (Map.Entry<String, Object> i : emojiData.toMap().entrySet()) {
                 Guild guild = jdaBot.getGuildById(i.getKey());
@@ -146,7 +145,7 @@ public class Main extends PluginEvent {
 
 
     @Override
-    public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
+    public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         if (!event.getName().equals("poll")) return;
         if (!permissionCheck(Permission.MANAGE_CHANNEL, event))
             return;

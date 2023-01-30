@@ -8,6 +8,19 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="XsDiscordBotLoader_v1.5" level="application" />
+    <orderEntry type="module" module-name="GoogleSheetAPI" />
+    <orderEntry type="module" module-name="XsDiscordBotLoader.main" />
+    <orderEntry type="library" name="Gradle: net.dv8tion:JDA:5.0.0-beta.3" level="project" />
+    <orderEntry type="library" name="Gradle: org.yaml:snakeyaml:1.33" level="project" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="file://$MODULE_DIR$/../../lib/GoogleSheetAPI" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+        <jarDirectory url="file://$MODULE_DIR$/../../lib/GoogleSheetAPI" recursive="false" />
+      </library>
+    </orderEntry>
   </component>
 </module>

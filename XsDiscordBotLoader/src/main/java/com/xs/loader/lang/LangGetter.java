@@ -16,12 +16,14 @@ public class LangGetter {
     private final Logger logger;
     private final String[] defaultLang;
     private final FileGetter getter;
+    private final Class<?> FROM_CLASS;
 
-    public LangGetter(final String TAG, final FileGetter GETTER, final String PATH_FOLDER_NAME, final String[] DEFAULT_LANG) {
+    public LangGetter(final String TAG, final FileGetter GETTER, final String PATH_FOLDER_NAME, final String[] DEFAULT_LANG, final Class<?> fromClass) {
         logger = new Logger(TAG);
         this.FOLDER_PATH = MainLoader.ROOT_PATH + "/" + PATH_FOLDER_NAME;
         this.getter = GETTER;
         this.defaultLang = DEFAULT_LANG;
+        this.FROM_CLASS = fromClass;
     }
 
 
@@ -35,7 +37,7 @@ public class LangGetter {
             if (lang_file.exists()) continue;
 
             // export is not exist
-            getter.exportResource("lang/" + fileName, fileName, "Lang");
+            getter.exportResource("lang/" + fileName, fileName, "Lang", FROM_CLASS);
         }
     }
 
