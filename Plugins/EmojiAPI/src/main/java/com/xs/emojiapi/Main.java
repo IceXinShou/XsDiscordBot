@@ -29,7 +29,7 @@ public class Main extends PluginEvent {
 
     @Override
     public void initLoad() {
-        super.initLoad();
+
         logger = new Logger(TAG);
         getter = new FileGetter(logger, PATH_FOLDER_NAME, Main.class.getClassLoader());
         loadConfigFile();
@@ -38,7 +38,6 @@ public class Main extends PluginEvent {
 
     @Override
     public void unload() {
-        super.unload();
         logger.log("UnLoaded");
     }
 

@@ -15,15 +15,16 @@ import com.google.api.services.sheets.v4.model.AppendValuesResponse;
 import com.google.api.services.sheets.v4.model.UpdateValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import com.xs.loader.logger.Logger;
-import com.xs.loader.util.Pair;
+import javafx.util.Pair;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.List;
 
-public class SheetRequest {
+import static com.xs.googlesheetapi.Main.configFile;
 
+public class SheetRequest {
     public final Sheets service;
     private final Logger logger;
     private String sheetID = "";
@@ -32,6 +33,17 @@ public class SheetRequest {
     private final List<String> SCOPES = Collections.singletonList(SheetsScopes.DRIVE);
     private final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
     private final MainConfig config;
+
+    public SheetRequest(Logger logger) throws IOException, GeneralSecurityException {
+        this.logger = logger;
+        config = configFile;
+
+        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+
+        service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
+                .setApplicationName("Google Sheets API")
+                .build();
+    }
 
     public SheetRequest(Logger logger, MainConfig config) throws IOException, GeneralSecurityException {
         this.logger = logger;

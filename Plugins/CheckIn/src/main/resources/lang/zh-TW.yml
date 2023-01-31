@@ -1,17 +1,27 @@
 register:
-  cmd: 封鎖
-  description: 自伺服器封鎖使用者
+  announcement:
+    cmd: 設定公告
+    description: 標記一則可以被簽到的訊息
 
-  options:
-    user: 使用者
-    day: 時間長度 (天)
-    reason: 原因
+    options:
+      id: 訊息ID
+
+  check:
+    cmd: 簽到
+    description: 為一則公告簽到
+
+    options:
+      id: 公告訊息ID
+      content: 簽到內容
 
 runtime:
-  success: 已封鎖
+  announce_success: 公告新增完成
+  checkin_success: 簽到成功
 
   errors:
-    no_user: 找不到此成員!
-    no_permission: 缺少封鎖權限
-    permission_denied: 權限比該成員低
-    unknown: 未知的錯誤!
+    wrong_guild: 無法在此伺服器內使用此指令
+    already_announced: 此訊息已經被加進公告內了
+    wrong_id_input: 請輸入正確的訊息ID
+    check_message_get_failed: "無法在此頻道取的此 ID 的訊息 (id: %id%)"
+    not_announced_message: 你無法對非公告訊息簽到
+    no_permission: 你不能這樣做!

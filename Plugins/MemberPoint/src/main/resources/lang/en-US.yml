@@ -36,4 +36,5 @@ runtime:
   refresh_success: "Reloaded"
 
   errors:
+    wrong_guild: this command cannot use in this guild!
     no_permission: You Cannot Do This!

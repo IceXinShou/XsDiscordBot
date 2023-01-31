@@ -13,14 +13,13 @@ public class Main extends PluginEvent {
 
     @Override
     public void initLoad() {
-        super.initLoad();
+
         logger = new Logger(TAG);
         logger.log("Loaded");
     }
 
     @Override
     public void unload() {
-        super.unload();
         logger.log("UnLoaded");
     }
 }

@@ -1,21 +1,19 @@
 package com.xs.checkin;
 
-import com.google.api.services.sheets.v4.model.UpdateValuesResponse;
 import com.xs.googlesheetapi.SheetRequest;
 import com.xs.loader.PluginEvent;
 import com.xs.loader.lang.LangGetter;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
-import com.xs.loader.util.Pair;
+import javafx.util.Pair;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -24,25 +22,25 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
 import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static com.xs.googlesheetapi.Main.sheet;
 import static com.xs.loader.util.EmbedCreator.createEmbed;
-import static com.xs.loader.util.SlashCommandOption.USER_TAG;
-import static com.xs.loader.util.SlashCommandOption.VALUE;
-import static net.dv8tion.jda.api.interactions.commands.OptionType.*;
+import static net.dv8tion.jda.api.interactions.commands.OptionType.STRING;
 
 public class Main extends PluginEvent {
     private MainConfig configFile;
-    private final Map<Long, Integer> userData = new HashMap<>();
     private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
     private FileGetter getter;
     private Logger logger;
-    private static final String TAG = "MemberPoint";
-    private final String PATH_FOLDER_NAME = "./plugins/MemberPoint";
+    private static final String TAG = "CheckIn";
+    private final String PATH_FOLDER_NAME = "./plugins/CheckIn";
     private final List<Long> adminID = new ArrayList<>();
     private final List<Role> adminRoles = new ArrayList<>();
-    private static Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
+    private final List<Pair<Long, Long>> announcements = new ArrayList<>();
+    private Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
+    private SheetRequest sheet;
 
     public Main() {
         super(true);
@@ -50,18 +48,23 @@ public class Main extends PluginEvent {
 
     @Override
     public void initLoad() {
-        super.initLoad();
+
+
         logger = new Logger(TAG);
         getter = new FileGetter(logger, PATH_FOLDER_NAME, Main.class.getClassLoader());
+        try {
+            sheet = new SheetRequest(logger);
+        } catch (IOException | GeneralSecurityException e) {
+            e.printStackTrace();
+        }
         loadConfigFile();
         loadLang();
-        loadSheet();
+        loadAnnouncements();
         logger.log("Loaded");
     }
 
     @Override
     public void unload() {
-        super.unload();
         logger.log("UnLoaded");
     }
 
@@ -74,6 +77,27 @@ public class Main extends PluginEvent {
         lang = langGetter.readLangFileData();
     }
 
+    private Pair<Long, Long> getDataFromSheet(String s) {
+        String[] tmp = s.substring(s.lastIndexOf(' ') + 2, s.length() - 1).split(";");
+        return new Pair<>(Long.parseLong(tmp[0]), Long.parseLong(tmp[1]));
+    }
+
+    private void loadAnnouncements() {
+        try {
+            announcements.clear();
+            sheet.refresh(configFile.sheetID, configFile.sheetLabel);
+
+            List<Object> tmp = sheet.getData().get(0);
+            int tmpSize = tmp.size();
+
+            for (int i = 1; i < tmpSize; ++i) {
+                announcements.add(getDataFromSheet((String) tmp.get(i)));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public CommandData[] guildCommands() {
         return new SlashCommandData[]{
@@ -81,14 +105,16 @@ public class Main extends PluginEvent {
                         .setNameLocalizations(lang.get("register;announcement;cmd"))
                         .setDescriptionLocalizations(lang.get("register;announcement;description"))
                         .addOptions(
-                                new OptionData(INTEGER, "id", "message id", true)
-                                        .setDescriptionLocalizations(lang.get("register;announcement;options;id"))),
+                        new OptionData(STRING, "id", "message id", true)
+                                .setDescriptionLocalizations(lang.get("register;announcement;options;id"))),
 
                 Commands.slash("check", "checkin for a announced message")
                         .setNameLocalizations(lang.get("register;check;cmd"))
                         .setDescriptionLocalizations(lang.get("register;check;description"))
                         .addOptions(
-                                new OptionData(STRING, "content", "what would you want?")
+                                new OptionData(STRING, "id", "what message you would checkin?", true)
+                                        .setDescriptionLocalizations(lang.get("register;check;options;content")),
+                                new OptionData(STRING, "content", "what would you want?", true)
                                         .setDescriptionLocalizations(lang.get("register;check;options;content")))
                         .setDefaultPermissions(DefaultMemberPermissions.ENABLED),
         };
@@ -121,83 +147,127 @@ public class Main extends PluginEvent {
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         if (event.isFromGuild() && event.getGuild() != null && event.getMember() != null) {
             final DiscordLocale local = event.getUserLocale();
+
+            if (event.getGuild().getIdLong() != configFile.guildID) {
+                event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;errors;wrong_guild").get(local), 0xFF0000)).queue();
+                return;
+            }
+
             final MessageEmbed noPermissionEmbed = createEmbed(lang.get("runtime;errors;no_permission").get(local), 0xFF0000);
 
             switch (event.getName()) {
-//                case "refreshp": {
-//                    if (permissionCheck(event.getMember())) {
-//                        event.getHook().editOriginalEmbeds(noPermissionEmbed).queue();
-//                        return;
-//                    }
-//
-//                    loadSheet();
-//                    event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;refresh_success").get(local), 0x00FFFF)).queue();
-//                    break;
-//                }
-
-                case "point": {
-                    User user = getUser(event);
-                    loadSheet();
-                    event.getHook().editOriginalEmbeds(createEmbed(user.getAsTag(),
-                            String.valueOf(userData.get(user.getIdLong()) == null ? 0 : userData.get(user.getIdLong())), 0x00FFFF)).queue();
-                    break;
-                }
-
-                case "addpoint": {
+                case "announcement": {
                     if (permissionCheck(event.getMember())) {
                         event.getHook().editOriginalEmbeds(noPermissionEmbed).queue();
                         return;
                     }
-                    loadSheet();
-                    User user = getUser(event);
-                    int value = event.getOption(VALUE).getAsInt();
 
-                    value += userData.getOrDefault(user.getIdLong(), 0);
-                    userData.put(user.getIdLong(), value);
-                    update(user.getIdLong(), value);
-                    event.getHook().editOriginalEmbeds(createEmbed(user.getAsTag(),
-                            lang.get("runtime;current_point").get(local).replace("%point%", String.valueOf(value)), 0x00FFFF)).queue();
+                    Message message;
+
+                    long messageID;
+
+                    try {
+                        messageID = event.getOption("id").getAsLong();
+                    } catch (Exception e) {
+                        event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;errors;wrong_id_input").get(local), 0xFF0000)).queue();
+                        return;
+                    }
+
+                    try {
+                        message = event.getChannel().retrieveMessageById(messageID).complete();
+                    } catch (Exception e) {
+                        event.getHook().editOriginalEmbeds(createEmbed(
+                                lang.get("runtime;errors;check_message_get_failed").get(local).replace("%id%", String.valueOf(messageID)),
+                                0xFF0000)).queue();
+                        return;
+                    }
+
+                    loadAnnouncements();
+                    if (announcements.stream().anyMatch(i -> i.equals(new Pair<>(event.getChannel().getIdLong(), messageID)))) {
+                        event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;errors;already_announced").get(local), 0xFF0000)).queue();
+                        return;
+                    }
+                    addAnnouncement(event.getChannel().getIdLong(), messageID, message.getContentDisplay());
+                    event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;announce_success").get(local), 0x00FFFF)).queue();
                     break;
                 }
 
-                case "removepoint": {
-                    if (permissionCheck(event.getMember())) {
-                        event.getHook().editOriginalEmbeds(noPermissionEmbed).queue();
+                case "check": {
+                    loadAnnouncements();
+                    long messageID;
+                    try {
+                        messageID = event.getOption("id").getAsLong();
+                    } catch (Exception e) {
+                        event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;errors;wrong_id_input").get(local), 0xFF0000)).queue();
                         return;
                     }
-                    loadSheet();
-                    User user = getUser(event);
-                    int value = event.getOption(VALUE).getAsInt();
 
-                    value = userData.getOrDefault(user.getIdLong(), 0) - value;
-                    userData.put(user.getIdLong(), value);
-                    update(user.getIdLong(), value);
-
-                    event.getHook().editOriginalEmbeds(createEmbed(user.getAsTag(),
-                            lang.get("runtime;current_point").get(local).replace("%point%", String.valueOf(value)), 0x00FFFF)).queue();
-
-                    break;
-                }
-
-                case "setpoint": {
-                    if (permissionCheck(event.getMember())) {
-                        event.getHook().editOriginalEmbeds(noPermissionEmbed).queue();
+                    try {
+                        event.getChannel().retrieveMessageById(messageID).complete();
+                    } catch (Exception e) {
+                        event.getHook().editOriginalEmbeds(createEmbed(
+                                lang.get("runtime;errors;check_message_get_failed").get(local).replace("%id%", String.valueOf(messageID)),
+                                0xFF0000)).queue();
                         return;
                     }
-                    loadSheet();
-                    User user = getUser(event);
-                    int value = event.getOption(VALUE).getAsInt();
 
-                    userData.put(user.getIdLong(), value);
-                    update(user.getIdLong(), value);
+                    if (announcements.stream().noneMatch(i -> i.equals(new Pair<>(event.getChannel().getIdLong(), messageID)))) {
+                        event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;errors;not_announced_message").get(local), 0xFF0000)).queue();
+                        return;
+                    }
 
-                    event.getHook().editOriginalEmbeds(createEmbed(user.getAsTag(),
-                            lang.get("runtime;current_point").get(local).replace("%point%", String.valueOf(value)), 0x00FFFF)).queue();
+                    check(event.getUser().getIdLong(), event.getChannel().getIdLong(), messageID, event.getOption("content").getAsString());
+                    event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;checkin_success").get(local), 0x00FFFF)).queue();
                     break;
                 }
             }
         }
     }
+
+    private void addAnnouncement(long channelID, long messageID, String displayContent) {
+        announcements.add(new Pair<>(channelID, messageID));
+        List<List<Object>> tmp = new ArrayList<>();
+        tmp.add(Collections.singletonList(String.format("%s (%d;%d)", displayContent, channelID, messageID)));
+
+        try {
+            sheet.write(tmp,
+                    configFile.sheetLabel + "!" + sheet.toUpperAlpha(sheet.getData().get(0).size()) + "1:1",
+                    SheetRequest.ValueInputOption.RAW);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void check(long userID, long channelID, long messageID, String content) {
+        try {
+            List<List<Object>> tmp = new ArrayList<>();
+            Pair<Integer, Integer> userPos = sheet.where(configFile.sheetLabel + "!A2:A", String.valueOf(userID));
+
+            int annPos = announcements.indexOf(new Pair<>(channelID, messageID));
+            char annChr;
+            if (annPos == -1) {
+                logger.warn("cannot found announcement index in java data");
+                return;
+            } else {
+                annChr = sheet.toUpperAlpha(annPos + 1);
+            }
+
+            if (userPos == null) {
+                // create user label
+                tmp.add(Collections.singletonList(String.valueOf(userID)));
+                sheet.append_down(tmp, configFile.sheetLabel + "!A2", SheetRequest.ValueInputOption.RAW);
+                tmp.clear();
+                userPos = sheet.where(configFile.sheetLabel + "!A2:A", String.valueOf(userID));
+            }
+            tmp.add(Collections.singletonList(content +
+                    " (" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Calendar.getInstance().getTime()) + ")"));
+            sheet.write(tmp, configFile.sheetLabel + "!" + annChr + (userPos.getValue() + 2), SheetRequest.ValueInputOption.RAW);
+
+        } catch (IOException e) {
+            logger.warn(e.getMessage());
+        }
+    }
+
 
     private boolean permissionCheck(Member member) {
         if (adminID.contains(member.getIdLong()))
@@ -206,54 +276,13 @@ public class Main extends PluginEvent {
         List<Role> tmp = new ArrayList<>(member.getRoles());
         tmp.retainAll(adminRoles);
 
+        for (Role i : tmp) {
+            System.out.println(i.getName());
+        }
+
         if (tmp.size() > 0)
             return false;
 
         return true;
     }
-
-    private void loadSheet() {
-        try {
-            userData.clear();
-            sheet.refresh(configFile.sheetID, configFile.sheetLabel + "!A2:B");
-            List<List<Object>> data = sheet.getData();
-            for (List<Object> datum : data) {
-                userData.put(Long.parseLong((String) datum.get(0)), Integer.parseInt((String) datum.get(1)));
-            }
-
-        } catch (IOException e) {
-            logger.warn(e.getMessage());
-        }
-    }
-
-    private void update(final long userID, final int totalPoint) {
-        try {
-            Pair<Integer, Integer> pos = sheet.where(configFile.sheetLabel + "!A2:A", String.valueOf(userID));
-
-            List<List<Object>> tmp = new ArrayList<>();
-
-
-            if (pos != null) {
-                tmp.add(Collections.singletonList(totalPoint));
-                sheet.write(tmp, configFile.sheetLabel + "!B" + (pos.getValue() + 2) + ":B", SheetRequest.ValueInputOption.RAW);
-            } else {
-                tmp.add(Arrays.asList(String.valueOf(userID), totalPoint));
-                sheet.append_down(tmp, configFile.sheetLabel + "!A2:A2",
-                        SheetRequest.ValueInputOption.RAW
-                );
-            }
-        } catch (IOException e) {
-            logger.warn(e.getMessage());
-        }
-    }
-
-    private User getUser(SlashCommandInteractionEvent event) {
-        if (event.getOption(USER_TAG) != null)
-            if (adminID.contains(event.getUser().getIdLong()))
-                return event.getOption(USER_TAG).getAsUser();
-
-        return event.getUser();
-    }
-
-
 }

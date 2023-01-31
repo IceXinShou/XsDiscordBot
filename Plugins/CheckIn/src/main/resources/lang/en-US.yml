@@ -1,15 +1,27 @@
 register:
-  cmd: announcement
-  description: mark a message which will be checked in
+  announcement:
+    cmd: announcement
+    description: mark a message which will be checked in
 
-  options:
-    id: message id
+    options:
+      id: message id
+
+  check:
+    cmd: check
+    description: checkin for a announced message
+
+    options:
+      id: what message you would checkin?
+      content: what would you want?
 
 runtime:
-  success: Ban Successfully
+  announce_success: announcement added
+  checkin_success: checkin successfully
 
   errors:
-    no_user: Cannot find the member!
-    no_permission: I do not have ban permission.
-    permission_denied: My permission level is lower than member's.
-    unknown: Unknown ERROR!
+    wrong_guild: this command cannot use in this guild!
+    already_announced: this message has been announced already!
+    wrong_id_input: please enter correct message id instead
+    check_message_get_failed: "Cannot get message in current channel by id: %id%"
+    not_announced_message: You cannot check the message which is not announced
+    no_permission: You cannot do this

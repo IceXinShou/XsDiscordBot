@@ -35,4 +35,5 @@ runtime:
   refresh_success: "已重新讀取"
 
   errors:
+    wrong_guild: 無法在此伺服器內使用此指令
     no_permission: 你不能這樣做!

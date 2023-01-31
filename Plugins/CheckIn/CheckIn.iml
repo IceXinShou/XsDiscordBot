@@ -33,5 +33,6 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="module" module-name="XsDiscordBotLoader.main" />
   </component>
 </module>

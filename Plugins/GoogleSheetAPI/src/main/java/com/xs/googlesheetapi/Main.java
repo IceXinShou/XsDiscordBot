@@ -6,34 +6,28 @@ import com.xs.loader.util.FileGetter;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-
 public class Main extends PluginEvent {
-    private MainConfig configFile;
+    public static MainConfig configFile;
     private FileGetter getter;
     private Logger logger;
-    public static SheetRequest sheet;
     private static final String TAG = "GoogleSheetAPI";
     private final String PATH_FOLDER_NAME = "./plugins/GoogleSheetAPI";
 
     public Main() {
-        super(true);
+        super(false);
     }
 
     @Override
     public void initLoad() {
-        super.initLoad();
+
         logger = new Logger(TAG);
         getter = new FileGetter(logger, PATH_FOLDER_NAME, Main.class.getClassLoader());
         loadConfigFile();
-        loginService();
         logger.log("Loaded");
     }
 
     @Override
     public void unload() {
-        super.unload();
         logger.log("UnLoaded");
     }
 
@@ -44,16 +38,4 @@ public class Main extends PluginEvent {
         logger.log("Setting File Loaded Successfully");
     }
 
-    private void loginService() {
-        try {
-            sheet = new SheetRequest(logger, configFile);
-        } catch (IOException | GeneralSecurityException e) {
-            e.printStackTrace();
-
-        }
-    }
-
-    public static SheetRequest getSheet() {
-        return sheet;
-    }
 }

@@ -5,7 +5,7 @@ import com.xs.loader.PluginEvent;
 import com.xs.loader.lang.LangGetter;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
-import com.xs.loader.util.Pair;
+import javafx.util.Pair;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
@@ -22,9 +22,9 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.*;
 
-import static com.xs.googlesheetapi.Main.sheet;
 import static com.xs.loader.util.EmbedCreator.createEmbed;
 import static com.xs.loader.util.SlashCommandOption.USER_TAG;
 import static com.xs.loader.util.SlashCommandOption.VALUE;
@@ -41,7 +41,8 @@ public class Main extends PluginEvent {
     private final String PATH_FOLDER_NAME = "./plugins/MemberPoint";
     private final List<Long> adminID = new ArrayList<>();
     private final List<Role> adminRoles = new ArrayList<>();
-    private static Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
+    private Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
+    private SheetRequest sheet;
 
     public Main() {
         super(true);
@@ -49,9 +50,14 @@ public class Main extends PluginEvent {
 
     @Override
     public void initLoad() {
-        super.initLoad();
+
         logger = new Logger(TAG);
         getter = new FileGetter(logger, PATH_FOLDER_NAME, Main.class.getClassLoader());
+        try {
+            sheet = new SheetRequest(logger);
+        } catch (IOException | GeneralSecurityException e) {
+            e.printStackTrace();
+        }
         loadConfigFile();
         loadLang();
         loadSheet();
@@ -60,7 +66,6 @@ public class Main extends PluginEvent {
 
     @Override
     public void unload() {
-        super.unload();
         logger.log("UnLoaded");
     }
 
@@ -144,6 +149,12 @@ public class Main extends PluginEvent {
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         if (event.isFromGuild() && event.getGuild() != null && event.getMember() != null) {
             final DiscordLocale local = event.getUserLocale();
+
+            if (event.getGuild().getIdLong() != configFile.guildID) {
+                event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;errors;wrong_guild").get(local), 0xFF0000)).queue();
+                return;
+            }
+
             final MessageEmbed noPermissionEmbed = createEmbed(lang.get("runtime;errors;no_permission").get(local), 0xFF0000);
 
             switch (event.getName()) {
