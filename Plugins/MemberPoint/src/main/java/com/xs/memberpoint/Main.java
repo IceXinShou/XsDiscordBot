@@ -251,9 +251,10 @@ public class Main extends PluginEvent {
             userData.clear();
             sheet.refresh(configFile.sheetID, configFile.sheetLabel + "!A2:B");
             List<List<Object>> data = sheet.getData();
-            for (List<Object> datum : data) {
-                userData.put(Long.parseLong((String) datum.get(0)), Integer.parseInt((String) datum.get(1)));
-            }
+            if (data != null)
+                for (List<Object> datum : data) {
+                    userData.put(Long.parseLong((String) datum.get(0)), Integer.parseInt((String) datum.get(1)));
+                }
 
         } catch (IOException e) {
             logger.warn(e.getMessage());

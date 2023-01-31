@@ -24,6 +24,8 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -40,7 +42,6 @@ public class MainLoader {
     private final String version = "v1.5";
     private String BOT_TOKEN;
     private MainConfig configFile;
-    private FileGetter getter;
     private final List<String> botStatus = new ArrayList<>();
     private final Map<String, PluginInfo> plugins = new HashMap<>();
     private final LinkedHashMap<String, PluginEvent> plugin_queue = new LinkedHashMap<>();
@@ -53,8 +54,6 @@ public class MainLoader {
         if (versionCheck()) {
             return;
         }
-
-        getter = new FileGetter(logger, "", MainLoader.class.getClassLoader());
 
         defaultFileInit();
         loadConfigFile();
@@ -265,9 +264,11 @@ public class MainLoader {
 
     private void loadConfigFile() {
         configFile = new Yaml(new Constructor(MainConfig.class))
-                .load(readOrDefaultYml("config_0A2F7C.yml", "config.yml", this.getClass()));
+                .load(readOrDefaultYml("config_0A2F7C.yml", "config.yml", this.getClass().getClassLoader()));
         logger.log("Setting file loaded");
     }
+
+
 
     private void loadVariables() {
         MainConfig.GeneralSettings general = configFile.GeneralSettings;
@@ -418,11 +419,11 @@ public class MainLoader {
         }
     }
 
-    public InputStream readOrDefaultYml(String name, String outName, Class<?> fromClass) {
+    public InputStream readOrDefaultYml(String name, String outName, java.lang.ClassLoader loader) {
         File settingFile = new File(System.getProperty("user.dir") + '/' + outName);
         if (!settingFile.exists()) {
             logger.warn(outName + " not found, create default " + outName);
-            settingFile = getter.exportResource(name, outName, "", fromClass);
+            settingFile = exportResource(name, outName, "", loader);
             if (settingFile == null) {
                 logger.warn("read " + name + " failed");
                 return null;
@@ -435,6 +436,24 @@ public class MainLoader {
             logger.warn(e.getMessage());
             return null;
         }
+    }
+
+    public File exportResource(String sourceFile, String outputName, String outputPath, java.lang.ClassLoader loader) {
+        InputStream fileInJar = loader.getResourceAsStream(sourceFile);
+
+        try {
+            if (fileInJar == null) {
+                logger.warn("can not find resource: " + sourceFile);
+                return null;
+            }
+            Files.copy(fileInJar, Paths.get(MainLoader.ROOT_PATH + "/" + outputPath + "/" + outputName), StandardCopyOption.REPLACE_EXISTING);
+            fileInJar.close();
+            return new File(MainLoader.ROOT_PATH + "/" + outputPath + "/" + outputName);
+        } catch (IOException e) {
+            logger.warn("read resource failed");
+            logger.warn(e.getMessage());
+        }
+        return null;
     }
 
 //    public Map<String, Object> readOrDefaultYml(String name, String outName) {

@@ -68,6 +68,10 @@ public class SheetRequest {
     public Pair<Integer, Integer> where(String range, String key) throws IOException {
         refresh(range);
 
+        if (data == null) {
+            return null;
+        }
+
         for (int i = 0; i < data.size(); i++) {
             List<Object> tmp = data.get(i);
             for (int j = 0; j < tmp.size(); j++) {

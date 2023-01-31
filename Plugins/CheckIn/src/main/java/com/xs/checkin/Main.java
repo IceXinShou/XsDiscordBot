@@ -87,6 +87,9 @@ public class Main extends PluginEvent {
             announcements.clear();
             sheet.refresh(configFile.sheetID, configFile.sheetLabel);
 
+            if (sheet.getData() == null)
+                return;
+
             List<Object> tmp = sheet.getData().get(0);
             int tmpSize = tmp.size();
 
