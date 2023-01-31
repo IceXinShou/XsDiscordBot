@@ -1,7 +1,5 @@
 package com.xs.chatlogger;
 
-import com.sun.jmx.remote.util.ClassLogger;
-import com.xs.loader.ClassLoader;
 import com.xs.loader.PluginEvent;
 import com.xs.loader.lang.LangGetter;
 import com.xs.loader.logger.Logger;

@@ -26,3 +26,4 @@
 
 client_id: xxxxxx.xxxx.com
 client_secret: xxx-xxx-xxx
+port: 8888 # default

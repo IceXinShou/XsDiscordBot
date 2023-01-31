@@ -1,5 +1,6 @@
-package com.xs.memberpoint;
+package com.xs.checkin;
 
+import com.google.api.services.sheets.v4.model.UpdateValuesResponse;
 import com.xs.googlesheetapi.SheetRequest;
 import com.xs.loader.PluginEvent;
 import com.xs.loader.lang.LangGetter;
@@ -14,6 +15,7 @@ import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -28,8 +30,7 @@ import static com.xs.googlesheetapi.Main.sheet;
 import static com.xs.loader.util.EmbedCreator.createEmbed;
 import static com.xs.loader.util.SlashCommandOption.USER_TAG;
 import static com.xs.loader.util.SlashCommandOption.VALUE;
-import static net.dv8tion.jda.api.interactions.commands.OptionType.INTEGER;
-import static net.dv8tion.jda.api.interactions.commands.OptionType.USER;
+import static net.dv8tion.jda.api.interactions.commands.OptionType.*;
 
 public class Main extends PluginEvent {
     private MainConfig configFile;
@@ -76,44 +77,20 @@ public class Main extends PluginEvent {
     @Override
     public CommandData[] guildCommands() {
         return new SlashCommandData[]{
-//                Commands.slash("refreshp", "refresh point data")
-//                        .setNameLocalizations(lang.get("register;refresh;cmd"))
-//                        .setDescriptionLocalizations(lang.get("register;refresh;description")),
-
-                Commands.slash("point", "get current point from user")
-                        .setNameLocalizations(lang.get("register;get_point;cmd"))
-                        .setDescriptionLocalizations(lang.get("register;get_point;description"))
+                Commands.slash("announcement", "mark a message which will be checked in")
+                        .setNameLocalizations(lang.get("register;announcement;cmd"))
+                        .setDescriptionLocalizations(lang.get("register;announcement;description"))
                         .addOptions(
-                                new OptionData(USER, USER_TAG, "user")
-                                        .setDescriptionLocalizations(lang.get("register;get_point;options;user")))
+                                new OptionData(INTEGER, "id", "message id", true)
+                                        .setDescriptionLocalizations(lang.get("register;announcement;options;id"))),
+
+                Commands.slash("check", "checkin for a announced message")
+                        .setNameLocalizations(lang.get("register;check;cmd"))
+                        .setDescriptionLocalizations(lang.get("register;check;description"))
+                        .addOptions(
+                                new OptionData(STRING, "content", "what would you want?")
+                                        .setDescriptionLocalizations(lang.get("register;check;options;content")))
                         .setDefaultPermissions(DefaultMemberPermissions.ENABLED),
-
-                Commands.slash("add_point", "add point to user")
-                        .setNameLocalizations(lang.get("register;add_point;cmd"))
-                        .setDescriptionLocalizations(lang.get("register;add_point;description"))
-                        .addOptions(
-                        new OptionData(INTEGER, VALUE, "value", true)
-                                .setDescriptionLocalizations(lang.get("register;add_point;options;value")),
-                        new OptionData(USER, USER_TAG, "user")
-                                .setDescriptionLocalizations(lang.get("register;add_point;options;user"))),
-
-                Commands.slash("remove_point", "remove point from user")
-                        .setNameLocalizations(lang.get("register;remove_point;cmd"))
-                        .setDescriptionLocalizations(lang.get("register;remove_point;description"))
-                        .addOptions(
-                        new OptionData(INTEGER, VALUE, "value", true)
-                                .setDescriptionLocalizations(lang.get("register;remove_point;options;value")),
-                        new OptionData(USER, USER_TAG, "user")
-                                .setDescriptionLocalizations(lang.get("register;remove_point;options;user"))),
-
-                Commands.slash("set_point", "set point to user")
-                        .setNameLocalizations(lang.get("register;set_point;cmd"))
-                        .setDescriptionLocalizations(lang.get("register;set_point;description"))
-                        .addOptions(
-                        new OptionData(INTEGER, VALUE, "value", true)
-                                .setDescriptionLocalizations(lang.get("register;set_point;options;value")),
-                        new OptionData(USER, USER_TAG, "user")
-                                .setDescriptionLocalizations(lang.get("register;set_point;options;user"))),
         };
     }
 
@@ -166,7 +143,7 @@ public class Main extends PluginEvent {
                     break;
                 }
 
-                case "add_point": {
+                case "addpoint": {
                     if (permissionCheck(event.getMember())) {
                         event.getHook().editOriginalEmbeds(noPermissionEmbed).queue();
                         return;
@@ -183,7 +160,7 @@ public class Main extends PluginEvent {
                     break;
                 }
 
-                case "remove_point": {
+                case "removepoint": {
                     if (permissionCheck(event.getMember())) {
                         event.getHook().editOriginalEmbeds(noPermissionEmbed).queue();
                         return;
@@ -202,7 +179,7 @@ public class Main extends PluginEvent {
                     break;
                 }
 
-                case "set_point": {
+                case "setpoint": {
                     if (permissionCheck(event.getMember())) {
                         event.getHook().editOriginalEmbeds(noPermissionEmbed).queue();
                         return;

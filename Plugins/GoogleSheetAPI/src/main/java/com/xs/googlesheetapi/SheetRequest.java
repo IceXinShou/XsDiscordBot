@@ -12,7 +12,6 @@ import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.AppendValuesResponse;
-import com.google.api.services.sheets.v4.model.NumberFormat;
 import com.google.api.services.sheets.v4.model.UpdateValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import com.xs.loader.logger.Logger;
@@ -134,14 +133,14 @@ public class SheetRequest {
 
 
     private Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
-        String PATH_FOLDER_NAME = "./plugins/GoogleSheetAPI/";
         GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
                 HTTP_TRANSPORT, JSON_FACTORY, config.client_id, config.client_secret, SCOPES)
-                .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(PATH_FOLDER_NAME + "tokens")))
+                .setDataStoreFactory(new FileDataStoreFactory(new java.io.File("./plugins/GoogleSheetAPI/tokens")))
                 .setAccessType("offline")
                 .build();
 
-        return new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
+        LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(config.port).build();
+        return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
     }
 
     public char toUpperAlpha(final int digit) {

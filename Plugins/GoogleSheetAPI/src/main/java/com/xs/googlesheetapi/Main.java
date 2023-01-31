@@ -48,7 +48,8 @@ public class Main extends PluginEvent {
         try {
             sheet = new SheetRequest(logger, configFile);
         } catch (IOException | GeneralSecurityException e) {
-            logger.warn(e.getMessage());
+            e.printStackTrace();
+
         }
     }
 

@@ -1,6 +1,6 @@
 register:
   refresh:
-    cmd: refreshp
+    cmd: refresh_point
     description: refresh point data
 
   get_point:
@@ -11,21 +11,21 @@ register:
 
 
   add_point:
-    cmd: addpoint
+    cmd: add_point
     description: add point to user
     options:
       user: user
       value: value
 
   remove_point:
-    cmd: removepoint
+    cmd: remove_point
     description: remove point from user
     options:
       user: user
       value: value
 
   set_point:
-    cmd: setpoint
+    cmd: set_point
     description: set point to user
     options:
       user: user

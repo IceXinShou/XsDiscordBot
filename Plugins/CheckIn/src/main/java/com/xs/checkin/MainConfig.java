@@ -1,4 +1,4 @@
-package com.xs.memberpoint;
+package com.xs.checkin;
 
 public class MainConfig {
     public long guildID;

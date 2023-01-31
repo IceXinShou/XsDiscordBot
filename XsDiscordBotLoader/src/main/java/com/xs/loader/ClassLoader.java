@@ -2,7 +2,6 @@ package com.xs.loader;
 
 
 import java.io.File;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -56,7 +55,7 @@ public class ClassLoader extends URLClassLoader {
             for (Map.Entry<String, URL> i : resourcePath.entrySet()) {
                 if (name.startsWith(i.getKey())) {
                     try {
-                        return new URL( "jar:" + i.getValue() + "!/" + name.substring(i.getKey().length() + 1));
+                        return new URL("jar:" + i.getValue() + "!/" + name.substring(i.getKey().length() + 1));
                     } catch (MalformedURLException e) {
                         e.printStackTrace();
                         return null;

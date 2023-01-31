@@ -1,0 +1,15 @@
+register:
+  cmd: announcement
+  description: mark a message which will be checked in
+
+  options:
+    id: message id
+
+runtime:
+  success: Ban Successfully
+
+  errors:
+    no_user: Cannot find the member!
+    no_permission: I do not have ban permission.
+    permission_denied: My permission level is lower than member's.
+    unknown: Unknown ERROR!

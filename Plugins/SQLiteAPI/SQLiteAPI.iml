@@ -8,7 +8,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="XsDiscordBotLoader.main" />
     <orderEntry type="library" name="Gradle: net.dv8tion:JDA:5.0.0-beta.3" level="project" />
+    <orderEntry type="module" module-name="com.xs.loader.XsDiscordBotLoader.main" />
   </component>
 </module>
