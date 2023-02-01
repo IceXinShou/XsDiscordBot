@@ -218,6 +218,7 @@ public class Main extends PluginEvent {
                         event.getHook().editOriginalEmbeds(noPermissionEmbed).queue();
                         return;
                     }
+
                     loadSheet();
                     User user = getUser(event);
                     int value = event.getOption(VALUE).getAsInt();
@@ -289,6 +290,4 @@ public class Main extends PluginEvent {
 
         return event.getUser();
     }
-
-
 }

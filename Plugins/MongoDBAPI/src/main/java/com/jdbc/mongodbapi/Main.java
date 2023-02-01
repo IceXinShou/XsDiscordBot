@@ -1,11 +1,11 @@
-package com.jdbc.sqliteapi;
+package com.jdbc.mongodbapi;
 
 import com.xs.loader.PluginEvent;
 import com.xs.loader.logger.Logger;
 
 public class Main extends PluginEvent {
     Logger logger;
-    private static final String TAG = "SQLiteAPI";
+    private static final String TAG = "MongoDBAPI";
 
     public Main() {
         super(false);

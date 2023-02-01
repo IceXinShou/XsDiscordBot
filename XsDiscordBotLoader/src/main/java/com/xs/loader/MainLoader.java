@@ -2,7 +2,6 @@ package com.xs.loader;
 
 import com.xs.loader.logger.Color;
 import com.xs.loader.logger.Logger;
-import com.xs.loader.util.FileGetter;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -267,7 +266,6 @@ public class MainLoader {
                 .load(readOrDefaultYml("config_0A2F7C.yml", "config.yml", this.getClass().getClassLoader()));
         logger.log("Setting file loaded");
     }
-
 
 
     private void loadVariables() {

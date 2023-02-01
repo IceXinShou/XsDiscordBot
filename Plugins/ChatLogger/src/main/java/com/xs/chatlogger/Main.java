@@ -39,7 +39,6 @@ public class Main extends PluginEvent {
 
     @Override
     public void initLoad() {
-
         logger = new Logger(TAG);
         getter = new FileGetter(logger, PATH_FOLDER_NAME, Main.class.getClassLoader());
         loadLang();
