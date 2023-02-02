@@ -4,7 +4,9 @@ import com.xs.loader.PluginEvent;
 import com.xs.loader.lang.LangGetter;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -43,7 +45,7 @@ public class Main extends PluginEvent {
         try {
             Class.forName("org.sqlite.JDBC");
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            sqlErrorPrinter(e);
         }
         getter = new FileGetter(logger, PATH_FOLDER_NAME, Main.class.getClassLoader());
         loadLang();
@@ -61,7 +63,7 @@ public class Main extends PluginEvent {
                         "jdbc:sqlite:" + ROOT_PATH + "/" + PATH_FOLDER_NAME + "/data/" + i.getName()
                 ));
             } catch (SQLException e) {
-                logger.warn(e.getMessage());
+                sqlErrorPrinter(e);
             }
         }
     }
@@ -73,7 +75,7 @@ public class Main extends PluginEvent {
             try {
                 j.close();
             } catch (SQLException e) {
-                logger.warn(e.getMessage());
+                sqlErrorPrinter(e);
             }
         });
 
@@ -164,12 +166,7 @@ public class Main extends PluginEvent {
 
             stmt.close();
         } catch (SQLException e) {
-            logger.warn(e.getClass().getName() + ": " + e.getMessage() + '\n' +
-                    "\tat " + Arrays.stream(e.getStackTrace())
-                    .filter(i -> !i.getClassName().startsWith("org.sqlite"))
-                    .map(StackTraceElement::toString)
-                    .collect(Collectors.joining("\n\tat "))
-            );
+            sqlErrorPrinter(e);
         }
 
 
@@ -183,7 +180,23 @@ public class Main extends PluginEvent {
         long channelID = event.getChannel().getIdLong();
         long userID = event.getAuthor().getIdLong();
         long messageID = event.getMessageIdLong();
-        String message = event.getMessage().getContentRaw();
+        String message;
+
+        if (event.getMessage().getEmbeds().size() == 0) {
+            // if it's default
+            message = event.getMessage().getContentRaw();
+        } else {
+            // if message is a embed
+            StringBuilder builder = new StringBuilder("Deleted message: \n");
+            for (MessageEmbed embed : event.getMessage().getEmbeds()) {
+                builder.append(embed.getAuthor().getName()).append('\n')
+                        .append(embed.getTitle()).append(';').append(embed.getDescription());
+                for (MessageEmbed.Field field : embed.getFields()) {
+                    builder.append('\n').append(field.getName()).append(';').append(field.getValue());
+                }
+            }
+            message = builder.toString();
+        }
 
         try {
             Connection conn = dbConns.getOrDefault(guildID, DriverManager.getConnection(
@@ -212,12 +225,25 @@ public class Main extends PluginEvent {
 
             stmt.close();
         } catch (SQLException e) {
-            logger.warn(e.getClass().getName() + ": " + e.getMessage() + '\n' +
-                    "\tat " + Arrays.stream(e.getStackTrace())
-                    .filter(i -> !i.getClassName().startsWith("org.sqlite"))
-                    .map(StackTraceElement::toString)
-                    .collect(Collectors.joining("\n\tat "))
-            );
+            sqlErrorPrinter(e);
         }
+    }
+
+    @Override
+    public void onGuildLeave(GuildLeaveEvent event) {
+        long guildID = event.getGuild().getIdLong();
+
+        File file = new File(ROOT_PATH + "/" + PATH_FOLDER_NAME + "/data/" + guildID + ".db");
+        if (file.exists())
+            file.delete();
+    }
+
+    private void sqlErrorPrinter(Exception e) {
+        logger.warn(e.getClass().getName() + ": " + e.getMessage() + '\n' +
+                "\tat " + Arrays.stream(e.getStackTrace())
+                .filter(i -> !i.getClassName().startsWith("org.sqlite"))
+                .map(StackTraceElement::toString)
+                .collect(Collectors.joining("\n\tat "))
+        );
     }
 }
