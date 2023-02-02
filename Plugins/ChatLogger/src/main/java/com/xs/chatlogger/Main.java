@@ -40,6 +40,11 @@ public class Main extends PluginEvent {
     @Override
     public void initLoad() {
         logger = new Logger(TAG);
+        try {
+            Class.forName("org.sqlite.JDBC");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
         getter = new FileGetter(logger, PATH_FOLDER_NAME, Main.class.getClassLoader());
         loadLang();
         initData();
@@ -120,7 +125,6 @@ public class Main extends PluginEvent {
         long messageID = event.getMessageIdLong();
         long channelID = event.getChannel().getIdLong();
 
-
         try {
             Connection conn = dbConns.getOrDefault(guildID, DriverManager.getConnection(
                     "jdbc:sqlite:" + ROOT_PATH + "/" + PATH_FOLDER_NAME + "/data/" + guildID + ".db"
@@ -128,12 +132,23 @@ public class Main extends PluginEvent {
 
             Statement stmt = conn.createStatement();
 
-            String getMessageSql = String.format("SELECT message_id, user_id, message FROM \"%d\" WHERE message_id = ?", channelID);
-            PreparedStatement getMessage = conn.prepareStatement(getMessageSql);
-            getMessage.setLong(1, messageID);
-            ResultSet rs = getMessage.executeQuery();
+            ResultSet rs;
+            try {
+                rs = stmt.executeQuery(
+                        String.format("SELECT message_id, user_id, message FROM \"%d\" WHERE message_id = \"%d\"", channelID, messageID)
+                );
+            } catch (Exception e) {
+                logger.warn("the table which is named as channel_id is not exist");
+                return;
+            }
+
+            if (rs.getLong("user_id") == 0) {
+                logger.warn("cannot get message history from table");
+                return;
+            }
 
             User messageSender = jdaBot.retrieveUserById(rs.getLong("user_id")).complete();
+
             String message = rs.getString("message");
 
             logger.log(String.format(
@@ -176,20 +191,18 @@ public class Main extends PluginEvent {
             ));
 
             Statement stmt = conn.createStatement();
-            String create = "";
             if (!stmt.executeQuery(String.format("SELECT name FROM sqlite_master WHERE type='table' AND name='%d';", channelID)).next()) {
                 // create a table
-                create = String.format("" +
+                stmt.executeUpdate(String.format("" +
                                 "CREATE TABLE \"%d\" (" +
                                 "message_id INT PRIMARY KEY  NOT NULL   ON CONFLICT FAIL, " +
                                 "user_id                INT  NOT NULL, " +
                                 "message               TEXT  NOT NULL  " +
                                 ")",
                         channelID
-                );
+                ));
             }
 
-            if (!create.equals("")) stmt.executeUpdate(create);
             String insert = String.format("INSERT INTO \"%d\" VALUES (?, ?, ?)", channelID);
             PreparedStatement createMessage = conn.prepareStatement(insert);
             createMessage.setLong(1, messageID);

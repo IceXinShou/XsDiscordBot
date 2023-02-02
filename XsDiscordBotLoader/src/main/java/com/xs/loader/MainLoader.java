@@ -197,7 +197,9 @@ public class MainLoader {
                 if (file == null) continue;
                 if ((tmp = getExtensionName(file.getName())) == null || !tmp.equals("jar")) continue;
                 JarFile jarFile = new JarFile(file);
-                PluginConfig config = configYmlLoader.load(jarFile.getInputStream(jarFile.getEntry("info.yml")));
+                InputStream inputStream = jarFile.getInputStream(jarFile.getEntry("info.yml"));
+                PluginConfig config = configYmlLoader.load(inputStream);
+
 
                 if (!plugins.containsKey(config.name)) {
                     loader.addJar(file, config.main);
@@ -218,7 +220,7 @@ public class MainLoader {
                     ++fail;
                     continue;
                 }
-
+                inputStream.close();
                 jarFile.close();
                 ++count;
             } catch (Exception e) {
@@ -262,8 +264,13 @@ public class MainLoader {
     }
 
     private void loadConfigFile() {
-        configFile = new Yaml(new Constructor(MainConfig.class))
-                .load(readOrDefaultYml("config_0A2F7C.yml", "config.yml", this.getClass().getClassLoader()));
+        InputStream inputStream = readOrDefaultYml("config_0A2F7C.yml", "config.yml", this.getClass().getClassLoader());
+        configFile = new Yaml(new Constructor(MainConfig.class)).load(inputStream);
+        try {
+            inputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         logger.log("Setting file loaded");
     }
 

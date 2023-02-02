@@ -6,6 +6,9 @@ import com.xs.loader.util.FileGetter;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 public class Main extends PluginEvent {
     public static MainConfig configFile;
     private FileGetter getter;
@@ -33,8 +36,16 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadConfigFile() {
-        configFile = new Yaml(new Constructor(MainConfig.class))
-                .load(getter.readYmlInputStream("config.yml", this.getClass(), PATH_FOLDER_NAME));
+
+        InputStream inputStream = getter.readYmlInputStream("config.yml", this.getClass(), PATH_FOLDER_NAME);
+
+        configFile = new Yaml(new Constructor(MainConfig.class)).load(inputStream);
+        
+        try {
+            inputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         logger.log("Setting File Loaded Successfully");
     }
 
