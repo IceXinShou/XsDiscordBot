@@ -53,7 +53,7 @@ public class ClassLoader extends URLClassLoader {
             int index = name.lastIndexOf('/');
             if (index == -1) return null;
             for (Map.Entry<String, URL> i : resourcePath.entrySet()) {
-                if (name.startsWith(i.getKey())) {
+                if (name.startsWith(i.getKey() + '/')) {
                     try {
                         return new URL("jar:" + i.getValue() + "!/" + name.substring(i.getKey().length() + 1));
                     } catch (MalformedURLException e) {
