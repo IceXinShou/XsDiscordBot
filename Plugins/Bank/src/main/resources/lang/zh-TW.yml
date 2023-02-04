@@ -1,0 +1,40 @@
+register:
+  add_money:
+    cmd: 增加存款
+    description: 為使用者增加存款
+    options:
+      user: 使用者
+      value: 金額
+
+  remove_money:
+    cmd: 移除存款
+    description: 為使用者減少存款
+    options:
+      user: 使用者
+      value: 金額
+
+  transfer_money:
+    cmd: 轉帳金錢
+    description: 將金錢轉帳給另一位使用者
+    options:
+      user: 使用者
+      value: 金額
+
+  check_balance:
+    cmd: 查看餘額
+    description: 取得使用者餘額
+    options:
+      user: 使用者 # 只有管理員才可以使用此參數
+
+runtime:
+  add_success: "已將 %user% 的 %type% 從 %before_value% 增加至 %after_value%"
+  remove_success: "已將 %user% 的 %type% 從 %before_value% 減少至 %after_value%"
+  transfer_success: "已將 %value% %type% 轉給 %user%"
+  check_balance_title: "%user% 的銀行戶口余額為"
+  check_balance_description: "%value% %type%\n"
+  transferring: "沉默銀行進行轉帳中......請稍等"
+  transfer_done: "沉默銀行已幫您轉賬成功"
+
+  errors:
+    transfer_self: 你不能轉帳給自己
+    no_such_money: 餘額不足

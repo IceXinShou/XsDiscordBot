@@ -24,7 +24,7 @@ public class Main extends PluginEvent {
     public void initLoad() {
 
         logger = new Logger(TAG);
-        getter = new FileGetter(logger, PATH_FOLDER_NAME, Main.class.getClassLoader());
+        getter = new FileGetter(logger, PATH_FOLDER_NAME, Main.class);
         loadConfigFile();
         logger.log("Loaded");
     }
@@ -37,7 +37,7 @@ public class Main extends PluginEvent {
     @Override
     public void loadConfigFile() {
 
-        InputStream inputStream = getter.readYmlInputStream("config.yml", this.getClass(), PATH_FOLDER_NAME);
+        InputStream inputStream = getter.readYmlInputStream("config.yml", PATH_FOLDER_NAME);
 
         configFile = new Yaml(new Constructor(MainConfig.class)).load(inputStream);
         

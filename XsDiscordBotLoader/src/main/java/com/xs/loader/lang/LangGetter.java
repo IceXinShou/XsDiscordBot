@@ -37,7 +37,7 @@ public class LangGetter {
             if (lang_file.exists()) continue;
 
             // export is not exist
-            getter.exportResource("lang/" + fileName, fileName, "Lang", FROM_CLASS);
+            getter.exportResource("lang/" + fileName, fileName, "Lang");
         }
     }
 

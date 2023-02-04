@@ -52,7 +52,7 @@ public class Main extends PluginEvent {
     public void initLoad() {
 
         logger = new Logger(TAG);
-        getter = new FileGetter(logger, PATH_FOLDER_NAME, Main.class.getClassLoader());
+        getter = new FileGetter(logger, PATH_FOLDER_NAME, Main.class);
         loadConfigFile();
         loadLang();
         logger.log("Loaded");
@@ -107,7 +107,7 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadConfigFile() {
-        config = new JSONObject(getter.readYml("config.yml", this.getClass(), PATH_FOLDER_NAME));
+        config = new JSONObject(getter.readYml("config.yml", PATH_FOLDER_NAME));
         logger.log("Setting File Loaded Successfully");
 
         if (config.has("Emojis") && !config.getJSONObject("Emojis").isEmpty()) {

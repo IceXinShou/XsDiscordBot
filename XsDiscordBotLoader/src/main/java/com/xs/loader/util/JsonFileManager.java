@@ -6,6 +6,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
 public class JsonFileManager {
@@ -13,7 +14,7 @@ public class JsonFileManager {
     private JSONObject data_obj;
     private JSONArray data_ary;
     private final Logger logger;
-    private boolean isObject;
+    private final boolean isObject;
 
     public JsonFileManager(String FILE_PATH, String TAG, boolean isObject) {
         this.FILE = new File(MainLoader.ROOT_PATH + '/' + FILE_PATH);
@@ -28,7 +29,7 @@ public class JsonFileManager {
         for (int length; (length = inputStream.read(buffer)) != -1; ) {
             result.write(buffer, 0, length);
         }
-        return result.toString("UTF-8");
+        return result.toString();
     }
 
     private void initData() {
@@ -39,17 +40,19 @@ public class JsonFileManager {
                 FileWriter writer = new FileWriter(FILE);
                 if (isObject) {
                     writer.write("{}");
-                    tmp = "{}";
+                    data_obj = new JSONObject("{}");
                 } else {
                     writer.write("[]");
-                    tmp = "[]";
+                    data_ary = new JSONArray("[]");
                 }
                 writer.flush();
                 writer.close();
+                return;
             }
-            if (isObject)
-                data_obj = new JSONObject(streamToString(Files.newInputStream(FILE.toPath())));
-            else
+
+            if (isObject) {
+                data_obj = new JSONObject(tmp);
+            } else
                 data_ary = new JSONArray(tmp);
         } catch (IOException e) {
             logger.warn(e.getMessage());
@@ -101,7 +104,7 @@ public class JsonFileManager {
             if (isObject)
                 writer.write(data_obj.toString());
             else
-                writer.write(data_ary.toString());
+                writer.write(data_obj.toString());
             writer.flush();
             writer.close();
         } catch (IOException e) {

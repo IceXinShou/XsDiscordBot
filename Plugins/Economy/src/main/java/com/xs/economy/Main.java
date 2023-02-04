@@ -32,6 +32,7 @@ import static com.xs.loader.MainLoader.jdaBot;
 import static com.xs.loader.util.EmbedCreator.createEmbed;
 import static com.xs.loader.util.SlashCommandOption.USER_TAG;
 import static com.xs.loader.util.SlashCommandOption.VALUE;
+import static com.xs.loader.util.UserUtil.getUserById;
 import static net.dv8tion.jda.api.Permission.ADMINISTRATOR;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.INTEGER;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.USER;
@@ -60,7 +61,7 @@ public class Main extends PluginEvent {
     public void initLoad() {
 
         logger = new Logger(TAG);
-        getter = new FileGetter(logger, PATH_FOLDER_NAME, Main.class.getClassLoader());
+        getter = new FileGetter(logger, PATH_FOLDER_NAME, Main.class);
         loadConfigFile();
         loadLang();
         logger.log("Loaded");
@@ -174,7 +175,7 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadConfigFile() {
-        config = new JSONObject(getter.readYml("config.yml", this.getClass(), PATH_FOLDER_NAME));
+        config = new JSONObject(getter.readYml("config.yml", PATH_FOLDER_NAME));
 
         JSONArray array = config.getJSONArray("OwnerID");
         for (int i = 0; i < array.length(); ++i) {
@@ -198,7 +199,7 @@ public class Main extends PluginEvent {
             JSONObject object = manager.getOrDefault(i);
             userData.put(Long.parseLong(i), new UserData(Long.parseLong(i), object.getInt("money"), object.getInt("total")));
             try {
-                user = jdaBot.retrieveUserById(Long.parseLong(i)).complete();
+                user = getUserById(Long.parseLong(i));
                 nameCache.put(Long.parseLong(i), user.getAsTag());
             } catch (ErrorResponseException e) {
                 nameCache.put(Long.parseLong(i), "unknown (" + i + ')');

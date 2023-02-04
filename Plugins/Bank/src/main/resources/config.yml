@@ -1,0 +1,6 @@
+guildID: 1071318448203898961
+transferMaxDelay: 10 # 0 ~ 10 (seconds)
+moneyType:
+  - 馬幣;1
+  - 台幣;6
+  - 人民幣;2

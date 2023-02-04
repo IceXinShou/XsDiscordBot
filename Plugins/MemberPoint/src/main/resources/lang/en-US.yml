@@ -9,7 +9,6 @@ register:
     options:
       user: user
 
-
   add_point:
     cmd: add_point
     description: add point to user

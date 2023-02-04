@@ -41,7 +41,7 @@ public class Main extends PluginEvent {
     public void initLoad() {
 
         logger = new Logger(TAG);
-        getter = new FileGetter(logger, PATH_FOLDER_NAME, Main.class.getClassLoader());
+        getter = new FileGetter(logger, PATH_FOLDER_NAME, Main.class);
         loadLang();
         logger.log("Loaded");
     }

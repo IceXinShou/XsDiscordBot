@@ -31,7 +31,7 @@ public class Main extends PluginEvent {
     public void initLoad() {
 
         logger = new Logger(TAG);
-        getter = new FileGetter(logger, PATH_FOLDER_NAME, Main.class.getClassLoader());
+        getter = new FileGetter(logger, PATH_FOLDER_NAME, Main.class);
         loadConfigFile();
         logger.log("Loaded");
     }
@@ -43,7 +43,7 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadConfigFile() {
-        config = new JSONObject(getter.readYml("config.yml", this.getClass(), PATH_FOLDER_NAME));
+        config = new JSONObject(getter.readYml("config.yml", PATH_FOLDER_NAME));
 
         if (config.has("GuildID") && !config.getJSONArray("GuildID").isEmpty()) {
             ids = config.getJSONArray("GuildID");

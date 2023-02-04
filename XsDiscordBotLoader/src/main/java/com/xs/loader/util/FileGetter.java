@@ -15,13 +15,13 @@ import java.util.Map;
 
 public class FileGetter {
     private final String FOLDER_PATH;
-    private final ClassLoader LOADER;
+    private final Class<?> CLASS;
     private final Logger logger;
 
-    public FileGetter(final Logger logger, final String PATH_FOLDER_NAME, final ClassLoader LOADER) {
+    public FileGetter(final Logger logger, final String PATH_FOLDER_NAME, final Class<?> CLASS) {
         this.logger = logger;
         this.FOLDER_PATH = MainLoader.ROOT_PATH + "/" + PATH_FOLDER_NAME;
-        this.LOADER = LOADER;
+        this.CLASS = CLASS;
     }
 
     public Map<String, Object> readFileMap(Path f) {
@@ -33,12 +33,12 @@ public class FileGetter {
         return null;
     }
 
-    public Map<String, Object> readYml(String fileName, Class<?> fromClass, String path) {
+    public Map<String, Object> readYml(String fileName, String path) {
         new File(MainLoader.ROOT_PATH + "/" + path).mkdirs();
         File settingFile = new File(MainLoader.ROOT_PATH + "/" + path + "/" + fileName);
         if (!settingFile.exists()) {
             logger.warn(fileName + " not found, create default " + fileName);
-            settingFile = exportResource(fileName, path, fromClass);
+            settingFile = exportResource(fileName, path);
             if (settingFile == null) {
                 logger.warn("read " + fileName + " failed");
                 return null;
@@ -49,12 +49,12 @@ public class FileGetter {
         return readFileMap(settingFile.toPath());
     }
 
-    public InputStream readYmlInputStream(String fileName, Class<?> fromClass, String path) {
+    public InputStream readYmlInputStream(String fileName, String path) {
         new File(MainLoader.ROOT_PATH + "/" + path).mkdirs();
         File settingFile = new File(MainLoader.ROOT_PATH + "/" + path + "/" + fileName);
         if (!settingFile.exists()) {
             logger.warn(fileName + " not found, create default " + fileName);
-            settingFile = exportResource(fileName, path, fromClass);
+            settingFile = exportResource(fileName, path);
             if (settingFile == null) {
                 logger.warn("read " + fileName + " failed");
                 return null;
@@ -71,8 +71,8 @@ public class FileGetter {
         return null;
     }
 
-    public File exportResource(String sourceFileName, String outputPath, Class<?> fromClass) {
-        InputStream fileInJar = fromClass.getResourceAsStream(sourceFileName);
+    public File exportResource(String sourceFileName, String outputPath) {
+        InputStream fileInJar = CLASS.getResourceAsStream(sourceFileName);
         try {
             if (fileInJar == null) {
                 logger.warn("can not find resource: " + sourceFileName);
@@ -88,8 +88,8 @@ public class FileGetter {
         return null;
     }
 
-    public File exportResource(String sourceFile, String outputName, String outputPath, Class<?> fromClass) {
-        InputStream fileInJar = fromClass.getResourceAsStream(sourceFile);
+    public File exportResource(String sourceFile, String outputName, String outputPath) {
+        InputStream fileInJar = CLASS.getResourceAsStream(sourceFile);
 
         try {
             if (fileInJar == null) {
