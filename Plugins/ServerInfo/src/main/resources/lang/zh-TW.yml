@@ -48,3 +48,4 @@ runtime:
 
   footer: 伺服器資訊
   error: 錯誤
+  no_permission: 你沒有權限

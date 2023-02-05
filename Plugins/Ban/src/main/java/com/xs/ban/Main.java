@@ -4,6 +4,7 @@ import com.xs.loader.PluginEvent;
 import com.xs.loader.lang.LangGetter;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
@@ -18,7 +19,6 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static com.xs.loader.util.EmbedCreator.createEmbed;
-import static com.xs.loader.util.PermissionERROR.permissionCheck;
 import static com.xs.loader.util.SlashCommandOption.*;
 import static net.dv8tion.jda.api.Permission.BAN_MEMBERS;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.*;
@@ -78,8 +78,10 @@ public class Main extends PluginEvent {
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         if (!event.getName().equals("ban")) return;
-        if (!permissionCheck(BAN_MEMBERS, event))
+        if (!event.getMember().hasPermission(BAN_MEMBERS)) {
+            event.getHook().editOriginalEmbeds(createEmbed("你沒有權限", 0xFF0000)).queue();
             return;
+        }
 
         DiscordLocale local = event.getUserLocale();
         Member selfMember = event.getGuild().getSelfMember();

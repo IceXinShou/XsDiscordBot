@@ -48,3 +48,4 @@ runtime:
 
   footer: Server Information
   error: ERROR
+  no_permission: You Cannot do it

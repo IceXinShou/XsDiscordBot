@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 
 import static com.xs.loader.util.EmbedCreator.createEmbed;
-import static com.xs.loader.util.PermissionERROR.permissionCheck;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.*;
 
 public class Main extends PluginEvent {
@@ -100,8 +99,10 @@ public class Main extends PluginEvent {
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         if (!event.getName().equals("whoisspy")) return;
-        if (!permissionCheck(Permission.ADMINISTRATOR, event))
+        if (!event.getMember().hasPermission(Permission.ADMINISTRATOR)) {
+            event.getHook().editOriginalEmbeds(createEmbed("你沒有權限", 0xFF0000)).queue();
             return;
+        }
 
         reset();
 

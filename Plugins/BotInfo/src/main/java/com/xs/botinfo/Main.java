@@ -4,7 +4,7 @@ import com.xs.loader.PluginEvent;
 import com.xs.loader.lang.LangGetter;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
-import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
@@ -13,11 +13,7 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-
-import static com.xs.loader.util.EmbedCreator.createEmbed;
 
 public class Main extends PluginEvent {
     private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
@@ -74,15 +70,21 @@ public class Main extends PluginEvent {
         for (int i = 0; i < event.getJDA().getGuilds().size(); i++)
             members = members + event.getJDA().getGuilds().get(i).getMemberCount();
 
-        List<MessageEmbed.Field> fields = new ArrayList<>();
-        fields.add(new MessageEmbed.Field(
+        EmbedBuilder builder = new EmbedBuilder();
+        builder.addField(
                 lang.get("runtime;guild_count").get(local),
-                String.valueOf((long) event.getJDA().getGuilds().size()), false)
+                String.valueOf((long) event.getJDA().getGuilds().size()), false
         );
-        fields.add(new MessageEmbed.Field(
+        builder.addField(
                 lang.get("runtime;member_count").get(local),
-                String.valueOf(members), false)
+                String.valueOf(members), false
         );
-        event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;title").get(local), "", "", "", "", fields, OffsetDateTime.now(), 0x00FFFF)).queue();
+
+        event.getHook().editOriginalEmbeds(builder
+                .setTitle(lang.get("runtime;title").get(local))
+                .setTimestamp(OffsetDateTime.now())
+                .setColor(0x00FFFF)
+                .build()
+        ).queue();
     }
 }

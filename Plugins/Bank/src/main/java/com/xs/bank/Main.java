@@ -173,127 +173,120 @@ public class Main extends PluginEvent {
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
-        if (event.isFromGuild() && event.getGuild() != null && event.getGuild().getIdLong() == workingGuildID) {
-            DiscordLocale local = event.getUserLocale();
-            switch (event.getName()) {
-                case "add_money": {
-                    if (!event.getMember().hasPermission(ADMINISTRATOR)) return;
-                    if (event.getSubcommandName() == null) return;
+        DiscordLocale local = event.getUserLocale();
+        switch (event.getName()) {
+            case "add_money": {
+                if (!event.getMember().hasPermission(ADMINISTRATOR)) return;
+                if (event.getSubcommandName() == null) return;
 
-                    String type = event.getSubcommandName();
-                    User user = event.getOption(USER_TAG).getAsUser();
-                    JSONObject obj = checkData(user.getId(), type);
-                    int cur = obj.getInt(type);
-                    int value = event.getOption(VALUE).getAsInt();
+                String type = event.getSubcommandName();
+                User user = event.getOption(USER_TAG).getAsUser();
+                JSONObject obj = checkData(user.getId(), type);
+                int cur = obj.getInt(type);
+                int value = event.getOption(VALUE).getAsInt();
 
-                    obj.put(type, cur + value);
-                    manager.save();
+                obj.put(type, cur + value);
+                manager.save();
 
-                    event.getHook().deleteOriginal().complete();
-                    event.getChannel().sendMessageEmbeds(createEmbed(lang.get("runtime;add_success").get(local)
-                                    .replace("%user%", user.getAsTag())
-                                    .replace("%type%", type)
-                                    .replace("%before_value%", String.valueOf(cur))
-                                    .replace("%after_value%", String.valueOf(cur + value)),
-                            0x00FFFF)).queue();
-                    break;
-                }
-
-                case "remove_money": {
-                    if (!event.getMember().hasPermission(ADMINISTRATOR)) return;
-                    if (event.getSubcommandName() == null) return;
-
-                    String type = event.getSubcommandName();
-                    User user = event.getOption(USER_TAG).getAsUser();
-                    JSONObject obj = checkData(user.getId(), type);
-                    int cur = obj.getInt(type);
-                    int value = event.getOption(VALUE).getAsInt();
-
-                    if (obj.getInt(type) < value) {
-                        event.getHook().deleteOriginal().complete();
-                        event.getChannel().sendMessageEmbeds(createEmbed(lang.get("runtime;errors;no_such_money").get(local), 0xFF0000)).queue();
-                        return;
-                    }
-
-                    obj.put(type, cur - value);
-                    manager.save();
-
-                    event.getHook().deleteOriginal().complete();
-                    event.getChannel().sendMessageEmbeds(createEmbed(lang.get("runtime;remove_success").get(local)
-                                    .replace("%user%", user.getAsTag())
-                                    .replace("%type%", type)
-                                    .replace("%before_value%", String.valueOf(cur))
-                                    .replace("%after_value%", String.valueOf(cur - value)),
-                            0x00FFFF)).queue();
-                    break;
-                }
-
-                case "transfer_money": {
-                    if (event.getSubcommandName() == null) return;
-
-                    String type = event.getSubcommandName();
-                    User fromUser = event.getUser();
-                    User toUser = event.getOption(USER_TAG).getAsUser();
-
-                    if (fromUser.getIdLong() == toUser.getIdLong()) {
-                        event.getHook().deleteOriginal().complete();
-                        event.getChannel().sendMessageEmbeds(createEmbed(lang.get("runtime;errors;transfer_self").get(local), 0xFF0000)).queue();
-                        return;
-                    }
-
-                    JSONObject fromObj = checkData(fromUser.getId(), type);
-                    JSONObject toObj = checkData(toUser.getId(), type);
-                    int value = event.getOption(VALUE).getAsInt();
-
-                    if (fromObj.getInt(type) < value + moneyTypes.get(type)) {
-                        event.getHook().deleteOriginal().complete();
-                        event.getChannel().sendMessageEmbeds(createEmbed(lang.get("runtime;errors;no_such_money").get(local), 0xFF0000)).queue();
-                        return;
-                    }
-
-                    event.getHook().deleteOriginal().complete();
-                    event.getChannel().sendMessageEmbeds(createEmbed(lang.get("runtime;transferring").get(local), 0xff7b33))
-                            .delay(new Random().nextInt(configFile.transferMaxDelay), TimeUnit.SECONDS)
-                            .queue(i -> i.editMessageEmbeds(createEmbed(lang.get("runtime;transfer_done").get(local), 0x2cff20))
-                                    .queue(j -> {
-                                        fromObj.put(type, fromObj.getInt(type) - value - moneyTypes.get(type));
-                                        toObj.put(type, toObj.getInt(type) + value);
-                                        manager.save();
-                                        event.getChannel().sendMessageEmbeds(createEmbed(lang.get("runtime;transfer_success").get(local)
-                                                        .replace("%value%", String.valueOf(value))
-                                                        .replace("%type%", type)
-                                                        .replace("%user%", toUser.getAsTag()),
-                                                0x00FFFF)).queue();
-                                    }));
-                    break;
-                }
-
-                case "check_balance": {
-                    User user = getUserID(event);
-                    StringBuilder description = new StringBuilder();
-                    for (String i : moneyTypes.keySet()) {
-                        JSONObject obj = checkData(user.getId(), i);
-                        description.append(lang.get("runtime;check_balance_description").get(local)
-                                .replace("%value%", String.valueOf(obj.getInt(i)))
-                                .replace("%type%", i)
-                        );
-                    }
-
-                    event.getHook().deleteOriginal().complete();
-                    event.getChannel().sendMessageEmbeds(createEmbed(
-                            lang.get("runtime;check_balance_title").get(local).replace("%user%", user.getAsTag()),
-                            description.toString(),
-                            0x00FFFF)
-                    ).queue();
-                    break;
-                }
-
+                event.getHook().deleteOriginal().complete();
+                event.getChannel().sendMessageEmbeds(createEmbed(lang.get("runtime;add_success").get(local)
+                                .replace("%user%", user.getAsTag())
+                                .replace("%type%", type)
+                                .replace("%before_value%", String.valueOf(cur))
+                                .replace("%after_value%", String.valueOf(cur + value)),
+                        0x00FFFF)).queue();
+                break;
             }
-        } else {
-            event.getHook().deleteOriginal().complete();
-            System.out.println(event.getGuild().getIdLong());
-            System.out.println(workingGuildID);
-            event.getChannel().sendMessageEmbeds(createEmbed("You cannot use this command", 0xFF0000)).queue();
+
+            case "remove_money": {
+                if (!event.getMember().hasPermission(ADMINISTRATOR)) return;
+                if (event.getSubcommandName() == null) return;
+
+                String type = event.getSubcommandName();
+                User user = event.getOption(USER_TAG).getAsUser();
+                JSONObject obj = checkData(user.getId(), type);
+                int cur = obj.getInt(type);
+                int value = event.getOption(VALUE).getAsInt();
+
+                if (obj.getInt(type) < value) {
+                    event.getHook().deleteOriginal().complete();
+                    event.getChannel().sendMessageEmbeds(createEmbed(lang.get("runtime;errors;no_such_money").get(local), 0xFF0000)).queue();
+                    return;
+                }
+
+                obj.put(type, cur - value);
+                manager.save();
+
+                event.getHook().deleteOriginal().complete();
+                event.getChannel().sendMessageEmbeds(createEmbed(lang.get("runtime;remove_success").get(local)
+                                .replace("%user%", user.getAsTag())
+                                .replace("%type%", type)
+                                .replace("%before_value%", String.valueOf(cur))
+                                .replace("%after_value%", String.valueOf(cur - value)),
+                        0x00FFFF)).queue();
+                break;
+            }
+
+            case "transfer_money": {
+                if (event.getSubcommandName() == null) return;
+
+                String type = event.getSubcommandName();
+                User fromUser = event.getUser();
+                User toUser = event.getOption(USER_TAG).getAsUser();
+
+                if (fromUser.getIdLong() == toUser.getIdLong()) {
+                    event.getHook().deleteOriginal().complete();
+                    event.getChannel().sendMessageEmbeds(createEmbed(lang.get("runtime;errors;transfer_self").get(local), 0xFF0000)).queue();
+                    return;
+                }
+
+                JSONObject fromObj = checkData(fromUser.getId(), type);
+                JSONObject toObj = checkData(toUser.getId(), type);
+                int value = event.getOption(VALUE).getAsInt();
+
+                if (fromObj.getInt(type) < value + moneyTypes.get(type)) {
+                    event.getHook().deleteOriginal().complete();
+                    event.getChannel().sendMessageEmbeds(createEmbed(lang.get("runtime;errors;no_such_money").get(local), 0xFF0000)).queue();
+                    return;
+                }
+
+                event.getHook().deleteOriginal().complete();
+                event.getChannel().sendMessageEmbeds(createEmbed(lang.get("runtime;transferring").get(local), 0xff7b33))
+                        .delay(new Random().nextInt(configFile.transferMaxDelay), TimeUnit.SECONDS)
+                        .queue(i -> i.editMessageEmbeds(createEmbed(lang.get("runtime;transfer_done").get(local), 0x2cff20))
+                                .queue(j -> {
+                                    fromObj.put(type, fromObj.getInt(type) - value - moneyTypes.get(type));
+                                    toObj.put(type, toObj.getInt(type) + value);
+                                    manager.save();
+                                    event.getChannel().sendMessageEmbeds(createEmbed(lang.get("runtime;transfer_success").get(local)
+                                                    .replace("%value%", String.valueOf(value))
+                                                    .replace("%type%", type)
+                                                    .replace("%user%", toUser.getAsTag()),
+                                            0x00FFFF)).queue();
+                                }));
+                break;
+            }
+
+            case "check_balance": {
+                User user = getUserID(event);
+                StringBuilder description = new StringBuilder();
+                for (String i : moneyTypes.keySet()) {
+                    JSONObject obj = checkData(user.getId(), i);
+                    description.append(lang.get("runtime;check_balance_description").get(local)
+                            .replace("%value%", String.valueOf(obj.getInt(i)))
+                            .replace("%type%", i)
+                    );
+                }
+
+                event.getHook().deleteOriginal().complete();
+                event.getChannel().sendMessageEmbeds(createEmbed(
+                        lang.get("runtime;check_balance_title").get(local).replace("%user%", user.getAsTag()),
+                        description.toString(),
+                        0x00FFFF)
+                ).queue();
+                break;
+            }
+
         }
     }
 

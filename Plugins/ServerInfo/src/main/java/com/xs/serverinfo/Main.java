@@ -4,10 +4,10 @@ import com.xs.loader.PluginEvent;
 import com.xs.loader.lang.LangGetter;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.StageChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -17,12 +17,9 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import static com.xs.loader.util.EmbedCreator.createEmbed;
-import static com.xs.loader.util.PermissionERROR.permissionCheck;
 import static net.dv8tion.jda.api.Permission.ADMINISTRATOR;
 
 public class Main extends PluginEvent {
@@ -73,8 +70,10 @@ public class Main extends PluginEvent {
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         if (!event.getName().equals("info")) return;
-        if (!permissionCheck(ADMINISTRATOR, event))
+        if (!event.getMember().hasPermission(Permission.ADMINISTRATOR)) {
+            event.getHook().editOriginalEmbeds(createEmbed("你沒有權限", 0xFF0000)).queue();
             return;
+        }
 
         DiscordLocale local = event.getUserLocale();
 
@@ -133,71 +132,68 @@ public class Main extends PluginEvent {
                 guild.unloadMember(i.getIdLong());
             }
 
-
-            List<MessageEmbed.Field> fields = new ArrayList<>();
-            fields.add(new MessageEmbed.Field(lang.get("runtime;fields;members;title").get(local), String.format("" +
+            EmbedBuilder builder = new EmbedBuilder();
+            builder.addField(lang.get("runtime;fields;members;title").get(local), String.format("" +
                             lang.get("runtime;fields;members;total").get(local) + " `%d`\n" +
                             lang.get("runtime;fields;members;human").get(local) + " `%d`\n" +
                             lang.get("runtime;fields;members;bot").get(local) + " `%d`\n" +
                             lang.get("runtime;fields;members;admin").get(local) + " `%d`",
-                    memberCount, realMemberCount, botCount, adminCount), true)
-            );
-            fields.add(new MessageEmbed.Field(lang.get("runtime;fields;members_status;title").get(local), String.format("" +
+                    memberCount, realMemberCount, botCount, adminCount), true);
+
+            builder.addField(lang.get("runtime;fields;members_status;title").get(local), String.format("" +
                             lang.get("runtime;fields;members_status;online").get(local) + " `%d`\n" +
                             lang.get("runtime;fields;members_status;working").get(local) + " `%d`\n" +
                             lang.get("runtime;fields;members_status;idle").get(local) + " `%d`\n" +
                             lang.get("runtime;fields;members_status;offline").get(local) + " `%d`",
-                    online, working, idle, offline), true)
-            );
+                    online, working, idle, offline), true);
 
-            fields.add(new MessageEmbed.Field("\u200e", "\u200e", true));
-            fields.add(new MessageEmbed.Field("\u200e", "\u200e", false));
+            builder.addBlankField(false);
 
-            fields.add(new MessageEmbed.Field(lang.get("runtime;fields;channels;title").get(local), String.format("" +
+            builder.addField(lang.get("runtime;fields;channels;title").get(local), String.format("" +
                             lang.get("runtime;fields;channels;total").get(local) + " `%d`\n" +
                             lang.get("runtime;fields;channels;text").get(local) + " `%d`\n" +
                             lang.get("runtime;fields;channels;voice").get(local) + " `%d`\n" +
                             lang.get("runtime;fields;channels;stage").get(local) + " `%d`",
-                    textCount + voiceCount + stageCount, textCount, voiceCount, stageCount), true)
-            );
-            fields.add(new MessageEmbed.Field(lang.get("runtime;fields;channels_status;title").get(local), String.format("" +
+                    textCount + voiceCount + stageCount, textCount, voiceCount, stageCount), true);
+
+            builder.addField(lang.get("runtime;fields;channels_status;title").get(local), String.format("" +
                             lang.get("runtime;fields;channels_status;connect").get(local) + " `%d`\n" +
                             lang.get("runtime;fields;channels_status;voice").get(local) + " `%d`\n" +
                             lang.get("runtime;fields;channels_status;stage").get(local) + " `%d`",
-                    inVoice + inStage, inVoice, inStage), true)
-            );
+                    inVoice + inStage, inVoice, inStage), true);
 
-            fields.add(new MessageEmbed.Field("\u200e", "\u200e", true));
-            fields.add(new MessageEmbed.Field("\u200e", "\u200e", false));
+            builder.addBlankField(false);
 
-            fields.add(new MessageEmbed.Field(lang.get("runtime;fields;roles").get(local),
-                    "`" + guild.getRoles().size() + "`", true)
-            );
+            builder.addField(lang.get("runtime;fields;roles").get(local),
+                    "`" + guild.getRoles().size() + "`", true);
 
-            fields.add(new MessageEmbed.Field(lang.get("runtime;fields;emoji").get(local),
-                    "`" + guild.retrieveEmojis().complete().size() + "`", true)
-            );
+            builder.addField(lang.get("runtime;fields;emoji").get(local),
+                    "`" + guild.retrieveEmojis().complete().size() + "`", true);
 
-            fields.add(new MessageEmbed.Field(lang.get("runtime;fields;sticker").get(local),
-                    "`" + guild.retrieveStickers().complete().size() + "`", true)
-            );
+            builder.addField(lang.get("runtime;fields;sticker").get(local),
+                    "`" + guild.retrieveStickers().complete().size() + "`", true);
 
-            fields.add(new MessageEmbed.Field("\u200e", "\u200e", false));
+            builder.addBlankField(false);
 
-            fields.add(new MessageEmbed.Field(lang.get("runtime;fields;boost;title").get(local), "" +
+            builder.addField(lang.get("runtime;fields;boost;title").get(local), "" +
                     lang.get("runtime;fields;boost;level").get(local) + " `" + guild.getBoostTier().getKey() + "`\n" +
-                    lang.get("runtime;fields;boost;amount").get(local) + " `" + guild.getBoostCount() + "`", true)
-            );
+                    lang.get("runtime;fields;boost;amount").get(local) + " `" + guild.getBoostCount() + "`", true);
 
-            fields.add(new MessageEmbed.Field(lang.get("runtime;fields;language").get(local),
-                    "`" + guild.getLocale().getNativeName() + "`", true)
-            );
+            builder.addField(lang.get("runtime;fields;language").get(local),
+                    "`" + guild.getLocale().getNativeName() + "`", true);
 
-            fields.add(new MessageEmbed.Field("\u200e", "\u200e", true));
+            builder.addBlankField(true);
+
 
             Member owner = event.getGuild().retrieveOwner().complete();
             event.getHook().editOriginalEmbeds(
-                    createEmbed(event.getGuild().getName(), guild.getIconUrl(), "", fields, lang.get("runtime;footer").get(local), owner.getUser().getAsTag(), owner.getEffectiveAvatarUrl(), 0xff0000)).queue();
+                    builder
+                            .setAuthor(owner.getUser().getAsTag(), null, owner.getEffectiveAvatarUrl())
+                            .setTitle(event.getGuild().getName())
+                            .setThumbnail(guild.getIconUrl())
+                            .setFooter(lang.get("runtime;footer").get(local))
+                            .setColor(0x00FFFF)
+                            .build()).queue();
         }).onError(i -> {
             logger.warn("ERROR");
             event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;error").get(local), 0xFF0000)).queue();

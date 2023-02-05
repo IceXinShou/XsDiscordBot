@@ -4,6 +4,7 @@ import com.xs.loader.PluginEvent;
 import com.xs.loader.lang.LangGetter;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -26,9 +27,7 @@ import java.util.Map;
 
 import static com.xs.loader.MainLoader.jdaBot;
 import static com.xs.loader.util.EmbedCreator.createEmbed;
-import static com.xs.loader.util.PermissionERROR.permissionCheck;
 import static com.xs.loader.util.SlashCommandOption.*;
-import static com.xs.loader.util.Tag.getMemberNick;
 import static net.dv8tion.jda.api.Permission.MANAGE_EVENTS;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.STRING;
 
@@ -146,27 +145,32 @@ public class Main extends PluginEvent {
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         if (!event.getName().equals("poll")) return;
-        if (!permissionCheck(Permission.MANAGE_CHANNEL, event))
+        if (!event.getMember().hasPermission(Permission.MANAGE_CHANNEL)) {
+            event.getHook().editOriginalEmbeds(createEmbed("你沒有權限", 0xFF0000)).queue();
             return;
+        }
 
         DiscordLocale local = event.getUserLocale();
         List<MessageEmbed.Field> fields = new ArrayList<>();
+        EmbedBuilder builder = new EmbedBuilder();
+
         for (int i = 0; i < event.getOptions().size() - 1; i++) {
-            fields.add(new MessageEmbed.Field(
+            builder.addField(
                     votes.get(i).getFormatted() + event.getOptions().get(i + 1).getAsString(),
-                    "", false)
+                    "", false
             );
         }
-        event.getChannel().sendMessageEmbeds(createEmbed(
-                event.getOption(QUESTION).getAsString(), null,
-                lang.get("embed;footer").get(local),
-                getMemberNick(event), event.getUser().getAvatarUrl(),
-                fields,
-                OffsetDateTime.now(), 0x87E5CF
-        )).queue(m -> {
+
+        event.getChannel().sendMessageEmbeds(builder
+                .setAuthor(event.getMember().getEffectiveName(), null, event.getUser().getAvatarUrl())
+                .setTitle(event.getOption(QUESTION).getAsString())
+                .setFooter(lang.get("embed;footer").get(local))
+                .setColor(0x87E5CF)
+                .setTimestamp(OffsetDateTime.now())
+                .build()
+        ).queue(m -> {
             for (int i = 0; i < event.getOptions().size() - 1; i++)
                 m.addReaction(votes.get(i)).queue();
-
         });
 
         event.getHook().editOriginalEmbeds(createEmbed(lang.get("command;success").get(local), 0x9740b9)).queue();

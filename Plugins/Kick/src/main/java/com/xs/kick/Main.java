@@ -16,7 +16,6 @@ import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import java.util.Map;
 
 import static com.xs.loader.util.EmbedCreator.createEmbed;
-import static com.xs.loader.util.PermissionERROR.permissionCheck;
 import static com.xs.loader.util.SlashCommandOption.REASON;
 import static com.xs.loader.util.SlashCommandOption.USER_TAG;
 import static net.dv8tion.jda.api.Permission.KICK_MEMBERS;
@@ -76,8 +75,10 @@ public class Main extends PluginEvent {
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         if (!event.getName().equals("kick")) return;
-        if (!permissionCheck(KICK_MEMBERS, event))
+        if (!event.getMember().hasPermission(KICK_MEMBERS)) {
+            event.getHook().editOriginalEmbeds(createEmbed("你沒有權限", 0xFF0000)).queue();
             return;
+        }
 
         DiscordLocale local = event.getUserLocale();
         Member selfMember = event.getGuild().getSelfMember();

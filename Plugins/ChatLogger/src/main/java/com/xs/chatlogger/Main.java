@@ -120,7 +120,6 @@ public class Main extends PluginEvent {
         long channelID = event.getChannel().getIdLong();
 
 
-
     }
 
     @Override
@@ -251,7 +250,7 @@ public class Main extends PluginEvent {
             // if message is an embed
             StringBuilder builder = new StringBuilder("Deleted message: \n");
             for (MessageEmbed embed : message.getEmbeds()) {
-                builder.append(embed.getAuthor().getName()).append('\n')
+                builder.append((embed.getAuthor() == null ? "" : embed.getAuthor().getName())).append('\n')
                         .append(embed.getTitle()).append(';').append(embed.getDescription());
                 for (MessageEmbed.Field field : embed.getFields()) {
                     builder.append('\n').append(field.getName()).append(';').append(field.getValue());

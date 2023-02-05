@@ -32,8 +32,8 @@ runtime:
   transfer_success: "已将 %value% %type% 转给 %user%"
   check_balance_title: "%user% 的银行户口余额为"
   check_balance_description: "%value% %type%\n"
-  transferring: "沉默银行进行转帐中......请稍等"
-  transfer_done: "沉默银行已帮您转账成功"
+  transferring: "进行转帐中......请稍等"
+  transfer_done: "已帮您转账成功"
 
   errors:
     transfer_self: 你不能转帐给自己
