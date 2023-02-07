@@ -39,11 +39,12 @@ public class Main extends PluginEvent {
     private final String PATH_FOLDER_NAME = "./plugins/ChatLogger";
     private Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
     private final Map<Long, Connection> dbConns = new HashMap<>();
+    private final JsonManager manager = new JsonManager();
+    private final ButtonSystem buttonSystem = new ButtonSystem(manager);
 
     public Main() {
         super(true);
     }
-
 
     @Override
     public void initLoad() {
@@ -105,9 +106,9 @@ public class Main extends PluginEvent {
                         .setDescriptionLocalizations(lang.get("register;description"))
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR))
                         .addSubcommands(
-                        new SubcommandData("create", "create chat log in the channel")
-                                .setNameLocalizations(lang.get("register;subcommand;create;cmd"))
-                                .setDescriptionLocalizations(lang.get("register;subcommand;create;description"))
+                        new SubcommandData("setting", "set chat log in this channel")
+                                .setNameLocalizations(lang.get("register;subcommand;setting;cmd"))
+                                .setDescriptionLocalizations(lang.get("register;subcommand;setting;description"))
                 )
         };
     }
@@ -115,11 +116,14 @@ public class Main extends PluginEvent {
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         if (!event.getName().equals("chatlogger")) return;
-        if (!event.getSubcommandName().equals("create")) return;
+        if (event.getSubcommandName() == null) return;
 
-        long channelID = event.getChannel().getIdLong();
-
-
+        switch (event.getSubcommandName()) {
+            case "setting": {
+                buttonSystem.setting(event);
+                break;
+            }
+        }
     }
 
     @Override
@@ -182,14 +186,23 @@ public class Main extends PluginEvent {
             if (rs == null) return;
 
             User messageSender = event.getAuthor();
+            long userID = messageSender.getIdLong();
+            String message = getMessageOrEmbed(event.getMessage());
+
 
             logger.log(String.format(
                     "Updated message: (%s : %d) \n%s -> \n%s",
-                    messageSender.getAsTag(), messageSender.getIdLong(),
-                    rs.getString("message"), getMessageOrEmbed(event.getMessage())
+                    messageSender.getAsTag(), userID,
+                    rs.getString("message"), message
             ));
 
 
+            String update = String.format("UPDATE \"%d\" SET message = '%s' WHERE message_id= '%d'",
+                    channelID, message, messageID);
+            stmt.executeUpdate(update);
+
+            rs.close();
+            stmt.close();
         } catch (Exception e) {
             sqlErrorPrinter(e);
         }
@@ -225,7 +238,7 @@ public class Main extends PluginEvent {
             removeMessage.setLong(1, messageID);
             removeMessage.executeUpdate();
 
-
+            rs.close();
             stmt.close();
         } catch (SQLException e) {
             sqlErrorPrinter(e);

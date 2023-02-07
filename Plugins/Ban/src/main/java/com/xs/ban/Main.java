@@ -4,7 +4,6 @@ import com.xs.loader.PluginEvent;
 import com.xs.loader.lang.LangGetter;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
-import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
@@ -19,7 +18,6 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static com.xs.loader.util.EmbedCreator.createEmbed;
-import static com.xs.loader.util.SlashCommandOption.*;
 import static net.dv8tion.jda.api.Permission.BAN_MEMBERS;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.*;
 
@@ -65,11 +63,11 @@ public class Main extends PluginEvent {
                         .setNameLocalizations(lang.get("register;cmd"))
                         .setDescriptionLocalizations(lang.get("register;description"))
                         .addOptions(
-                                new OptionData(USER, USER_TAG, "user", true)
+                                new OptionData(USER, "user", "user", true)
                                         .setDescriptionLocalizations(lang.get("register;options;user")),
-                                new OptionData(INTEGER, DAYS, "day")
+                                new OptionData(INTEGER, "days", "day")
                                         .setDescriptionLocalizations(lang.get("register;options;day")),
-                                new OptionData(STRING, REASON, "reason")
+                                new OptionData(STRING, "reason", "reason")
                                         .setDescriptionLocalizations(lang.get("register;options;reason")))
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(BAN_MEMBERS))
         };
@@ -85,14 +83,14 @@ public class Main extends PluginEvent {
 
         DiscordLocale local = event.getUserLocale();
         Member selfMember = event.getGuild().getSelfMember();
-        Member member = event.getOption(USER_TAG).getAsMember();
+        Member member = event.getOption("user").getAsMember();
 
         if (member == null) {
             event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;errors;no_user").get(local), 0xFF0000)).queue();
             return;
         }
 
-        String reason = ((event.getOption(REASON) == null) ? "null" : event.getOption(REASON).getAsString());
+        String reason = ((event.getOption("reason") == null) ? "null" : event.getOption("reason").getAsString());
 
         if (!selfMember.hasPermission(BAN_MEMBERS)) {
             event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;errors;no_permission").get(local), 0xFF0000)).queue();
@@ -105,7 +103,7 @@ public class Main extends PluginEvent {
         }
 
         int delDays = 0;
-        OptionMapping option = event.getOption(DAYS);
+        OptionMapping option = event.getOption("days");
         if (option != null)
             delDays = (int) Math.max(0, Math.min(7, option.getAsLong()));
 

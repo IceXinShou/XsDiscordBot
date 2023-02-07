@@ -18,8 +18,11 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
-import org.json.JSONObject;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,19 +30,19 @@ import java.util.Map;
 
 import static com.xs.loader.MainLoader.jdaBot;
 import static com.xs.loader.util.EmbedCreator.createEmbed;
-import static com.xs.loader.util.SlashCommandOption.*;
 import static net.dv8tion.jda.api.Permission.MANAGE_EVENTS;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.STRING;
 
 public class Main extends PluginEvent {
-    private JSONObject config;
+
+    private MainConfig configFile;
     private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
     private FileGetter getter;
     private Logger logger;
     private static final String TAG = "Poll";
     private final String PATH_FOLDER_NAME = "./plugins/Poll";
     private Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
-    private JSONObject emojiData;
+    private Map<Long, List<String>> emojiData;
     private final List<Emoji> votes = new ArrayList<>();
     private boolean setup = false;
 
@@ -78,27 +81,27 @@ public class Main extends PluginEvent {
                         .setNameLocalizations(lang.get("register;cmd"))
                         .setDescriptionLocalizations(lang.get("register;description"))
                         .addOptions(
-                                new OptionData(STRING, QUESTION, "user", true)
+                                new OptionData(STRING, "question", "user", true)
                                         .setDescriptionLocalizations(lang.get("register;options;name")),
-                                new OptionData(STRING, CHOICE_A, "reason")
+                                new OptionData(STRING, "choice_a", "reason")
                                         .setDescriptionLocalizations(lang.get("register;options;a")),
-                                new OptionData(STRING, CHOICE_B, "reason")
+                                new OptionData(STRING, "choice_b", "reason")
                                         .setDescriptionLocalizations(lang.get("register;options;b")),
-                                new OptionData(STRING, CHOICE_C, "reason")
+                                new OptionData(STRING, "choice_c", "reason")
                                         .setDescriptionLocalizations(lang.get("register;options;c")),
-                                new OptionData(STRING, CHOICE_D, "reason")
+                                new OptionData(STRING, "choice_d", "reason")
                                         .setDescriptionLocalizations(lang.get("register;options;d")),
-                                new OptionData(STRING, CHOICE_E, "reason")
+                                new OptionData(STRING, "choice_e", "reason")
                                         .setDescriptionLocalizations(lang.get("register;options;e")),
-                                new OptionData(STRING, CHOICE_F, "reason")
+                                new OptionData(STRING, "choice_f", "reason")
                                         .setDescriptionLocalizations(lang.get("register;options;f")),
-                                new OptionData(STRING, CHOICE_G, "reason")
+                                new OptionData(STRING, "choice_g", "reason")
                                         .setDescriptionLocalizations(lang.get("register;options;g")),
-                                new OptionData(STRING, CHOICE_H, "reason")
+                                new OptionData(STRING, "choice_h", "reason")
                                         .setDescriptionLocalizations(lang.get("register;options;h")),
-                                new OptionData(STRING, CHOICE_I, "reason")
+                                new OptionData(STRING, "choice_i", "reason")
                                         .setDescriptionLocalizations(lang.get("register;options;i")),
-                                new OptionData(STRING, CHOICE_J, "reason")
+                                new OptionData(STRING, "choice_j", "reason")
                                         .setDescriptionLocalizations(lang.get("register;options;j")))
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(MANAGE_EVENTS))
         };
@@ -106,15 +109,17 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadConfigFile() {
-        config = new JSONObject(getter.readYml("config.yml", PATH_FOLDER_NAME));
-        logger.log("Setting File Loaded Successfully");
+        InputStream inputStream = getter.readYmlInputStream("config.yml", PATH_FOLDER_NAME);
 
-        if (config.has("Emojis") && !config.getJSONObject("Emojis").isEmpty()) {
-            emojiData = config.getJSONObject("Emojis");
+        try {
+            configFile = new Yaml(new Constructor(MainConfig.class)).load(inputStream);
+            inputStream.close();
+
             setup = true;
             logger.log("Setting File Loaded Successfully");
-        } else {
+        } catch (IOException e) {
             logger.warn("Please configure /" + PATH_FOLDER_NAME + "/config.yml");
+            e.printStackTrace();
         }
     }
 
@@ -123,13 +128,13 @@ public class Main extends PluginEvent {
     @Override
     public void onReady(ReadyEvent event) {
         if (setup) {
-            for (Map.Entry<String, Object> i : emojiData.toMap().entrySet()) {
+            for (Map.Entry<Long, List<String>> i : configFile.Emojis.entrySet()) {
                 Guild guild = jdaBot.getGuildById(i.getKey());
                 if (guild == null) {
                     logger.warn("Cannot found guild by id: " + i.getKey());
                 } else {
                     for (RichCustomEmoji e : guild.retrieveEmojis().complete()) {
-                        ((List<Object>) (i.getValue())).forEach(j -> {
+                        i.getValue().forEach(j -> {
                             if (e.getName().equals(j)) {
                                 votes.add(e);
                                 logger.log("Added " + e.getName());
@@ -163,7 +168,7 @@ public class Main extends PluginEvent {
 
         event.getChannel().sendMessageEmbeds(builder
                 .setAuthor(event.getMember().getEffectiveName(), null, event.getUser().getAvatarUrl())
-                .setTitle(event.getOption(QUESTION).getAsString())
+                .setTitle(event.getOption("question").getAsString())
                 .setFooter(lang.get("embed;footer").get(local))
                 .setColor(0x87E5CF)
                 .setTimestamp(OffsetDateTime.now())

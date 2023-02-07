@@ -5,9 +5,9 @@ import com.xs.loader.lang.LangGetter;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
 import com.xs.loader.util.JsonFileManager;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
@@ -20,25 +20,25 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
-import org.json.JSONArray;
 import org.json.JSONObject;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.xs.loader.MainLoader.ROOT_PATH;
-import static com.xs.loader.MainLoader.jdaBot;
 import static com.xs.loader.util.EmbedCreator.createEmbed;
-import static com.xs.loader.util.SlashCommandOption.USER_TAG;
-import static com.xs.loader.util.SlashCommandOption.VALUE;
 import static com.xs.loader.util.UserUtil.getUserById;
 import static net.dv8tion.jda.api.Permission.ADMINISTRATOR;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.INTEGER;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.USER;
 
 public class Main extends PluginEvent {
-    private JSONObject config;
+    private MainConfig configFile;
     private final Map<Long, String> nameCache = new HashMap<>();
     private final Map<Long, UserData> userData = new HashMap<>();
     private final List<UserData> moneyBoard = new ArrayList<>();
@@ -89,7 +89,7 @@ public class Main extends PluginEvent {
                         .setNameLocalizations(lang.get("register;get_money;cmd"))
                         .setDescriptionLocalizations(lang.get("register;get_money;description"))
                         .addOptions(
-                                new OptionData(USER, USER_TAG, "user", true)
+                                new OptionData(USER, "user", "user", true)
                                         .setDescriptionLocalizations(lang.get("register;get_money;options;user")))
                         .setDefaultPermissions(DefaultMemberPermissions.ENABLED),
 
@@ -97,7 +97,7 @@ public class Main extends PluginEvent {
                         .setNameLocalizations(lang.get("register;get_money_history;cmd"))
                         .setDescriptionLocalizations(lang.get("register;get_money_history;description"))
                         .addOptions(
-                                new OptionData(USER, USER_TAG, "user", true)
+                                new OptionData(USER, "user", "user", true)
                                         .setDescriptionLocalizations(lang.get("register;get_money_history;options;user")))
                         .setDefaultPermissions(DefaultMemberPermissions.ENABLED),
 
@@ -105,9 +105,9 @@ public class Main extends PluginEvent {
                         .setNameLocalizations(lang.get("register;add_money;cmd"))
                         .setDescriptionLocalizations(lang.get("register;add_money;description"))
                         .addOptions(
-                                new OptionData(INTEGER, VALUE, "value", true)
+                                new OptionData(INTEGER, "value", "value", true)
                                         .setDescriptionLocalizations(lang.get("register;add_money;options;value")),
-                                new OptionData(USER, USER_TAG, "user", true)
+                                new OptionData(USER, "user", "user", true)
                                         .setDescriptionLocalizations(lang.get("register;add_money;options;user")))
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR)),
 
@@ -115,9 +115,9 @@ public class Main extends PluginEvent {
                         .setNameLocalizations(lang.get("register;remove_money;cmd"))
                         .setDescriptionLocalizations(lang.get("register;remove_money;description"))
                         .addOptions(
-                                new OptionData(INTEGER, VALUE, "value", true)
+                                new OptionData(INTEGER, "value", "value", true)
                                         .setDescriptionLocalizations(lang.get("register;remove_money;options;value")),
-                                new OptionData(USER, USER_TAG, "user", true)
+                                new OptionData(USER, "user", "user", true)
                                         .setDescriptionLocalizations(lang.get("register;remove_money;options;user")))
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR)),
 
@@ -125,9 +125,9 @@ public class Main extends PluginEvent {
                         .setNameLocalizations(lang.get("register;set_money;cmd"))
                         .setDescriptionLocalizations(lang.get("register;set_money;description"))
                         .addOptions(
-                                new OptionData(INTEGER, VALUE, "value", true)
+                                new OptionData(INTEGER, "value", "value", true)
                                         .setDescriptionLocalizations(lang.get("register;set_money;options;value")),
-                                new OptionData(USER, USER_TAG, "user", true)
+                                new OptionData(USER, "user", "user", true)
                                         .setDescriptionLocalizations(lang.get("register;set_money;options;user")))
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR)),
 
@@ -135,9 +135,9 @@ public class Main extends PluginEvent {
                         .setNameLocalizations(lang.get("register;add_money_history;cmd"))
                         .setDescriptionLocalizations(lang.get("register;add_money_history;description"))
                         .addOptions(
-                                new OptionData(INTEGER, VALUE, "value", true)
+                                new OptionData(INTEGER, "value", "value", true)
                                         .setDescriptionLocalizations(lang.get("register;add_money_history;options;value")),
-                                new OptionData(USER, USER_TAG, "user", true)
+                                new OptionData(USER, "user", "user", true)
                                         .setDescriptionLocalizations(lang.get("register;add_money_history;options;user")))
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR)),
 
@@ -145,9 +145,9 @@ public class Main extends PluginEvent {
                         .setNameLocalizations(lang.get("register;remove_money_history;cmd"))
                         .setDescriptionLocalizations(lang.get("register;remove_money_history;description"))
                         .addOptions(
-                                new OptionData(INTEGER, VALUE, "value", true)
+                                new OptionData(INTEGER, "value", "value", true)
                                         .setDescriptionLocalizations(lang.get("register;remove_money_history;options;value")),
-                                new OptionData(USER, USER_TAG, "user", true)
+                                new OptionData(USER, "user", "user", true)
                                         .setDescriptionLocalizations(lang.get("register;remove_money_history;options;user")))
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR)),
 
@@ -155,9 +155,9 @@ public class Main extends PluginEvent {
                         .setNameLocalizations(lang.get("register;set_money_history;cmd"))
                         .setDescriptionLocalizations(lang.get("register;set_money_history;description"))
                         .addOptions(
-                                new OptionData(INTEGER, VALUE, "value", true)
+                                new OptionData(INTEGER, "value", "value", true)
                                         .setDescriptionLocalizations(lang.get("register;set_money_history;options;value")),
-                                new OptionData(USER, USER_TAG, "user", true)
+                                new OptionData(USER, "user", "user", true)
                                         .setDescriptionLocalizations(lang.get("register;set_money_history;options;user")))
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR)),
 
@@ -175,14 +175,21 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadConfigFile() {
-        config = new JSONObject(getter.readYml("config.yml", PATH_FOLDER_NAME));
+        InputStream inputStream = getter.readYmlInputStream("config.yml", PATH_FOLDER_NAME);
 
-        JSONArray array = config.getJSONArray("OwnerID");
-        for (int i = 0; i < array.length(); ++i) {
-            ownerIDs.add(array.getLong(i));
+        configFile = new Yaml(new Constructor(MainConfig.class)).load(inputStream);
+
+        try {
+            inputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
-        boardUserShowLimit = config.getInt("BoardUserShowLimit");
+        for (long i : configFile.OwnerID) {
+            ownerIDs.add(i);
+        }
+
+        boardUserShowLimit = configFile.BoardUserShowLimit;
         if (boardUserShowLimit < 0)
             boardUserShowLimit = 0;
 
@@ -237,8 +244,12 @@ public class Main extends PluginEvent {
                         return;
                     }
 
-                    event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;money_board_title").get(local),
-                            fieldGetter(moneyBoard, true, event.getGuild()), 0x00FFFF)).queue();
+                    EmbedBuilder builder = fieldGetter(moneyBoard, true, event.getGuild());
+                    event.getHook().editOriginalEmbeds(builder
+                            .setTitle(lang.get("runtime;money_board_title").get(local))
+                            .setColor(0x00FFFF)
+                            .build()
+                    ).queue();
                     break;
                 }
 
@@ -248,8 +259,12 @@ public class Main extends PluginEvent {
                         return;
                     }
 
-                    event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;money_history_board_title").get(local),
-                            fieldGetter(totalBoard, false, event.getGuild()), 0x00FFFF)).queue();
+                    EmbedBuilder builder = fieldGetter(moneyBoard, true, event.getGuild());
+                    event.getHook().editOriginalEmbeds(builder
+                            .setTitle(lang.get("runtime;money_history_board_title").get(local))
+                            .setColor(0x00FFFF)
+                            .build()
+                    ).queue();
                     break;
                 }
 
@@ -260,7 +275,7 @@ public class Main extends PluginEvent {
                     }
 
                     User user = getUserID(event);
-                    int value = event.getOption(VALUE).getAsInt();
+                    int value = event.getOption("value").getAsInt();
                     checkData(user.getIdLong(), user.getAsTag());
                     userData.get(user.getIdLong()).add(value);
                     event.getHook().editOriginalEmbeds(createEmbed(user.getAsTag(),
@@ -290,7 +305,7 @@ public class Main extends PluginEvent {
                     }
 
                     User user = getUserID(event);
-                    int value = event.getOption(VALUE).getAsInt();
+                    int value = event.getOption("value").getAsInt();
                     checkData(user.getIdLong(), user.getAsTag());
                     userData.get(user.getIdLong()).remove(value);
                     event.getHook().editOriginalEmbeds(createEmbed(user.getAsTag(),
@@ -314,7 +329,7 @@ public class Main extends PluginEvent {
                     }
 
                     User user = getUserID(event);
-                    int value = event.getOption(VALUE).getAsInt();
+                    int value = event.getOption("value").getAsInt();
                     checkData(user.getIdLong(), user.getAsTag());
                     userData.get(user.getIdLong()).set(value);
                     event.getHook().editOriginalEmbeds(createEmbed(user.getAsTag(),
@@ -332,7 +347,7 @@ public class Main extends PluginEvent {
                     }
 
                     User user = getUserID(event);
-                    int value = event.getOption(VALUE).getAsInt();
+                    int value = event.getOption("value").getAsInt();
                     checkData(user.getIdLong(), user.getAsTag());
                     userData.get(user.getIdLong()).addTotal(value);
                     event.getHook().editOriginalEmbeds(createEmbed(user.getAsTag(),
@@ -356,7 +371,7 @@ public class Main extends PluginEvent {
                     }
 
                     User user = getUserID(event);
-                    int value = event.getOption(VALUE).getAsInt();
+                    int value = event.getOption("value").getAsInt();
                     checkData(user.getIdLong(), user.getAsTag());
                     userData.get(user.getIdLong()).removeTotal(value);
                     event.getHook().editOriginalEmbeds(createEmbed(user.getAsTag(),
@@ -382,7 +397,7 @@ public class Main extends PluginEvent {
                     }
 
                     User user = getUserID(event);
-                    int value = event.getOption(VALUE).getAsInt();
+                    int value = event.getOption("value").getAsInt();
                     checkData(user.getIdLong(), user.getAsTag());
                     userData.get(user.getIdLong()).setTotal(value);
                     event.getHook().editOriginalEmbeds(createEmbed(user.getAsTag(),
@@ -408,9 +423,9 @@ public class Main extends PluginEvent {
     }
 
     User getUserID(SlashCommandInteractionEvent event) {
-        if (event.getOption(USER_TAG) != null)
+        if (event.getOption("user") != null)
             if (ownerIDs.contains(event.getUser().getIdLong()))
-                return event.getOption(USER_TAG).getAsUser();
+                return event.getOption("user").getAsUser();
 
         return event.getUser();
     }
@@ -425,8 +440,8 @@ public class Main extends PluginEvent {
         totalBoard.addAll(userData.values().stream().sorted(Comparator.comparingInt(UserData::getTotal).reversed()).collect(Collectors.toList()));
     }
 
-    List<MessageEmbed.Field> fieldGetter(List<UserData> board, boolean money, Guild guild) {
-        List<MessageEmbed.Field> fields = new ArrayList<>();
+    EmbedBuilder fieldGetter(List<UserData> board, boolean money, Guild guild) {
+        EmbedBuilder builder = new EmbedBuilder();
         int count = Math.min(board.size(), boardUserShowLimit);
         for (int i = 0; i < count; ++i) {
             UserData data = board.get(i);
@@ -444,13 +459,12 @@ public class Main extends PluginEvent {
                 }
             }
 
-            fields.add(new MessageEmbed.Field(
-                            (i + 1) + ". " + name,
-                            (money ? data.get() : data.getTotal()) + " $", false
-                    )
+            builder.addField(
+                    (i + 1) + ". " + name,
+                    (money ? data.get() : data.getTotal()) + " $", false
             );
         }
-        return fields;
+        return builder;
     }
 
     void checkData(long id, String name) {

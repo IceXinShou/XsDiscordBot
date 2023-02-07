@@ -27,8 +27,6 @@ import java.security.GeneralSecurityException;
 import java.util.*;
 
 import static com.xs.loader.util.EmbedCreator.createEmbed;
-import static com.xs.loader.util.SlashCommandOption.USER_TAG;
-import static com.xs.loader.util.SlashCommandOption.VALUE;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.INTEGER;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.USER;
 
@@ -90,7 +88,7 @@ public class Main extends PluginEvent {
                         .setNameLocalizations(lang.get("register;get_point;cmd"))
                         .setDescriptionLocalizations(lang.get("register;get_point;description"))
                         .addOptions(
-                                new OptionData(USER, USER_TAG, "user")
+                                new OptionData(USER, "user", "user")
                                         .setDescriptionLocalizations(lang.get("register;get_point;options;user")))
                         .setDefaultPermissions(DefaultMemberPermissions.ENABLED),
 
@@ -98,27 +96,27 @@ public class Main extends PluginEvent {
                         .setNameLocalizations(lang.get("register;add_point;cmd"))
                         .setDescriptionLocalizations(lang.get("register;add_point;description"))
                         .addOptions(
-                        new OptionData(INTEGER, VALUE, "value", true)
+                        new OptionData(INTEGER, "value", "value", true)
                                 .setDescriptionLocalizations(lang.get("register;add_point;options;value")),
-                        new OptionData(USER, USER_TAG, "user")
+                        new OptionData(USER, "user", "user")
                                 .setDescriptionLocalizations(lang.get("register;add_point;options;user"))),
 
                 Commands.slash("remove_point", "remove point from user")
                         .setNameLocalizations(lang.get("register;remove_point;cmd"))
                         .setDescriptionLocalizations(lang.get("register;remove_point;description"))
                         .addOptions(
-                        new OptionData(INTEGER, VALUE, "value", true)
+                        new OptionData(INTEGER, "value", "value", true)
                                 .setDescriptionLocalizations(lang.get("register;remove_point;options;value")),
-                        new OptionData(USER, USER_TAG, "user")
+                        new OptionData(USER, "user", "user")
                                 .setDescriptionLocalizations(lang.get("register;remove_point;options;user"))),
 
                 Commands.slash("set_point", "set point to user")
                         .setNameLocalizations(lang.get("register;set_point;cmd"))
                         .setDescriptionLocalizations(lang.get("register;set_point;description"))
                         .addOptions(
-                        new OptionData(INTEGER, VALUE, "value", true)
+                        new OptionData(INTEGER, "value", "value", true)
                                 .setDescriptionLocalizations(lang.get("register;set_point;options;value")),
-                        new OptionData(USER, USER_TAG, "user")
+                        new OptionData(USER, "user", "user")
                                 .setDescriptionLocalizations(lang.get("register;set_point;options;user"))),
         };
     }
@@ -129,7 +127,7 @@ public class Main extends PluginEvent {
         InputStream inputStream = getter.readYmlInputStream("config.yml", PATH_FOLDER_NAME);
 
         configFile = new Yaml(new Constructor(MainConfig.class)).load(inputStream);
-        
+
         try {
             inputStream.close();
         } catch (IOException e) {
@@ -193,7 +191,7 @@ public class Main extends PluginEvent {
                     }
                     loadSheet();
                     User user = getUser(event);
-                    int value = event.getOption(VALUE).getAsInt();
+                    int value = event.getOption("value").getAsInt();
 
                     value += userData.getOrDefault(user.getIdLong(), 0);
                     userData.put(user.getIdLong(), value);
@@ -210,7 +208,7 @@ public class Main extends PluginEvent {
                     }
                     loadSheet();
                     User user = getUser(event);
-                    int value = event.getOption(VALUE).getAsInt();
+                    int value = event.getOption("value").getAsInt();
 
                     value = userData.getOrDefault(user.getIdLong(), 0) - value;
                     userData.put(user.getIdLong(), value);
@@ -230,7 +228,7 @@ public class Main extends PluginEvent {
 
                     loadSheet();
                     User user = getUser(event);
-                    int value = event.getOption(VALUE).getAsInt();
+                    int value = event.getOption("value").getAsInt();
 
                     userData.put(user.getIdLong(), value);
                     update(user.getIdLong(), value);
@@ -293,9 +291,9 @@ public class Main extends PluginEvent {
     }
 
     private User getUser(SlashCommandInteractionEvent event) {
-        if (event.getOption(USER_TAG) != null)
+        if (event.getOption("user") != null)
             if (adminID.contains(event.getUser().getIdLong()))
-                return event.getOption(USER_TAG).getAsUser();
+                return event.getOption("user").getAsUser();
 
         return event.getUser();
     }

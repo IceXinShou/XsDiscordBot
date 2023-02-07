@@ -27,8 +27,6 @@ import java.util.stream.Collectors;
 
 import static com.xs.loader.MainLoader.ROOT_PATH;
 import static com.xs.loader.util.EmbedCreator.createEmbed;
-import static com.xs.loader.util.SlashCommandOption.USER_TAG;
-import static com.xs.loader.util.SlashCommandOption.VALUE;
 import static net.dv8tion.jda.api.Permission.ADMINISTRATOR;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.INTEGER;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.USER;
@@ -84,9 +82,9 @@ public class Main extends PluginEvent {
                         .addSubcommands(
                         moneyTypes.keySet().stream().map(
                                 name -> new SubcommandData(name, name).addOptions(
-                                        new OptionData(USER, USER_TAG, "user", true)
+                                        new OptionData(USER, "user", "user", true)
                                                 .setDescriptionLocalizations(lang.get("register;add_money;options;user")),
-                                        new OptionData(INTEGER, VALUE, "value", true)
+                                        new OptionData(INTEGER, "value", "value", true)
                                                 .setDescriptionLocalizations(lang.get("register;add_money;options;user"))
                                 )
                         ).collect(Collectors.toList())
@@ -99,9 +97,9 @@ public class Main extends PluginEvent {
                         .addSubcommands(
                         moneyTypes.keySet().stream().map(
                                 name -> new SubcommandData(name, name).addOptions(
-                                        new OptionData(USER, USER_TAG, "user", true)
+                                        new OptionData(USER, "user", "user", true)
                                                 .setDescriptionLocalizations(lang.get("register;remove_money;options;user")),
-                                        new OptionData(INTEGER, VALUE, "value", true)
+                                        new OptionData(INTEGER, "value", "value", true)
                                                 .setDescriptionLocalizations(lang.get("register;remove_money;options;user"))
                                 )
                         ).collect(Collectors.toList())
@@ -114,9 +112,9 @@ public class Main extends PluginEvent {
                         .addSubcommands(
                         moneyTypes.keySet().stream().map(
                                 name -> new SubcommandData(name, name).addOptions(
-                                        new OptionData(USER, USER_TAG, "user", true)
+                                        new OptionData(USER, "user", "user", true)
                                                 .setDescriptionLocalizations(lang.get("register;transfer_money;options;user")),
-                                        new OptionData(INTEGER, VALUE, "value", true)
+                                        new OptionData(INTEGER, "value", "value", true)
                                                 .setDescriptionLocalizations(lang.get("register;transfer_money;options;user"))
                                 )
                         ).collect(Collectors.toList())
@@ -126,7 +124,7 @@ public class Main extends PluginEvent {
                         .setNameLocalizations(lang.get("register;check_balance;cmd"))
                         .setDescriptionLocalizations(lang.get("register;check_balance;description"))
                         .setDefaultPermissions(DefaultMemberPermissions.ENABLED)
-                        .addOptions(new OptionData(USER, USER_TAG, "user", false)
+                        .addOptions(new OptionData(USER, "user", "user", false)
                         .setDescriptionLocalizations(lang.get("register;check_balance;options;user"))
                 ),
         };
@@ -180,10 +178,10 @@ public class Main extends PluginEvent {
                 if (event.getSubcommandName() == null) return;
 
                 String type = event.getSubcommandName();
-                User user = event.getOption(USER_TAG).getAsUser();
+                User user = event.getOption("user").getAsUser();
                 JSONObject obj = checkData(user.getId(), type);
                 int cur = obj.getInt(type);
-                int value = event.getOption(VALUE).getAsInt();
+                int value = event.getOption("value").getAsInt();
 
                 obj.put(type, cur + value);
                 manager.save();
@@ -203,10 +201,10 @@ public class Main extends PluginEvent {
                 if (event.getSubcommandName() == null) return;
 
                 String type = event.getSubcommandName();
-                User user = event.getOption(USER_TAG).getAsUser();
+                User user = event.getOption("user").getAsUser();
                 JSONObject obj = checkData(user.getId(), type);
                 int cur = obj.getInt(type);
-                int value = event.getOption(VALUE).getAsInt();
+                int value = event.getOption("value").getAsInt();
 
                 if (obj.getInt(type) < value) {
                     event.getHook().deleteOriginal().complete();
@@ -232,7 +230,7 @@ public class Main extends PluginEvent {
 
                 String type = event.getSubcommandName();
                 User fromUser = event.getUser();
-                User toUser = event.getOption(USER_TAG).getAsUser();
+                User toUser = event.getOption("user").getAsUser();
 
                 if (fromUser.getIdLong() == toUser.getIdLong()) {
                     event.getHook().deleteOriginal().complete();
@@ -242,7 +240,7 @@ public class Main extends PluginEvent {
 
                 JSONObject fromObj = checkData(fromUser.getId(), type);
                 JSONObject toObj = checkData(toUser.getId(), type);
-                int value = event.getOption(VALUE).getAsInt();
+                int value = event.getOption("value").getAsInt();
 
                 if (fromObj.getInt(type) < value + moneyTypes.get(type)) {
                     event.getHook().deleteOriginal().complete();
@@ -291,9 +289,9 @@ public class Main extends PluginEvent {
     }
 
     User getUserID(SlashCommandInteractionEvent event) {
-        if (event.getOption(USER_TAG) != null)
+        if (event.getOption("user") != null)
             if (event.getMember().hasPermission(ADMINISTRATOR))
-                return event.getOption(USER_TAG).getAsUser();
+                return event.getOption("user").getAsUser();
 
         return event.getUser();
     }

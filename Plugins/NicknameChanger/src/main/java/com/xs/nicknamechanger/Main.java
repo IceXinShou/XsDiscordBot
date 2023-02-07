@@ -14,7 +14,6 @@ import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 
 import java.util.Map;
 
-import static com.xs.loader.util.SlashCommandOption.*;
 import static net.dv8tion.jda.api.Permission.BAN_MEMBERS;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.*;
 
@@ -60,11 +59,11 @@ public class Main extends PluginEvent {
                         .setNameLocalizations(lang.get("register;cmd"))
                         .setDescriptionLocalizations(lang.get("register;description"))
                         .addOptions(
-                                new OptionData(USER, USER_TAG, "user", true)
+                                new OptionData(USER, "user", "user", true)
                                         .setDescriptionLocalizations(lang.get("register;options;user")),
-                                new OptionData(INTEGER, DAYS, "day")
+                                new OptionData(INTEGER, "days", "day")
                                         .setDescriptionLocalizations(lang.get("register;options;day")),
-                                new OptionData(STRING, REASON, "reason")
+                                new OptionData(STRING, "reason", "reason")
                                         .setDescriptionLocalizations(lang.get("register;options;reason")))
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(BAN_MEMBERS))
         };

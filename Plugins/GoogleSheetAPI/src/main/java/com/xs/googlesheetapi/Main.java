@@ -40,7 +40,7 @@ public class Main extends PluginEvent {
         InputStream inputStream = getter.readYmlInputStream("config.yml", PATH_FOLDER_NAME);
 
         configFile = new Yaml(new Constructor(MainConfig.class)).load(inputStream);
-        
+
         try {
             inputStream.close();
         } catch (IOException e) {

@@ -11,6 +11,7 @@ public class EmbedCreator {
                 .setColor(color)
                 .build();
     }
+
     public static MessageEmbed createEmbed(String title, int color) {
         return new EmbedBuilder()
                 .setTitle(title)

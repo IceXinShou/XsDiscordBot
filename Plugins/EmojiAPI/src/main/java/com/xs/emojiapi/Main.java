@@ -7,19 +7,21 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import org.json.JSONArray;
-import org.json.JSONObject;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Main extends PluginEvent {
 
-    private JSONObject config;
+    private MainConfig configFile;
     private FileGetter getter;
     private Logger logger;
     private static final String TAG = "EmojiAPI";
     private final String PATH_FOLDER_NAME = "./plugins/EmojiAPI";
-    private JSONArray ids;
     public static Map<String, Map<Long, Emoji>> emojis = new HashMap<>();
     private boolean setup = false;
 
@@ -43,22 +45,24 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadConfigFile() {
-        config = new JSONObject(getter.readYml("config.yml", PATH_FOLDER_NAME));
+        InputStream inputStream = getter.readYmlInputStream("config.yml", PATH_FOLDER_NAME);
+        try {
+            configFile = new Yaml(new Constructor(MainConfig.class)).load(inputStream);
+            inputStream.close();
 
-        if (config.has("GuildID") && !config.getJSONArray("GuildID").isEmpty()) {
-            ids = config.getJSONArray("GuildID");
             setup = true;
             logger.log("Setting File Loaded Successfully");
-        } else {
+        } catch (IOException e) {
             logger.warn("Please configure /" + PATH_FOLDER_NAME + "/config.yml");
+            e.printStackTrace();
         }
     }
 
     @Override
     public void onGuildReady(GuildReadyEvent event) {
         if (setup) {
-            for (int i = 0; i < ids.length(); ++i) {
-                if (ids.getLong(i) == event.getGuild().getIdLong()) {
+            for (long i: configFile.GuildID) {
+                if (i == event.getGuild().getIdLong()) {
                     Guild guild = event.getGuild();
                     for (Emoji j : guild.retrieveEmojis().complete()) {
                         emojis.getOrDefault(j.getName(), new HashMap<>()).put(guild.getIdLong(), j);

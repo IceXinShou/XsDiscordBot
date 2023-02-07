@@ -6,7 +6,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
 public class JsonFileManager {
@@ -21,15 +20,6 @@ public class JsonFileManager {
         this.logger = new Logger(TAG);
         this.isObject = isObject;
         initData();
-    }
-
-    public static String streamToString(InputStream inputStream) throws IOException {
-        ByteArrayOutputStream result = new ByteArrayOutputStream();
-        byte[] buffer = new byte[1024];
-        for (int length; (length = inputStream.read(buffer)) != -1; ) {
-            result.write(buffer, 0, length);
-        }
-        return result.toString();
     }
 
     private void initData() {
@@ -90,7 +80,7 @@ public class JsonFileManager {
     }
 
 
-    public void removeGuild(long id) {
+    public void removeObj(long id) {
         if (data_obj.has(String.valueOf(id))) {
             data_obj.remove(String.valueOf(id));
         } else {
@@ -110,5 +100,14 @@ public class JsonFileManager {
         } catch (IOException e) {
             logger.warn("Cannot save file: " + e.getMessage());
         }
+    }
+
+    public static String streamToString(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream result = new ByteArrayOutputStream();
+        byte[] buffer = new byte[1024];
+        for (int length; (length = inputStream.read(buffer)) != -1; ) {
+            result.write(buffer, 0, length);
+        }
+        return result.toString();
     }
 }
