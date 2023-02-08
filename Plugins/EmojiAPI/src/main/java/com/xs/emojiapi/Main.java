@@ -6,7 +6,6 @@ import com.xs.loader.util.FileGetter;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
-import org.json.JSONArray;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
@@ -61,7 +60,7 @@ public class Main extends PluginEvent {
     @Override
     public void onGuildReady(GuildReadyEvent event) {
         if (setup) {
-            for (long i: configFile.GuildID) {
+            for (long i : configFile.GuildID) {
                 if (i == event.getGuild().getIdLong()) {
                     Guild guild = event.getGuild();
                     for (Emoji j : guild.retrieveEmojis().complete()) {

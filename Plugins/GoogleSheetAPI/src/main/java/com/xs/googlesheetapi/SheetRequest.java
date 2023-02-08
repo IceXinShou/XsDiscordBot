@@ -16,6 +16,7 @@ import com.google.api.services.sheets.v4.model.UpdateValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import com.xs.loader.logger.Logger;
 import javafx.util.Pair;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -65,6 +66,7 @@ public class SheetRequest {
         this.sheetRange = sheetRange;
     }
 
+    @Nullable
     public Pair<Integer, Integer> where(String range, String key) throws IOException {
         refresh(range);
 

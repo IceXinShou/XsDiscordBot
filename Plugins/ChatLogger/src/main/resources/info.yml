@@ -4,4 +4,4 @@ name: ChatLogger
 version: '1.0'
 prefix: ChatLogger
 depend:
-  - MongoDBAPI
+  - SQLiteAPI

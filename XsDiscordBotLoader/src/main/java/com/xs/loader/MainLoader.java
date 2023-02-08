@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.fusesource.jansi.AnsiConsole;
+import org.jetbrains.annotations.Nullable;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
@@ -29,6 +30,8 @@ import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.jar.JarFile;
+
+import static com.xs.loader.util.GlobalUtil.getExtensionName;
 
 public class MainLoader {
     public static JDA jdaBot;
@@ -145,14 +148,6 @@ public class MainLoader {
             logger.warn("File Initialized failed");
     }
 
-    String getExtensionName(String fileName) {
-        int i = fileName.lastIndexOf('.');
-        if (i > 0) {
-            return fileName.substring(i + 1);
-        }
-        return null;
-    }
-
     boolean loadPlugin(PluginInfo pluginInfo) {
         if (pluginInfo.depend != null)
             for (String depend : pluginInfo.depend) {
@@ -225,7 +220,10 @@ public class MainLoader {
                 ++count;
             } catch (Exception e) {
                 ++fail;
-                logger.warn(file.getName() + '\n' + Arrays.toString(e.getStackTrace()).replace(',', '\n'));
+                e.printStackTrace();
+//                logger.warn(file.getName() + '\n' +
+//                        e.getMessage() + '\n' +
+//                        Arrays.toString(e.getStackTrace()).replace(',', '\n'));
             }
         }
 
@@ -424,6 +422,7 @@ public class MainLoader {
         }
     }
 
+    @Nullable
     public InputStream readOrDefaultYml(String name, String outName, java.lang.ClassLoader loader) {
         File settingFile = new File(System.getProperty("user.dir") + '/' + outName);
         if (!settingFile.exists()) {
@@ -443,6 +442,7 @@ public class MainLoader {
         }
     }
 
+    @Nullable
     public File exportResource(String sourceFile, String outputName, String outputPath, java.lang.ClassLoader loader) {
         InputStream fileInJar = loader.getResourceAsStream(sourceFile);
 

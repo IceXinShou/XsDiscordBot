@@ -2,6 +2,7 @@ package com.xs.loader.util;
 
 import com.xs.loader.MainLoader;
 import com.xs.loader.logger.Logger;
+import org.jetbrains.annotations.Nullable;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
@@ -24,6 +25,7 @@ public class FileGetter {
         this.CLASS = CLASS;
     }
 
+    @Nullable
     public Map<String, Object> readFileMap(Path f) {
         try {
             return new Yaml().load(Files.newInputStream(f));
@@ -33,6 +35,7 @@ public class FileGetter {
         return null;
     }
 
+    @Nullable
     public Map<String, Object> readYml(String fileName, String path) {
         new File(MainLoader.ROOT_PATH + "/" + path).mkdirs();
         File settingFile = new File(MainLoader.ROOT_PATH + "/" + path + "/" + fileName);
@@ -49,6 +52,7 @@ public class FileGetter {
         return readFileMap(settingFile.toPath());
     }
 
+    @Nullable
     public InputStream readYmlInputStream(String fileName, String path) {
         new File(MainLoader.ROOT_PATH + "/" + path).mkdirs();
         File settingFile = new File(MainLoader.ROOT_PATH + "/" + path + "/" + fileName);
@@ -71,6 +75,7 @@ public class FileGetter {
         return null;
     }
 
+    @Nullable
     public File exportResource(String sourceFileName, String outputPath) {
         InputStream fileInJar = CLASS.getResourceAsStream(sourceFileName);
         try {
@@ -88,6 +93,7 @@ public class FileGetter {
         return null;
     }
 
+    @Nullable
     public File exportResource(String sourceFile, String outputName, String outputPath) {
         InputStream fileInJar = CLASS.getResourceAsStream(sourceFile);
 

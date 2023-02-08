@@ -1,6 +1,8 @@
 package com.xs.loader;
 
 
+import org.jetbrains.annotations.Nullable;
+
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -13,7 +15,7 @@ public class ClassLoader extends URLClassLoader {
         super(new URL[0], MainLoader.class.getClassLoader());
     }
 
-    Map<String, URL> resourcePath = new HashMap<>();
+    private final Map<String, URL> resourcePath = new HashMap<>();
 
     public void addJar(File file, String main) {
         try {
@@ -31,6 +33,7 @@ public class ClassLoader extends URLClassLoader {
 //        AppletClassLoader
     }
 
+    @Nullable
     public Class<?> getClass(String name) {
         try {
             return loadClass(name, false);
@@ -46,6 +49,7 @@ public class ClassLoader extends URLClassLoader {
 //        return super.getResourceAsStream(name);
 //    }
 
+    @Nullable
     @Override
     public URL findResource(String name) {
         URL url = super.findResource(name);

@@ -2,6 +2,7 @@ package com.xs.loader.util;
 
 import com.xs.loader.MainLoader;
 import com.xs.loader.logger.Logger;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -27,16 +28,12 @@ public class JsonFileManager {
         try {
             if (!FILE.exists() || (tmp = streamToString(Files.newInputStream(FILE.toPath()))).length() == 0) {
                 FILE.createNewFile();
-                FileWriter writer = new FileWriter(FILE);
                 if (isObject) {
-                    writer.write("{}");
                     data_obj = new JSONObject("{}");
                 } else {
-                    writer.write("[]");
                     data_ary = new JSONArray("[]");
                 }
-                writer.flush();
-                writer.close();
+                save();
                 return;
             }
 
@@ -54,10 +51,18 @@ public class JsonFileManager {
         return data_obj;
     }
 
+    @Nullable
+    public JSONObject getObj(String key) {
+        if (data_obj.has(key))
+            return data_obj.getJSONObject(key);
+        return null;
+    }
+
     public JSONArray getAry() {
         return data_ary;
     }
 
+    @Nullable
     public JSONObject getOrDefault(String key) {
         if (isObject) {
             if (data_obj.has(key)) return data_obj.getJSONObject(key);
@@ -65,6 +70,18 @@ public class JsonFileManager {
                 JSONObject tmp = new JSONObject();
                 data_obj.put(key, tmp);
                 return tmp;
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    public JSONObject getOrDefault(String key, JSONObject object) {
+        if (isObject) {
+            if (data_obj.has(key)) return data_obj.getJSONObject(key);
+            else {
+                data_obj.put(key, object);
+                return object;
             }
         }
         return null;
@@ -79,12 +96,20 @@ public class JsonFileManager {
         }
     }
 
+    public JSONArray getOrDefaultArray(String key, JSONArray array) {
+        if (data_obj.has(key)) return data_obj.getJSONArray(key);
+        else {
+            data_obj.put(key, array);
+            return array;
+        }
+    }
 
-    public void removeObj(long id) {
-        if (data_obj.has(String.valueOf(id))) {
-            data_obj.remove(String.valueOf(id));
+
+    public void removeObj(String id) {
+        if (data_obj.has(id)) {
+            data_obj.remove(id);
         } else {
-            logger.warn("Cannot remove guild data by id: " + id);
+            logger.warn("Cannot remove data by id: " + id);
         }
     }
 
@@ -108,6 +133,8 @@ public class JsonFileManager {
         for (int length; (length = inputStream.read(buffer)) != -1; ) {
             result.write(buffer, 0, length);
         }
+
+        result.close();
         return result.toString();
     }
 }

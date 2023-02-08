@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 
 import static com.xs.loader.MainLoader.ROOT_PATH;
 import static com.xs.loader.util.EmbedCreator.createEmbed;
-import static com.xs.loader.util.UserUtil.getUserById;
+import static com.xs.loader.util.GlobalUtil.getUserById;
 import static net.dv8tion.jda.api.Permission.ADMINISTRATOR;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.INTEGER;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.USER;

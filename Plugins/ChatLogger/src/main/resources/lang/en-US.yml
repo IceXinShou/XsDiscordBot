@@ -1,13 +1,11 @@
 register:
-  cmd: chatlogger
-  description: commands about dynamic voice chat
+  cmd: chat_logger
+  description: commands about chat logger
 
   subcommand:
-    create:
-      cmd: createbychannel
-      description: create a dynamic voice chat by channel
-      options:
-        detect: the channel be detected
+    setting:
+      cmd: setting
+      description: set chat log in this channel
 
 runtime:
   success: Setting successfully

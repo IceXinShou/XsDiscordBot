@@ -9,6 +9,8 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.EntitySelectInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
@@ -18,6 +20,7 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.sql.*;
@@ -28,7 +31,8 @@ import java.util.stream.Collectors;
 
 import static com.xs.loader.MainLoader.ROOT_PATH;
 import static com.xs.loader.MainLoader.jdaBot;
-import static com.xs.loader.util.UserUtil.getUserById;
+import static com.xs.loader.util.GlobalUtil.getExtensionName;
+import static com.xs.loader.util.GlobalUtil.getUserById;
 import static net.dv8tion.jda.api.Permission.ADMINISTRATOR;
 
 public class Main extends PluginEvent {
@@ -65,6 +69,9 @@ public class Main extends PluginEvent {
         f.mkdirs();
 
         for (File i : f.listFiles()) {
+            String extensionName = getExtensionName(i.getName());
+            if (extensionName == null || !extensionName.equals("db")) continue;
+
             try {
                 dbConns.put(Long.parseLong(i.getName().substring(0, i.getName().indexOf('.'))), DriverManager.getConnection(
                         "jdbc:sqlite:" + ROOT_PATH + "/" + PATH_FOLDER_NAME + "/data/" + i.getName()
@@ -101,7 +108,7 @@ public class Main extends PluginEvent {
     @Override
     public CommandData[] guildCommands() {
         return new SlashCommandData[]{
-                Commands.slash("chatlogger", "commands about dynamic voice chat")
+                Commands.slash("chat_logger", "commands about chat logger")
                         .setNameLocalizations(lang.get("register;cmd"))
                         .setDescriptionLocalizations(lang.get("register;description"))
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR))
@@ -115,12 +122,54 @@ public class Main extends PluginEvent {
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
-        if (!event.getName().equals("chatlogger")) return;
+        if (!event.getName().equals("chat_logger")) return;
         if (event.getSubcommandName() == null) return;
+        DiscordLocale local = event.getUserLocale();
 
         switch (event.getSubcommandName()) {
             case "setting": {
-                buttonSystem.setting(event);
+                buttonSystem.setting(event, local);
+                break;
+            }
+        }
+    }
+
+    @Override
+    public void onEntitySelectInteraction(EntitySelectInteractionEvent event) {
+        String[] args = event.getComponentId().split(":");
+        if (!args[0].equals("xs") || !args[1].equals("chatlogger")) return;
+        DiscordLocale local = event.getUserLocale();
+
+
+        switch (args[2]) {
+            case "white":
+            case "black": {
+                buttonSystem.select(event, args, local);
+                break;
+            }
+        }
+    }
+
+    @Override
+    public void onButtonInteraction(ButtonInteractionEvent event) {
+        String[] args = event.getComponentId().split(":");
+        if (!args[0].equals("xs") || !args[1].equals("chatlogger")) return;
+        DiscordLocale local = event.getUserLocale();
+
+        switch (args[2]) {
+            case "toggle": {
+                buttonSystem.toggle(event, args, local);
+                break;
+            }
+
+            case "black":
+            case "white": {
+                buttonSystem.createSel(event, args, local);
+                break;
+            }
+
+            case "delete": {
+                buttonSystem.delete(event, args, local);
                 break;
             }
         }
@@ -273,6 +322,7 @@ public class Main extends PluginEvent {
         }
     }
 
+    @Nullable
     ResultSet findDataInTable(Statement stmt, long channelID, long messageID) {
         ResultSet rs;
         try {
