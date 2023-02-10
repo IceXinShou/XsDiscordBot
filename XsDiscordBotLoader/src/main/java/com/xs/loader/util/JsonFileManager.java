@@ -105,12 +105,13 @@ public class JsonFileManager {
     }
 
 
-    public void removeObj(String id) {
+    public JsonFileManager removeObj(String id) {
         if (data_obj.has(id)) {
             data_obj.remove(id);
         } else {
             logger.warn("Cannot remove data by id: " + id);
         }
+        return this;
     }
 
     public void save() {

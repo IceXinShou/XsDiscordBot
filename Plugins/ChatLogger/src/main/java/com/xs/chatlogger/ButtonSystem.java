@@ -15,6 +15,7 @@ import net.dv8tion.jda.internal.interactions.component.ButtonImpl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.xs.loader.util.EmbedCreator.createEmbed;
@@ -22,30 +23,70 @@ import static net.dv8tion.jda.api.entities.channel.ChannelType.*;
 
 
 public class ButtonSystem {
-    public final JsonManager manager;
+    private final JsonManager manager;
 
-    public ButtonSystem(JsonManager manager) {
+    private final Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
+
+    public ButtonSystem(Map<String, Map<DiscordLocale, String>> lang, JsonManager manager) {
+        this.lang = lang;
         this.manager = manager;
     }
 
     public void setting(SlashCommandInteractionEvent event, DiscordLocale local) {
-        ChannelSetting setting = manager.getOrDefault(event.getChannel().getIdLong());
+        if (event.getGuild() == null) return;
+        ChannelSetting setting = manager.getOrDefault(event.getGuild().getIdLong(), event.getChannel().getIdLong());
 
         event.getHook()
                 .editOriginalEmbeds(getEmbed(setting, local).build())
-                .setActionRow(getButtons(event, setting, local))
+                .setActionRow(getButtons(event, local))
                 .queue();
     }
 
     public void toggle(ButtonInteractionEvent event, String[] args, DiscordLocale local) {
         if (!args[3].equals(event.getUser().getId())) return;
-        manager.toggle(event.getChannel().getId());
+        if (event.getGuild() == null) return;
 
-        ChannelSetting setting = manager.getOrDefault(event.getChannel().getIdLong());
+        ChannelSetting setting = manager.toggle(event.getGuild().getIdLong(), event.getChannel().getIdLong());
+
         event.getHook()
                 .editOriginalEmbeds(getEmbed(setting, local).build())
-                .setActionRow(getButtons(event, setting, local))
+                .setActionRow(getButtons(event, local))
                 .queue();
+        event.deferEdit().queue();
+    }
+
+
+    public void delete(ButtonInteractionEvent event, String[] args, DiscordLocale local) {
+        if (event.getGuild() == null) return;
+        if (!args[3].equals(event.getUser().getId())) return;
+        manager.delete(event.getGuild().getIdLong(), event.getChannel().getIdLong());
+
+        event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;delete_success").get(local), 0x00FFFF)).setComponents(Collections.emptyList()).queue();
+        event.deferEdit().queue();
+    }
+
+    public void select(EntitySelectInteractionEvent event, String[] args, DiscordLocale local) {
+        if (!args[3].equals(event.getUser().getId())) return;
+        if (event.getGuild() == null) return;
+
+        List<Long> channelIDs = event.getValues().stream().map(ISnowflake::getIdLong).collect(Collectors.toList());
+
+        ChannelSetting setting = manager.addChannels(
+                event.getGuild().getIdLong(),
+                Long.parseLong(args[4]),
+                channelIDs, String.valueOf(args[2]).equals("white")
+        );
+
+        if (setting == null) {
+            System.out.println("WTF");
+            return;
+        }
+
+        event.getHook()
+                .editOriginalEmbeds(getEmbed(setting, local).build())
+                .setActionRow(getButtons(event, local))
+                .queue();
+
         event.deferEdit().queue();
     }
 
@@ -58,7 +99,7 @@ public class ButtonSystem {
                         TEXT, VOICE, VOICE, NEWS, FORUM,
                         GUILD_PRIVATE_THREAD, GUILD_PUBLIC_THREAD, GUILD_NEWS_THREAD
                 )
-                .setPlaceholder("請選擇頻道")
+                .setPlaceholder(lang.get("runtime;select_menu;placeholder").get(local))
                 .setRequiredRange(1, 25)
                 .build();
 
@@ -66,84 +107,62 @@ public class ButtonSystem {
         event.deferEdit().queue();
     }
 
-    public void delete(ButtonInteractionEvent event, String[] args, DiscordLocale local) {
-        if (!args[3].equals(event.getUser().getId())) return;
-        manager.delete(event.getChannel().getId());
-
-        event.getHook().editOriginalEmbeds(createEmbed("已刪除", 0x00FFFF)).setComponents(Collections.emptyList()).queue();
-        event.deferEdit().queue();
-    }
-
-
-    public void select(EntitySelectInteractionEvent event, String[] args, DiscordLocale local) {
-        if (!args[3].equals(event.getUser().getId())) return;
-
-        List<String> channelIDs = event.getValues().stream().map(ISnowflake::getId).collect(Collectors.toList());
-
-        manager.addChannels(args[4], channelIDs, args[2]);
-
-        ChannelSetting setting = manager.getOrDefault(event.getChannel().getIdLong());
-        event.getHook()
-                .editOriginalEmbeds(getEmbed(setting, local).build())
-                .setActionRow(getButtons(event, setting, local))
-                .queue();
-
-        event.deferEdit().queue();
-    }
-
     private EmbedBuilder getEmbed(ChannelSetting setting, DiscordLocale local) {
         StringBuilder whiteBuilder = new StringBuilder();
         if (setting.white.size() > 0) {
             for (ChannelSetting.ListData i : setting.white) {
-                whiteBuilder.append("<#").append(i.id).append(">\n");
+                whiteBuilder.append("<#").append(i.detectID).append(">\n");
             }
         } else {
-            whiteBuilder.append("無");
+            whiteBuilder.append(lang.get("runtime;embed;empty").get(local));
         }
 
         StringBuilder blackBuilder = new StringBuilder();
         if (setting.black.size() > 0) {
             for (ChannelSetting.ListData i : setting.black) {
-                blackBuilder.append("<#").append(i.id).append(">\n");
+                blackBuilder.append("<#").append(i.detectID).append(">\n");
             }
         } else {
-            blackBuilder.append("無");
+            blackBuilder.append(lang.get("runtime;embed;empty").get(local));
         }
 
         return new EmbedBuilder()
-                .setTitle("頻道設定")
+                .setTitle(lang.get("runtime;embed;channel_setting").get(local))
                 .setColor(0x00FFFF)
-                .addField("目前紀錄狀態", setting.whitelist ? "**<白名單>**" : "**<黑名單>**", false)
-                .addField("白名單頻道", whiteBuilder.toString(), false)
-                .addField("黑名單頻道", blackBuilder.toString(), false);
+                .addField(lang.get("runtime;embed;now_status").get(local),
+                        setting.whitelistStat ? lang.get("runtime;embed;white_list").get(local) : lang.get("runtime;embed;black_list").get(local),
+                        false)
+                .addField(lang.get("runtime;embed;white_channel").get(local), whiteBuilder.toString(), false)
+                .addField(lang.get("runtime;embed;black_channel").get(local), blackBuilder.toString(), false);
     }
 
-    public List<Button> getButtons(GenericInteractionCreateEvent event, ChannelSetting setting, DiscordLocale local) {
+    public List<Button> getButtons(GenericInteractionCreateEvent event, DiscordLocale local) {
+        if (event.getChannel() == null) return Collections.emptyList();
         List<Button> buttons = new ArrayList<>();
         buttons.add(
                 new ButtonImpl("xs:chatlogger:toggle:" + event.getUser().getId() + ':' + event.getChannel().getId(),
-                        "切換狀態",
+                        lang.get("runtime;button;toggle_status").get(local),
                         ButtonStyle.PRIMARY, false, null
                 )
         );
 
         buttons.add(
                 new ButtonImpl("xs:chatlogger:white:" + event.getUser().getId() + ':' + event.getChannel().getId(),
-                        "設定白名單",
+                        lang.get("runtime;button;set_white").get(local),
                         ButtonStyle.SUCCESS, false, null
                 )
         );
 
         buttons.add(
                 new ButtonImpl("xs:chatlogger:black:" + event.getUser().getId() + ':' + event.getChannel().getId(),
-                        "設定黑名單",
+                        lang.get("runtime;button;set_black").get(local),
                         ButtonStyle.SECONDARY, false, null
                 )
         );
 
         buttons.add(
                 new ButtonImpl("xs:chatlogger:delete:" + event.getUser().getId() + ':' + event.getChannel().getId(),
-                        "刪除",
+                        lang.get("runtime;button;delete").get(local),
                         ButtonStyle.DANGER, false, null
                 )
         );

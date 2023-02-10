@@ -8,7 +8,27 @@ register:
       description: 設定訊息紀錄在此頻道
 
 runtime:
-  success: 設定完成
+  set_success: 設定完成
+  delete_success: 刪除完成
+
+  select_menu:
+    placeholder: 請選擇頻道或在這裡搜尋
+
+  embed:
+    channel_setting: 頻道設定
+    now_status: 目前記錄狀態
+    white_list: "**<白名單>**"
+    black_list: "**<黑名單>**"
+    white_channel: 白名單頻道
+    black_channel: 黑名單頻道
+    empty: 無
+
+  button:
+    toggle_status: 切換狀態
+    set_white: 設定白名單
+    set_black: 設定黑名單
+    delete: 刪除
+
 
   errors:
     unknown: 未知的錯誤

@@ -7,6 +7,7 @@ import com.xs.loader.util.FileGetter;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -14,6 +15,7 @@ import net.dv8tion.jda.api.events.interaction.component.EntitySelectInteractionE
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
+import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
@@ -44,7 +46,7 @@ public class Main extends PluginEvent {
     private Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
     private final Map<Long, Connection> dbConns = new HashMap<>();
     private final JsonManager manager = new JsonManager();
-    private final ButtonSystem buttonSystem = new ButtonSystem(manager);
+    private ButtonSystem buttonSystem;
 
     public Main() {
         super(true);
@@ -60,6 +62,7 @@ public class Main extends PluginEvent {
         }
         getter = new FileGetter(logger, PATH_FOLDER_NAME, Main.class);
         loadLang();
+
         initData();
         logger.log("Loaded");
     }
@@ -121,6 +124,12 @@ public class Main extends PluginEvent {
     }
 
     @Override
+    public void onReady(ReadyEvent event) {
+        manager.init();
+        buttonSystem = new ButtonSystem(lang, manager);
+    }
+
+    @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         if (!event.getName().equals("chat_logger")) return;
         if (event.getSubcommandName() == null) return;
@@ -178,6 +187,7 @@ public class Main extends PluginEvent {
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         if (event.getAuthor().equals(jdaBot.getSelfUser())) return;
+        if (!event.isFromGuild()) return;
 
         long guildID = event.getGuild().getIdLong();
         long channelID = event.getChannel().getIdLong();
@@ -196,7 +206,7 @@ public class Main extends PluginEvent {
             if (!stmt.executeQuery(String.format("SELECT name FROM sqlite_master WHERE type='table' AND name='%d';", channelID)).next()) {
                 // create a table
                 stmt.executeUpdate(String.format("" +
-                                "CREATE TABLE \"%d\" (" +
+                                "CREATE TABLE '%d' (" +
                                 "message_id INT PRIMARY KEY  NOT NULL   ON CONFLICT FAIL, " +
                                 "user_id                INT  NOT NULL, " +
                                 "message               TEXT  NOT NULL  " +
@@ -205,7 +215,7 @@ public class Main extends PluginEvent {
                 ));
             }
 
-            String insert = String.format("INSERT INTO \"%d\" VALUES (?, ?, ?)", channelID);
+            String insert = String.format("INSERT INTO '%d' VALUES (?, ?, ?)", channelID);
             PreparedStatement createMessage = conn.prepareStatement(insert);
             createMessage.setLong(1, messageID);
             createMessage.setLong(2, userID);
@@ -223,6 +233,7 @@ public class Main extends PluginEvent {
         long guildID = event.getGuild().getIdLong();
         long messageID = event.getMessageIdLong();
         long channelID = event.getChannel().getIdLong();
+        String log = "null";
 
         try {
             Connection conn = dbConns.getOrDefault(guildID, DriverManager.getConnection(
@@ -238,23 +249,36 @@ public class Main extends PluginEvent {
             long userID = messageSender.getIdLong();
             String message = getMessageOrEmbed(event.getMessage());
 
-
-            logger.log(String.format(
+            log = String.format(
                     "Updated message: (%s : %d) \n%s -> \n%s",
                     messageSender.getAsTag(), userID,
                     rs.getString("message"), message
-            ));
+            );
+            logger.log(log);
 
+            String update = String.format("UPDATE '%d' SET message = ? WHERE message_id= ?", channelID);
+            PreparedStatement createMessage = conn.prepareStatement(update);
+            createMessage.setString(1, message);
+            createMessage.setLong(2, messageID);
+            createMessage.executeUpdate();
 
-            String update = String.format("UPDATE \"%d\" SET message = '%s' WHERE message_id= '%d'",
-                    channelID, message, messageID);
-            stmt.executeUpdate(update);
 
             rs.close();
             stmt.close();
         } catch (Exception e) {
             sqlErrorPrinter(e);
         }
+
+        String finalLog = log;
+
+        manager.channelSettings.getOrDefault(guildID, new HashMap<>()).forEach(
+                (i, j) -> {
+                    if (j.contains(channelID, ChannelSetting.DetectType.UPDATE)) {
+                        TextChannel channel = event.getGuild().getTextChannelById(i);
+                        if (channel != null) channel.sendMessage(finalLog).queue();
+                    }
+                }
+        );
     }
 
     @Override
@@ -262,6 +286,7 @@ public class Main extends PluginEvent {
         long guildID = event.getGuild().getIdLong();
         long messageID = event.getMessageIdLong();
         long channelID = event.getChannel().getIdLong();
+        String log = "null";
 
         try {
             Connection conn = dbConns.getOrDefault(guildID, DriverManager.getConnection(
@@ -277,12 +302,13 @@ public class Main extends PluginEvent {
 
             String messageStr = rs.getString("message");
 
-            logger.log(String.format(
+            log = String.format(
                     "Deleted message: %s (%s : %d)",
                     messageStr, messageSender.getAsTag(), messageSender.getIdLong()
-            ));
+            );
+            logger.log(log);
 
-            String removeMessageSql = String.format("DELETE FROM \"%d\" WHERE message_id = ?", channelID);
+            String removeMessageSql = String.format("DELETE FROM '%d' WHERE message_id = ?", channelID);
             PreparedStatement removeMessage = conn.prepareStatement(removeMessageSql);
             removeMessage.setLong(1, messageID);
             removeMessage.executeUpdate();
@@ -292,6 +318,16 @@ public class Main extends PluginEvent {
         } catch (SQLException e) {
             sqlErrorPrinter(e);
         }
+
+        String finalLog = log;
+        manager.channelSettings.getOrDefault(guildID, new HashMap<>()).forEach(
+                (i, j) -> {
+                    if (j.contains(channelID, ChannelSetting.DetectType.DELETE)) {
+                        TextChannel channel = event.getGuild().getTextChannelById(i);
+                        if (channel != null) channel.sendMessage(finalLog).queue();
+                    }
+                }
+        );
     }
 
     @Override
@@ -327,7 +363,7 @@ public class Main extends PluginEvent {
         ResultSet rs;
         try {
             rs = stmt.executeQuery(
-                    String.format("SELECT message_id, user_id, message FROM \"%d\" WHERE message_id = \"%d\"", channelID, messageID)
+                    String.format("SELECT message_id, user_id, message FROM '%d' WHERE message_id = '%d'", channelID, messageID)
             );
         } catch (Exception e) {
             logger.warn("the table which is named as channel_id is not exist");

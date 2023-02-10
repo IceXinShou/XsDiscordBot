@@ -8,7 +8,26 @@ register:
       description: set chat log in this channel
 
 runtime:
-  success: Setting successfully
+  set_success: setting successfully
+  delete_success: delete successfully
+
+  select_menu:
+    placeholder: Select Channel(s) or Search here
+
+  embed:
+    channel_setting: Channel Setting
+    now_status: "Now: "
+    white_list: "**<WhiteList>**"
+    black_list: "**<BlackList>**"
+    white_channel: Whitelist Channels
+    black_channel: Blacklist Channels
+    empty: Empty
+
+  button:
+    toggle_status: Toggle Status
+    set_white: Config Whitelist
+    set_black: Config Blacklist
+    delete: Delete
 
   errors:
     unknown: Unknown ERROR!
