@@ -7,6 +7,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
 public class JsonFileManager {
@@ -39,8 +40,9 @@ public class JsonFileManager {
 
             if (isObject) {
                 data_obj = new JSONObject(tmp);
-            } else
+            } else {
                 data_ary = new JSONArray(tmp);
+            }
         } catch (IOException e) {
             logger.warn(e.getMessage());
         }
@@ -116,7 +118,8 @@ public class JsonFileManager {
 
     public void save() {
         try {
-            FileWriter writer = new FileWriter(FILE);
+            OutputStreamWriter writer = new OutputStreamWriter(Files.newOutputStream(FILE.toPath()), StandardCharsets.UTF_8);
+//            FileWriter writer = new FileWriter(FILE);
             if (isObject)
                 writer.write(data_obj.toString());
             else
@@ -136,6 +139,6 @@ public class JsonFileManager {
         }
 
         result.close();
-        return result.toString();
+        return result.toString("UTF-8");
     }
 }
