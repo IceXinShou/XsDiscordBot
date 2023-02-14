@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.interactions.commands.build.*;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -140,6 +141,7 @@ public class Main extends PluginEvent {
             event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;success").get(local), 0x00FFFF)).queue();
         } catch (Exception e) {
             event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;errors;unknown").get(local), 0xFF0000)).queue();
+            logger.warn(Arrays.toString(e.getStackTrace()));
             logger.warn(e.getMessage());
         }
 

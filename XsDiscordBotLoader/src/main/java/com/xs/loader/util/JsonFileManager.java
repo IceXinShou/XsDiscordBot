@@ -120,7 +120,7 @@ public class JsonFileManager {
             if (isObject)
                 writer.write(data_obj.toString());
             else
-                writer.write(data_obj.toString());
+                writer.write(data_ary.toString());
             writer.flush();
             writer.close();
         } catch (IOException e) {

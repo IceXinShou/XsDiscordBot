@@ -1,0 +1,5 @@
+author: IceXinShou
+main: com.xs.voicelogger.Main
+name: VoiceLogger
+version: '1.0'
+prefix: VoiceLogger

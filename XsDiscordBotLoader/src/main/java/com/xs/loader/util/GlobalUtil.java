@@ -1,5 +1,7 @@
 package com.xs.loader.util;
 
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,5 +19,14 @@ public class GlobalUtil {
             return fileName.substring(i + 1);
         }
         return null;
+    }
+
+    public static String getNickOrTag(User user, Guild guild) {
+        Member member;
+        if ((member = guild.retrieveMemberById(user.getIdLong()).complete()) == null || member.getNickname() == null) {
+            return user.getAsTag();
+        }
+
+        return member.getNickname() + " (" + user.getAsTag() + ')';
     }
 }

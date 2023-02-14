@@ -1,18 +1,21 @@
 register:
-  cmd: 訊息紀錄
-  description: 有關訊息紀錄的指令
+  cmd: 語音紀錄
+  description: 有關語音紀錄的指令
 
   subcommand:
     setting:
       cmd: 設定
-      description: 設定訊息紀錄在此頻道
+      description: 設定語音紀錄在此頻道
 
 runtime:
   log:
-    update:
-      before: "之前"
-      after: "之後"
-      footer: "更改訊息"
+    left:
+      title: "退出 %channel_name%"
+      footer: "退出語音"
+
+    join:
+      title: "加入 %channel_name%"
+      footer: "進入語音"
 
     delete:
       footer: "刪除訊息"

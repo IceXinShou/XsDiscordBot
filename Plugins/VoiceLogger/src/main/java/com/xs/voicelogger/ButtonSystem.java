@@ -1,4 +1,4 @@
-package com.xs.chatlogger;
+package com.xs.voicelogger;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.ISnowflake;
@@ -76,7 +76,7 @@ public class ButtonSystem {
         event.getGuild().getCategories().forEach(i -> {
             if (channelIDs.contains(i.getIdLong())) {
                 channelIDs.remove(i.getIdLong());
-                channelIDs.addAll(i.getChannels().stream().map(ISnowflake::getIdLong).collect(Collectors.toList()));
+                channelIDs.addAll(i.getVoiceChannels().stream().map(ISnowflake::getIdLong).collect(Collectors.toList()));
             }
         });
 
@@ -103,16 +103,13 @@ public class ButtonSystem {
         if (!args[3].equals(event.getUser().getId())) return;
 
         EntitySelectMenu menu = EntitySelectMenu
-                .create("xs:chatlogger:" + args[2] + ':' + event.getUser().getId() + ':' + event.getChannel().getId(), EntitySelectMenu.SelectTarget.CHANNEL)
-                .setChannelTypes(
-                        TEXT, VOICE, VOICE, NEWS, FORUM, CATEGORY,
-                        GUILD_PRIVATE_THREAD, GUILD_PUBLIC_THREAD, GUILD_NEWS_THREAD
-                )
+                .create("xs:voicelogger:" + args[2] + ':' + event.getUser().getId() + ':' + event.getChannel().getId(), EntitySelectMenu.SelectTarget.CHANNEL)
+                .setChannelTypes(VOICE, CATEGORY)
                 .setPlaceholder(lang.get("runtime;setting;select_menu;placeholder").get(local))
                 .setRequiredRange(1, 25)
                 .build();
 
-        Button button = new ButtonImpl("xs:chatlogger:toggle:" + event.getUser().getId() + ':' + event.getChannel().getId(),
+        Button button = new ButtonImpl("xs:voicelogger:toggle:" + event.getUser().getId() + ':' + event.getChannel().getId(),
                 "返回", ButtonStyle.SECONDARY, false, null);
 
         event.getHook().editOriginalEmbeds(Collections.emptyList()).setComponents(ActionRow.of(menu), ActionRow.of(button)).queue();
@@ -122,8 +119,8 @@ public class ButtonSystem {
     private EmbedBuilder getEmbed(ChannelSetting setting, DiscordLocale local) {
         StringBuilder whiteBuilder = new StringBuilder();
         if (setting.white.size() > 0) {
-            for (ChannelSetting.ListData i : setting.white) {
-                whiteBuilder.append("<#").append(i.detectID).append(">\n");
+            for (long i : setting.white) {
+                whiteBuilder.append("<#").append(i).append(">\n");
             }
         } else {
             whiteBuilder.append(lang.get("runtime;setting;embed;empty").get(local));
@@ -131,8 +128,8 @@ public class ButtonSystem {
 
         StringBuilder blackBuilder = new StringBuilder();
         if (setting.black.size() > 0) {
-            for (ChannelSetting.ListData i : setting.black) {
-                blackBuilder.append("<#").append(i.detectID).append(">\n");
+            for (long i : setting.black) {
+                blackBuilder.append("<#").append(i).append(">\n");
             }
         } else {
             blackBuilder.append(lang.get("runtime;setting;embed;empty").get(local));
@@ -154,28 +151,28 @@ public class ButtonSystem {
         if (event.getChannel() == null) return Collections.emptyList();
         List<Button> buttons = new ArrayList<>();
         buttons.add(
-                new ButtonImpl("xs:chatlogger:toggle:" + event.getUser().getId() + ':' + event.getChannel().getId(),
+                new ButtonImpl("xs:voicelogger:toggle:" + event.getUser().getId() + ':' + event.getChannel().getId(),
                         lang.get("runtime;setting;button;toggle_status").get(local),
                         ButtonStyle.PRIMARY, false, null
                 )
         );
 
         buttons.add(
-                new ButtonImpl("xs:chatlogger:white:" + event.getUser().getId() + ':' + event.getChannel().getId(),
+                new ButtonImpl("xs:voicelogger:white:" + event.getUser().getId() + ':' + event.getChannel().getId(),
                         lang.get("runtime;setting;button;set_white").get(local),
                         ButtonStyle.SUCCESS, false, null
                 )
         );
 
         buttons.add(
-                new ButtonImpl("xs:chatlogger:black:" + event.getUser().getId() + ':' + event.getChannel().getId(),
+                new ButtonImpl("xs:voicelogger:black:" + event.getUser().getId() + ':' + event.getChannel().getId(),
                         lang.get("runtime;setting;button;set_black").get(local),
                         ButtonStyle.SECONDARY, false, null
                 )
         );
 
         buttons.add(
-                new ButtonImpl("xs:chatlogger:delete:" + event.getUser().getId() + ':' + event.getChannel().getId(),
+                new ButtonImpl("xs:voicelogger:delete:" + event.getUser().getId() + ':' + event.getChannel().getId(),
                         lang.get("runtime;setting;button;delete").get(local),
                         ButtonStyle.DANGER, false, null
                 )

@@ -4,6 +4,7 @@ import com.xs.loader.PluginEvent;
 import com.xs.loader.lang.LangGetter;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
@@ -26,6 +27,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.sql.*;
+import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,8 +35,7 @@ import java.util.stream.Collectors;
 
 import static com.xs.loader.MainLoader.ROOT_PATH;
 import static com.xs.loader.MainLoader.jdaBot;
-import static com.xs.loader.util.GlobalUtil.getExtensionName;
-import static com.xs.loader.util.GlobalUtil.getUserById;
+import static com.xs.loader.util.GlobalUtil.*;
 import static net.dv8tion.jda.api.Permission.ADMINISTRATOR;
 
 public class Main extends PluginEvent {
@@ -215,7 +216,8 @@ public class Main extends PluginEvent {
                 ));
             }
 
-            String insert = String.format("INSERT INTO '%d' VALUES (?, ?, ?)", channelID);
+            String insert = String.format("INSERT INTO '" +
+                    "%d' VALUES (?, ?, ?)", channelID);
             PreparedStatement createMessage = conn.prepareStatement(insert);
             createMessage.setLong(1, messageID);
             createMessage.setLong(2, userID);
@@ -233,7 +235,7 @@ public class Main extends PluginEvent {
         long guildID = event.getGuild().getIdLong();
         long messageID = event.getMessageIdLong();
         long channelID = event.getChannel().getIdLong();
-        String log = "null";
+        String log;
 
         try {
             Connection conn = dbConns.getOrDefault(guildID, DriverManager.getConnection(
@@ -245,40 +247,54 @@ public class Main extends PluginEvent {
             ResultSet rs = findDataInTable(stmt, channelID, messageID);
             if (rs == null) return;
 
-            User messageSender = event.getAuthor();
-            long userID = messageSender.getIdLong();
-            String message = getMessageOrEmbed(event.getMessage());
+            User sender = event.getAuthor();
+            long userID = sender.getIdLong();
+            String beforeMessageStr = rs.getString("message");
+            String afterMessageStr = getMessageOrEmbed(event.getMessage());
 
             log = String.format(
                     "Updated message: (%s : %d) \n%s -> \n%s",
-                    messageSender.getAsTag(), userID,
-                    rs.getString("message"), message
+                    sender.getAsTag(), userID,
+                    rs.getString("message"), afterMessageStr
             );
             logger.log(log);
 
             String update = String.format("UPDATE '%d' SET message = ? WHERE message_id= ?", channelID);
             PreparedStatement createMessage = conn.prepareStatement(update);
-            createMessage.setString(1, message);
+            createMessage.setString(1, afterMessageStr);
             createMessage.setLong(2, messageID);
             createMessage.executeUpdate();
 
 
             rs.close();
             stmt.close();
+
+            manager.channelSettings.getOrDefault(guildID, new HashMap<>()).forEach(
+                    (i, j) -> {
+                        if (j.contains(channelID, ChannelSetting.DetectType.UPDATE)) {
+                            TextChannel sendChannel = event.getGuild().getTextChannelById(i);
+                            if (sendChannel != null) {
+                                TextChannel removeChannel = event.getChannel().asTextChannel();
+                                String title = removeChannel.getParentCategory() == null ?
+                                        (removeChannel.getName()) :
+                                        (removeChannel.getParentCategory().getName() + " > " + removeChannel.getName());
+                                EmbedBuilder builder = new EmbedBuilder()
+                                        .setAuthor(getNickOrTag(sender, event.getGuild()), null, sender.getAvatarUrl())
+                                        .setTitle(title)
+                                        .addField("Before", beforeMessageStr, false)
+                                        .addBlankField(false)
+                                        .addField("After", afterMessageStr, false)
+                                        .setFooter("更改訊息")
+                                        .setTimestamp(OffsetDateTime.now())
+                                        .setColor(0xFFDB00);
+                                sendChannel.sendMessageEmbeds(builder.build()).queue();
+                            }
+                        }
+                    }
+            );
         } catch (Exception e) {
             sqlErrorPrinter(e);
         }
-
-        String finalLog = log;
-
-        manager.channelSettings.getOrDefault(guildID, new HashMap<>()).forEach(
-                (i, j) -> {
-                    if (j.contains(channelID, ChannelSetting.DetectType.UPDATE)) {
-                        TextChannel channel = event.getGuild().getTextChannelById(i);
-                        if (channel != null) channel.sendMessage(finalLog).queue();
-                    }
-                }
-        );
     }
 
     @Override
@@ -286,7 +302,7 @@ public class Main extends PluginEvent {
         long guildID = event.getGuild().getIdLong();
         long messageID = event.getMessageIdLong();
         long channelID = event.getChannel().getIdLong();
-        String log = "null";
+//        String log;
 
         try {
             Connection conn = dbConns.getOrDefault(guildID, DriverManager.getConnection(
@@ -302,11 +318,10 @@ public class Main extends PluginEvent {
 
             String messageStr = rs.getString("message");
 
-            log = String.format(
-                    "Deleted message: %s (%s : %d)",
-                    messageStr, messageSender.getAsTag(), messageSender.getIdLong()
-            );
-            logger.log(log);
+//            log = String.format(
+//                    "Deleted message: %s (%s : %d)",
+//                    messageStr, messageSender.getAsTag(), messageSender.getIdLong()
+//            );
 
             String removeMessageSql = String.format("DELETE FROM '%d' WHERE message_id = ?", channelID);
             PreparedStatement removeMessage = conn.prepareStatement(removeMessageSql);
@@ -315,19 +330,31 @@ public class Main extends PluginEvent {
 
             rs.close();
             stmt.close();
+
+            manager.channelSettings.getOrDefault(guildID, new HashMap<>()).forEach(
+                    (i, j) -> {
+                        if (j.contains(channelID, ChannelSetting.DetectType.DELETE)) {
+                            TextChannel sendChannel = event.getGuild().getTextChannelById(i);
+                            if (sendChannel != null) {
+                                TextChannel removeChannel = event.getChannel().asTextChannel();
+                                String title = removeChannel.getParentCategory() == null ?
+                                        (removeChannel.getName()) :
+                                        (removeChannel.getParentCategory().getName() + " > " + removeChannel.getName());
+                                EmbedBuilder builder = new EmbedBuilder()
+                                        .setAuthor(getNickOrTag(messageSender, event.getGuild()), null, messageSender.getAvatarUrl())
+                                        .setTitle(title)
+                                        .setDescription(messageStr)
+                                        .setFooter("刪除訊息")
+                                        .setTimestamp(OffsetDateTime.now())
+                                        .setColor(0xFF0000);
+                                sendChannel.sendMessageEmbeds(builder.build()).queue();
+                            }
+                        }
+                    }
+            );
         } catch (SQLException e) {
             sqlErrorPrinter(e);
         }
-
-        String finalLog = log;
-        manager.channelSettings.getOrDefault(guildID, new HashMap<>()).forEach(
-                (i, j) -> {
-                    if (j.contains(channelID, ChannelSetting.DetectType.DELETE)) {
-                        TextChannel channel = event.getGuild().getTextChannelById(i);
-                        if (channel != null) channel.sendMessage(finalLog).queue();
-                    }
-                }
-        );
     }
 
     @Override

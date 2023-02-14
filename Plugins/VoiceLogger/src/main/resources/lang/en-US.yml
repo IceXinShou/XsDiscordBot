@@ -1,11 +1,11 @@
 register:
-  cmd: chat_logger
-  description: commands about chat logger
+  cmd: voice_logger
+  description: commands about voice logger
 
   subcommand:
     setting:
       cmd: setting
-      description: set chat log in this channel
+      description: set voice log in this channel
 
 runtime:
   log:
