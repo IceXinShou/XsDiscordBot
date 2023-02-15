@@ -5,7 +5,7 @@ import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
+import net.dv8tion.jda.api.events.session.ReadyEvent;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.xs.loader.MainLoader.jdaBot;
 
 public class Main extends PluginEvent {
 
@@ -58,15 +60,15 @@ public class Main extends PluginEvent {
     }
 
     @Override
-    public void onGuildReady(GuildReadyEvent event) {
+    public void onReady(ReadyEvent event) {
         if (setup) {
             for (long i : configFile.GuildID) {
-                if (i == event.getGuild().getIdLong()) {
-                    Guild guild = event.getGuild();
-                    for (Emoji j : guild.retrieveEmojis().complete()) {
-                        emojis.getOrDefault(j.getName(), new HashMap<>()).put(guild.getIdLong(), j);
-                        logger.log("Loaded " + j.getName());
-                    }
+                Guild guild = jdaBot.getGuildById(i);
+                if (guild == null) continue;
+
+                for (Emoji j : guild.retrieveEmojis().complete()) {
+                    emojis.getOrDefault(j.getName(), new HashMap<>()).put(guild.getIdLong(), j);
+                    logger.log("Loaded " + j.getName());
                 }
             }
         }

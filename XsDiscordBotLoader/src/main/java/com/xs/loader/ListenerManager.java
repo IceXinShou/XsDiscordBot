@@ -30,24 +30,12 @@ public class ListenerManager extends ListenerAdapter {
         }
     }
 
-    @Override
-    public void onMessageReceived(MessageReceivedEvent event) {
-        String message = event.getMessage().getContentRaw();
-        if (message.equals("")) return;
-        logger.log(event.getAuthor().getAsTag() + ": " + message);
-    }
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         event.deferReply(true).queue();
 
         logger.log(event.getUser().getAsTag() + ": " + event.getCommandString());
-
-    }
-
-    @Override
-    public void onButtonInteraction(ButtonInteractionEvent event) {
-        logger.log(event.getUser().getAsTag() + ": " + event.getComponentId());
     }
 
     @Override
@@ -55,15 +43,5 @@ public class ListenerManager extends ListenerAdapter {
         event.deferReply(true).queue();
 
         logger.log(event.getUser().getAsTag() + ": " + event.getCommandString());
-    }
-
-    @Override
-    public void onEntitySelectInteraction(EntitySelectInteractionEvent event) {
-        logger.log(event.getUser().getAsTag() + ": " + event.getValues());
-    }
-
-    @Override
-    public void onStringSelectInteraction(StringSelectInteractionEvent event) {
-        logger.log(event.getUser().getAsTag() + ": " + event.getValues());
     }
 }

@@ -257,7 +257,6 @@ public class Main extends PluginEvent {
                     sender.getAsTag(), userID,
                     rs.getString("message"), afterMessageStr
             );
-            logger.log(log);
 
             String update = String.format("UPDATE '%d' SET message = ? WHERE message_id= ?", channelID);
             PreparedStatement createMessage = conn.prepareStatement(update);
