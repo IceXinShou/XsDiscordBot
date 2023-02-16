@@ -20,7 +20,6 @@ public class UserStepData {
     }
 
     /**
-     *
      * @return <code>true</code> if all set
      */
     public boolean verify() {
