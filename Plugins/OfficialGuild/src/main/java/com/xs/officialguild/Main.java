@@ -25,14 +25,18 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
+import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 import net.dv8tion.jda.internal.interactions.component.ButtonImpl;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.xs.loader.MainLoader.jdaBot;
 import static com.xs.loader.util.EmbedCreator.createEmbed;
@@ -146,7 +150,15 @@ public class Main extends PluginEvent {
 
         switch (args[2]) {
             case "create": {
-                TextChannel newChannel = authCategory.createTextChannel("驗證" + user.getAsTag()).complete();
+                TextChannel newChannel;
+                List<TextChannel> tmp = authCategory.getTextChannels().stream().filter(i -> i.getTopic() != null && i.getTopic().equals(user.getId())).collect(Collectors.toList());
+                if (tmp.isEmpty()) {
+                    newChannel = authCategory.createTextChannel("驗證-" + user.getAsTag()).setTopic(user.getId()).complete();
+                } else {
+                    newChannel = tmp.get(0);
+                }
+
+
                 if (manager.getObj().has(user.getId())) {
                     // joined before
                     final String check_url = "https://sessionserver.mojang.com/session/minecraft/profile/";
@@ -216,10 +228,12 @@ public class Main extends PluginEvent {
         if (!args[0].equals("xs") || !args[1].equals("og")) return;
         switch (args[2]) {
             case "set_chi": {
-                if (!Pattern.matches("^[\u4E00-\u9fa5]+$", event.getValue("name").getAsString())) {
-
+                ModalMapping name;
+                if ((name = event.getValue("name")) == null) return;
+                if (!Pattern.matches("^[一-龥]+$", name.getAsString())) { // \\u4E00-\\u9fa5
+                    System.out.println("NO");
                 } else {
-
+                    System.out.println("YES");
                 }
                 break;
             }
