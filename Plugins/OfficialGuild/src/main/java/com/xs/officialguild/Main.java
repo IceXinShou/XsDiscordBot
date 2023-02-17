@@ -7,9 +7,12 @@ import com.xs.loader.util.FileGetter;
 import com.xs.loader.util.JsonFileManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -32,6 +35,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.time.OffsetDateTime;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +49,7 @@ import static com.xs.loader.util.UrlDataGetter.getData;
 import static net.dv8tion.jda.api.Permission.ADMINISTRATOR;
 import static net.dv8tion.jda.api.Permission.KICK_MEMBERS;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.USER;
-import static net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle.*;
+import static net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle.SUCCESS;
 
 public class Main extends PluginEvent {
     private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
@@ -54,12 +58,13 @@ public class Main extends PluginEvent {
     private static final String TAG = "OG";
     private final String PATH_FOLDER_NAME = "./plugins/OfficialGuild";
     private final long OWN_GUILD_ID = 858672865355890708L;
-    private final long AUTH_CATEGORY_ID = 858672866283356216L;
-
+    private Guild ownGuild;
+    private final long LOG_CHANNEL_ID = 858672865816346634L;
     private Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
     private JsonFileManager manager;
-    private Category authCategory;
     private final Map<Long, UserStepData> stepData = new HashMap<>();
+    private final List<Long> JOINED_ROLE_ID = Arrays.asList(858672865385119755L, 858701368457953360L, 858707058530451476L, 858703314606751764L);
+    private final List<Long> AUTHED_ROLE_ID = Arrays.asList(858672865385119757L, 858704345448841226L);
 
     public Main() {
         super(true);
@@ -106,21 +111,28 @@ public class Main extends PluginEvent {
 
     @Override
     public void onReady(ReadyEvent event) {
-        Guild guild = jdaBot.getGuildById(OWN_GUILD_ID);
-        if (guild == null) {
+        ownGuild = jdaBot.getGuildById(OWN_GUILD_ID);
+        if (ownGuild == null) {
             logger.warn("CANNOT FOUND Main Guild!");
             return;
         }
 
-        authCategory = guild.getCategoryById(AUTH_CATEGORY_ID);
-        if (authCategory == null) {
-            logger.warn("CANNOT FOUND Auth Category!");
-        }
-
-        guild.upsertCommand(
+        ownGuild.upsertCommand(
                 Commands.slash("create_firstjoin", "if you dont know what it is, please not to touch!")
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR))
         ).queue();
+    }
+
+    @Override
+    public void onGuildMemberJoin(GuildMemberJoinEvent event) {
+        if (event.getGuild().getIdLong() != OWN_GUILD_ID) return;
+        Member member = event.getMember();
+        for (long i : JOINED_ROLE_ID) {
+            Role role = ownGuild.getRoleById(i);
+            if (role == null) continue;
+
+            ownGuild.addRoleToMember(member, role).queue();
+        }
     }
 
     @Override
@@ -132,8 +144,15 @@ public class Main extends PluginEvent {
             }
 
             case "create_firstjoin": {
-                Button button = new ButtonImpl("xs:og:create", "test", SUCCESS, false, null);
-                event.getMessageChannel().sendMessage("TEST").setActionRow(button).queue();
+                Button button = new ButtonImpl("xs:og:create", "開始驗證", SUCCESS, false, null);
+                EmbedBuilder builder = new EmbedBuilder()
+                        .setTitle("正式加入原之序前，需要您的暱稱等資訊，方便其他成員認識您")
+                        .setDescription("原之序並不會要求您提供敏感資訊")
+                        .setThumbnail("https://i.imgur.com/6ivsnRr.png")
+                        .setFooter("公告")
+                        .setTimestamp(OffsetDateTime.now())
+                        .setColor(0x00FFFF);
+                event.getMessageChannel().sendMessageEmbeds(builder.build()).setActionRow(button).queue();
                 break;
             }
         }
@@ -143,12 +162,10 @@ public class Main extends PluginEvent {
     public void onButtonInteraction(ButtonInteractionEvent event) {
         String[] args = event.getComponentId().split(":");
         if (!args[0].equals("xs") || !args[1].equals("og")) return;
-        Guild guild = event.getGuild();
-        if (guild == null || event.getGuild().getIdLong() != OWN_GUILD_ID) return;
 
         switch (args[2]) {
             case "create": {
-                createNewAuthChannel(event);
+                startAuth(event);
                 break;
             }
 
@@ -161,10 +178,15 @@ public class Main extends PluginEvent {
                 createEnglishInput(event);
                 break;
             }
+
+            case "verify": {
+                verifyButton(event);
+            }
         }
     }
 
-    private void createNewAuthChannel(ButtonInteractionEvent event) {
+
+    private void startAuth(ButtonInteractionEvent event) {
         User user = event.getUser();
         UserStepData step;
         if (stepData.containsKey(user.getIdLong())) {
@@ -174,55 +196,9 @@ public class Main extends PluginEvent {
             stepData.put(user.getIdLong(), step);
         }
 
-        TextChannel newChannel;
-        List<TextChannel> tmp = authCategory.getTextChannels().stream().filter(i -> i.getTopic() != null && i.getTopic().equals(user.getId())).collect(Collectors.toList());
-        if (tmp.isEmpty()) {
-            newChannel = authCategory.createTextChannel("驗證-" + user.getAsTag()).setTopic(user.getId()).complete();
-            newChannel.delete().submitAfter(10, TimeUnit.MINUTES);
-        } else {
-            newChannel = tmp.get(0);
-        }
-
-
-        if (manager.getObj().has(user.getId())) {
-            // joined before
-            final String check_url = "https://sessionserver.mojang.com/session/minecraft/profile/";
-            final String namemc_url = "https://namemc.com/profile/";
-            final String head_url = "https://mc-heads.net/avatar/";
-            final String body_url = "https://mc-heads.net/body/";
-
-            String uuid = manager.getObj().getJSONObject(user.getId()).getString("mc");
-            String mcName;
-
-            JSONObject data = new JSONObject(getData(check_url + uuid));
-            if (!data.has("errorMessage")) {
-                mcName = data.getString("name");
-
-                EmbedBuilder builder = new EmbedBuilder()
-                        .setAuthor(uuid, namemc_url + uuid, head_url + uuid)
-                        .setTitle(mcName)
-                        .setDescription("請問此 Minecraft 玩家是你嗎？")
-                        .setImage(body_url + uuid)
-                        .setFooter("STEP 1 / n")
-                        .setTimestamp(OffsetDateTime.now())
-                        .setColor(0x00FFFF);
-
-                Button confirm = new ButtonImpl("xs:og:1confirm", "是", SUCCESS, false, null);
-                Button renew = new ButtonImpl("xs:og:1renew", "不是，我有另創帳號", PRIMARY, false, null);
-                Button deny = new ButtonImpl("xs:og:1deny", "不是，我沒有 Minecraft 帳號", DANGER, false, null);
-
-                newChannel.sendMessageEmbeds(builder.build()).setActionRow(confirm, renew, deny).queue();
-            } else {
-                // TODO: data too old to be found
-            }
-
-        } else {
-            // hasn't joined before
-
-            // TODO: some welcome message...
-            step.channel = newChannel;
-            step.messageID = newChannel.sendMessageEmbeds(createEmbed("HI", 0x00FFFF)).setActionRow(step.getSettingButton()).complete().getIdLong();
-        }
+        // TODO: some welcome message...
+        step.hook = event.deferReply(true).setEmbeds(createEmbed("更新中...", 0x777700)).complete();
+        step.updateEmbed();
     }
 
     private void createChineseInput(ButtonInteractionEvent event) {
@@ -248,8 +224,9 @@ public class Main extends PluginEvent {
 
         TextInput mcInp = TextInput.create("mcid", "Minecraft ID (選填) (優先使用為暱稱)", TextInputStyle.SHORT)
                 .setPlaceholder("請問你叫什麼呢？")
-                .setMinLength(0)
+                .setMinLength(1)
                 .setMaxLength(48)
+                .setRequired(false)
                 .build();
 
         event.replyModal(
@@ -257,6 +234,52 @@ public class Main extends PluginEvent {
                         .addActionRows(ActionRow.of(engInp), ActionRow.of(mcInp))
                         .build()
         ).queue();
+    }
+
+    private void verifyButton(ButtonInteractionEvent event) {
+        UserStepData step = stepData.get(event.getUser().getIdLong());
+        manager.getObj().put(event.getUser().getId(), step.getObj());
+        manager.save();
+        event.deferEdit().queue();
+        Member member = event.getMember();
+        if (ownGuild == null || member == null) return;
+
+        for (long i : AUTHED_ROLE_ID) {
+            Role role = ownGuild.getRoleById(i);
+            if (role == null) continue;
+
+            ownGuild.addRoleToMember(member, role).queue();
+        }
+
+        if (event.getGuild().getSelfMember().canInteract(member))
+            member.modifyNickname(step.getNick()).queue();
+
+        TextChannel logChannel = ownGuild.getTextChannelById(LOG_CHANNEL_ID);
+        if (logChannel != null) {
+            EmbedBuilder builder = new EmbedBuilder()
+                    .setTitle("歡迎加入")
+                    .setFooter("成員誕生")
+                    .setTimestamp(OffsetDateTime.now())
+                    .setColor(0xFFCCDD);
+            if (!step.mc_uuid.equals("")) {
+                builder
+                        .setAuthor(member.getEffectiveName() + (member.getNickname() != null ?
+                                        (" (" + member.getUser().getAsTag() + ')') : ""),
+                                "https://namemc.com/profile/" + step.mc_uuid,
+                                member.getEffectiveAvatarUrl()
+                        )
+                        .setImage("https://mc-heads.net/body/" + step.mc_uuid)
+                        .setThumbnail("https://mc-heads.net/avatar/" + step.mc_uuid);
+            } else {
+                builder
+                        .setAuthor(member.getEffectiveName() + (member.getNickname() != null ?
+                                        (" (" + member.getUser().getAsTag() + ')') : ""), null,
+                                member.getEffectiveAvatarUrl()
+                        );
+            }
+
+            logChannel.sendMessageEmbeds(builder.build()).queue();
+        }
     }
 
     @Override
@@ -276,24 +299,6 @@ public class Main extends PluginEvent {
         }
     }
 
-
-    private void getEnglishNameByForm(ModalInteractionEvent event) {
-        ModalMapping engInp;
-        @Nullable ModalMapping mcid_inp;
-        UserStepData step = stepData.get(event.getUser().getIdLong());
-        if ((engInp = event.getValue("eng")) == null) return;
-        mcid_inp = event.getValue("mcid");
-
-        if (!Pattern.matches("^[一-龥]+$", engInp.getAsString())) { // \\u4E00-\\u9fa5
-            event.deferReply(true).setEmbeds(createEmbed("輸入錯誤", 0xFF0000)).queue();
-        } else {
-            step.chineseName = engInp.getAsString();
-            step.updateButton();
-            event.deferEdit().queue();
-        }
-    }
-
-
     private void getChineseNameByForm(ModalInteractionEvent event) {
         ModalMapping chiInp;
         UserStepData step = stepData.get(event.getUser().getIdLong());
@@ -302,42 +307,45 @@ public class Main extends PluginEvent {
             event.deferReply(true).setEmbeds(createEmbed("輸入錯誤", 0xFF0000)).queue();
         } else {
             step.chineseName = chiInp.getAsString();
-            step.updateButton();
+            step.updateEmbed();
             event.deferEdit().queue();
         }
     }
 
-    @Nullable
-    private String getUUIDByName(ModalInteractionEvent event, String mcName) {
+    private void getEnglishNameByForm(ModalInteractionEvent event) {
+        ModalMapping engInp, mcid_inp;
         UserStepData step = stepData.get(event.getUser().getIdLong());
+        if ((engInp = event.getValue("eng")) == null) return;
+        if ((mcid_inp = event.getValue("mcid")) == null) return;
+
+        if (!mcid_inp.getAsString().equals("")) {
+            String uuid = getUUIDByName(mcid_inp.getAsString());
+            if (uuid == null) {
+                event.deferReply(true).setEmbeds(
+                        createEmbed("查無 \"" + mcid_inp.getAsString() + "\" 的 minecraft 資料，請檢查後再試一次", 0xFF0000)
+                ).queue();
+                return;
+            }
+
+            step.mc_uuid = uuid;
+        } else {
+            step.mc_uuid = "";
+        }
+
+        step.englishName = engInp.getAsString();
+        step.updateEmbed();
+        event.deferEdit().queue();
+    }
+
+    @Nullable
+    private String getUUIDByName(String mcName) {
         final String check_url = "https://api.mojang.com/users/profiles/minecraft/";
 
         String respond = getData(check_url + mcName);
-        if (respond.equals("")) {
-            event.deferReply(true).setEmbeds(createEmbed("查無 \"" + mcName + "\" 的 minecraft 資料", 0xFF0000)).queue();
-        }
-        JSONObject data = new JSONObject(getData(check_url + mcName));
+        if (respond == null) return null;
 
-//        if (!data.has("errorMessage")) {
-//            mcName = data.getString("name");
-//
-//            EmbedBuilder builder = new EmbedBuilder()
-//                    .setAuthor(uuid, namemc_url + uuid, head_url + uuid)
-//                    .setTitle(mcName)
-//                    .setDescription("請問此 Minecraft 玩家是你嗎？")
-//                    .setImage(body_url + uuid)
-//                    .setFooter("STEP 1 / n")
-//                    .setTimestamp(OffsetDateTime.now())
-//                    .setColor(0x00FFFF);
-//
-//            Button confirm = new ButtonImpl("xs:og:1confirm", "是", SUCCESS, false, null);
-//            Button renew = new ButtonImpl("xs:og:1renew", "不是，我有另創帳號", PRIMARY, false, null);
-//            Button deny = new ButtonImpl("xs:og:1deny", "不是，我沒有 Minecraft 帳號", DANGER, false, null);
-//
-//            newChannel.sendMessageEmbeds(builder.build()).setActionRow(confirm, renew, deny).queue();
-//        } else {
-//            // TODO: data too old to be found
-//        }
+        JSONObject data = new JSONObject(respond);
+        if (data.has("id")) return data.getString("id");
 
         return null;
     }
