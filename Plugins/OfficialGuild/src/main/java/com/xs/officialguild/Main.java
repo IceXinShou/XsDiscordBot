@@ -27,6 +27,7 @@ import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 import net.dv8tion.jda.internal.interactions.component.ButtonImpl;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -34,9 +35,9 @@ import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.xs.loader.MainLoader.jdaBot;
 import static com.xs.loader.util.EmbedCreator.createEmbed;
@@ -52,7 +53,9 @@ public class Main extends PluginEvent {
     private Logger logger;
     private static final String TAG = "OG";
     private final String PATH_FOLDER_NAME = "./plugins/OfficialGuild";
-    private final long ownGuildID = 858672865355890708L;
+    private final long OWN_GUILD_ID = 858672865355890708L;
+    private final long AUTH_CATEGORY_ID = 858672866283356216L;
+
     private Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
     private JsonFileManager manager;
     private Category authCategory;
@@ -103,13 +106,13 @@ public class Main extends PluginEvent {
 
     @Override
     public void onReady(ReadyEvent event) {
-        Guild guild = jdaBot.getGuildById(858672865355890708L);
+        Guild guild = jdaBot.getGuildById(OWN_GUILD_ID);
         if (guild == null) {
             logger.warn("CANNOT FOUND Main Guild!");
             return;
         }
 
-        authCategory = guild.getCategoryById(858672866597142539L);
+        authCategory = guild.getCategoryById(AUTH_CATEGORY_ID);
         if (authCategory == null) {
             logger.warn("CANNOT FOUND Auth Category!");
         }
@@ -122,8 +125,6 @@ public class Main extends PluginEvent {
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
-        DiscordLocale local = event.getUserLocale();
-
         switch (event.getName()) {
             case "invite": {
 
@@ -143,83 +144,119 @@ public class Main extends PluginEvent {
         String[] args = event.getComponentId().split(":");
         if (!args[0].equals("xs") || !args[1].equals("og")) return;
         Guild guild = event.getGuild();
-        if (guild == null || event.getGuild().getIdLong() != ownGuildID) return;
-        DiscordLocale local = event.getUserLocale();
-        User user = event.getUser();
-        UserStepData step = stepData.getOrDefault(user.getIdLong(), new UserStepData());
+        if (guild == null || event.getGuild().getIdLong() != OWN_GUILD_ID) return;
 
         switch (args[2]) {
             case "create": {
-                TextChannel newChannel;
-                List<TextChannel> tmp = authCategory.getTextChannels().stream().filter(i -> i.getTopic() != null && i.getTopic().equals(user.getId())).collect(Collectors.toList());
-                if (tmp.isEmpty()) {
-                    newChannel = authCategory.createTextChannel("驗證-" + user.getAsTag()).setTopic(user.getId()).complete();
-                } else {
-                    newChannel = tmp.get(0);
-                }
-
-
-                if (manager.getObj().has(user.getId())) {
-                    // joined before
-                    final String check_url = "https://sessionserver.mojang.com/session/minecraft/profile/";
-                    final String namemc_url = "https://namemc.com/profile/";
-                    final String head_url = "https://mc-heads.net/avatar/";
-                    final String body_url = "https://mc-heads.net/body/";
-
-                    String uuid = manager.getObj().getJSONObject(user.getId()).getString("mc");
-                    String mcName;
-
-                    JSONObject data = new JSONObject(getData(check_url + uuid));
-                    if (!data.has("errorMessage")) {
-                        mcName = data.getString("name");
-
-                        EmbedBuilder builder = new EmbedBuilder()
-                                .setAuthor(uuid, namemc_url + uuid, head_url + uuid)
-                                .setTitle(mcName)
-                                .setDescription("請問此 Minecraft 玩家是你嗎？")
-                                .setImage(body_url + uuid)
-                                .setFooter("STEP 1 / n")
-                                .setTimestamp(OffsetDateTime.now())
-                                .setColor(0x00FFFF);
-                        Button confirm = new ButtonImpl("xs:og:1confirm", "是", SUCCESS, false, null);
-                        Button renew = new ButtonImpl("xs:og:1renew", "不是，我有另創帳號", PRIMARY, false, null);
-                        Button deny = new ButtonImpl("xs:og:1deny", "不是，我沒有 Minecraft 帳號", DANGER, false, null);
-
-                        newChannel.sendMessageEmbeds(builder.build()).setActionRow(confirm, renew, deny).queue();
-                    } else {
-                        // TODO: data too old to be found
-                    }
-
-                } else {
-                    // hasn't joined before
-
-                    // TODO: some welcome message...
-                    Button chiName = new ButtonImpl("xs:og:chi", "中文暱稱", step.chi() ? SUCCESS : DANGER, false, null);
-                    Button engName = new ButtonImpl("xs:og:eng", "英文暱稱", step.chi() ? SUCCESS : DANGER, false, null);
-                    Button verify = new ButtonImpl("xs:og:verify", "同意許可", PRIMARY, !step.verify(), null);
-                    newChannel.sendMessageEmbeds(createEmbed("HI", 0x00FFFF)).setActionRow(
-                            chiName, engName, verify
-                    ).queue();
-                }
+                createNewAuthChannel(event);
                 break;
             }
 
             case "chi": {
+                createChineseInput(event);
+                break;
+            }
 
-                TextInput subject = TextInput.create("name", "暱稱", TextInputStyle.SHORT)
-                        .setPlaceholder("嗨~ 你要填我了嗎~")
-                        .setMinLength(2)
-                        .setMaxLength(2) // or setRequiredRange(10, 100)
-                        .build();
-
-                Modal modal = Modal.create("xs:og:set_chi", "請輸入二字中文暱稱")
-                        .addActionRows(ActionRow.of(subject))
-                        .build();
-
-                event.replyModal(modal).queue();
+            case "eng": {
+                createEnglishInput(event);
                 break;
             }
         }
+    }
+
+    private void createNewAuthChannel(ButtonInteractionEvent event) {
+        User user = event.getUser();
+        UserStepData step;
+        if (stepData.containsKey(user.getIdLong())) {
+            step = stepData.get(user.getIdLong());
+        } else {
+            step = new UserStepData();
+            stepData.put(user.getIdLong(), step);
+        }
+
+        TextChannel newChannel;
+        List<TextChannel> tmp = authCategory.getTextChannels().stream().filter(i -> i.getTopic() != null && i.getTopic().equals(user.getId())).collect(Collectors.toList());
+        if (tmp.isEmpty()) {
+            newChannel = authCategory.createTextChannel("驗證-" + user.getAsTag()).setTopic(user.getId()).complete();
+            newChannel.delete().submitAfter(10, TimeUnit.MINUTES);
+        } else {
+            newChannel = tmp.get(0);
+        }
+
+
+        if (manager.getObj().has(user.getId())) {
+            // joined before
+            final String check_url = "https://sessionserver.mojang.com/session/minecraft/profile/";
+            final String namemc_url = "https://namemc.com/profile/";
+            final String head_url = "https://mc-heads.net/avatar/";
+            final String body_url = "https://mc-heads.net/body/";
+
+            String uuid = manager.getObj().getJSONObject(user.getId()).getString("mc");
+            String mcName;
+
+            JSONObject data = new JSONObject(getData(check_url + uuid));
+            if (!data.has("errorMessage")) {
+                mcName = data.getString("name");
+
+                EmbedBuilder builder = new EmbedBuilder()
+                        .setAuthor(uuid, namemc_url + uuid, head_url + uuid)
+                        .setTitle(mcName)
+                        .setDescription("請問此 Minecraft 玩家是你嗎？")
+                        .setImage(body_url + uuid)
+                        .setFooter("STEP 1 / n")
+                        .setTimestamp(OffsetDateTime.now())
+                        .setColor(0x00FFFF);
+
+                Button confirm = new ButtonImpl("xs:og:1confirm", "是", SUCCESS, false, null);
+                Button renew = new ButtonImpl("xs:og:1renew", "不是，我有另創帳號", PRIMARY, false, null);
+                Button deny = new ButtonImpl("xs:og:1deny", "不是，我沒有 Minecraft 帳號", DANGER, false, null);
+
+                newChannel.sendMessageEmbeds(builder.build()).setActionRow(confirm, renew, deny).queue();
+            } else {
+                // TODO: data too old to be found
+            }
+
+        } else {
+            // hasn't joined before
+
+            // TODO: some welcome message...
+            step.channel = newChannel;
+            step.messageID = newChannel.sendMessageEmbeds(createEmbed("HI", 0x00FFFF)).setActionRow(step.getSettingButton()).complete().getIdLong();
+        }
+    }
+
+    private void createChineseInput(ButtonInteractionEvent event) {
+        TextInput chiInp = TextInput.create("chi", "二字中文暱稱", TextInputStyle.SHORT)
+                .setPlaceholder("請問要怎麼稱呼你呢？")
+                .setMinLength(2)
+                .setMaxLength(2)
+                .build();
+
+        event.replyModal(
+                Modal.create("xs:og:set_chi:" + event.getUser().getId(), "設定中文暱稱")
+                        .addActionRows(ActionRow.of(chiInp))
+                        .build()
+        ).queue();
+    }
+
+    private void createEnglishInput(ButtonInteractionEvent event) {
+        TextInput engInp = TextInput.create("eng", "英文暱稱", TextInputStyle.SHORT)
+                .setPlaceholder("請問要怎麼稱呼你呢？")
+                .setMinLength(1)
+                .setMaxLength(50)
+                .build();
+
+        TextInput mcInp = TextInput.create("mcid", "Minecraft ID (選填) (優先使用為暱稱)", TextInputStyle.SHORT)
+                .setPlaceholder("請問你叫什麼呢？")
+                .setMinLength(0)
+                .setMaxLength(48)
+                .build();
+
+        event.replyModal(
+                Modal.create("xs:og:set_eng:" + event.getUser().getId(), "設定英文暱稱")
+                        .addActionRows(ActionRow.of(engInp), ActionRow.of(mcInp))
+                        .build()
+        ).queue();
     }
 
     @Override
@@ -228,15 +265,80 @@ public class Main extends PluginEvent {
         if (!args[0].equals("xs") || !args[1].equals("og")) return;
         switch (args[2]) {
             case "set_chi": {
-                ModalMapping name;
-                if ((name = event.getValue("name")) == null) return;
-                if (!Pattern.matches("^[一-龥]+$", name.getAsString())) { // \\u4E00-\\u9fa5
-                    System.out.println("NO");
-                } else {
-                    System.out.println("YES");
-                }
+                getChineseNameByForm(event);
+                break;
+            }
+
+            case "set_eng": {
+                getEnglishNameByForm(event);
                 break;
             }
         }
+    }
+
+
+    private void getEnglishNameByForm(ModalInteractionEvent event) {
+        ModalMapping engInp;
+        @Nullable ModalMapping mcid_inp;
+        UserStepData step = stepData.get(event.getUser().getIdLong());
+        if ((engInp = event.getValue("eng")) == null) return;
+        mcid_inp = event.getValue("mcid");
+
+        if (!Pattern.matches("^[一-龥]+$", engInp.getAsString())) { // \\u4E00-\\u9fa5
+            event.deferReply(true).setEmbeds(createEmbed("輸入錯誤", 0xFF0000)).queue();
+        } else {
+            step.chineseName = engInp.getAsString();
+            step.updateButton();
+            event.deferEdit().queue();
+        }
+    }
+
+
+    private void getChineseNameByForm(ModalInteractionEvent event) {
+        ModalMapping chiInp;
+        UserStepData step = stepData.get(event.getUser().getIdLong());
+        if ((chiInp = event.getValue("chi")) == null) return;
+        if (!Pattern.matches("^[一-龥]+$", chiInp.getAsString())) { // \\u4E00-\\u9fa5
+            event.deferReply(true).setEmbeds(createEmbed("輸入錯誤", 0xFF0000)).queue();
+        } else {
+            step.chineseName = chiInp.getAsString();
+            step.updateButton();
+            event.deferEdit().queue();
+        }
+    }
+
+    @Nullable
+    private String getUUIDByName(ModalInteractionEvent event, String mcName) {
+        UserStepData step = stepData.get(event.getUser().getIdLong());
+        final String check_url = "https://api.mojang.com/users/profiles/minecraft/";
+
+        String respond = getData(check_url + mcName);
+        if (respond.equals("")) {
+            event.deferReply(true).setEmbeds(createEmbed("查無 \"" + mcName + "\" 的 minecraft 資料", 0xFF0000)).queue();
+        }
+        JSONObject data = new JSONObject(getData(check_url + mcName));
+
+//        if (!data.has("errorMessage")) {
+//            mcName = data.getString("name");
+//
+//            EmbedBuilder builder = new EmbedBuilder()
+//                    .setAuthor(uuid, namemc_url + uuid, head_url + uuid)
+//                    .setTitle(mcName)
+//                    .setDescription("請問此 Minecraft 玩家是你嗎？")
+//                    .setImage(body_url + uuid)
+//                    .setFooter("STEP 1 / n")
+//                    .setTimestamp(OffsetDateTime.now())
+//                    .setColor(0x00FFFF);
+//
+//            Button confirm = new ButtonImpl("xs:og:1confirm", "是", SUCCESS, false, null);
+//            Button renew = new ButtonImpl("xs:og:1renew", "不是，我有另創帳號", PRIMARY, false, null);
+//            Button deny = new ButtonImpl("xs:og:1deny", "不是，我沒有 Minecraft 帳號", DANGER, false, null);
+//
+//            newChannel.sendMessageEmbeds(builder.build()).setActionRow(confirm, renew, deny).queue();
+//        } else {
+//            // TODO: data too old to be found
+//        }
+
+        return null;
     }
 }

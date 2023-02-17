@@ -1,5 +1,7 @@
 package com.xs.loader.util;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -9,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import static com.xs.loader.util.JsonFileManager.streamToString;
 
 public class UrlDataGetter {
+
     public static String getData(String url) {
         return getData(url, null);
     }
@@ -33,6 +36,7 @@ public class UrlDataGetter {
         return postData(url, contentType, payload, null, authorization);
     }
 
+    @Nullable
     private static String getData(String urlStr, String authorization) {
         try {
             HttpURLConnection conn = (HttpURLConnection) new URL(urlStr).openConnection();
@@ -50,10 +54,11 @@ public class UrlDataGetter {
             conn.disconnect();
             return result;
         } catch (IOException e) {
-            return "";
+            return null;
         }
     }
 
+    @Nullable
     public static String postData(String url, String contentType, String payload, String cookie, String authorization) {
         try {
             HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
