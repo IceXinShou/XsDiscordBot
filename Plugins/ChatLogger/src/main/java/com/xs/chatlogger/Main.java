@@ -134,11 +134,10 @@ public class Main extends PluginEvent {
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         if (!event.getName().equals("chat_logger")) return;
         if (event.getSubcommandName() == null) return;
-        DiscordLocale local = event.getUserLocale();
 
         switch (event.getSubcommandName()) {
             case "setting": {
-                buttonSystem.setting(event, local);
+                buttonSystem.setting(event);
                 break;
             }
         }
@@ -148,13 +147,12 @@ public class Main extends PluginEvent {
     public void onEntitySelectInteraction(EntitySelectInteractionEvent event) {
         String[] args = event.getComponentId().split(":");
         if (!args[0].equals("xs") || !args[1].equals("chatlogger")) return;
-        DiscordLocale local = event.getUserLocale();
 
 
         switch (args[2]) {
             case "white":
             case "black": {
-                buttonSystem.select(event, args, local);
+                buttonSystem.select(event, args);
                 break;
             }
         }
@@ -168,18 +166,18 @@ public class Main extends PluginEvent {
 
         switch (args[2]) {
             case "toggle": {
-                buttonSystem.toggle(event, args, local);
+                buttonSystem.toggle(event, args);
                 break;
             }
 
             case "black":
             case "white": {
-                buttonSystem.createSel(event, args, local);
+                buttonSystem.createSel(event, args);
                 break;
             }
 
             case "delete": {
-                buttonSystem.delete(event, args, local);
+                buttonSystem.delete(event, args);
                 break;
             }
         }
@@ -187,8 +185,8 @@ public class Main extends PluginEvent {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        if (event.getAuthor().equals(jdaBot.getSelfUser())) return;
         if (!event.isFromGuild()) return;
+        if (event.getAuthor().equals(jdaBot.getSelfUser())) return;
 
         long guildID = event.getGuild().getIdLong();
         long channelID = event.getChannel().getIdLong();
@@ -232,6 +230,8 @@ public class Main extends PluginEvent {
 
     @Override
     public void onMessageUpdate(MessageUpdateEvent event) {
+        if (!event.isFromGuild()) return;
+        if (event.getAuthor().equals(jdaBot.getSelfUser())) return;
         long guildID = event.getGuild().getIdLong();
         long messageID = event.getMessageIdLong();
         long channelID = event.getChannel().getIdLong();
@@ -298,10 +298,10 @@ public class Main extends PluginEvent {
 
     @Override
     public void onMessageDelete(MessageDeleteEvent event) {
+        if (!event.isFromGuild()) return;
         long guildID = event.getGuild().getIdLong();
         long messageID = event.getMessageIdLong();
         long channelID = event.getChannel().getIdLong();
-//        String log;
 
         try {
             Connection conn = dbConns.getOrDefault(guildID, DriverManager.getConnection(
@@ -314,7 +314,11 @@ public class Main extends PluginEvent {
             if (rs == null) return;
 
             User messageSender = getUserById(rs.getLong("user_id"));
-
+            if (messageSender.getIdLong() == jdaBot.getSelfUser().getIdLong()) {
+                rs.close();
+                stmt.close();
+                return;
+            }
             String messageStr = rs.getString("message");
 
 //            log = String.format(

@@ -33,8 +33,9 @@ public class ButtonSystem {
         this.manager = manager;
     }
 
-    public void setting(SlashCommandInteractionEvent event, DiscordLocale local) {
+    public void setting(SlashCommandInteractionEvent event) {
         if (event.getGuild() == null) return;
+        DiscordLocale local = event.getUserLocale();
         ChannelSetting setting = manager.getOrDefault(event.getGuild().getIdLong(), event.getChannel().getIdLong());
 
         event.getHook()
@@ -43,9 +44,10 @@ public class ButtonSystem {
                 .queue();
     }
 
-    public void toggle(ButtonInteractionEvent event, String[] args, DiscordLocale local) {
+    public void toggle(ButtonInteractionEvent event, String[] args) {
         if (!args[3].equals(event.getUser().getId())) return;
         if (event.getGuild() == null) return;
+        DiscordLocale local = event.getUserLocale();
 
         ChannelSetting setting = manager.toggle(event.getGuild().getIdLong(), event.getChannel().getIdLong());
 
@@ -57,18 +59,20 @@ public class ButtonSystem {
     }
 
 
-    public void delete(ButtonInteractionEvent event, String[] args, DiscordLocale local) {
+    public void delete(ButtonInteractionEvent event, String[] args) {
         if (event.getGuild() == null) return;
         if (!args[3].equals(event.getUser().getId())) return;
+        DiscordLocale local = event.getUserLocale();
         manager.delete(event.getGuild().getIdLong(), event.getChannel().getIdLong());
 
         event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;setting;delete_success").get(local), 0x00FFFF)).setComponents(Collections.emptyList()).queue();
         event.deferEdit().queue();
     }
 
-    public void select(EntitySelectInteractionEvent event, String[] args, DiscordLocale local) {
+    public void select(EntitySelectInteractionEvent event, String[] args) {
         if (!args[3].equals(event.getUser().getId())) return;
         if (event.getGuild() == null) return;
+        DiscordLocale local = event.getUserLocale();
 
         List<Long> channelIDs = event.getValues().stream().map(ISnowflake::getIdLong).collect(Collectors.toList());
 
@@ -99,8 +103,9 @@ public class ButtonSystem {
         event.deferEdit().queue();
     }
 
-    public void createSel(ButtonInteractionEvent event, String[] args, DiscordLocale local) {
+    public void createSel(ButtonInteractionEvent event, String[] args) {
         if (!args[3].equals(event.getUser().getId())) return;
+        DiscordLocale local = event.getUserLocale();
 
         EntitySelectMenu menu = EntitySelectMenu
                 .create("xs:chatlogger:" + args[2] + ':' + event.getUser().getId() + ':' + event.getChannel().getId(), EntitySelectMenu.SelectTarget.CHANNEL)
