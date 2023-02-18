@@ -110,6 +110,7 @@ public class Main extends PluginEvent {
     @Override
     public void loadConfigFile() {
         InputStream inputStream = getter.readYmlInputStream("config.yml", PATH_FOLDER_NAME);
+        if (inputStream == null) return;
 
         try {
             configFile = new Yaml(new Constructor(MainConfig.class)).load(inputStream);
@@ -123,8 +124,6 @@ public class Main extends PluginEvent {
         }
     }
 
-
-    @SuppressWarnings("unchecked warning")
     @Override
     public void onReady(ReadyEvent event) {
         if (setup) {

@@ -1,6 +1,6 @@
 package com.xs.economy;
 
 public class MainConfig {
-    public long[] OwnerID;
-    public int BoardUserShowLimit;
+    public Long[] OwnerID;
+    public Integer BoardUserShowLimit;
 }

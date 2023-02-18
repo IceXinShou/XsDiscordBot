@@ -134,14 +134,16 @@ public class Main extends PluginEvent {
     public void loadConfigFile() {
 
         InputStream inputStream = getter.readYmlInputStream("config.yml", PATH_FOLDER_NAME);
-
-        configFile = new Yaml(new Constructor(MainConfig.class)).load(inputStream);
+        if (inputStream == null) return;
 
         try {
+            configFile = new Yaml(new Constructor(MainConfig.class)).load(inputStream);
             inputStream.close();
+            logger.log("Setting File Loaded Successfully");
         } catch (IOException e) {
+            logger.warn("Please configure /" + PATH_FOLDER_NAME + "/config.yml");
             e.printStackTrace();
-        } // close file
+        }
 
         workingGuildID = configFile.guildID;
         moneyTypes.clear();

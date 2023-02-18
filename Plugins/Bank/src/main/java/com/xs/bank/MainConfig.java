@@ -1,7 +1,7 @@
 package com.xs.bank;
 
 public class MainConfig {
-    public long guildID;
-    public int transferMaxDelay;
+    public Long guildID;
+    public Integer transferMaxDelay;
     public String[] moneyType;
 }
