@@ -13,6 +13,7 @@ import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
@@ -31,6 +32,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.OffsetDateTime;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static com.xs.loader.MainLoader.jdaBot;
 
@@ -118,7 +120,15 @@ public class Main extends PluginEvent {
             channel.sendMessageEmbeds(builder.build()).addActionRow(reply).queue();
         }
 
-        event.getMessage().reply("已收到").queue();
+        event.getMessage().reply("已收到").queueAfter(1, TimeUnit.SECONDS, i -> i.delete().queue());
+    }
+
+    @Override
+    public void onMessageUpdate(MessageUpdateEvent event) {
+        if (event.getAuthor().isBot()) return;
+        if (!event.isFromType(ChannelType.PRIVATE)) return;
+
+
     }
 
     @Override
@@ -136,7 +146,6 @@ public class Main extends PluginEvent {
     }
 
     private void createReplyForm(ButtonInteractionEvent event, String[] args) {
-
         TextInput titleInp = TextInput.create("title", "標題", TextInputStyle.SHORT)
                 .setPlaceholder("標題")
                 .setMinLength(1)
@@ -204,6 +213,7 @@ public class Main extends PluginEvent {
             channel.sendMessageEmbeds(builder.build()).queue();
         }
 
+        event.getChannel().sendMessageEmbeds(builder.setFooter("回覆備份").build()).queue();
         event.deferEdit().queue();
     }
 }
