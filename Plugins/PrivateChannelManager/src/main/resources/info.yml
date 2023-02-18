@@ -1,0 +1,5 @@
+author: IceXinShou
+main: com.xs.privatechannelmanager.Main
+name: PrivateChannelManager
+version: '1.0'
+prefix: PCM
