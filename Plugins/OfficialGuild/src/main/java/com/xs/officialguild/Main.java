@@ -72,7 +72,6 @@ public class Main extends PluginEvent {
 
     @Override
     public void initLoad() {
-
         logger = new Logger(TAG);
         getter = new FileGetter(logger, PATH_FOLDER_NAME, Main.class);
         new File(PATH_FOLDER_NAME + "/data").mkdirs();
@@ -97,16 +96,7 @@ public class Main extends PluginEvent {
 
     @Override
     public CommandData[] guildCommands() {
-        return new SlashCommandData[]{
-                Commands.slash("invite", "invite a member who hasn't been invited")
-                        .setNameLocalizations(lang.get("register;cmd"))
-                        .setDescriptionLocalizations(lang.get("register;description"))
-                        .addOptions(
-                                new OptionData(USER, "user", "user", true)
-                                        .setDescriptionLocalizations(lang.get("register;options;user"))
-                        )
-                        .setDefaultPermissions(DefaultMemberPermissions.enabledFor(KICK_MEMBERS)),
-        };
+        return null;
     }
 
     @Override
@@ -329,6 +319,7 @@ public class Main extends PluginEvent {
 
             step.mc_uuid = uuid;
         } else {
+            // reset mc uuid
             step.mc_uuid = "";
         }
 

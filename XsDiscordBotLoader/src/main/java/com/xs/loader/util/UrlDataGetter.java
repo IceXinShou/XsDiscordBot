@@ -37,28 +37,6 @@ public class UrlDataGetter {
     }
 
     @Nullable
-    private static String getData(String urlStr, String authorization) {
-        try {
-            HttpURLConnection conn = (HttpURLConnection) new URL(urlStr).openConnection();
-            conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-            if (authorization != null)
-                conn.setRequestProperty("Authorization", authorization);
-            conn.setRequestMethod("GET");
-            conn.setUseCaches(false);
-
-            String result;
-            if (conn.getResponseCode() > 399)
-                result = streamToString(conn.getErrorStream());
-            else
-                result = streamToString(conn.getInputStream());
-            conn.disconnect();
-            return result;
-        } catch (IOException e) {
-            return null;
-        }
-    }
-
-    @Nullable
     public static String postData(String url, String contentType, String payload, String cookie, String authorization) {
         try {
             HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
@@ -87,7 +65,25 @@ public class UrlDataGetter {
         }
     }
 
-    public static void main(String[] args) {
-        System.out.println(getData("https://sessionserver.mojang.com/session/minecraft/profile/c21aad6008ad4a1b829a1718f65b22b3"));
+    @Nullable
+    private static String getData(String urlStr, String authorization) {
+        try {
+            HttpURLConnection conn = (HttpURLConnection) new URL(urlStr).openConnection();
+            conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+            if (authorization != null)
+                conn.setRequestProperty("Authorization", authorization);
+            conn.setRequestMethod("GET");
+            conn.setUseCaches(false);
+
+            String result;
+            if (conn.getResponseCode() > 399)
+                result = streamToString(conn.getErrorStream());
+            else
+                result = streamToString(conn.getInputStream());
+            conn.disconnect();
+            return result;
+        } catch (IOException e) {
+            return null;
+        }
     }
 }
