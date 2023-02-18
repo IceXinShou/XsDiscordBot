@@ -199,7 +199,7 @@ public class Main extends PluginEvent {
                 .build();
 
         event.replyModal(
-                Modal.create("xs:og:set_chi:" + event.getUser().getId(), "設定中文暱稱")
+                Modal.create("xs:og:set_chi", "設定中文暱稱")
                         .addActionRows(ActionRow.of(chiInp))
                         .build()
         ).queue();
@@ -220,7 +220,7 @@ public class Main extends PluginEvent {
                 .build();
 
         event.replyModal(
-                Modal.create("xs:og:set_eng:" + event.getUser().getId(), "設定英文暱稱")
+                Modal.create("xs:og:set_eng", "設定英文暱稱")
                         .addActionRows(ActionRow.of(engInp), ActionRow.of(mcInp))
                         .build()
         ).queue();
