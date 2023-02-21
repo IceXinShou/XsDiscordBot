@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -120,7 +121,7 @@ public class Main extends PluginEvent {
             channel.sendMessageEmbeds(builder.build()).addActionRow(reply).queue();
         }
 
-        event.getMessage().reply("已收到").queueAfter(1, TimeUnit.SECONDS, i -> i.delete().queue());
+        event.getMessage().addReaction(Emoji.fromUnicode("U+2705")).queue();
     }
 
     @Override
