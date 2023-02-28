@@ -235,7 +235,6 @@ public class Main extends PluginEvent {
         long guildID = event.getGuild().getIdLong();
         long messageID = event.getMessageIdLong();
         long channelID = event.getChannel().getIdLong();
-        String log;
 
         try {
             Connection conn = dbConns.getOrDefault(guildID, DriverManager.getConnection(
@@ -248,15 +247,8 @@ public class Main extends PluginEvent {
             if (rs == null) return;
 
             User sender = event.getAuthor();
-            long userID = sender.getIdLong();
             String beforeMessageStr = rs.getString("message");
             String afterMessageStr = getMessageOrEmbed(event.getMessage());
-
-            log = String.format(
-                    "Updated message: (%s : %d) \n%s -> \n%s",
-                    sender.getAsTag(), userID,
-                    rs.getString("message"), afterMessageStr
-            );
 
             String update = String.format("UPDATE '%d' SET message = ? WHERE message_id= ?", channelID);
             PreparedStatement createMessage = conn.prepareStatement(update);
@@ -320,11 +312,6 @@ public class Main extends PluginEvent {
                 return;
             }
             String messageStr = rs.getString("message");
-
-//            log = String.format(
-//                    "Deleted message: %s (%s : %d)",
-//                    messageStr, messageSender.getAsTag(), messageSender.getIdLong()
-//            );
 
             String removeMessageSql = String.format("DELETE FROM '%d' WHERE message_id = ?", channelID);
             PreparedStatement removeMessage = conn.prepareStatement(removeMessageSql);
