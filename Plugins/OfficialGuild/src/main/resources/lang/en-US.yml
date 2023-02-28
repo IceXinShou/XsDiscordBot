@@ -12,7 +12,7 @@ runtime:
       org_label: english nick
       org_placeholder: What could we call you?
 
-      mc_label: Minecraft ID (optional) (priority use for nickname)
+      mc_label: Minecraft ID (optional)
       mc_placeholder: What is your name？
 
       title: english nickname setting
