@@ -1,16 +1,23 @@
-register:
-  cmd: invite
-  description: kick a member from your server
-
-  options:
-    user: user
-    reason: reason
-
 runtime:
-  success: Kick Successfully
+  steps:
+    updating: Updating...
+
+    chi:
+      label: two words chinese nickname
+      placeholder: What could we call you?
+
+      title: chinese nickname setting
+
+    eng:
+      org_label: english nick
+      org_placeholder: What could we call you?
+
+      mc_label: Minecraft ID (optional) (priority use for nickname)
+      mc_placeholder: What is your name？
+
+      title: english nickname setting
+
 
   errors:
-    no_user: Cannot find the member!
-    no_permission: I do not have kick permission.
-    permission_denied: My permission level is lower than member's.
-    unknown: Unknown ERROR!
+    wrong_type_chi: Wrong Type!
+    cannot_found_mc_acc: "Cannot found '%name%' 's minecraft account, please try again."

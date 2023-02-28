@@ -10,26 +10,18 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
-import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.interactions.modals.ModalMapping;
-import net.dv8tion.jda.internal.interactions.component.ButtonImpl;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
@@ -39,17 +31,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import static com.xs.loader.MainLoader.jdaBot;
 import static com.xs.loader.util.EmbedCreator.createEmbed;
 import static com.xs.loader.util.UrlDataGetter.getData;
-import static net.dv8tion.jda.api.Permission.ADMINISTRATOR;
-import static net.dv8tion.jda.api.Permission.KICK_MEMBERS;
-import static net.dv8tion.jda.api.interactions.commands.OptionType.USER;
-import static net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle.SUCCESS;
 
 public class Main extends PluginEvent {
     private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
@@ -107,10 +93,10 @@ public class Main extends PluginEvent {
             return;
         }
 
-        ownGuild.upsertCommand(
-                Commands.slash("create_firstjoin", "if you dont know what it is, please not to touch!")
-                        .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR))
-        ).queue();
+//        ownGuild.upsertCommand(
+//                Commands.slash("create_firstjoin", "if you dont know what it is, please not to touch!")
+//                        .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR))
+//        ).queue();
     }
 
     @Override
@@ -125,28 +111,23 @@ public class Main extends PluginEvent {
         }
     }
 
-    @Override
-    public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
-        switch (event.getName()) {
-            case "invite": {
-
-                break;
-            }
-
-            case "create_firstjoin": {
-                Button button = new ButtonImpl("xs:og:create", "開始驗證", SUCCESS, false, null);
-                EmbedBuilder builder = new EmbedBuilder()
-                        .setTitle("正式加入原之序前，需要您的暱稱等資訊，方便其他成員認識您")
-                        .setDescription("原之序並不會要求您提供敏感資訊")
-                        .setThumbnail("https://i.imgur.com/6ivsnRr.png")
-                        .setFooter("公告")
-                        .setTimestamp(OffsetDateTime.now())
-                        .setColor(0x00FFFF);
-                event.getMessageChannel().sendMessageEmbeds(builder.build()).setActionRow(button).queue();
-                break;
-            }
-        }
-    }
+//    @Override
+//    public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
+//        switch (event.getName()) {
+//            case "create_firstjoin": {
+//                Button button = new ButtonImpl("xs:og:create", "開始驗證", SUCCESS, false, null);
+//                EmbedBuilder builder = new EmbedBuilder()
+//                        .setTitle("正式加入原之序前，需要您的暱稱等資訊，方便其他成員認識您")
+//                        .setDescription("原之序並不會要求您提供敏感資訊")
+//                        .setThumbnail("https://i.imgur.com/6ivsnRr.png")
+//                        .setFooter("公告")
+//                        .setTimestamp(OffsetDateTime.now())
+//                        .setColor(0x00FFFF);
+//                event.getMessageChannel().sendMessageEmbeds(builder.build()).setActionRow(button).queue();
+//                break;
+//            }
+//        }
+//    }
 
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
@@ -177,6 +158,7 @@ public class Main extends PluginEvent {
 
 
     private void startAuth(ButtonInteractionEvent event) {
+        DiscordLocale local = event.getUserLocale();
         User user = event.getUser();
         UserStepData step;
         if (stepData.containsKey(user.getIdLong())) {
@@ -186,41 +168,46 @@ public class Main extends PluginEvent {
             stepData.put(user.getIdLong(), step);
         }
 
-        // TODO: some welcome message...
-        step.hook = event.deferReply(true).setEmbeds(createEmbed("更新中...", 0x777700)).complete();
+        step.hook = event
+                .deferReply(true)
+                .setEmbeds(createEmbed(lang.get("runtime;steps;updating").get(local), 0x777700))
+                .complete();
+
         step.updateEmbed();
     }
 
     private void createChineseInput(ButtonInteractionEvent event) {
-        TextInput chiInp = TextInput.create("chi", "二字中文暱稱", TextInputStyle.SHORT)
-                .setPlaceholder("請問要怎麼稱呼你呢？")
+        DiscordLocale local = event.getUserLocale();
+        TextInput chiInp = TextInput.create("chi", lang.get("runtime;steps;chi;label").get(local), TextInputStyle.SHORT)
+                .setPlaceholder(lang.get("runtime;steps;chi;placeholder").get(local))
                 .setMinLength(2)
                 .setMaxLength(2)
                 .build();
 
         event.replyModal(
-                Modal.create("xs:og:set_chi", "設定中文暱稱")
+                Modal.create("xs:og:set_chi", lang.get("runtime;steps;chi;title").get(local))
                         .addActionRows(ActionRow.of(chiInp))
                         .build()
         ).queue();
     }
 
     private void createEnglishInput(ButtonInteractionEvent event) {
-        TextInput engInp = TextInput.create("eng", "英文暱稱", TextInputStyle.SHORT)
-                .setPlaceholder("請問要怎麼稱呼你呢？")
+        DiscordLocale local = event.getUserLocale();
+        TextInput engInp = TextInput.create("eng", lang.get("runtime;steps;eng;org_label").get(local), TextInputStyle.SHORT)
+                .setPlaceholder(lang.get("runtime;steps;eng;org_placeholder").get(local))
                 .setMinLength(1)
                 .setMaxLength(50)
                 .build();
 
-        TextInput mcInp = TextInput.create("mcid", "Minecraft ID (選填) (優先使用為暱稱)", TextInputStyle.SHORT)
-                .setPlaceholder("請問你叫什麼呢？")
+        TextInput mcInp = TextInput.create("mcid", lang.get("runtime;steps;eng;mc_label").get(local), TextInputStyle.SHORT)
+                .setPlaceholder(lang.get("runtime;steps;eng;mc_placeholder").get(local))
                 .setMinLength(1)
                 .setMaxLength(48)
                 .setRequired(false)
                 .build();
 
         event.replyModal(
-                Modal.create("xs:og:set_eng", "設定英文暱稱")
+                Modal.create("xs:og:set_eng", lang.get("runtime;steps;eng;title").get(local))
                         .addActionRows(ActionRow.of(engInp), ActionRow.of(mcInp))
                         .build()
         ).queue();
@@ -290,11 +277,14 @@ public class Main extends PluginEvent {
     }
 
     private void getChineseNameByForm(ModalInteractionEvent event) {
+        DiscordLocale local = event.getUserLocale();
         ModalMapping chiInp;
         UserStepData step = stepData.get(event.getUser().getIdLong());
         if ((chiInp = event.getValue("chi")) == null) return;
         if (!Pattern.matches("^[一-龥]+$", chiInp.getAsString())) { // \\u4E00-\\u9fa5
-            event.deferReply(true).setEmbeds(createEmbed("輸入錯誤", 0xFF0000)).queue();
+            event.deferReply(true)
+                    .setEmbeds(createEmbed(lang.get("runtime;errors;wrong_type_chi").get(local), 0xFF0000))
+                    .queue();
         } else {
             step.chineseName = chiInp.getAsString();
             step.updateEmbed();
@@ -303,6 +293,7 @@ public class Main extends PluginEvent {
     }
 
     private void getEnglishNameByForm(ModalInteractionEvent event) {
+        DiscordLocale local = event.getUserLocale();
         ModalMapping engInp, mcid_inp;
         UserStepData step = stepData.get(event.getUser().getIdLong());
         if ((engInp = event.getValue("eng")) == null) return;
@@ -312,7 +303,9 @@ public class Main extends PluginEvent {
             String uuid = getUUIDByName(mcid_inp.getAsString());
             if (uuid == null) {
                 event.deferReply(true).setEmbeds(
-                        createEmbed("查無 \"" + mcid_inp.getAsString() + "\" 的 minecraft 資料，請檢查後再試一次", 0xFF0000)
+                        createEmbed(lang.get("runtime;errors;cannot_found_mc_acc").get(local)
+                                .replace("%name%", mcid_inp.getAsString()), 0xFF0000
+                        )
                 ).queue();
                 return;
             }

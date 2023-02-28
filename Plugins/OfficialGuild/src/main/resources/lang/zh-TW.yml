@@ -1,16 +1,23 @@
-register:
-  cmd: 踢出
-  description: 自伺服器踢出成員使用者
-
-  options:
-    user: 使用者
-    reason: 原因
-
 runtime:
-  success: 已踢出
+  steps:
+    updating: 更新中...
+
+    chi:
+      label: 二字中文暱稱
+      placeholder: 請問要怎麼稱呼你呢？
+
+      title: 設定中文暱稱
+
+    eng:
+      org_label: 英文暱稱
+      org_placeholder: 請問要怎麼稱呼你呢？
+
+      mc_label: Minecraft ID (選填) (優先使用為暱稱)
+      mc_placeholder: 請問你叫什麼呢？
+
+      title: 設定英文暱稱
+
 
   errors:
-    no_user: 找不到此成員!
-    no_permission: 缺少踢出權限
-    permission_denied: 權限比該成員低
-    unknown: 未知的錯誤!
+    wrong_type_chi: 輸入錯誤
+    cannot_found_mc_acc: "查無 '%name%' 的 minecraft 資料，請檢查後再試一次"
