@@ -8,7 +8,11 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -37,6 +41,8 @@ import static com.xs.loader.MainLoader.ROOT_PATH;
 import static com.xs.loader.MainLoader.jdaBot;
 import static com.xs.loader.util.GlobalUtil.*;
 import static net.dv8tion.jda.api.Permission.ADMINISTRATOR;
+import static net.dv8tion.jda.api.entities.channel.ChannelType.*;
+import static net.dv8tion.jda.api.entities.channel.ChannelType.GUILD_NEWS_THREAD;
 
 public class Main extends PluginEvent {
     private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
@@ -263,7 +269,8 @@ public class Main extends PluginEvent {
             manager.channelSettings.getOrDefault(guildID, new HashMap<>()).forEach(
                     (i, j) -> {
                         if (j.contains(channelID, ChannelSetting.DetectType.UPDATE)) {
-                            TextChannel sendChannel = event.getGuild().getTextChannelById(i);
+                            GuildChannel sendChannel = event.getGuild().getGuildChannelById(i);
+
                             if (sendChannel != null) {
                                 TextChannel removeChannel = event.getChannel().asTextChannel();
                                 String title = removeChannel.getParentCategory() == null ?
@@ -278,7 +285,14 @@ public class Main extends PluginEvent {
                                         .setFooter("更改訊息")
                                         .setTimestamp(OffsetDateTime.now())
                                         .setColor(0xFFDB00);
-                                sendChannel.sendMessageEmbeds(builder.build()).queue();
+
+                                if (sendChannel instanceof TextChannel) {
+                                    ((TextChannel) sendChannel).sendMessageEmbeds(builder.build()).queue();
+                                } else if (sendChannel instanceof VoiceChannel) {
+                                    ((VoiceChannel) sendChannel).sendMessageEmbeds(builder.build()).queue();
+                                } else {
+                                    logger.warn("unknown chat type! : " + sendChannel.getType());
+                                }
                             }
                         }
                     }
@@ -324,7 +338,8 @@ public class Main extends PluginEvent {
             manager.channelSettings.getOrDefault(guildID, new HashMap<>()).forEach(
                     (i, j) -> {
                         if (j.contains(channelID, ChannelSetting.DetectType.DELETE)) {
-                            TextChannel sendChannel = event.getGuild().getTextChannelById(i);
+                            GuildChannel sendChannel = event.getGuild().getGuildChannelById(i);
+
                             if (sendChannel != null) {
                                 TextChannel removeChannel = event.getChannel().asTextChannel();
                                 String title = removeChannel.getParentCategory() == null ?
@@ -337,7 +352,14 @@ public class Main extends PluginEvent {
                                         .setFooter("刪除訊息")
                                         .setTimestamp(OffsetDateTime.now())
                                         .setColor(0xFF0000);
-                                sendChannel.sendMessageEmbeds(builder.build()).queue();
+
+                                if (sendChannel instanceof TextChannel) {
+                                    ((TextChannel) sendChannel).sendMessageEmbeds(builder.build()).queue();
+                                } else if (sendChannel instanceof VoiceChannel) {
+                                    ((VoiceChannel) sendChannel).sendMessageEmbeds(builder.build()).queue();
+                                } else {
+                                    logger.warn("unknown chat type! : " + sendChannel.getType());
+                                }
                             }
                         }
                     }
