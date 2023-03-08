@@ -9,8 +9,16 @@ register:
       options:
         detect: the channel be detected
 
+    remove:
+      cmd: removebychannel
+      description: remove a dynamic voice chat by channel
+      options:
+        detect: the channel be detected
+
 runtime:
   success: Setting successfully
+  remove_success: Setting remove successfully
+  no_remove_success: No Setting has been removed
 
   errors:
     unknown: Unknown ERROR!

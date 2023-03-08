@@ -15,6 +15,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.build.*;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -29,14 +30,14 @@ import static net.dv8tion.jda.api.Permission.ADMINISTRATOR;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.CHANNEL;
 
 public class Main extends PluginEvent {
-    private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
-    private FileGetter getter;
-    private Logger logger;
     private static final String TAG = "DynamicVC";
+    private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
     private final String PATH_FOLDER_NAME = "./plugins/DynamicVC";
-    private Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
     private final HashSet<Long> trackedChannel = new HashSet<>();
     private final HashSet<TrackedChannel> originChannel = new HashSet<>();
+    private FileGetter getter;
+    private Logger logger;
+    private Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
 
     public Main() {
         super(true);
@@ -160,31 +161,38 @@ public class Main extends PluginEvent {
             }
 
             case "removebychannel": {
-                VoiceChannel channel = event.getOption("detect").getAsChannel().asVoiceChannel();
                 JsonFileManager fileManager = new JsonFileManager(PATH_FOLDER_NAME + "/Data/" + guildID + ".json", TAG, false);
+                VoiceChannel channel = event.getOption("detect").getAsChannel().asVoiceChannel();
 
-                for (Object vc: fileManager.getAry().toList().stream().filter(
-                        i -> {
-                            if (i instanceof JSONObject) {
-                                JSONObject tmp = (JSONObject) i;
-                                return (tmp.getLong("category") == channel.getParentCategoryIdLong() &&
-                                        tmp.getString("name").equals(channel.getName()) &&
-                                        tmp.getInt("limit") == channel.getUserLimit() &&
-                                        tmp.getInt("bitrate") == channel.getBitrate()
-                                );
-                            }
-                            return false;
-                        }).collect(Collectors.toList())) {
+                JSONObject targetObject = new JSONObject();
+                targetObject.put("category", channel.getParentCategoryIdLong());
+                targetObject.put("name", channel.getName());
+                targetObject.put("limit", channel.getUserLimit());
+                targetObject.put("bitrate", channel.getBitrate());
 
+                JSONArray array = fileManager.getAry();
 
+                boolean removed = false;
+                int removedCount = 0;
+                for (int i = 0; i < array.length(); i++) {
+                    JSONObject obj = array.getJSONObject(0);
+
+                    if (obj.similar(targetObject)) {
+                        array.remove(i);
+                        removed = true;
+                        ++removedCount;
+                    }
+                }
+
+                if (removed) {
+                    event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;remove_success").get(local), 0x00FFFF)).queue();
+                } else {
+                    event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;no_remove_success").get(local), 0x00FFFF)).queue();
                 }
 
                 break;
             }
         }
-
-        if (!event.getSubcommandName().equals("createbychannel")) return;
-
     }
 
 

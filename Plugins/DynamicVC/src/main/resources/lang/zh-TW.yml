@@ -8,8 +8,16 @@ register:
       description: 創建動態語音頻道
       options:
         detect: 被偵測的頻道
+
+    remove:
+      cmd: 移除動態語音
+      description: 移除動態語音頻道
+      options:
+        detect: 被偵測的頻道
 runtime:
   success: 設定完成
+  remove_success: 移除完成
+  no_remove_success: 無頻道被移除
 
   errors:
     unknown: 未知的錯誤!
