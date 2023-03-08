@@ -6,6 +6,7 @@ import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
 import com.xs.loader.util.JsonFileManager;
 import net.dv8tion.jda.api.entities.ISnowflake;
+import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.entities.channel.unions.AudioChannelUnion;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
@@ -96,12 +97,20 @@ public class Main extends PluginEvent {
                         .setDescriptionLocalizations(lang.get("register;description"))
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR))
                         .addSubcommands(
-                        new SubcommandData("createbychannel", "create a dynamic voice chat by channel")
+                        new SubcommandData("createbychannel", "create a dynamic voice chat by channel name")
                                 .setNameLocalizations(lang.get("register;subcommand;create;cmd"))
                                 .setDescriptionLocalizations(lang.get("register;subcommand;create;description"))
                                 .addOptions(
                                         new OptionData(CHANNEL, "detect", "the channel be detected", true)
                                                 .setDescriptionLocalizations(lang.get("register;subcommand;create;options;detect"))
+                                ),
+
+                        new SubcommandData("removebychannel", "remove a dynamic voice chat by channel name")
+                                .setNameLocalizations(lang.get("register;subcommand;remove;cmd"))
+                                .setDescriptionLocalizations(lang.get("register;subcommand;remove;description"))
+                                .addOptions(
+                                        new OptionData(CHANNEL, "detect", "the channel be detected", true)
+                                                .setDescriptionLocalizations(lang.get("register;subcommand;remove;options;detect"))
                                 )
                 )
         };
@@ -110,40 +119,71 @@ public class Main extends PluginEvent {
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         if (!event.getName().equals("dynamicvc")) return;
-        if (!event.getSubcommandName().equals("createbychannel")) return;
+        if (event.getSubcommandName() == null) return;
+
         DiscordLocale local = event.getUserLocale();
-        try {
-            long guildID = event.getGuild().getIdLong();
-            long category;
-            String name;
-            int bitrate;
-            int limit;
+        long guildID = event.getGuild().getIdLong();
+        switch (event.getSubcommandName()) {
+            case "createbychannel": {
+                try {
+                    long category;
+                    String name;
+                    int bitrate;
+                    int limit;
+
+                    VoiceChannel channel = event.getOption("detect").getAsChannel().asVoiceChannel();
+                    category = channel.getParentCategoryIdLong();
+                    name = channel.getName();
+                    bitrate = channel.getBitrate();
+                    limit = channel.getUserLimit();
+
+                    JSONObject object = new JSONObject();
+                    object.put("category", category);
+                    object.put("name", name);
+                    object.put("bitrate", bitrate);
+                    object.put("limit", limit);
+
+                    JsonFileManager fileManager = new JsonFileManager(PATH_FOLDER_NAME + "/Data/" + guildID + ".json", TAG, false);
+                    fileManager.getAry().put(object);
+                    fileManager.save();
+
+                    trackedChannel.add(channel.getIdLong());
+
+                    event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;success").get(local), 0x00FFFF)).queue();
+                } catch (Exception e) {
+                    event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;errors;unknown").get(local), 0xFF0000)).queue();
+                    logger.warn(Arrays.toString(e.getStackTrace()));
+                    logger.warn(e.getMessage());
+                }
+
+                break;
+            }
+
+            case "removebychannel": {
+                VoiceChannel channel = event.getOption("detect").getAsChannel().asVoiceChannel();
+                JsonFileManager fileManager = new JsonFileManager(PATH_FOLDER_NAME + "/Data/" + guildID + ".json", TAG, false);
+
+                for (Object vc: fileManager.getAry().toList().stream().filter(
+                        i -> {
+                            if (i instanceof JSONObject) {
+                                JSONObject tmp = (JSONObject) i;
+                                return (tmp.getLong("category") == channel.getParentCategoryIdLong() &&
+                                        tmp.getString("name").equals(channel.getName()) &&
+                                        tmp.getInt("limit") == channel.getUserLimit() &&
+                                        tmp.getInt("bitrate") == channel.getBitrate()
+                                );
+                            }
+                            return false;
+                        }).collect(Collectors.toList())) {
 
 
-            VoiceChannel channel = event.getOption("detect").getAsChannel().asVoiceChannel();
-            category = channel.getParentCategoryIdLong();
-            name = channel.getName();
-            bitrate = channel.getBitrate();
-            limit = channel.getUserLimit();
+                }
 
-            JSONObject object = new JSONObject();
-            object.put("category", category);
-            object.put("name", name);
-            object.put("bitrate", bitrate);
-            object.put("limit", limit);
-
-            JsonFileManager fileManager = new JsonFileManager(PATH_FOLDER_NAME + "/Data/" + guildID + ".json", TAG, false);
-            fileManager.getAry().put(object);
-            fileManager.save();
-
-            trackedChannel.add(channel.getIdLong());
-
-            event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;success").get(local), 0x00FFFF)).queue();
-        } catch (Exception e) {
-            event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;errors;unknown").get(local), 0xFF0000)).queue();
-            logger.warn(Arrays.toString(e.getStackTrace()));
-            logger.warn(e.getMessage());
+                break;
+            }
         }
+
+        if (!event.getSubcommandName().equals("createbychannel")) return;
 
     }
 
@@ -152,7 +192,11 @@ public class Main extends PluginEvent {
     public void onGuildReady(GuildReadyEvent event) {
         for (TrackedChannel i : originChannel.stream()
                 .filter(i -> event.getGuild().getIdLong() == i.guildID).collect(Collectors.toList())) {
-            trackedChannel.addAll(event.getGuild().getCategoryById(i.categoryID).getVoiceChannels().stream()
+
+            Category category = event.getGuild().getCategoryById(i.categoryID);
+            if (category == null) continue;
+
+            trackedChannel.addAll(category.getVoiceChannels().stream()
                     .filter(j -> j.getName().equals(i.name)).map(ISnowflake::getIdLong).collect(Collectors.toList()));
         }
     }
