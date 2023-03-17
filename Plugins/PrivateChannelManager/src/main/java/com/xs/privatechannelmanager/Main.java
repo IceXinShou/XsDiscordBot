@@ -33,9 +33,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.OffsetDateTime;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import static com.xs.loader.MainLoader.jdaBot;
+import static com.xs.loader.util.EmbedCreator.createEmbed;
 
 public class Main extends PluginEvent {
     private MainConfig configFile;
@@ -142,6 +142,23 @@ public class Main extends PluginEvent {
                 createReplyForm(event, args);
                 break;
             }
+
+            case "delete": {
+                User user = jdaBot.retrieveUserById(args[3]).complete();
+                if (user == null) {
+                    event.getMessage().editMessageEmbeds(createEmbed("Cannot found the user", 0xFF0000)).queue();
+                    break;
+                }
+
+                Message message = user.openPrivateChannel().complete().retrieveMessageById(args[4]).complete();
+                if (message == null) {
+                    event.getMessage().editMessageEmbeds(createEmbed("Cannot found the message", 0xFF0000)).queue();
+                    break;
+                }
+
+                message.delete().queue();
+                event.getMessage().delete().queue();
+            }
         }
 
     }
@@ -208,13 +225,17 @@ public class Main extends PluginEvent {
         if (contentMap != null) builder.setDescription(contentMap.getAsString());
 
         Message message = channel.retrieveMessageById(args[4]).complete();
+
+        long messageID;
         if (message != null) {
-            message.replyEmbeds(builder.build()).queue();
+            messageID = message.replyEmbeds(builder.build()).complete().getIdLong();
         } else {
-            channel.sendMessageEmbeds(builder.build()).queue();
+            messageID = channel.sendMessageEmbeds(builder.build()).complete().getIdLong();
         }
 
-        event.getChannel().sendMessageEmbeds(builder.setFooter("回覆備份").build()).queue();
+        Button delete = new ButtonImpl("xs:pcm:delete:" + user.getId() + ':' + messageID, "刪除", ButtonStyle.DANGER, false, null);
+
+        event.getChannel().sendMessageEmbeds(builder.setFooter("回覆備份").build()).setActionRow(delete).queue();
         event.deferEdit().queue();
     }
 }
