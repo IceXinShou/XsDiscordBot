@@ -110,7 +110,7 @@ public class ButtonSystem {
         EntitySelectMenu menu = EntitySelectMenu
                 .create("xs:chatlogger:" + args[2] + ':' + event.getUser().getId() + ':' + event.getChannel().getId(), EntitySelectMenu.SelectTarget.CHANNEL)
                 .setChannelTypes(
-                        TEXT, VOICE, VOICE, NEWS, FORUM, CATEGORY,
+                        TEXT, VOICE, VOICE, NEWS, FORUM, CATEGORY, STAGE,
                         GUILD_PRIVATE_THREAD, GUILD_PUBLIC_THREAD, GUILD_NEWS_THREAD
                 )
                 .setPlaceholder(lang.get("runtime;setting;select_menu;placeholder").get(local))
