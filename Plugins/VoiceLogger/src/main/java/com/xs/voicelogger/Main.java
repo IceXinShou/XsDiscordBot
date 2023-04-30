@@ -46,7 +46,7 @@ public class Main extends PluginEvent {
     private FileGetter getter;
     private Logger logger;
     private static final String TAG = "VoiceLogger";
-    private final String PATH_FOLDER_NAME = "./plugins/VoiceLogger";
+    private final String PATH_FOLDER_NAME = "plugins/VoiceLogger";
     private Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
     private final JsonManager jsonManager = new JsonManager();
     private ButtonSystem buttonSystem;

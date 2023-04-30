@@ -37,7 +37,7 @@ public class Main extends PluginEvent {
     private FileGetter getter;
     private Logger logger;
     private static final String TAG = "MemberPoint";
-    private final String PATH_FOLDER_NAME = "./plugins/MemberPoint";
+    private final String PATH_FOLDER_NAME = "plugins/MemberPoint";
     private final List<Long> adminID = new ArrayList<>();
     private final List<Role> adminRoles = new ArrayList<>();
     private Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
@@ -123,7 +123,7 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadConfigFile() {
-        InputStream inputStream = getter.readYmlInputStream("config.yml", PATH_FOLDER_NAME);
+        InputStream inputStream = getter.readInputStreamOrDefaultFromSource("config.yml");
         if (inputStream == null) return;
 
         try {

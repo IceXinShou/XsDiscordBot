@@ -23,10 +23,12 @@ public class FileGetter {
         this.logger = logger;
         this.FOLDER_PATH = MainLoader.ROOT_PATH + "/" + PATH_FOLDER_NAME;
         this.CLASS = CLASS;
+
+        new File(FOLDER_PATH).mkdirs();
     }
 
     @Nullable
-    public Map<String, Object> readFileMap(Path f) {
+    public Map<String, Object> readFileMapByPath(Path f) {
         try {
             return new Yaml().load(Files.newInputStream(f));
         } catch (IOException e) {
@@ -36,12 +38,11 @@ public class FileGetter {
     }
 
     @Nullable
-    public Map<String, Object> readYml(String fileName, String path) {
-        new File(MainLoader.ROOT_PATH + "/" + path).mkdirs();
-        File settingFile = new File(MainLoader.ROOT_PATH + "/" + path + "/" + fileName);
+    public Map<String, Object> readFileMapByPathOrDefaultFromSource(String fileName) {
+        File settingFile = new File(FOLDER_PATH + "/" + fileName);
         if (!settingFile.exists()) {
             logger.warn(fileName + " not found, create default " + fileName);
-            settingFile = exportResource(fileName, path);
+            settingFile = exportResource(fileName);
             if (settingFile == null) {
                 logger.warn("read " + fileName + " failed");
                 return null;
@@ -49,16 +50,15 @@ public class FileGetter {
         }
         logger.log("load " + settingFile.getPath());
 
-        return readFileMap(settingFile.toPath());
+        return readFileMapByPath(settingFile.toPath());
     }
 
     @Nullable
-    public InputStream readYmlInputStream(String fileName, String path) {
-        new File(MainLoader.ROOT_PATH + "/" + path).mkdirs();
-        File settingFile = new File(MainLoader.ROOT_PATH + "/" + path + "/" + fileName);
+    public InputStream readInputStreamOrDefaultFromSource(String fileName) {
+        File settingFile = new File(FOLDER_PATH + '/' + fileName);
         if (!settingFile.exists()) {
             logger.warn(fileName + " not found, create default " + fileName);
-            settingFile = exportResource(fileName, path);
+            settingFile = exportResource(fileName);
             if (settingFile == null) {
                 logger.warn("read " + fileName + " failed");
                 return null;
@@ -76,16 +76,17 @@ public class FileGetter {
     }
 
     @Nullable
-    public File exportResource(String sourceFileName, String outputPath) {
+    public File exportResource(String sourceFileName) {
         InputStream fileInJar = CLASS.getResourceAsStream(sourceFileName);
         try {
             if (fileInJar == null) {
                 logger.warn("can not find resource: " + sourceFileName);
                 return null;
             }
-            Files.copy(fileInJar, Paths.get(MainLoader.ROOT_PATH + "/" + outputPath + "/" + sourceFileName), StandardCopyOption.REPLACE_EXISTING);
+
+            Files.copy(fileInJar, Paths.get(FOLDER_PATH + '/' + sourceFileName), StandardCopyOption.REPLACE_EXISTING);
             fileInJar.close();
-            return new File(MainLoader.ROOT_PATH + "/" + outputPath + "/" + sourceFileName);
+            return new File(FOLDER_PATH + '/' + sourceFileName);
         } catch (IOException e) {
             logger.warn(e.getMessage());
             logger.warn("read resource failed");
@@ -94,29 +95,22 @@ public class FileGetter {
     }
 
     @Nullable
-    public File exportResource(String sourceFile, String outputName, String outputPath) {
-        InputStream fileInJar = CLASS.getResourceAsStream(sourceFile);
+    public File exportResource(String sourceFilePath, String outputName) {
+        InputStream fileInJar = CLASS.getResourceAsStream(sourceFilePath);
 
         try {
             if (fileInJar == null) {
-                logger.warn("can not find resource: " + sourceFile);
+                logger.warn("can not find resource: " + sourceFilePath);
                 return null;
             }
-            Files.copy(fileInJar, Paths.get(FOLDER_PATH + "/" + outputPath + "/" + outputName), StandardCopyOption.REPLACE_EXISTING);
+
+            Files.copy(fileInJar, Paths.get(FOLDER_PATH + '/' + outputName), StandardCopyOption.REPLACE_EXISTING);
             fileInJar.close();
-            return new File(FOLDER_PATH + "/" + outputPath + "/" + outputName);
+            return new File(FOLDER_PATH + '/' + outputName);
         } catch (IOException e) {
             logger.warn("read resource failed");
             logger.warn(e.getMessage());
         }
         return null;
-    }
-
-    private void copyFile(File source, File dest) throws IOException {
-        Files.copy(source.toPath(), dest.toPath());
-    }
-
-    public void copyFile(File source, String dest) throws IOException {
-        Files.copy(source.toPath(), Paths.get(dest));
     }
 }

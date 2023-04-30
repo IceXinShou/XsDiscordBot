@@ -14,7 +14,6 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.fusesource.jansi.AnsiConsole;
 import org.jetbrains.annotations.Nullable;
 import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.Constructor;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.File;
@@ -181,7 +180,6 @@ public class MainLoader {
         int fail = 0;
         String tmp;
         logger.log("Plugin(s) Loading...");
-        Yaml configYmlLoader = new Yaml(new Constructor(PluginConfig.class));
 
         ClassLoader loader = new ClassLoader();
 
@@ -193,8 +191,7 @@ public class MainLoader {
                 if ((tmp = getExtensionName(file.getName())) == null || !tmp.equals("jar")) continue;
                 JarFile jarFile = new JarFile(file);
                 InputStream inputStream = jarFile.getInputStream(jarFile.getEntry("info.yml"));
-                PluginConfig config = configYmlLoader.load(inputStream);
-
+                PluginConfig config = new Yaml().loadAs(inputStream, PluginConfig.class);
 
                 if (!plugins.containsKey(config.name)) {
                     loader.addJar(file, config.main);
@@ -263,7 +260,7 @@ public class MainLoader {
 
     private void loadConfigFile() {
         InputStream inputStream = readOrDefaultYml("config_0A2F7C.yml", "config.yml", this.getClass().getClassLoader());
-        configFile = new Yaml(new Constructor(MainConfig.class)).load(inputStream);
+        configFile = new Yaml().loadAs(inputStream, MainConfig.class);
         try {
             inputStream.close();
         } catch (IOException e) {

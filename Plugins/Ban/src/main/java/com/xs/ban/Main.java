@@ -26,7 +26,7 @@ public class Main extends PluginEvent {
     private FileGetter getter;
     private Logger logger;
     private static final String TAG = "Ban";
-    private final String PATH_FOLDER_NAME = "./plugins/Ban";
+    private final String PATH_FOLDER_NAME = "plugins/Ban";
     private Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
 
     public Main() {

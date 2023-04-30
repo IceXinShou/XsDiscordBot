@@ -20,29 +20,28 @@ public class LangGetter {
 
     public LangGetter(final String TAG, final FileGetter GETTER, final String PATH_FOLDER_NAME, final String[] DEFAULT_LANG, final Class<?> fromClass) {
         logger = new Logger(TAG);
-        this.FOLDER_PATH = MainLoader.ROOT_PATH + "/" + PATH_FOLDER_NAME;
+        this.FOLDER_PATH = MainLoader.ROOT_PATH + "/" + PATH_FOLDER_NAME + "/Lang";
         this.getter = GETTER;
         this.defaultLang = DEFAULT_LANG;
         this.FROM_CLASS = fromClass;
+
+        new File(FOLDER_PATH).mkdirs();
     }
 
 
     public void exportDefaultLang() {
-        // init folder
-        new File(FOLDER_PATH + "/Lang").mkdirs();
-
-        for (String l : defaultLang) {
-            String fileName = l + ".yml";
-            File lang_file = new File(FOLDER_PATH + "/Lang/" + fileName);
+        for (String lang : defaultLang) {
+            String fileName = lang + ".yml";
+            File lang_file = new File(FOLDER_PATH + fileName);
             if (lang_file.exists()) continue;
 
             // export is not exist
-            getter.exportResource("lang/" + fileName, fileName, "Lang");
+            getter.exportResource("lang/" + fileName, "/Lang/" + fileName);
         }
     }
 
     public Map<String, Map<DiscordLocale, String>> readLangFileData() {
-        for (File i : new File(FOLDER_PATH + "/Lang/").listFiles()) {
+        for (File i : new File(FOLDER_PATH).listFiles()) {
             DiscordLocale local = DiscordLocale.from(i.getName().replaceAll("\\.\\w+$", ""));
             if (local == DiscordLocale.UNKNOWN) {
                 logger.warn("Cannot find discord locate by file: " + i.getAbsolutePath() + "");
@@ -50,7 +49,7 @@ public class LangGetter {
             }
 
             try {
-                readLang(getter.readFileMap(i.toPath()), "", local);
+                readLang(getter.readFileMapByPath(i.toPath()), "", local);
             } catch (Exception e) {
                 logger.warn(e.getMessage());
             }

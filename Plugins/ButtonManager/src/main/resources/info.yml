@@ -1,0 +1,5 @@
+author: IceXinShou
+main: com.xs.buttonmanager.Main
+name: ButtonManager
+version: '2.0'
+prefix: BM

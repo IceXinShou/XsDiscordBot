@@ -153,7 +153,7 @@ public class SheetRequest {
     private Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
         GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
                 HTTP_TRANSPORT, JSON_FACTORY, config.client_id, config.client_secret, SCOPES)
-                .setDataStoreFactory(new FileDataStoreFactory(new java.io.File("./plugins/GoogleSheetAPI/tokens")))
+                .setDataStoreFactory(new FileDataStoreFactory(new java.io.File("plugins/GoogleSheetAPI/tokens")))
                 .setAccessType("offline")
                 .build();
 

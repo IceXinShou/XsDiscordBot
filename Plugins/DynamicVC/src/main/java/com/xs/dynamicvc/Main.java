@@ -32,7 +32,7 @@ import static net.dv8tion.jda.api.interactions.commands.OptionType.CHANNEL;
 public class Main extends PluginEvent {
     private static final String TAG = "DynamicVC";
     private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
-    private final String PATH_FOLDER_NAME = "./plugins/DynamicVC";
+    private final String PATH_FOLDER_NAME = "plugins/DynamicVC";
     private final HashSet<Long> trackedChannel = new HashSet<>();
     private final HashSet<TrackedChannel> originChannel = new HashSet<>();
     private FileGetter getter;

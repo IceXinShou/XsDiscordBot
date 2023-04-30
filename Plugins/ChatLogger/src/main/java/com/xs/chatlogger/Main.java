@@ -53,7 +53,7 @@ public class Main extends PluginEvent {
     private FileGetter getter;
     private Logger logger;
     private static final String TAG = "ChatLogger";
-    private final String PATH_FOLDER_NAME = "./plugins/ChatLogger";
+    private final String PATH_FOLDER_NAME = "plugins/ChatLogger";
     private Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
     private final Map<Long, Connection> dbConns = new HashMap<>();
     private final JsonManager manager = new JsonManager();

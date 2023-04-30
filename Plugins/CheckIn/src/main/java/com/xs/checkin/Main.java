@@ -36,7 +36,7 @@ public class Main extends PluginEvent {
     private FileGetter getter;
     private Logger logger;
     private static final String TAG = "CheckIn";
-    private final String PATH_FOLDER_NAME = "./plugins/CheckIn";
+    private final String PATH_FOLDER_NAME = "plugins/CheckIn";
     private final List<Long> adminID = new ArrayList<>();
     private final List<Role> adminRoles = new ArrayList<>();
     private final List<Pair<Long, Long>> announcements = new ArrayList<>();
@@ -127,7 +127,7 @@ public class Main extends PluginEvent {
     @Override
     public void loadConfigFile() {
 
-        InputStream inputStream = getter.readYmlInputStream("config.yml", PATH_FOLDER_NAME);
+        InputStream inputStream = getter.readInputStreamOrDefaultFromSource("config.yml");
         if (inputStream == null) return;
 
         try {

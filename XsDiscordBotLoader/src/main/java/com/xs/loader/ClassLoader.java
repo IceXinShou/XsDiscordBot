@@ -29,8 +29,6 @@ public class ClassLoader extends URLClassLoader {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-
-//        AppletClassLoader
     }
 
     @Nullable

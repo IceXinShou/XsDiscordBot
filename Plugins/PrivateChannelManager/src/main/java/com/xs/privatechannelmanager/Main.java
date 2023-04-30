@@ -86,10 +86,11 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadConfigFile() {
-        InputStream inputStream = getter.readYmlInputStream("config.yml", PATH_FOLDER_NAME);
+        InputStream inputStream = getter.readInputStreamOrDefaultFromSource("config.yml");
         if (inputStream == null) return;
 
         try {
+
             configFile = new Yaml(new Constructor(MainConfig.class)).load(inputStream);
             inputStream.close();
 

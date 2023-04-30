@@ -15,7 +15,7 @@ import static com.xs.loader.MainLoader.jdaBot;
 
 public class JsonManager {
     private final String TAG = "ChatLogger";
-    private final String PATH_FOLDER_NAME = "./plugins/ChatLogger";
+    private final String PATH_FOLDER_NAME = "plugins/ChatLogger";
     private final Map<Long, JsonFileManager> fileManager = new HashMap<>();
     public final Map<Long, Map<Long, ChannelSetting>> channelSettings = new HashMap<>();
 

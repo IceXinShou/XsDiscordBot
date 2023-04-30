@@ -30,7 +30,7 @@ public class Main extends PluginEvent {
     private FileGetter getter;
     private Logger logger;
     private static final String TAG = "WhoIsSpy";
-    private final String PATH_FOLDER_NAME = "./plugins/WhoIsSpy";
+    private final String PATH_FOLDER_NAME = "plugins/WhoIsSpy";
     private Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
     private boolean start = false;
     private Message message;

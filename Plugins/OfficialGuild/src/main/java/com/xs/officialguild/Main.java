@@ -42,7 +42,7 @@ public class Main extends PluginEvent {
     private FileGetter getter;
     private Logger logger;
     private static final String TAG = "OG";
-    private final String PATH_FOLDER_NAME = "./plugins/OfficialGuild";
+    private final String PATH_FOLDER_NAME = "plugins/OfficialGuild";
     private final long OWN_GUILD_ID = 858672865355890708L;
     private Guild ownGuild;
     private final long LOG_CHANNEL_ID = 858672865816346634L;

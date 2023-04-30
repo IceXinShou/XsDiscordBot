@@ -14,7 +14,7 @@ public class Main extends PluginEvent {
     private FileGetter getter;
     private Logger logger;
     private static final String TAG = "GoogleSheetAPI";
-    private final String PATH_FOLDER_NAME = "./plugins/GoogleSheetAPI";
+    private final String PATH_FOLDER_NAME = "plugins/GoogleSheetAPI";
 
     public Main() {
         super(false);
@@ -36,7 +36,7 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadConfigFile() {
-        InputStream inputStream = getter.readYmlInputStream("config.yml", PATH_FOLDER_NAME);
+        InputStream inputStream = getter.readInputStreamOrDefaultFromSource("config.yml");
         if (inputStream == null) return;
 
         try {

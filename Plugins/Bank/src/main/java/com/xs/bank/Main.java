@@ -37,7 +37,7 @@ public class Main extends PluginEvent {
     private FileGetter getter;
     private Logger logger;
     private static final String TAG = "Bank";
-    private final String PATH_FOLDER_NAME = "./plugins/Bank";
+    private final String PATH_FOLDER_NAME = "plugins/Bank";
     private JsonFileManager manager;
     private Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
     private final Map<String, Integer> moneyTypes = new HashMap<>(); // name, tax
@@ -132,8 +132,7 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadConfigFile() {
-
-        InputStream inputStream = getter.readYmlInputStream("config.yml", PATH_FOLDER_NAME);
+        InputStream inputStream = getter.readInputStreamOrDefaultFromSource("config.yml");
         if (inputStream == null) return;
 
         try {
@@ -144,7 +143,6 @@ public class Main extends PluginEvent {
             logger.warn("Please configure /" + PATH_FOLDER_NAME + "/config.yml");
             e.printStackTrace();
         }
-
         workingGuildID = configFile.guildID;
         moneyTypes.clear();
         for (String i : configFile.moneyType) {

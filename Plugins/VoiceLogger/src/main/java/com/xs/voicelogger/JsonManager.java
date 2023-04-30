@@ -16,7 +16,7 @@ import static com.xs.loader.MainLoader.jdaBot;
 
 public class JsonManager {
     private final String TAG = "VoiceLogger";
-    private final String PATH_FOLDER_NAME = "./plugins/VoiceLogger";
+    private final String PATH_FOLDER_NAME = "plugins/VoiceLogger";
     private final Map<Long, JsonFileManager> fileManager = new HashMap<>();
     public final Map<Long, Map<Long, ChannelSetting>> channelSettings = new HashMap<>();
 

@@ -47,7 +47,7 @@ public class Main extends PluginEvent {
     private FileGetter getter;
     private Logger logger;
     private static final String TAG = "Economy";
-    private final String PATH_FOLDER_NAME = "./plugins/Economy";
+    private final String PATH_FOLDER_NAME = "plugins/Economy";
     private JsonFileManager manager;
     private final List<Long> ownerIDs = new ArrayList<>();
     private int boardUserShowLimit;
@@ -175,7 +175,7 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadConfigFile() {
-        InputStream inputStream = getter.readYmlInputStream("config.yml", PATH_FOLDER_NAME);
+        InputStream inputStream = getter.readInputStreamOrDefaultFromSource("config.yml");
         if (inputStream == null) return;
 
         try {

@@ -22,7 +22,7 @@ public class Main extends PluginEvent {
     private FileGetter getter;
     private Logger logger;
     private static final String TAG = "EmojiAPI";
-    private final String PATH_FOLDER_NAME = "./plugins/EmojiAPI";
+    private final String PATH_FOLDER_NAME = "plugins/EmojiAPI";
     public static Map<String, Map<Long, Emoji>> emojis = new HashMap<>();
     private boolean setup = false;
 
@@ -46,7 +46,7 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadConfigFile() {
-        InputStream inputStream = getter.readYmlInputStream("config.yml", PATH_FOLDER_NAME);
+        InputStream inputStream = getter.readInputStreamOrDefaultFromSource("config.yml");
         if (inputStream == null) return;
 
         try {
