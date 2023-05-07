@@ -167,6 +167,6 @@ public class SheetRequest {
 
     public enum ValueInputOption {
         RAW,
-        USER_ENTERED;
+        USER_ENTERED
     }
 }

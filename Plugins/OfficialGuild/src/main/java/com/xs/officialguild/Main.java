@@ -1,7 +1,7 @@
 package com.xs.officialguild;
 
 import com.xs.loader.PluginEvent;
-import com.xs.loader.lang.LangGetter;
+import com.xs.loader.lang.LangManager;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
 import com.xs.loader.util.JsonFileManager;
@@ -38,6 +38,7 @@ import static com.xs.loader.util.EmbedCreator.createEmbed;
 import static com.xs.loader.util.UrlDataGetter.getData;
 
 public class Main extends PluginEvent {
+    private LangManager langManager;
     private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
     private FileGetter getter;
     private Logger logger;
@@ -46,7 +47,7 @@ public class Main extends PluginEvent {
     private final long OWN_GUILD_ID = 858672865355890708L;
     private Guild ownGuild;
     private final long LOG_CHANNEL_ID = 858672865816346634L;
-    private Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
+    private Map<String, Map<DiscordLocale, String>> langMap; // Label, Local, Content
     private JsonFileManager manager;
     private final Map<Long, UserStepData> stepData = new HashMap<>();
     private final List<Long> JOINED_ROLE_ID = Arrays.asList(858672865385119755L, 858701368457953360L, 858707058530451476L, 858703314606751764L);
@@ -73,11 +74,9 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadLang() {
-        LangGetter langGetter = new LangGetter(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, this.getClass());
+        langManager = new LangManager(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, this.getClass());
 
-        // expert files
-        langGetter.exportDefaultLang();
-        lang = langGetter.readLangFileData();
+        langMap = langManager.readLangFileDataMap();
     }
 
     @Override
@@ -90,7 +89,6 @@ public class Main extends PluginEvent {
         ownGuild = jdaBot.getGuildById(OWN_GUILD_ID);
         if (ownGuild == null) {
             logger.warn("CANNOT FOUND Main Guild!");
-            return;
         }
 
 //        ownGuild.upsertCommand(
@@ -162,7 +160,9 @@ public class Main extends PluginEvent {
         User user = event.getUser();
         UserStepData step;
         if (stepData.containsKey(user.getIdLong())) {
+            logger.log("start get");
             step = stepData.get(user.getIdLong());
+            logger.log("get success");
         } else {
             step = new UserStepData();
             stepData.put(user.getIdLong(), step);
@@ -170,7 +170,7 @@ public class Main extends PluginEvent {
 
         step.hook = event
                 .deferReply(true)
-                .setEmbeds(createEmbed(lang.get("runtime;steps;updating").get(local), 0x777700))
+                .setEmbeds(createEmbed(langManager.get("runtime;steps;updating", local), 0x777700))
                 .complete();
 
         step.updateEmbed();
@@ -178,14 +178,14 @@ public class Main extends PluginEvent {
 
     private void createChineseInput(ButtonInteractionEvent event) {
         DiscordLocale local = event.getUserLocale();
-        TextInput chiInp = TextInput.create("chi", lang.get("runtime;steps;chi;label").get(local), TextInputStyle.SHORT)
-                .setPlaceholder(lang.get("runtime;steps;chi;placeholder").get(local))
+        TextInput chiInp = TextInput.create("chi", langManager.get("runtime;steps;chi;label", local), TextInputStyle.SHORT)
+                .setPlaceholder(langManager.get("runtime;steps;chi;placeholder", local))
                 .setMinLength(2)
                 .setMaxLength(2)
                 .build();
 
         event.replyModal(
-                Modal.create("xs:og:set_chi", lang.get("runtime;steps;chi;title").get(local))
+                Modal.create("xs:og:set_chi", langManager.get("runtime;steps;chi;title", local))
                         .addActionRows(ActionRow.of(chiInp))
                         .build()
         ).queue();
@@ -193,21 +193,21 @@ public class Main extends PluginEvent {
 
     private void createEnglishInput(ButtonInteractionEvent event) {
         DiscordLocale local = event.getUserLocale();
-        TextInput engInp = TextInput.create("eng", lang.get("runtime;steps;eng;org_label").get(local), TextInputStyle.SHORT)
-                .setPlaceholder(lang.get("runtime;steps;eng;org_placeholder").get(local))
+        TextInput engInp = TextInput.create("eng", langManager.get("runtime;steps;eng;org_label", local), TextInputStyle.SHORT)
+                .setPlaceholder(langManager.get("runtime;steps;eng;org_placeholder", local))
                 .setMinLength(1)
                 .setMaxLength(50)
                 .build();
 
-        TextInput mcInp = TextInput.create("mcid", lang.get("runtime;steps;eng;mc_label").get(local), TextInputStyle.SHORT)
-                .setPlaceholder(lang.get("runtime;steps;eng;mc_placeholder").get(local))
+        TextInput mcInp = TextInput.create("mcid", langManager.get("runtime;steps;eng;mc_label", local), TextInputStyle.SHORT)
+                .setPlaceholder(langManager.get("runtime;steps;eng;mc_placeholder", local))
                 .setMinLength(1)
                 .setMaxLength(48)
                 .setRequired(false)
                 .build();
 
         event.replyModal(
-                Modal.create("xs:og:set_eng", lang.get("runtime;steps;eng;title").get(local))
+                Modal.create("xs:og:set_eng", langManager.get("runtime;steps;eng;title", local))
                         .addActionRows(ActionRow.of(engInp), ActionRow.of(mcInp))
                         .build()
         ).queue();
@@ -255,6 +255,7 @@ public class Main extends PluginEvent {
                         );
             }
 
+            event.getHook().deleteOriginal().queue();
             logChannel.sendMessageEmbeds(builder.build()).queue();
         }
     }
@@ -283,7 +284,7 @@ public class Main extends PluginEvent {
         if ((chiInp = event.getValue("chi")) == null) return;
         if (!Pattern.matches("^[一-龥]+$", chiInp.getAsString())) { // \\u4E00-\\u9fa5
             event.deferReply(true)
-                    .setEmbeds(createEmbed(lang.get("runtime;errors;wrong_type_chi").get(local), 0xFF0000))
+                    .setEmbeds(createEmbed(langManager.get("runtime;errors;wrong_type_chi", local), 0xFF0000))
                     .queue();
         } else {
             step.chineseName = chiInp.getAsString();
@@ -303,7 +304,7 @@ public class Main extends PluginEvent {
             String uuid = getUUIDByName(mcid_inp.getAsString());
             if (uuid == null) {
                 event.deferReply(true).setEmbeds(
-                        createEmbed(lang.get("runtime;errors;cannot_found_mc_acc").get(local)
+                        createEmbed(langManager.get("runtime;errors;cannot_found_mc_acc", local)
                                 .replace("%name%", mcid_inp.getAsString()), 0xFF0000
                         )
                 ).queue();

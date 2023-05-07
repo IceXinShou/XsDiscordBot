@@ -1,7 +1,7 @@
 package com.xs.botinfo;
 
 import com.xs.loader.PluginEvent;
-import com.xs.loader.lang.LangGetter;
+import com.xs.loader.lang.LangManager;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -16,13 +16,14 @@ import java.time.OffsetDateTime;
 import java.util.Map;
 
 public class Main extends PluginEvent {
+    private LangManager langManager;
     private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
 
     private FileGetter getter;
     private Logger logger;
     private static final String TAG = "BotInfo";
     private final String PATH_FOLDER_NAME = "plugins/BotInfo";
-    private Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
+    private Map<String, Map<DiscordLocale, String>> langMap; // Label, Local, Content
 
     public Main() {
         super(true);
@@ -44,18 +45,16 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadLang() {
-        LangGetter langGetter = new LangGetter(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, this.getClass());
-        // expert files
-        langGetter.exportDefaultLang();
-        lang = langGetter.readLangFileData();
+        langManager = new LangManager(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, this.getClass());
+        langMap = langManager.readLangFileDataMap();
     }
 
     @Override
     public CommandData[] globalCommands() {
         return new SlashCommandData[]{
                 Commands.slash("botinfo", "show about the bot data")
-                        .setNameLocalizations(lang.get("register;cmd"))
-                        .setDescriptionLocalizations(lang.get("register;description"))
+                        .setNameLocalizations(langMap.get("register;cmd"))
+                        .setDescriptionLocalizations(langMap.get("register;description"))
                         .setDefaultPermissions(DefaultMemberPermissions.ENABLED)
         };
     }
@@ -72,16 +71,16 @@ public class Main extends PluginEvent {
 
         EmbedBuilder builder = new EmbedBuilder();
         builder.addField(
-                lang.get("runtime;guild_count").get(local),
+                langManager.get("runtime;guild_count", local),
                 String.valueOf((long) event.getJDA().getGuilds().size()), false
         );
         builder.addField(
-                lang.get("runtime;member_count").get(local),
+                langManager.get("runtime;member_count", local),
                 String.valueOf(members), false
         );
 
         event.getHook().editOriginalEmbeds(builder
-                .setTitle(lang.get("runtime;title").get(local))
+                .setTitle(langManager.get("runtime;title", local))
                 .setTimestamp(OffsetDateTime.now())
                 .setColor(0x00FFFF)
                 .build()

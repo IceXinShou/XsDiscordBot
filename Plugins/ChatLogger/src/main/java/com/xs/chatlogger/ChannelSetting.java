@@ -54,7 +54,7 @@ public class ChannelSetting {
 
     public enum DetectType {
         UPDATE,
-        DELETE;
+        DELETE
     }
 
     public static class ListData {

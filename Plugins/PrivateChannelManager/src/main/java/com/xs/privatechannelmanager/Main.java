@@ -1,7 +1,7 @@
 package com.xs.privatechannelmanager;
 
 import com.xs.loader.PluginEvent;
-import com.xs.loader.lang.LangGetter;
+import com.xs.loader.lang.LangManager;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -39,12 +39,13 @@ import static com.xs.loader.util.EmbedCreator.createEmbed;
 
 public class Main extends PluginEvent {
     private MainConfig configFile;
+    private LangManager langManager;
     private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
     private FileGetter getter;
     private Logger logger;
     private static final String TAG = "PrivateChannelManager";
     private final String PATH_FOLDER_NAME = "./plugins/PrivateChannelManager";
-    private Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
+    private Map<String, Map<DiscordLocale, String>> langMap; // Label, Local, Content
 
     public Main() {
         super(true);
@@ -67,11 +68,9 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadLang() {
-        LangGetter langGetter = new LangGetter(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, this.getClass());
+        langManager = new LangManager(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, this.getClass());
 
-        // expert files
-        langGetter.exportDefaultLang();
-        lang = langGetter.readLangFileData();
+        langMap = langManager.readLangFileDataMap();
     }
 
     @Override
@@ -128,7 +127,8 @@ public class Main extends PluginEvent {
     @Override
     public void onMessageUpdate(MessageUpdateEvent event) {
         if (event.getAuthor().isBot()) return;
-        if (!event.isFromType(ChannelType.PRIVATE)) return;
+        if (!event.isFromType(ChannelType.PRIVATE)) {
+        }
 
 
     }
@@ -187,11 +187,8 @@ public class Main extends PluginEvent {
     public void onModalInteraction(ModalInteractionEvent event) {
         String[] args = event.getModalId().split(":");
         if (!args[0].equals("xs") || !args[1].equals("pcm")) return;
-        switch (args[2]) {
-            case "reply": {
-                sendReply(event, args);
-                break;
-            }
+        if (args[2].equals("reply")) {
+            sendReply(event, args);
         }
     }
 

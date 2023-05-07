@@ -1,7 +1,7 @@
 package com.xs.dynamicvc;
 
 import com.xs.loader.PluginEvent;
-import com.xs.loader.lang.LangGetter;
+import com.xs.loader.lang.LangManager;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
 import com.xs.loader.util.JsonFileManager;
@@ -31,13 +31,14 @@ import static net.dv8tion.jda.api.interactions.commands.OptionType.CHANNEL;
 
 public class Main extends PluginEvent {
     private static final String TAG = "DynamicVC";
+    private LangManager langManager;
     private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
     private final String PATH_FOLDER_NAME = "plugins/DynamicVC";
     private final HashSet<Long> trackedChannel = new HashSet<>();
     private final HashSet<TrackedChannel> originChannel = new HashSet<>();
     private FileGetter getter;
     private Logger logger;
-    private Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
+    private Map<String, Map<DiscordLocale, String>> langMap; // Label, Local, Content
 
     public Main() {
         super(true);
@@ -83,35 +84,33 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadLang() {
-        LangGetter langGetter = new LangGetter(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, this.getClass());
+        langManager = new LangManager(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, this.getClass());
 
-        // expert files
-        langGetter.exportDefaultLang();
-        lang = langGetter.readLangFileData();
+        langMap = langManager.readLangFileDataMap();
     }
 
     @Override
     public CommandData[] guildCommands() {
         return new SlashCommandData[]{
                 Commands.slash("dynamicvc", "commands about dynamic voice chat ")
-                        .setNameLocalizations(lang.get("register;cmd"))
-                        .setDescriptionLocalizations(lang.get("register;description"))
+                        .setNameLocalizations(langMap.get("register;cmd"))
+                        .setDescriptionLocalizations(langMap.get("register;description"))
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR))
                         .addSubcommands(
                         new SubcommandData("createbychannel", "create a dynamic voice chat by channel name")
-                                .setNameLocalizations(lang.get("register;subcommand;create;cmd"))
-                                .setDescriptionLocalizations(lang.get("register;subcommand;create;description"))
+                                .setNameLocalizations(langMap.get("register;subcommand;create;cmd"))
+                                .setDescriptionLocalizations(langMap.get("register;subcommand;create;description"))
                                 .addOptions(
                                         new OptionData(CHANNEL, "detect", "the channel be detected", true)
-                                                .setDescriptionLocalizations(lang.get("register;subcommand;create;options;detect"))
+                                                .setDescriptionLocalizations(langMap.get("register;subcommand;create;options;detect"))
                                 ),
 
                         new SubcommandData("removebychannel", "remove a dynamic voice chat by channel name")
-                                .setNameLocalizations(lang.get("register;subcommand;remove;cmd"))
-                                .setDescriptionLocalizations(lang.get("register;subcommand;remove;description"))
+                                .setNameLocalizations(langMap.get("register;subcommand;remove;cmd"))
+                                .setDescriptionLocalizations(langMap.get("register;subcommand;remove;description"))
                                 .addOptions(
                                         new OptionData(CHANNEL, "detect", "the channel be detected", true)
-                                                .setDescriptionLocalizations(lang.get("register;subcommand;remove;options;detect"))
+                                                .setDescriptionLocalizations(langMap.get("register;subcommand;remove;options;detect"))
                                 )
                 )
         };
@@ -150,9 +149,9 @@ public class Main extends PluginEvent {
 
                     trackedChannel.add(channel.getIdLong());
 
-                    event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;success").get(local), 0x00FFFF)).queue();
+                    event.getHook().editOriginalEmbeds(createEmbed(langManager.get("runtime;success", local), 0x00FFFF)).queue();
                 } catch (Exception e) {
-                    event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;errors;unknown").get(local), 0xFF0000)).queue();
+                    event.getHook().editOriginalEmbeds(createEmbed(langManager.get("runtime;errors;unknown", local), 0xFF0000)).queue();
                     logger.warn(Arrays.toString(e.getStackTrace()));
                     logger.warn(e.getMessage());
                 }
@@ -185,9 +184,9 @@ public class Main extends PluginEvent {
                 }
 
                 if (removed) {
-                    event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;remove_success").get(local), 0x00FFFF)).queue();
+                    event.getHook().editOriginalEmbeds(createEmbed(langManager.get("runtime;remove_success", local), 0x00FFFF)).queue();
                 } else {
-                    event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;no_remove_success").get(local), 0x00FFFF)).queue();
+                    event.getHook().editOriginalEmbeds(createEmbed(langManager.get("runtime;no_remove_success", local), 0x00FFFF)).queue();
                 }
 
                 break;

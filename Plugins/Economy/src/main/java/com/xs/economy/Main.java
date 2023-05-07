@@ -1,7 +1,7 @@
 package com.xs.economy;
 
 import com.xs.loader.PluginEvent;
-import com.xs.loader.lang.LangGetter;
+import com.xs.loader.lang.LangManager;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
 import com.xs.loader.util.JsonFileManager;
@@ -43,6 +43,7 @@ public class Main extends PluginEvent {
     private final Map<Long, UserData> userData = new HashMap<>();
     private final List<UserData> moneyBoard = new ArrayList<>();
     private final List<UserData> totalBoard = new ArrayList<>();
+    private LangManager langManager;
     private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
     private FileGetter getter;
     private Logger logger;
@@ -51,7 +52,7 @@ public class Main extends PluginEvent {
     private JsonFileManager manager;
     private final List<Long> ownerIDs = new ArrayList<>();
     private int boardUserShowLimit;
-    private Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
+    private Map<String, Map<DiscordLocale, String>> langMap; // Label, Local, Content
 
     public Main() {
         super(true);
@@ -75,100 +76,98 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadLang() {
-        LangGetter langGetter = new LangGetter(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, this.getClass());
+        langManager = new LangManager(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, this.getClass());
 
-        // expert files
-        langGetter.exportDefaultLang();
-        lang = langGetter.readLangFileData();
+        langMap = langManager.readLangFileDataMap();
     }
 
     @Override
     public CommandData[] guildCommands() {
         return new SlashCommandData[]{
                 Commands.slash("money", "get current money from user")
-                        .setNameLocalizations(lang.get("register;get_money;cmd"))
-                        .setDescriptionLocalizations(lang.get("register;get_money;description"))
+                        .setNameLocalizations(langMap.get("register;get_money;cmd"))
+                        .setDescriptionLocalizations(langMap.get("register;get_money;description"))
                         .addOptions(
                                 new OptionData(USER, "user", "user", true)
-                                        .setDescriptionLocalizations(lang.get("register;get_money;options;user")))
+                                        .setDescriptionLocalizations(langMap.get("register;get_money;options;user")))
                         .setDefaultPermissions(DefaultMemberPermissions.ENABLED),
 
                 Commands.slash("money_log", "get money log from user")
-                        .setNameLocalizations(lang.get("register;get_money_history;cmd"))
-                        .setDescriptionLocalizations(lang.get("register;get_money_history;description"))
+                        .setNameLocalizations(langMap.get("register;get_money_history;cmd"))
+                        .setDescriptionLocalizations(langMap.get("register;get_money_history;description"))
                         .addOptions(
                                 new OptionData(USER, "user", "user", true)
-                                        .setDescriptionLocalizations(lang.get("register;get_money_history;options;user")))
+                                        .setDescriptionLocalizations(langMap.get("register;get_money_history;options;user")))
                         .setDefaultPermissions(DefaultMemberPermissions.ENABLED),
 
                 Commands.slash("add_money", "add money to user")
-                        .setNameLocalizations(lang.get("register;add_money;cmd"))
-                        .setDescriptionLocalizations(lang.get("register;add_money;description"))
+                        .setNameLocalizations(langMap.get("register;add_money;cmd"))
+                        .setDescriptionLocalizations(langMap.get("register;add_money;description"))
                         .addOptions(
                                 new OptionData(INTEGER, "value", "value", true)
-                                        .setDescriptionLocalizations(lang.get("register;add_money;options;value")),
+                                        .setDescriptionLocalizations(langMap.get("register;add_money;options;value")),
                                 new OptionData(USER, "user", "user", true)
-                                        .setDescriptionLocalizations(lang.get("register;add_money;options;user")))
+                                        .setDescriptionLocalizations(langMap.get("register;add_money;options;user")))
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR)),
 
                 Commands.slash("remove_money", "remove money from user")
-                        .setNameLocalizations(lang.get("register;remove_money;cmd"))
-                        .setDescriptionLocalizations(lang.get("register;remove_money;description"))
+                        .setNameLocalizations(langMap.get("register;remove_money;cmd"))
+                        .setDescriptionLocalizations(langMap.get("register;remove_money;description"))
                         .addOptions(
                                 new OptionData(INTEGER, "value", "value", true)
-                                        .setDescriptionLocalizations(lang.get("register;remove_money;options;value")),
+                                        .setDescriptionLocalizations(langMap.get("register;remove_money;options;value")),
                                 new OptionData(USER, "user", "user", true)
-                                        .setDescriptionLocalizations(lang.get("register;remove_money;options;user")))
+                                        .setDescriptionLocalizations(langMap.get("register;remove_money;options;user")))
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR)),
 
                 Commands.slash("set_money", "set money to user")
-                        .setNameLocalizations(lang.get("register;set_money;cmd"))
-                        .setDescriptionLocalizations(lang.get("register;set_money;description"))
+                        .setNameLocalizations(langMap.get("register;set_money;cmd"))
+                        .setDescriptionLocalizations(langMap.get("register;set_money;description"))
                         .addOptions(
                                 new OptionData(INTEGER, "value", "value", true)
-                                        .setDescriptionLocalizations(lang.get("register;set_money;options;value")),
+                                        .setDescriptionLocalizations(langMap.get("register;set_money;options;value")),
                                 new OptionData(USER, "user", "user", true)
-                                        .setDescriptionLocalizations(lang.get("register;set_money;options;user")))
+                                        .setDescriptionLocalizations(langMap.get("register;set_money;options;user")))
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR)),
 
                 Commands.slash("add_money_log", "add money log to user")
-                        .setNameLocalizations(lang.get("register;add_money_history;cmd"))
-                        .setDescriptionLocalizations(lang.get("register;add_money_history;description"))
+                        .setNameLocalizations(langMap.get("register;add_money_history;cmd"))
+                        .setDescriptionLocalizations(langMap.get("register;add_money_history;description"))
                         .addOptions(
                                 new OptionData(INTEGER, "value", "value", true)
-                                        .setDescriptionLocalizations(lang.get("register;add_money_history;options;value")),
+                                        .setDescriptionLocalizations(langMap.get("register;add_money_history;options;value")),
                                 new OptionData(USER, "user", "user", true)
-                                        .setDescriptionLocalizations(lang.get("register;add_money_history;options;user")))
+                                        .setDescriptionLocalizations(langMap.get("register;add_money_history;options;user")))
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR)),
 
                 Commands.slash("remove_money_log", "remove money log from user")
-                        .setNameLocalizations(lang.get("register;remove_money_history;cmd"))
-                        .setDescriptionLocalizations(lang.get("register;remove_money_history;description"))
+                        .setNameLocalizations(langMap.get("register;remove_money_history;cmd"))
+                        .setDescriptionLocalizations(langMap.get("register;remove_money_history;description"))
                         .addOptions(
                                 new OptionData(INTEGER, "value", "value", true)
-                                        .setDescriptionLocalizations(lang.get("register;remove_money_history;options;value")),
+                                        .setDescriptionLocalizations(langMap.get("register;remove_money_history;options;value")),
                                 new OptionData(USER, "user", "user", true)
-                                        .setDescriptionLocalizations(lang.get("register;remove_money_history;options;user")))
+                                        .setDescriptionLocalizations(langMap.get("register;remove_money_history;options;user")))
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR)),
 
                 Commands.slash("set_money_log", "set money log to user")
-                        .setNameLocalizations(lang.get("register;set_money_history;cmd"))
-                        .setDescriptionLocalizations(lang.get("register;set_money_history;description"))
+                        .setNameLocalizations(langMap.get("register;set_money_history;cmd"))
+                        .setDescriptionLocalizations(langMap.get("register;set_money_history;description"))
                         .addOptions(
                                 new OptionData(INTEGER, "value", "value", true)
-                                        .setDescriptionLocalizations(lang.get("register;set_money_history;options;value")),
+                                        .setDescriptionLocalizations(langMap.get("register;set_money_history;options;value")),
                                 new OptionData(USER, "user", "user", true)
-                                        .setDescriptionLocalizations(lang.get("register;set_money_history;options;user")))
+                                        .setDescriptionLocalizations(langMap.get("register;set_money_history;options;user")))
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR)),
 
                 Commands.slash("money_top", "get board from money")
-                        .setNameLocalizations(lang.get("register;money_board;cmd"))
-                        .setDescriptionLocalizations(lang.get("register;money_board;description"))
+                        .setNameLocalizations(langMap.get("register;money_board;cmd"))
+                        .setDescriptionLocalizations(langMap.get("register;money_board;description"))
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR)),
 
                 Commands.slash("money_top_log", "get board from log money")
-                        .setNameLocalizations(lang.get("register;money_history_board;cmd"))
-                        .setDescriptionLocalizations(lang.get("register;money_history_board;description"))
+                        .setNameLocalizations(langMap.get("register;money_history_board;cmd"))
+                        .setDescriptionLocalizations(langMap.get("register;money_history_board;description"))
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR)),
         };
     }
@@ -242,13 +241,13 @@ public class Main extends PluginEvent {
 
                 case "money_top": {
                     if (!ownerIDs.contains(event.getUser().getIdLong())) {
-                        event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;errors;no_permission").get(local), 0xFF0000)).queue();
+                        event.getHook().editOriginalEmbeds(createEmbed(langManager.get("runtime;errors;no_permission", local), 0xFF0000)).queue();
                         return;
                     }
 
                     EmbedBuilder builder = fieldGetter(moneyBoard, true, event.getGuild());
                     event.getHook().editOriginalEmbeds(builder
-                            .setTitle(lang.get("runtime;money_board_title").get(local))
+                            .setTitle(langManager.get("runtime;money_board_title", local))
                             .setColor(0x00FFFF)
                             .build()
                     ).queue();
@@ -257,13 +256,13 @@ public class Main extends PluginEvent {
 
                 case "money_top_log": {
                     if (!ownerIDs.contains(event.getUser().getIdLong())) {
-                        event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;errors;no_permission").get(local), 0xFF0000)).queue();
+                        event.getHook().editOriginalEmbeds(createEmbed(langManager.get("runtime;errors;no_permission", local), 0xFF0000)).queue();
                         return;
                     }
 
                     EmbedBuilder builder = fieldGetter(moneyBoard, true, event.getGuild());
                     event.getHook().editOriginalEmbeds(builder
-                            .setTitle(lang.get("runtime;money_history_board_title").get(local))
+                            .setTitle(langManager.get("runtime;money_history_board_title", local))
                             .setColor(0x00FFFF)
                             .build()
                     ).queue();
@@ -272,7 +271,7 @@ public class Main extends PluginEvent {
 
                 case "add_money": {
                     if (!ownerIDs.contains(event.getUser().getIdLong())) {
-                        event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;errors;no_permission").get(local), 0xFF0000)).queue();
+                        event.getHook().editOriginalEmbeds(createEmbed(langManager.get("runtime;errors;no_permission", local), 0xFF0000)).queue();
                         return;
                     }
 
@@ -281,7 +280,7 @@ public class Main extends PluginEvent {
                     checkData(user.getIdLong(), user.getAsTag());
                     userData.get(user.getIdLong()).add(value);
                     event.getHook().editOriginalEmbeds(createEmbed(user.getAsTag(),
-                            lang.get("runtime;current_money").get(local).replace("%money%", userData.get(user.getIdLong()).get() + " $"), 0x00FFFF)).queue();
+                            langManager.get("runtime;current_money", local).replace("%money%", userData.get(user.getIdLong()).get() + " $"), 0x00FFFF)).queue();
 
                     JSONObject object = manager.getOrDefault(user.getId());
                     if (object.has("money"))
@@ -302,7 +301,7 @@ public class Main extends PluginEvent {
 
                 case "remove_money": {
                     if (!ownerIDs.contains(event.getUser().getIdLong())) {
-                        event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;errors;no_permission").get(local), 0xFF0000)).queue();
+                        event.getHook().editOriginalEmbeds(createEmbed(langManager.get("runtime;errors;no_permission", local), 0xFF0000)).queue();
                         return;
                     }
 
@@ -311,7 +310,7 @@ public class Main extends PluginEvent {
                     checkData(user.getIdLong(), user.getAsTag());
                     userData.get(user.getIdLong()).remove(value);
                     event.getHook().editOriginalEmbeds(createEmbed(user.getAsTag(),
-                            lang.get("runtime;current_money").get(local).replace("%money%", userData.get(user.getIdLong()).get() + " $"), 0x00FFFF)).queue();
+                            langManager.get("runtime;current_money", local).replace("%money%", userData.get(user.getIdLong()).get() + " $"), 0x00FFFF)).queue();
 
                     JSONObject object = manager.getOrDefault(user.getId());
                     if (object.has("money"))
@@ -326,7 +325,7 @@ public class Main extends PluginEvent {
 
                 case "set_money": {
                     if (!ownerIDs.contains(event.getUser().getIdLong())) {
-                        event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;errors;no_permission").get(local), 0xFF0000)).queue();
+                        event.getHook().editOriginalEmbeds(createEmbed(langManager.get("runtime;errors;no_permission", local), 0xFF0000)).queue();
                         return;
                     }
 
@@ -335,7 +334,7 @@ public class Main extends PluginEvent {
                     checkData(user.getIdLong(), user.getAsTag());
                     userData.get(user.getIdLong()).set(value);
                     event.getHook().editOriginalEmbeds(createEmbed(user.getAsTag(),
-                            lang.get("runtime;current_money").get(local).replace("%money%", userData.get(user.getIdLong()).get() + " $"), 0x00FFFF)).queue();
+                            langManager.get("runtime;current_money", local).replace("%money%", userData.get(user.getIdLong()).get() + " $"), 0x00FFFF)).queue();
 
                     manager.getOrDefault(user.getId()).put("money", value);
                     manager.save();
@@ -344,7 +343,7 @@ public class Main extends PluginEvent {
                 }
                 case "add_money_log": {
                     if (!ownerIDs.contains(event.getUser().getIdLong())) {
-                        event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;errors;no_permission").get(local), 0xFF0000)).queue();
+                        event.getHook().editOriginalEmbeds(createEmbed(langManager.get("runtime;errors;no_permission", local), 0xFF0000)).queue();
                         return;
                     }
 
@@ -353,7 +352,7 @@ public class Main extends PluginEvent {
                     checkData(user.getIdLong(), user.getAsTag());
                     userData.get(user.getIdLong()).addTotal(value);
                     event.getHook().editOriginalEmbeds(createEmbed(user.getAsTag(),
-                            lang.get("runtime;current_money_history").get(local).replace("%log_money%", userData.get(user.getIdLong()).getTotal() + " $"), 0x00FFFF)).queue();
+                            langManager.get("runtime;current_money_history", local).replace("%log_money%", userData.get(user.getIdLong()).getTotal() + " $"), 0x00FFFF)).queue();
 
                     JSONObject object = manager.getOrDefault(user.getId());
                     if (object.has("total"))
@@ -368,7 +367,7 @@ public class Main extends PluginEvent {
 
                 case "remove_money_log": {
                     if (!ownerIDs.contains(event.getUser().getIdLong())) {
-                        event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;errors;no_permission").get(local), 0xFF0000)).queue();
+                        event.getHook().editOriginalEmbeds(createEmbed(langManager.get("runtime;errors;no_permission", local), 0xFF0000)).queue();
                         return;
                     }
 
@@ -377,7 +376,7 @@ public class Main extends PluginEvent {
                     checkData(user.getIdLong(), user.getAsTag());
                     userData.get(user.getIdLong()).removeTotal(value);
                     event.getHook().editOriginalEmbeds(createEmbed(user.getAsTag(),
-                            lang.get("runtime;current_money_history").get(local).replace("%log_money%",
+                            langManager.get("runtime;current_money_history", local).replace("%log_money%",
                                     userData.get(user.getIdLong()).getTotal() + " $"), 0x00FFFF)).queue();
 
                     JSONObject object = manager.getOrDefault(user.getId());
@@ -394,7 +393,7 @@ public class Main extends PluginEvent {
 
                 case "set_money_log": {
                     if (!ownerIDs.contains(event.getUser().getIdLong())) {
-                        event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;errors;no_permission").get(local), 0xFF0000)).queue();
+                        event.getHook().editOriginalEmbeds(createEmbed(langManager.get("runtime;errors;no_permission", local), 0xFF0000)).queue();
                         return;
                     }
 
@@ -403,7 +402,7 @@ public class Main extends PluginEvent {
                     checkData(user.getIdLong(), user.getAsTag());
                     userData.get(user.getIdLong()).setTotal(value);
                     event.getHook().editOriginalEmbeds(createEmbed(user.getAsTag(),
-                            lang.get("runtime;current_money_history").get(local).replace("%log_money%", userData.get(user.getIdLong()).getTotal() + " $"), 0x00FFFF)).queue();
+                            langManager.get("runtime;current_money_history", local).replace("%log_money%", userData.get(user.getIdLong()).getTotal() + " $"), 0x00FFFF)).queue();
 
                     manager.getOrDefault(user.getId()).put("total", value);
                     manager.save();

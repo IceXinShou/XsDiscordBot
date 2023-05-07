@@ -1,7 +1,7 @@
 package com.xs.ban;
 
 import com.xs.loader.PluginEvent;
-import com.xs.loader.lang.LangGetter;
+import com.xs.loader.lang.LangManager;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
 import net.dv8tion.jda.api.entities.Member;
@@ -22,12 +22,13 @@ import static net.dv8tion.jda.api.Permission.BAN_MEMBERS;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.*;
 
 public class Main extends PluginEvent {
+    private LangManager langManager;
     private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
     private FileGetter getter;
     private Logger logger;
     private static final String TAG = "Ban";
     private final String PATH_FOLDER_NAME = "plugins/Ban";
-    private Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
+    private Map<String, Map<DiscordLocale, String>> langMap; // Label, Local, Content
 
     public Main() {
         super(true);
@@ -49,26 +50,24 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadLang() {
-        LangGetter langGetter = new LangGetter(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, this.getClass());
+        langManager = new LangManager(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, this.getClass());
 
-        // expert files
-        langGetter.exportDefaultLang();
-        lang = langGetter.readLangFileData();
+        langMap = langManager.readLangFileDataMap();
     }
 
     @Override
     public CommandData[] guildCommands() {
         return new SlashCommandData[]{
                 Commands.slash("ban", "ban a member from your server")
-                        .setNameLocalizations(lang.get("register;cmd"))
-                        .setDescriptionLocalizations(lang.get("register;description"))
+                        .setNameLocalizations(langMap.get("register;cmd"))
+                        .setDescriptionLocalizations(langMap.get("register;description"))
                         .addOptions(
                                 new OptionData(USER, "user", "user", true)
-                                        .setDescriptionLocalizations(lang.get("register;options;user")),
+                                        .setDescriptionLocalizations(langMap.get("register;options;user")),
                                 new OptionData(INTEGER, "days", "day")
-                                        .setDescriptionLocalizations(lang.get("register;options;day")),
+                                        .setDescriptionLocalizations(langMap.get("register;options;day")),
                                 new OptionData(STRING, "reason", "reason")
-                                        .setDescriptionLocalizations(lang.get("register;options;reason")))
+                                        .setDescriptionLocalizations(langMap.get("register;options;reason")))
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(BAN_MEMBERS))
         };
     }
@@ -86,19 +85,19 @@ public class Main extends PluginEvent {
         Member member = event.getOption("user").getAsMember();
 
         if (member == null) {
-            event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;errors;no_user").get(local), 0xFF0000)).queue();
+            event.getHook().editOriginalEmbeds(createEmbed(langManager.get("runtime;errors;no_user", local), 0xFF0000)).queue();
             return;
         }
 
         String reason = ((event.getOption("reason") == null) ? "null" : event.getOption("reason").getAsString());
 
         if (!selfMember.hasPermission(BAN_MEMBERS)) {
-            event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;errors;no_permission").get(local), 0xFF0000)).queue();
+            event.getHook().editOriginalEmbeds(createEmbed(langManager.get("runtime;errors;no_permission", local), 0xFF0000)).queue();
             return;
         }
 
         if (!selfMember.canInteract(member)) {
-            event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;errors;permission_denied").get(local), 0xFF0000)).queue();
+            event.getHook().editOriginalEmbeds(createEmbed(langManager.get("runtime;errors;permission_denied", local), 0xFF0000)).queue();
             return;
         }
 
@@ -110,10 +109,10 @@ public class Main extends PluginEvent {
         String userName = member.getEffectiveName();
         event.getGuild().ban(member, delDays, TimeUnit.DAYS).reason(reason).queue(
                 success -> {
-                    event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;success").get(local) + ' ' + userName, 0xffb1b3)).queue();
+                    event.getHook().editOriginalEmbeds(createEmbed(langManager.get("runtime;success", local) + ' ' + userName, 0xffb1b3)).queue();
                 },
                 error -> {
-                    event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;errors;unknown").get(local), 0xFF0000)).queue();
+                    event.getHook().editOriginalEmbeds(createEmbed(langManager.get("runtime;errors;unknown", local), 0xFF0000)).queue();
                 }
         );
     }

@@ -10,15 +10,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class LangGetter {
-    private final Map<String, Map<DiscordLocale, String>> lang = new HashMap<>();
+public class LangManager {
+    private final Map<String, Map<DiscordLocale, String>> langMap = new HashMap<>();
     private final String FOLDER_PATH;
     private final Logger logger;
     private final String[] defaultLang;
     private final FileGetter getter;
     private final Class<?> FROM_CLASS;
 
-    public LangGetter(final String TAG, final FileGetter GETTER, final String PATH_FOLDER_NAME, final String[] DEFAULT_LANG, final Class<?> fromClass) {
+    public LangManager(final String TAG, final FileGetter GETTER, final String PATH_FOLDER_NAME, final String[] DEFAULT_LANG, final Class<?> fromClass) {
         logger = new Logger(TAG);
         this.FOLDER_PATH = MainLoader.ROOT_PATH + "/" + PATH_FOLDER_NAME + "/Lang";
         this.getter = GETTER;
@@ -26,21 +26,10 @@ public class LangGetter {
         this.FROM_CLASS = fromClass;
 
         new File(FOLDER_PATH).mkdirs();
+        exportDefaultLang();
     }
 
-
-    public void exportDefaultLang() {
-        for (String lang : defaultLang) {
-            String fileName = lang + ".yml";
-            File lang_file = new File(FOLDER_PATH + fileName);
-            if (lang_file.exists()) continue;
-
-            // export is not exist
-            getter.exportResource("lang/" + fileName, "/Lang/" + fileName);
-        }
-    }
-
-    public Map<String, Map<DiscordLocale, String>> readLangFileData() {
+    public Map<String, Map<DiscordLocale, String>> readLangFileDataMap() {
         for (File i : new File(FOLDER_PATH).listFiles()) {
             DiscordLocale local = DiscordLocale.from(i.getName().replaceAll("\\.\\w+$", ""));
             if (local == DiscordLocale.UNKNOWN) {
@@ -54,7 +43,31 @@ public class LangGetter {
                 logger.warn(e.getMessage());
             }
         }
-        return lang;
+        return langMap;
+    }
+
+    public String get(String key, DiscordLocale local) {
+        Map<DiscordLocale, String> first = langMap.get(key);
+
+        if (first == null) // cannot get string by key
+            return null;
+
+        String second = first.get(local);
+        if (second == null) // if local not support, return default language
+            return first.get(DiscordLocale.from(defaultLang[0]));
+
+        return second;
+    }
+
+    private void exportDefaultLang() {
+        for (String lang : defaultLang) {
+            String fileName = lang + ".yml";
+            File lang_file = new File(FOLDER_PATH + fileName);
+            if (lang_file.exists()) continue;
+
+            // export is not exist
+            getter.exportResource("lang/" + fileName, "/Lang/" + fileName);
+        }
     }
 
     private void readLang(final Object origin_json, final String level, final DiscordLocale locale) {
@@ -73,13 +86,13 @@ public class LangGetter {
                 readLang(key, level, locale);
             }
         } else if (origin_json instanceof String) {
-            Map<DiscordLocale, String> tmp = lang.getOrDefault(level, new HashMap<>());
+            Map<DiscordLocale, String> tmp = langMap.getOrDefault(level, new HashMap<>());
             if (tmp.containsKey(locale)) {
                 tmp.put(locale, tmp.get(locale) + ';' + origin_json);
             } else {
                 tmp.put(locale, origin_json.toString());
             }
-            lang.put(level, tmp);
+            langMap.put(level, tmp);
         }
     }
 }

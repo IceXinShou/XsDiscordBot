@@ -1,19 +1,16 @@
 package com.xs.chatlogger;
 
 import com.xs.loader.PluginEvent;
-import com.xs.loader.lang.LangGetter;
+import com.xs.loader.lang.LangManager;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.channel.ChannelType;
-import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
-import net.dv8tion.jda.api.events.StatusChangeEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -22,9 +19,6 @@ import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
-import net.dv8tion.jda.api.events.user.UserActivityStartEvent;
-import net.dv8tion.jda.api.events.user.update.UserUpdateActivitiesEvent;
-import net.dv8tion.jda.api.events.user.update.UserUpdateActivityOrderEvent;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
@@ -45,16 +39,15 @@ import static com.xs.loader.MainLoader.ROOT_PATH;
 import static com.xs.loader.MainLoader.jdaBot;
 import static com.xs.loader.util.GlobalUtil.*;
 import static net.dv8tion.jda.api.Permission.ADMINISTRATOR;
-import static net.dv8tion.jda.api.entities.channel.ChannelType.*;
-import static net.dv8tion.jda.api.entities.channel.ChannelType.GUILD_NEWS_THREAD;
 
 public class Main extends PluginEvent {
+    private LangManager langManager;
     private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
     private FileGetter getter;
     private Logger logger;
     private static final String TAG = "ChatLogger";
     private final String PATH_FOLDER_NAME = "plugins/ChatLogger";
-    private Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
+    private Map<String, Map<DiscordLocale, String>> langMap; // Label, Local, Content
     private final Map<Long, Connection> dbConns = new HashMap<>();
     private final JsonManager manager = new JsonManager();
     private ButtonSystem buttonSystem;
@@ -112,24 +105,22 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadLang() {
-        LangGetter langGetter = new LangGetter(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, this.getClass());
+        langManager = new LangManager(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, this.getClass());
 
-        // expert files
-        langGetter.exportDefaultLang();
-        lang = langGetter.readLangFileData();
+        langMap = langManager.readLangFileDataMap();
     }
 
     @Override
     public CommandData[] guildCommands() {
         return new SlashCommandData[]{
                 Commands.slash("chat_logger", "commands about chat logger")
-                        .setNameLocalizations(lang.get("register;cmd"))
-                        .setDescriptionLocalizations(lang.get("register;description"))
+                        .setNameLocalizations(langMap.get("register;cmd"))
+                        .setDescriptionLocalizations(langMap.get("register;description"))
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR))
                         .addSubcommands(
                         new SubcommandData("setting", "set chat log in this channel")
-                                .setNameLocalizations(lang.get("register;subcommand;setting;cmd"))
-                                .setDescriptionLocalizations(lang.get("register;subcommand;setting;description"))
+                                .setNameLocalizations(langMap.get("register;subcommand;setting;cmd"))
+                                .setDescriptionLocalizations(langMap.get("register;subcommand;setting;description"))
                 )
         };
     }
@@ -137,7 +128,7 @@ public class Main extends PluginEvent {
     @Override
     public void onReady(ReadyEvent event) {
         manager.init();
-        buttonSystem = new ButtonSystem(lang, manager);
+        buttonSystem = new ButtonSystem(langManager, manager);
     }
 
     @Override
@@ -145,11 +136,8 @@ public class Main extends PluginEvent {
         if (!event.getName().equals("chat_logger")) return;
         if (event.getSubcommandName() == null) return;
 
-        switch (event.getSubcommandName()) {
-            case "setting": {
-                buttonSystem.setting(event);
-                break;
-            }
+        if (event.getSubcommandName().equals("setting")) {
+            buttonSystem.setting(event);
         }
     }
 
@@ -214,8 +202,7 @@ public class Main extends PluginEvent {
             Statement stmt = conn.createStatement();
             if (!stmt.executeQuery(String.format("SELECT name FROM sqlite_master WHERE type='table' AND name='%d';", channelID)).next()) {
                 // create a table
-                stmt.executeUpdate(String.format("" +
-                                "CREATE TABLE '%d' (" +
+                stmt.executeUpdate(String.format("CREATE TABLE '%d' (" +
                                 "message_id INT PRIMARY KEY  NOT NULL   ON CONFLICT FAIL, " +
                                 "user_id                INT  NOT NULL, " +
                                 "message               TEXT  NOT NULL  " +

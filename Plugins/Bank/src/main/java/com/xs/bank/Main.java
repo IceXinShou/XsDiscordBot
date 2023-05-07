@@ -1,7 +1,7 @@
 package com.xs.bank;
 
 import com.xs.loader.PluginEvent;
-import com.xs.loader.lang.LangGetter;
+import com.xs.loader.lang.LangManager;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
 import com.xs.loader.util.JsonFileManager;
@@ -33,13 +33,14 @@ import static net.dv8tion.jda.api.interactions.commands.OptionType.USER;
 
 public class Main extends PluginEvent {
     public static MainConfig configFile;
+    private LangManager langManager;
     private final String[] LANG_DEFAULT = {"en-US", "zh-TW", "zh-CN"};
     private FileGetter getter;
     private Logger logger;
     private static final String TAG = "Bank";
     private final String PATH_FOLDER_NAME = "plugins/Bank";
     private JsonFileManager manager;
-    private Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
+    private Map<String, Map<DiscordLocale, String>> langMap; // Label, Local, Content
     private final Map<String, Integer> moneyTypes = new HashMap<>(); // name, tax
     private long workingGuildID;
     private boolean checkGuildAlive = false;
@@ -65,67 +66,65 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadLang() {
-        LangGetter langGetter = new LangGetter(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, this.getClass());
+        langManager = new LangManager(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, this.getClass());
 
-        // expert files
-        langGetter.exportDefaultLang();
-        lang = langGetter.readLangFileData();
+        langMap = langManager.readLangFileDataMap();
     }
 
     @Override
     public CommandData[] guildCommands() {
         return new SlashCommandData[]{
                 Commands.slash("add_money", "add money to an user")
-                        .setNameLocalizations(lang.get("register;add_money;cmd"))
-                        .setDescriptionLocalizations(lang.get("register;add_money;description"))
+                        .setNameLocalizations(langMap.get("register;add_money;cmd"))
+                        .setDescriptionLocalizations(langMap.get("register;add_money;description"))
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR))
                         .addSubcommands(
                         moneyTypes.keySet().stream().map(
                                 name -> new SubcommandData(name, name).addOptions(
                                         new OptionData(USER, "user", "user", true)
-                                                .setDescriptionLocalizations(lang.get("register;add_money;options;user")),
+                                                .setDescriptionLocalizations(langMap.get("register;add_money;options;user")),
                                         new OptionData(INTEGER, "value", "value", true)
-                                                .setDescriptionLocalizations(lang.get("register;add_money;options;user"))
+                                                .setDescriptionLocalizations(langMap.get("register;add_money;options;user"))
                                 )
                         ).collect(Collectors.toList())
                 ),
 
                 Commands.slash("remove_money", "remove money from an user")
-                        .setNameLocalizations(lang.get("register;remove_money;cmd"))
-                        .setDescriptionLocalizations(lang.get("register;remove_money;description"))
+                        .setNameLocalizations(langMap.get("register;remove_money;cmd"))
+                        .setDescriptionLocalizations(langMap.get("register;remove_money;description"))
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR))
                         .addSubcommands(
                         moneyTypes.keySet().stream().map(
                                 name -> new SubcommandData(name, name).addOptions(
                                         new OptionData(USER, "user", "user", true)
-                                                .setDescriptionLocalizations(lang.get("register;remove_money;options;user")),
+                                                .setDescriptionLocalizations(langMap.get("register;remove_money;options;user")),
                                         new OptionData(INTEGER, "value", "value", true)
-                                                .setDescriptionLocalizations(lang.get("register;remove_money;options;user"))
+                                                .setDescriptionLocalizations(langMap.get("register;remove_money;options;user"))
                                 )
                         ).collect(Collectors.toList())
                 ),
 
                 Commands.slash("transfer_money", "transfer money to another user")
-                        .setNameLocalizations(lang.get("register;transfer_money;cmd"))
-                        .setDescriptionLocalizations(lang.get("register;transfer_money;description"))
+                        .setNameLocalizations(langMap.get("register;transfer_money;cmd"))
+                        .setDescriptionLocalizations(langMap.get("register;transfer_money;description"))
                         .setDefaultPermissions(DefaultMemberPermissions.ENABLED)
                         .addSubcommands(
                         moneyTypes.keySet().stream().map(
                                 name -> new SubcommandData(name, name).addOptions(
                                         new OptionData(USER, "user", "user", true)
-                                                .setDescriptionLocalizations(lang.get("register;transfer_money;options;user")),
+                                                .setDescriptionLocalizations(langMap.get("register;transfer_money;options;user")),
                                         new OptionData(INTEGER, "value", "value", true)
-                                                .setDescriptionLocalizations(lang.get("register;transfer_money;options;user"))
+                                                .setDescriptionLocalizations(langMap.get("register;transfer_money;options;user"))
                                 )
                         ).collect(Collectors.toList())
                 ),
 
                 Commands.slash("check_balance", "get user money")
-                        .setNameLocalizations(lang.get("register;check_balance;cmd"))
-                        .setDescriptionLocalizations(lang.get("register;check_balance;description"))
+                        .setNameLocalizations(langMap.get("register;check_balance;cmd"))
+                        .setDescriptionLocalizations(langMap.get("register;check_balance;description"))
                         .setDefaultPermissions(DefaultMemberPermissions.ENABLED)
                         .addOptions(new OptionData(USER, "user", "user", false)
-                        .setDescriptionLocalizations(lang.get("register;check_balance;options;user"))
+                        .setDescriptionLocalizations(langMap.get("register;check_balance;options;user"))
                 ),
         };
     }
@@ -187,7 +186,7 @@ public class Main extends PluginEvent {
                 manager.save();
 
                 event.getHook().deleteOriginal().complete();
-                event.getChannel().sendMessageEmbeds(createEmbed(lang.get("runtime;add_success").get(local)
+                event.getChannel().sendMessageEmbeds(createEmbed(langManager.get("runtime;add_success", local)
                                 .replace("%user%", user.getAsTag())
                                 .replace("%type%", type)
                                 .replace("%before_value%", String.valueOf(cur))
@@ -208,7 +207,7 @@ public class Main extends PluginEvent {
 
                 if (obj.getInt(type) < value) {
                     event.getHook().deleteOriginal().complete();
-                    event.getChannel().sendMessageEmbeds(createEmbed(lang.get("runtime;errors;no_such_money").get(local), 0xFF0000)).queue();
+                    event.getChannel().sendMessageEmbeds(createEmbed(langManager.get("runtime;errors;no_such_money", local), 0xFF0000)).queue();
                     return;
                 }
 
@@ -216,7 +215,7 @@ public class Main extends PluginEvent {
                 manager.save();
 
                 event.getHook().deleteOriginal().complete();
-                event.getChannel().sendMessageEmbeds(createEmbed(lang.get("runtime;remove_success").get(local)
+                event.getChannel().sendMessageEmbeds(createEmbed(langManager.get("runtime;remove_success", local)
                                 .replace("%user%", user.getAsTag())
                                 .replace("%type%", type)
                                 .replace("%before_value%", String.valueOf(cur))
@@ -234,7 +233,7 @@ public class Main extends PluginEvent {
 
                 if (fromUser.getIdLong() == toUser.getIdLong()) {
                     event.getHook().deleteOriginal().complete();
-                    event.getChannel().sendMessageEmbeds(createEmbed(lang.get("runtime;errors;transfer_self").get(local), 0xFF0000)).queue();
+                    event.getChannel().sendMessageEmbeds(createEmbed(langManager.get("runtime;errors;transfer_self", local), 0xFF0000)).queue();
                     return;
                 }
 
@@ -244,19 +243,19 @@ public class Main extends PluginEvent {
 
                 if (fromObj.getInt(type) < value + moneyTypes.get(type)) {
                     event.getHook().deleteOriginal().complete();
-                    event.getChannel().sendMessageEmbeds(createEmbed(lang.get("runtime;errors;no_such_money").get(local), 0xFF0000)).queue();
+                    event.getChannel().sendMessageEmbeds(createEmbed(langManager.get("runtime;errors;no_such_money", local), 0xFF0000)).queue();
                     return;
                 }
 
                 event.getHook().deleteOriginal().complete();
-                event.getChannel().sendMessageEmbeds(createEmbed(lang.get("runtime;transferring").get(local), 0xff7b33))
+                event.getChannel().sendMessageEmbeds(createEmbed(langManager.get("runtime;transferring", local), 0xff7b33))
                         .delay(new Random().nextInt(configFile.transferMaxDelay), TimeUnit.SECONDS)
-                        .queue(i -> i.editMessageEmbeds(createEmbed(lang.get("runtime;transfer_done").get(local), 0x2cff20))
+                        .queue(i -> i.editMessageEmbeds(createEmbed(langManager.get("runtime;transfer_done", local), 0x2cff20))
                                 .queue(j -> {
                                     fromObj.put(type, fromObj.getInt(type) - value - moneyTypes.get(type));
                                     toObj.put(type, toObj.getInt(type) + value);
                                     manager.save();
-                                    event.getChannel().sendMessageEmbeds(createEmbed(lang.get("runtime;transfer_success").get(local)
+                                    event.getChannel().sendMessageEmbeds(createEmbed(langManager.get("runtime;transfer_success", local)
                                                     .replace("%value%", String.valueOf(value))
                                                     .replace("%type%", type)
                                                     .replace("%user%", toUser.getAsTag()),
@@ -270,7 +269,7 @@ public class Main extends PluginEvent {
                 StringBuilder description = new StringBuilder();
                 for (String i : moneyTypes.keySet()) {
                     JSONObject obj = checkData(user.getId(), i);
-                    description.append(lang.get("runtime;check_balance_description").get(local)
+                    description.append(langManager.get("runtime;check_balance_description", local)
                             .replace("%value%", String.valueOf(obj.getInt(i)))
                             .replace("%type%", i)
                     );
@@ -278,7 +277,7 @@ public class Main extends PluginEvent {
 
                 event.getHook().deleteOriginal().complete();
                 event.getChannel().sendMessageEmbeds(createEmbed(
-                        lang.get("runtime;check_balance_title").get(local).replace("%user%", user.getAsTag()),
+                        langManager.get("runtime;check_balance_title", local).replace("%user%", user.getAsTag()),
                         description.toString(),
                         0x00FFFF)
                 ).queue();

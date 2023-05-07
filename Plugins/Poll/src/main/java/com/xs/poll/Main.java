@@ -1,7 +1,7 @@
 package com.xs.poll;
 
 import com.xs.loader.PluginEvent;
-import com.xs.loader.lang.LangGetter;
+import com.xs.loader.lang.LangManager;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -36,12 +36,13 @@ import static net.dv8tion.jda.api.interactions.commands.OptionType.STRING;
 public class Main extends PluginEvent {
 
     private MainConfig configFile;
+    private LangManager langManager;
     private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
     private FileGetter getter;
     private Logger logger;
     private static final String TAG = "Poll";
     private final String PATH_FOLDER_NAME = "plugins/Poll";
-    private Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
+    private Map<String, Map<DiscordLocale, String>> langMap; // Label, Local, Content
     private Map<Long, List<String>> emojiData;
     private final List<Emoji> votes = new ArrayList<>();
     private boolean setup = false;
@@ -67,42 +68,40 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadLang() {
-        LangGetter langGetter = new LangGetter(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, this.getClass());
+        langManager = new LangManager(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, this.getClass());
 
-        // expert files
-        langGetter.exportDefaultLang();
-        lang = langGetter.readLangFileData();
+        langMap = langManager.readLangFileDataMap();
     }
 
     @Override
     public CommandData[] guildCommands() {
         return new SlashCommandData[]{
                 Commands.slash("poll", "make a poll")
-                        .setNameLocalizations(lang.get("register;cmd"))
-                        .setDescriptionLocalizations(lang.get("register;description"))
+                        .setNameLocalizations(langMap.get("register;cmd"))
+                        .setDescriptionLocalizations(langMap.get("register;description"))
                         .addOptions(
                                 new OptionData(STRING, "question", "user", true)
-                                        .setDescriptionLocalizations(lang.get("register;options;name")),
+                                        .setDescriptionLocalizations(langMap.get("register;options;name")),
                                 new OptionData(STRING, "choice_a", "reason")
-                                        .setDescriptionLocalizations(lang.get("register;options;a")),
+                                        .setDescriptionLocalizations(langMap.get("register;options;a")),
                                 new OptionData(STRING, "choice_b", "reason")
-                                        .setDescriptionLocalizations(lang.get("register;options;b")),
+                                        .setDescriptionLocalizations(langMap.get("register;options;b")),
                                 new OptionData(STRING, "choice_c", "reason")
-                                        .setDescriptionLocalizations(lang.get("register;options;c")),
+                                        .setDescriptionLocalizations(langMap.get("register;options;c")),
                                 new OptionData(STRING, "choice_d", "reason")
-                                        .setDescriptionLocalizations(lang.get("register;options;d")),
+                                        .setDescriptionLocalizations(langMap.get("register;options;d")),
                                 new OptionData(STRING, "choice_e", "reason")
-                                        .setDescriptionLocalizations(lang.get("register;options;e")),
+                                        .setDescriptionLocalizations(langMap.get("register;options;e")),
                                 new OptionData(STRING, "choice_f", "reason")
-                                        .setDescriptionLocalizations(lang.get("register;options;f")),
+                                        .setDescriptionLocalizations(langMap.get("register;options;f")),
                                 new OptionData(STRING, "choice_g", "reason")
-                                        .setDescriptionLocalizations(lang.get("register;options;g")),
+                                        .setDescriptionLocalizations(langMap.get("register;options;g")),
                                 new OptionData(STRING, "choice_h", "reason")
-                                        .setDescriptionLocalizations(lang.get("register;options;h")),
+                                        .setDescriptionLocalizations(langMap.get("register;options;h")),
                                 new OptionData(STRING, "choice_i", "reason")
-                                        .setDescriptionLocalizations(lang.get("register;options;i")),
+                                        .setDescriptionLocalizations(langMap.get("register;options;i")),
                                 new OptionData(STRING, "choice_j", "reason")
-                                        .setDescriptionLocalizations(lang.get("register;options;j")))
+                                        .setDescriptionLocalizations(langMap.get("register;options;j")))
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(MANAGE_EVENTS))
         };
     }
@@ -168,7 +167,7 @@ public class Main extends PluginEvent {
         event.getChannel().sendMessageEmbeds(builder
                 .setAuthor(event.getMember().getEffectiveName(), null, event.getUser().getAvatarUrl())
                 .setTitle(event.getOption("question").getAsString())
-                .setFooter(lang.get("embed;footer").get(local))
+                .setFooter(langManager.get("embed;footer", local))
                 .setColor(0x87E5CF)
                 .setTimestamp(OffsetDateTime.now())
                 .build()
@@ -177,7 +176,7 @@ public class Main extends PluginEvent {
                 m.addReaction(votes.get(i)).queue();
         });
 
-        event.getHook().editOriginalEmbeds(createEmbed(lang.get("command;success").get(local), 0x9740b9)).queue();
+        event.getHook().editOriginalEmbeds(createEmbed(langManager.get("command;success", local), 0x9740b9)).queue();
     }
 
 }

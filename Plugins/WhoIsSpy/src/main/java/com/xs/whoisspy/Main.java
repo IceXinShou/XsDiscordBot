@@ -1,7 +1,7 @@
 package com.xs.whoisspy;
 
 import com.xs.loader.PluginEvent;
-import com.xs.loader.lang.LangGetter;
+import com.xs.loader.lang.LangManager;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
 import net.dv8tion.jda.api.Permission;
@@ -26,12 +26,13 @@ import static com.xs.loader.util.EmbedCreator.createEmbed;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.*;
 
 public class Main extends PluginEvent {
+    private LangManager langManager;
     private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
     private FileGetter getter;
     private Logger logger;
     private static final String TAG = "WhoIsSpy";
     private final String PATH_FOLDER_NAME = "plugins/WhoIsSpy";
-    private Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
+    private Map<String, Map<DiscordLocale, String>> langMap; // Label, Local, Content
     private boolean start = false;
     private Message message;
     private String problem;
@@ -76,11 +77,9 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadLang() {
-        LangGetter langGetter = new LangGetter(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, this.getClass());
+        langManager = new LangManager(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, this.getClass());
 
-        // expert files
-        langGetter.exportDefaultLang();
-        lang = langGetter.readLangFileData();
+        langMap = langManager.readLangFileDataMap();
     }
 
     @Override
@@ -106,8 +105,7 @@ public class Main extends PluginEvent {
 
         reset();
 
-        event.getChannel().sendMessageEmbeds(createEmbed("誰是臥底遊戲~", String.format("" +
-                                "加入人數: %d\n" +
+        event.getChannel().sendMessageEmbeds(createEmbed("誰是臥底遊戲~", String.format("加入人數: %d\n" +
                                 "裁判人數: %d", users.size(), admins.size())
                         , 0x00FFFF))
                 .addActionRow(
@@ -267,7 +265,7 @@ public class Main extends PluginEvent {
         }
     }
 
-    private Map<Long, Integer> voteData = new HashMap<>();
+    private final Map<Long, Integer> voteData = new HashMap<>();
 
 
 //    @Override
@@ -285,8 +283,7 @@ public class Main extends PluginEvent {
 
     public void updateMessage() {
         message.editMessageEmbeds(
-                createEmbed("誰是臥底遊戲~", String.format("" +
-                                "遊玩人數: %d\n" +
+                createEmbed("誰是臥底遊戲~", String.format("遊玩人數: %d\n" +
                                 "關主人數: %d", users.size(), admins.size())
                         , 0x00FFFF)
         ).queue();

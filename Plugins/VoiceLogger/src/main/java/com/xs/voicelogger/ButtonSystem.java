@@ -1,5 +1,6 @@
 package com.xs.voicelogger;
 
+import com.xs.loader.lang.LangManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
@@ -16,20 +17,19 @@ import net.dv8tion.jda.internal.interactions.component.ButtonImpl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.xs.loader.util.EmbedCreator.createEmbed;
-import static net.dv8tion.jda.api.entities.channel.ChannelType.*;
+import static net.dv8tion.jda.api.entities.channel.ChannelType.CATEGORY;
+import static net.dv8tion.jda.api.entities.channel.ChannelType.VOICE;
 
 
 public class ButtonSystem {
+    private final LangManager langManager;
     private final JsonManager manager;
 
-    private final Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
-
-    public ButtonSystem(Map<String, Map<DiscordLocale, String>> lang, JsonManager manager) {
-        this.lang = lang;
+    public ButtonSystem(LangManager langManager, JsonManager manager) {
+        this.langManager = langManager;
         this.manager = manager;
     }
 
@@ -62,7 +62,7 @@ public class ButtonSystem {
         if (!args[3].equals(event.getUser().getId())) return;
         manager.delete(event.getGuild().getIdLong(), event.getChannel().getIdLong());
 
-        event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;setting;delete_success").get(local), 0x00FFFF)).setComponents(Collections.emptyList()).queue();
+        event.getHook().editOriginalEmbeds(createEmbed(langManager.get("runtime;setting;delete_success", local), 0x00FFFF)).setComponents(Collections.emptyList()).queue();
         event.deferEdit().queue();
     }
 
@@ -105,7 +105,7 @@ public class ButtonSystem {
         EntitySelectMenu menu = EntitySelectMenu
                 .create("xs:voicelogger:" + args[2] + ':' + event.getUser().getId() + ':' + event.getChannel().getId(), EntitySelectMenu.SelectTarget.CHANNEL)
                 .setChannelTypes(VOICE, CATEGORY)
-                .setPlaceholder(lang.get("runtime;setting;select_menu;placeholder").get(local))
+                .setPlaceholder(langManager.get("runtime;setting;select_menu;placeholder", local))
                 .setRequiredRange(1, 25)
                 .build();
 
@@ -123,7 +123,7 @@ public class ButtonSystem {
                 whiteBuilder.append("<#").append(i).append(">\n");
             }
         } else {
-            whiteBuilder.append(lang.get("runtime;setting;embed;empty").get(local));
+            whiteBuilder.append(langManager.get("runtime;setting;embed;empty", local));
         }
 
         StringBuilder blackBuilder = new StringBuilder();
@@ -132,19 +132,19 @@ public class ButtonSystem {
                 blackBuilder.append("<#").append(i).append(">\n");
             }
         } else {
-            blackBuilder.append(lang.get("runtime;setting;embed;empty").get(local));
+            blackBuilder.append(langManager.get("runtime;setting;embed;empty", local));
         }
 
         return new EmbedBuilder()
-                .setTitle(lang.get("runtime;setting;embed;channel_setting").get(local))
+                .setTitle(langManager.get("runtime;setting;embed;channel_setting", local))
                 .setColor(0x00FFFF)
-                .addField(lang.get("runtime;setting;embed;now_status").get(local),
+                .addField(langManager.get("runtime;setting;embed;now_status", local),
                         setting.whitelistStat ?
-                                lang.get("runtime;setting;embed;white_list").get(local) :
-                                lang.get("runtime;setting;embed;black_list").get(local),
+                                langManager.get("runtime;setting;embed;white_list", local) :
+                                langManager.get("runtime;setting;embed;black_list", local),
                         false)
-                .addField(lang.get("runtime;setting;embed;white_channel").get(local), whiteBuilder.toString(), false)
-                .addField(lang.get("runtime;setting;embed;black_channel").get(local), blackBuilder.toString(), false);
+                .addField(langManager.get("runtime;setting;embed;white_channel", local), whiteBuilder.toString(), false)
+                .addField(langManager.get("runtime;setting;embed;black_channel", local), blackBuilder.toString(), false);
     }
 
     public List<Button> getButtons(GenericInteractionCreateEvent event, DiscordLocale local) {
@@ -152,28 +152,28 @@ public class ButtonSystem {
         List<Button> buttons = new ArrayList<>();
         buttons.add(
                 new ButtonImpl("xs:voicelogger:toggle:" + event.getUser().getId() + ':' + event.getChannel().getId(),
-                        lang.get("runtime;setting;button;toggle_status").get(local),
+                        langManager.get("runtime;setting;button;toggle_status", local),
                         ButtonStyle.PRIMARY, false, null
                 )
         );
 
         buttons.add(
                 new ButtonImpl("xs:voicelogger:white:" + event.getUser().getId() + ':' + event.getChannel().getId(),
-                        lang.get("runtime;setting;button;set_white").get(local),
+                        langManager.get("runtime;setting;button;set_white", local),
                         ButtonStyle.SUCCESS, false, null
                 )
         );
 
         buttons.add(
                 new ButtonImpl("xs:voicelogger:black:" + event.getUser().getId() + ':' + event.getChannel().getId(),
-                        lang.get("runtime;setting;button;set_black").get(local),
+                        langManager.get("runtime;setting;button;set_black", local),
                         ButtonStyle.SECONDARY, false, null
                 )
         );
 
         buttons.add(
                 new ButtonImpl("xs:voicelogger:delete:" + event.getUser().getId() + ':' + event.getChannel().getId(),
-                        lang.get("runtime;setting;button;delete").get(local),
+                        langManager.get("runtime;setting;button;delete", local),
                         ButtonStyle.DANGER, false, null
                 )
         );

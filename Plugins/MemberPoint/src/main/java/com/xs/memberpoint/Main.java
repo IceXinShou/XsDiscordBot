@@ -2,7 +2,7 @@ package com.xs.memberpoint;
 
 import com.xs.googlesheetapi.SheetRequest;
 import com.xs.loader.PluginEvent;
-import com.xs.loader.lang.LangGetter;
+import com.xs.loader.lang.LangManager;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
 import javafx.util.Pair;
@@ -33,6 +33,7 @@ import static net.dv8tion.jda.api.interactions.commands.OptionType.USER;
 public class Main extends PluginEvent {
     private MainConfig configFile;
     private final Map<Long, Integer> userData = new HashMap<>();
+    private LangManager langManager;
     private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
     private FileGetter getter;
     private Logger logger;
@@ -40,7 +41,7 @@ public class Main extends PluginEvent {
     private final String PATH_FOLDER_NAME = "plugins/MemberPoint";
     private final List<Long> adminID = new ArrayList<>();
     private final List<Role> adminRoles = new ArrayList<>();
-    private Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
+    private Map<String, Map<DiscordLocale, String>> langMap; // Label, Local, Content
     private SheetRequest sheet;
 
     public Main() {
@@ -70,54 +71,52 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadLang() {
-        LangGetter langGetter = new LangGetter(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, this.getClass());
+        langManager = new LangManager(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, this.getClass());
 
-        // expert files
-        langGetter.exportDefaultLang();
-        lang = langGetter.readLangFileData();
+        langMap = langManager.readLangFileDataMap();
     }
 
     @Override
     public CommandData[] guildCommands() {
         return new SlashCommandData[]{
 //                Commands.slash("refreshp", "refresh point data")
-//                        .setNameLocalizations(lang.get("register;refresh;cmd"))
-//                        .setDescriptionLocalizations(lang.get("register;refresh;description")),
+//                        .setNameLocalizations(langMap.get("register;refresh;cmd"))
+//                        .setDescriptionLocalizations(langMap.get("register;refresh;description")),
 
                 Commands.slash("point", "get current point from user")
-                        .setNameLocalizations(lang.get("register;get_point;cmd"))
-                        .setDescriptionLocalizations(lang.get("register;get_point;description"))
+                        .setNameLocalizations(langMap.get("register;get_point;cmd"))
+                        .setDescriptionLocalizations(langMap.get("register;get_point;description"))
                         .addOptions(
                                 new OptionData(USER, "user", "user")
-                                        .setDescriptionLocalizations(lang.get("register;get_point;options;user")))
+                                        .setDescriptionLocalizations(langMap.get("register;get_point;options;user")))
                         .setDefaultPermissions(DefaultMemberPermissions.ENABLED),
 
                 Commands.slash("add_point", "add point to user")
-                        .setNameLocalizations(lang.get("register;add_point;cmd"))
-                        .setDescriptionLocalizations(lang.get("register;add_point;description"))
+                        .setNameLocalizations(langMap.get("register;add_point;cmd"))
+                        .setDescriptionLocalizations(langMap.get("register;add_point;description"))
                         .addOptions(
                         new OptionData(INTEGER, "value", "value", true)
-                                .setDescriptionLocalizations(lang.get("register;add_point;options;value")),
+                                .setDescriptionLocalizations(langMap.get("register;add_point;options;value")),
                         new OptionData(USER, "user", "user")
-                                .setDescriptionLocalizations(lang.get("register;add_point;options;user"))),
+                                .setDescriptionLocalizations(langMap.get("register;add_point;options;user"))),
 
                 Commands.slash("remove_point", "remove point from user")
-                        .setNameLocalizations(lang.get("register;remove_point;cmd"))
-                        .setDescriptionLocalizations(lang.get("register;remove_point;description"))
+                        .setNameLocalizations(langMap.get("register;remove_point;cmd"))
+                        .setDescriptionLocalizations(langMap.get("register;remove_point;description"))
                         .addOptions(
                         new OptionData(INTEGER, "value", "value", true)
-                                .setDescriptionLocalizations(lang.get("register;remove_point;options;value")),
+                                .setDescriptionLocalizations(langMap.get("register;remove_point;options;value")),
                         new OptionData(USER, "user", "user")
-                                .setDescriptionLocalizations(lang.get("register;remove_point;options;user"))),
+                                .setDescriptionLocalizations(langMap.get("register;remove_point;options;user"))),
 
                 Commands.slash("set_point", "set point to user")
-                        .setNameLocalizations(lang.get("register;set_point;cmd"))
-                        .setDescriptionLocalizations(lang.get("register;set_point;description"))
+                        .setNameLocalizations(langMap.get("register;set_point;cmd"))
+                        .setDescriptionLocalizations(langMap.get("register;set_point;description"))
                         .addOptions(
                         new OptionData(INTEGER, "value", "value", true)
-                                .setDescriptionLocalizations(lang.get("register;set_point;options;value")),
+                                .setDescriptionLocalizations(langMap.get("register;set_point;options;value")),
                         new OptionData(USER, "user", "user")
-                                .setDescriptionLocalizations(lang.get("register;set_point;options;user"))),
+                                .setDescriptionLocalizations(langMap.get("register;set_point;options;user"))),
         };
     }
 
@@ -159,11 +158,11 @@ public class Main extends PluginEvent {
             final DiscordLocale local = event.getUserLocale();
 
             if (event.getGuild().getIdLong() != configFile.guildID) {
-                event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;errors;wrong_guild").get(local), 0xFF0000)).queue();
+                event.getHook().editOriginalEmbeds(createEmbed(langManager.get("runtime;errors;wrong_guild", local), 0xFF0000)).queue();
                 return;
             }
 
-            final MessageEmbed noPermissionEmbed = createEmbed(lang.get("runtime;errors;no_permission").get(local), 0xFF0000);
+            final MessageEmbed noPermissionEmbed = createEmbed(langManager.get("runtime;errors;no_permission", local), 0xFF0000);
 
             switch (event.getName()) {
 //                case "refreshp": {
@@ -173,7 +172,7 @@ public class Main extends PluginEvent {
 //                    }
 //
 //                    loadSheet();
-//                    event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;refresh_success").get(local), 0x00FFFF)).queue();
+//                    event.getHook().editOriginalEmbeds(createEmbed(langManager.get("runtime;refresh_success", local), 0x00FFFF)).queue();
 //                    break;
 //                }
 
@@ -198,7 +197,7 @@ public class Main extends PluginEvent {
                     userData.put(user.getIdLong(), value);
                     update(user.getIdLong(), value);
                     event.getHook().editOriginalEmbeds(createEmbed(user.getAsTag(),
-                            lang.get("runtime;current_point").get(local).replace("%point%", String.valueOf(value)), 0x00FFFF)).queue();
+                            langManager.get("runtime;current_point", local).replace("%point%", String.valueOf(value)), 0x00FFFF)).queue();
                     break;
                 }
 
@@ -216,7 +215,7 @@ public class Main extends PluginEvent {
                     update(user.getIdLong(), value);
 
                     event.getHook().editOriginalEmbeds(createEmbed(user.getAsTag(),
-                            lang.get("runtime;current_point").get(local).replace("%point%", String.valueOf(value)), 0x00FFFF)).queue();
+                            langManager.get("runtime;current_point", local).replace("%point%", String.valueOf(value)), 0x00FFFF)).queue();
 
                     break;
                 }
@@ -235,7 +234,7 @@ public class Main extends PluginEvent {
                     update(user.getIdLong(), value);
 
                     event.getHook().editOriginalEmbeds(createEmbed(user.getAsTag(),
-                            lang.get("runtime;current_point").get(local).replace("%point%", String.valueOf(value)), 0x00FFFF)).queue();
+                            langManager.get("runtime;current_point", local).replace("%point%", String.valueOf(value)), 0x00FFFF)).queue();
                     break;
                 }
             }
@@ -249,10 +248,7 @@ public class Main extends PluginEvent {
         List<Role> tmp = new ArrayList<>(member.getRoles());
         tmp.retainAll(adminRoles);
 
-        if (tmp.size() > 0)
-            return false;
-
-        return true;
+        return tmp.size() <= 0;
     }
 
     private void loadSheet() {

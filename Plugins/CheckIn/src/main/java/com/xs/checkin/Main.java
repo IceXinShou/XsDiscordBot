@@ -2,7 +2,7 @@ package com.xs.checkin;
 
 import com.xs.googlesheetapi.SheetRequest;
 import com.xs.loader.PluginEvent;
-import com.xs.loader.lang.LangGetter;
+import com.xs.loader.lang.LangManager;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
 import javafx.util.Pair;
@@ -32,6 +32,7 @@ import static net.dv8tion.jda.api.interactions.commands.OptionType.STRING;
 
 public class Main extends PluginEvent {
     private MainConfig configFile;
+    private LangManager langManager;
     private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
     private FileGetter getter;
     private Logger logger;
@@ -40,7 +41,7 @@ public class Main extends PluginEvent {
     private final List<Long> adminID = new ArrayList<>();
     private final List<Role> adminRoles = new ArrayList<>();
     private final List<Pair<Long, Long>> announcements = new ArrayList<>();
-    private Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
+    private Map<String, Map<DiscordLocale, String>> langMap; // Label, Local, Content
     private SheetRequest sheet;
 
     public Main() {
@@ -71,11 +72,9 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadLang() {
-        LangGetter langGetter = new LangGetter(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, this.getClass());
+        langManager = new LangManager(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, this.getClass());
 
-        // expert files
-        langGetter.exportDefaultLang();
-        lang = langGetter.readLangFileData();
+        langMap = langManager.readLangFileDataMap();
     }
 
     private Pair<Long, Long> getDataFromSheet(String s) {
@@ -106,20 +105,20 @@ public class Main extends PluginEvent {
     public CommandData[] guildCommands() {
         return new SlashCommandData[]{
                 Commands.slash("announcement", "mark a message which will be checked in")
-                        .setNameLocalizations(lang.get("register;announcement;cmd"))
-                        .setDescriptionLocalizations(lang.get("register;announcement;description"))
+                        .setNameLocalizations(langMap.get("register;announcement;cmd"))
+                        .setDescriptionLocalizations(langMap.get("register;announcement;description"))
                         .addOptions(
                         new OptionData(STRING, "id", "message id", true)
-                                .setDescriptionLocalizations(lang.get("register;announcement;options;id"))),
+                                .setDescriptionLocalizations(langMap.get("register;announcement;options;id"))),
 
                 Commands.slash("check", "checkin for a announced message")
-                        .setNameLocalizations(lang.get("register;check;cmd"))
-                        .setDescriptionLocalizations(lang.get("register;check;description"))
+                        .setNameLocalizations(langMap.get("register;check;cmd"))
+                        .setDescriptionLocalizations(langMap.get("register;check;description"))
                         .addOptions(
                                 new OptionData(STRING, "id", "what message you would checkin?", true)
-                                        .setDescriptionLocalizations(lang.get("register;check;options;content")),
+                                        .setDescriptionLocalizations(langMap.get("register;check;options;content")),
                                 new OptionData(STRING, "content", "what would you want?", true)
-                                        .setDescriptionLocalizations(lang.get("register;check;options;content")))
+                                        .setDescriptionLocalizations(langMap.get("register;check;options;content")))
                         .setDefaultPermissions(DefaultMemberPermissions.ENABLED),
         };
     }
@@ -163,11 +162,11 @@ public class Main extends PluginEvent {
             final DiscordLocale local = event.getUserLocale();
 
             if (event.getGuild().getIdLong() != configFile.guildID) {
-                event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;errors;wrong_guild").get(local), 0xFF0000)).queue();
+                event.getHook().editOriginalEmbeds(createEmbed(langManager.get("runtime;errors;wrong_guild", local), 0xFF0000)).queue();
                 return;
             }
 
-            final MessageEmbed noPermissionEmbed = createEmbed(lang.get("runtime;errors;no_permission").get(local), 0xFF0000);
+            final MessageEmbed noPermissionEmbed = createEmbed(langManager.get("runtime;errors;no_permission", local), 0xFF0000);
 
             switch (event.getName()) {
                 case "announcement": {
@@ -183,7 +182,7 @@ public class Main extends PluginEvent {
                     try {
                         messageID = event.getOption("id").getAsLong();
                     } catch (Exception e) {
-                        event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;errors;wrong_id_input").get(local), 0xFF0000)).queue();
+                        event.getHook().editOriginalEmbeds(createEmbed(langManager.get("runtime;errors;wrong_id_input", local), 0xFF0000)).queue();
                         return;
                     }
 
@@ -191,18 +190,18 @@ public class Main extends PluginEvent {
                         message = event.getChannel().retrieveMessageById(messageID).complete();
                     } catch (Exception e) {
                         event.getHook().editOriginalEmbeds(createEmbed(
-                                lang.get("runtime;errors;check_message_get_failed").get(local).replace("%id%", String.valueOf(messageID)),
+                                langManager.get("runtime;errors;check_message_get_failed", local).replace("%id%", String.valueOf(messageID)),
                                 0xFF0000)).queue();
                         return;
                     }
 
                     loadAnnouncements();
                     if (announcements.stream().anyMatch(i -> i.equals(new Pair<>(event.getChannel().getIdLong(), messageID)))) {
-                        event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;errors;already_announced").get(local), 0xFF0000)).queue();
+                        event.getHook().editOriginalEmbeds(createEmbed(langManager.get("runtime;errors;already_announced", local), 0xFF0000)).queue();
                         return;
                     }
                     addAnnouncement(event.getChannel().getIdLong(), messageID, message.getContentDisplay());
-                    event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;announce_success").get(local), 0x00FFFF)).queue();
+                    event.getHook().editOriginalEmbeds(createEmbed(langManager.get("runtime;announce_success", local), 0x00FFFF)).queue();
                     break;
                 }
 
@@ -212,7 +211,7 @@ public class Main extends PluginEvent {
                     try {
                         messageID = event.getOption("id").getAsLong();
                     } catch (Exception e) {
-                        event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;errors;wrong_id_input").get(local), 0xFF0000)).queue();
+                        event.getHook().editOriginalEmbeds(createEmbed(langManager.get("runtime;errors;wrong_id_input", local), 0xFF0000)).queue();
                         return;
                     }
 
@@ -220,18 +219,18 @@ public class Main extends PluginEvent {
                         event.getChannel().retrieveMessageById(messageID).complete();
                     } catch (Exception e) {
                         event.getHook().editOriginalEmbeds(createEmbed(
-                                lang.get("runtime;errors;check_message_get_failed").get(local).replace("%id%", String.valueOf(messageID)),
+                                langManager.get("runtime;errors;check_message_get_failed", local).replace("%id%", String.valueOf(messageID)),
                                 0xFF0000)).queue();
                         return;
                     }
 
                     if (announcements.stream().noneMatch(i -> i.equals(new Pair<>(event.getChannel().getIdLong(), messageID)))) {
-                        event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;errors;not_announced_message").get(local), 0xFF0000)).queue();
+                        event.getHook().editOriginalEmbeds(createEmbed(langManager.get("runtime;errors;not_announced_message", local), 0xFF0000)).queue();
                         return;
                     }
 
                     check(event.getUser().getIdLong(), event.getChannel().getIdLong(), messageID, event.getOption("content").getAsString());
-                    event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;checkin_success").get(local), 0x00FFFF)).queue();
+                    event.getHook().editOriginalEmbeds(createEmbed(langManager.get("runtime;checkin_success", local), 0x00FFFF)).queue();
                     break;
                 }
             }
@@ -294,9 +293,6 @@ public class Main extends PluginEvent {
             System.out.println(i.getName());
         }
 
-        if (tmp.size() > 0)
-            return false;
-
-        return true;
+        return tmp.size() <= 0;
     }
 }

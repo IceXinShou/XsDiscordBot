@@ -1,7 +1,7 @@
 package com.xs.serverinfo;
 
 import com.xs.loader.PluginEvent;
-import com.xs.loader.lang.LangGetter;
+import com.xs.loader.lang.LangManager;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -23,12 +23,13 @@ import static com.xs.loader.util.EmbedCreator.createEmbed;
 import static net.dv8tion.jda.api.Permission.ADMINISTRATOR;
 
 public class Main extends PluginEvent {
+    private LangManager langManager;
     private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
     FileGetter getter;
     Logger logger;
     private static final String TAG = "ServerInfo";
     private final String PATH_FOLDER_NAME = "plugins/ServerInfo";
-    private Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
+    private Map<String, Map<DiscordLocale, String>> langMap; // Label, Local, Content
 
     public Main() {
         super(true);
@@ -50,19 +51,17 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadLang() {
-        LangGetter langGetter = new LangGetter(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, this.getClass());
+        langManager = new LangManager(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, this.getClass());
 
-        // expert files
-        langGetter.exportDefaultLang();
-        lang = langGetter.readLangFileData();
+        langMap = langManager.readLangFileDataMap();
     }
 
     @Override
     public CommandData[] guildCommands() {
         return new SlashCommandData[]{
                 Commands.slash("info", "show server info")
-                        .setNameLocalizations(lang.get("register;cmd"))
-                        .setDescriptionLocalizations(lang.get("register;description"))
+                        .setNameLocalizations(langMap.get("register;cmd"))
+                        .setDescriptionLocalizations(langMap.get("register;description"))
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR))
         };
     }
@@ -77,7 +76,7 @@ public class Main extends PluginEvent {
 
         DiscordLocale local = event.getUserLocale();
 
-        event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;loading").get(local), 0x00FFFF)).queue();
+        event.getHook().editOriginalEmbeds(createEmbed(langManager.get("runtime;loading", local), 0x00FFFF)).queue();
         Guild guild = event.getGuild();
         int voiceCount = guild.getVoiceChannels().size();
         int textCount = guild.getTextChannels().size();
@@ -133,53 +132,48 @@ public class Main extends PluginEvent {
             }
 
             EmbedBuilder builder = new EmbedBuilder();
-            builder.addField(lang.get("runtime;fields;members;title").get(local), String.format("" +
-                            lang.get("runtime;fields;members;total").get(local) + " `%d`\n" +
-                            lang.get("runtime;fields;members;human").get(local) + " `%d`\n" +
-                            lang.get("runtime;fields;members;bot").get(local) + " `%d`\n" +
-                            lang.get("runtime;fields;members;admin").get(local) + " `%d`",
+            builder.addField(langManager.get("runtime;fields;members;title", local), String.format(langManager.get("runtime;fields;members;total", local) + " `%d`\n" +
+                            langManager.get("runtime;fields;members;human", local) + " `%d`\n" +
+                            langManager.get("runtime;fields;members;bot", local) + " `%d`\n" +
+                            langManager.get("runtime;fields;members;admin", local) + " `%d`",
                     memberCount, realMemberCount, botCount, adminCount), true);
 
-            builder.addField(lang.get("runtime;fields;members_status;title").get(local), String.format("" +
-                            lang.get("runtime;fields;members_status;online").get(local) + " `%d`\n" +
-                            lang.get("runtime;fields;members_status;working").get(local) + " `%d`\n" +
-                            lang.get("runtime;fields;members_status;idle").get(local) + " `%d`\n" +
-                            lang.get("runtime;fields;members_status;offline").get(local) + " `%d`",
+            builder.addField(langManager.get("runtime;fields;members_status;title", local), String.format(langManager.get("runtime;fields;members_status;online", local) + " `%d`\n" +
+                            langManager.get("runtime;fields;members_status;working", local) + " `%d`\n" +
+                            langManager.get("runtime;fields;members_status;idle", local) + " `%d`\n" +
+                            langManager.get("runtime;fields;members_status;offline", local) + " `%d`",
                     online, working, idle, offline), true);
 
             builder.addBlankField(false);
 
-            builder.addField(lang.get("runtime;fields;channels;title").get(local), String.format("" +
-                            lang.get("runtime;fields;channels;total").get(local) + " `%d`\n" +
-                            lang.get("runtime;fields;channels;text").get(local) + " `%d`\n" +
-                            lang.get("runtime;fields;channels;voice").get(local) + " `%d`\n" +
-                            lang.get("runtime;fields;channels;stage").get(local) + " `%d`",
+            builder.addField(langManager.get("runtime;fields;channels;title", local), String.format(langManager.get("runtime;fields;channels;total", local) + " `%d`\n" +
+                            langManager.get("runtime;fields;channels;text", local) + " `%d`\n" +
+                            langManager.get("runtime;fields;channels;voice", local) + " `%d`\n" +
+                            langManager.get("runtime;fields;channels;stage", local) + " `%d`",
                     textCount + voiceCount + stageCount, textCount, voiceCount, stageCount), true);
 
-            builder.addField(lang.get("runtime;fields;channels_status;title").get(local), String.format("" +
-                            lang.get("runtime;fields;channels_status;connect").get(local) + " `%d`\n" +
-                            lang.get("runtime;fields;channels_status;voice").get(local) + " `%d`\n" +
-                            lang.get("runtime;fields;channels_status;stage").get(local) + " `%d`",
+            builder.addField(langManager.get("runtime;fields;channels_status;title", local), String.format(langManager.get("runtime;fields;channels_status;connect", local) + " `%d`\n" +
+                            langManager.get("runtime;fields;channels_status;voice", local) + " `%d`\n" +
+                            langManager.get("runtime;fields;channels_status;stage", local) + " `%d`",
                     inVoice + inStage, inVoice, inStage), true);
 
             builder.addBlankField(false);
 
-            builder.addField(lang.get("runtime;fields;roles").get(local),
+            builder.addField(langManager.get("runtime;fields;roles", local),
                     "`" + guild.getRoles().size() + "`", true);
 
-            builder.addField(lang.get("runtime;fields;emoji").get(local),
+            builder.addField(langManager.get("runtime;fields;emoji", local),
                     "`" + guild.retrieveEmojis().complete().size() + "`", true);
 
-            builder.addField(lang.get("runtime;fields;sticker").get(local),
+            builder.addField(langManager.get("runtime;fields;sticker", local),
                     "`" + guild.retrieveStickers().complete().size() + "`", true);
 
             builder.addBlankField(false);
 
-            builder.addField(lang.get("runtime;fields;boost;title").get(local), "" +
-                    lang.get("runtime;fields;boost;level").get(local) + " `" + guild.getBoostTier().getKey() + "`\n" +
-                    lang.get("runtime;fields;boost;amount").get(local) + " `" + guild.getBoostCount() + "`", true);
+            builder.addField(langManager.get("runtime;fields;boost;title", local), langManager.get("runtime;fields;boost;level", local) + " `" + guild.getBoostTier().getKey() + "`\n" +
+                    langManager.get("runtime;fields;boost;amount", local) + " `" + guild.getBoostCount() + "`", true);
 
-            builder.addField(lang.get("runtime;fields;language").get(local),
+            builder.addField(langManager.get("runtime;fields;language", local),
                     "`" + guild.getLocale().getNativeName() + "`", true);
 
             builder.addBlankField(true);
@@ -191,12 +185,12 @@ public class Main extends PluginEvent {
                             .setAuthor(owner.getUser().getAsTag(), null, owner.getEffectiveAvatarUrl())
                             .setTitle(event.getGuild().getName())
                             .setThumbnail(guild.getIconUrl())
-                            .setFooter(lang.get("runtime;footer").get(local))
+                            .setFooter(langManager.get("runtime;footer", local))
                             .setColor(0x00FFFF)
                             .build()).queue();
         }).onError(i -> {
             logger.warn("ERROR");
-            event.getHook().editOriginalEmbeds(createEmbed(lang.get("runtime;error").get(local), 0xFF0000)).queue();
+            event.getHook().editOriginalEmbeds(createEmbed(langManager.get("runtime;error", local), 0xFF0000)).queue();
         });
     }
 }

@@ -100,9 +100,7 @@ public class WhoIsSpy {
     void remove(Member member) {
         if (users.contains(member)) {
             users.remove(member);
-        } else if (spys.contains(member)) {
-            spys.remove(member);
-        }
+        } else spys.remove(member);
     }
 
     String getAllRole() {
@@ -119,8 +117,7 @@ public class WhoIsSpy {
         for (Member i : whites) {
             whiteName.append(i.getEffectiveName()).append('\n');
         }
-        return String.format("" +
-                "平民題目: %s\n" +
+        return String.format("平民題目: %s\n" +
                 "臥底題目: %s\n\n" +
                 "平民: \n%s\n" +
                 "臥底: \n%s\n" +

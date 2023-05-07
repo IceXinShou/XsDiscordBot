@@ -1,23 +1,17 @@
 package com.xs.voicelogger;
 
 import com.xs.loader.PluginEvent;
-import com.xs.loader.lang.LangGetter;
+import com.xs.loader.lang.LangManager;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.unions.AudioChannelUnion;
-import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.EntitySelectInteractionEvent;
-import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
-import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
@@ -25,29 +19,21 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
-import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-import java.sql.*;
 import java.time.OffsetDateTime;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 
-import static com.xs.loader.MainLoader.ROOT_PATH;
-import static com.xs.loader.util.GlobalUtil.getNickOrTag;
-import static com.xs.loader.util.GlobalUtil.getUserById;
 import static net.dv8tion.jda.api.Permission.ADMINISTRATOR;
 
 public class Main extends PluginEvent {
+    private LangManager langManager;
     private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
     private FileGetter getter;
     private Logger logger;
     private static final String TAG = "VoiceLogger";
     private final String PATH_FOLDER_NAME = "plugins/VoiceLogger";
-    private Map<String, Map<DiscordLocale, String>> lang; // Label, Local, Content
+    private Map<String, Map<DiscordLocale, String>> langMap; // Label, Local, Content
     private final JsonManager jsonManager = new JsonManager();
     private ButtonSystem buttonSystem;
 
@@ -71,24 +57,22 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadLang() {
-        LangGetter langGetter = new LangGetter(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, this.getClass());
+        langManager = new LangManager(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, this.getClass());
 
-        // expert files
-        langGetter.exportDefaultLang();
-        lang = langGetter.readLangFileData();
+        langMap = langManager.readLangFileDataMap();
     }
 
     @Override
     public CommandData[] guildCommands() {
         return new SlashCommandData[]{
                 Commands.slash("voice_logger", "commands about voice logger")
-                        .setNameLocalizations(lang.get("register;cmd"))
-                        .setDescriptionLocalizations(lang.get("register;description"))
+                        .setNameLocalizations(langMap.get("register;cmd"))
+                        .setDescriptionLocalizations(langMap.get("register;description"))
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR))
                         .addSubcommands(
                         new SubcommandData("setting", "set voice log in this channel")
-                                .setNameLocalizations(lang.get("register;subcommand;setting;cmd"))
-                                .setDescriptionLocalizations(lang.get("register;subcommand;setting;description"))
+                                .setNameLocalizations(langMap.get("register;subcommand;setting;cmd"))
+                                .setDescriptionLocalizations(langMap.get("register;subcommand;setting;description"))
                 )
         };
     }
@@ -96,7 +80,7 @@ public class Main extends PluginEvent {
     @Override
     public void onReady(ReadyEvent event) {
         jsonManager.init();
-        buttonSystem = new ButtonSystem(lang, jsonManager);
+        buttonSystem = new ButtonSystem(langManager, jsonManager);
     }
 
     @Override
@@ -105,11 +89,8 @@ public class Main extends PluginEvent {
         if (event.getSubcommandName() == null) return;
         DiscordLocale local = event.getUserLocale();
 
-        switch (event.getSubcommandName()) {
-            case "setting": {
-                buttonSystem.setting(event, local);
-                break;
-            }
+        if (event.getSubcommandName().equals("setting")) {
+            buttonSystem.setting(event, local);
         }
     }
 
@@ -175,8 +156,8 @@ public class Main extends PluginEvent {
                                 EmbedBuilder builder = new EmbedBuilder()
                                         .setAuthor(member.getEffectiveName() + (member.getNickname() != null ?
                                                 (" (" + member.getUser().getAsTag() + ')') : ""), null, member.getEffectiveAvatarUrl())
-                                        .setTitle(lang.get("runtime;log;left;title").get(local).replace("%channel_name%", title))
-                                        .setFooter(lang.get("runtime;log;left;footer").get(local))
+                                        .setTitle(langManager.get("runtime;log;left;title", local).replace("%channel_name%", title))
+                                        .setFooter(langManager.get("runtime;log;left;footer", local))
                                         .setTimestamp(OffsetDateTime.now())
                                         .setColor(0xff5151);
 
@@ -200,8 +181,8 @@ public class Main extends PluginEvent {
                                 EmbedBuilder builder = new EmbedBuilder()
                                         .setAuthor(member.getEffectiveName() + (member.getNickname() != null ?
                                                 (" (" + member.getUser().getAsTag() + ')') : ""), null, member.getEffectiveAvatarUrl())
-                                        .setTitle(lang.get("runtime;log;join;title").get(local).replace("%channel_name%", title))
-                                        .setFooter(lang.get("runtime;log;join;footer").get(local))
+                                        .setTitle(langManager.get("runtime;log;join;title", local).replace("%channel_name%", title))
+                                        .setFooter(langManager.get("runtime;log;join;footer", local))
                                         .setTimestamp(OffsetDateTime.now())
                                         .setColor(0x34E000);
 

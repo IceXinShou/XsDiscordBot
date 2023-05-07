@@ -4,8 +4,6 @@ import com.xs.loader.PluginEvent;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
 
-import static com.xs.loader.util.EmbedCreator.createEmbed;
-
 public class Main extends PluginEvent {
     private Logger logger;
     private FileGetter getter;
