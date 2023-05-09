@@ -103,6 +103,7 @@ public class Main extends PluginEvent {
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         if (event.getAuthor().isBot()) return;
+        if (configFile.OwnerID.contains(event.getAuthor().getIdLong())) return;
         if (!event.isFromType(ChannelType.PRIVATE)) return;
 
         long authorID = event.getAuthor().getIdLong();
