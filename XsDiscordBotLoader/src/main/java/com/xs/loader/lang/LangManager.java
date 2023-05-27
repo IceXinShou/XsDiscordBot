@@ -49,6 +49,8 @@ public class LangManager {
     }
 
     public String get(String key, DiscordLocale local) {
+        if (local == DiscordLocale.UNKNOWN)
+            local = DEFAULT_LOCAL;
         Map<DiscordLocale, String> first = langMap.get(key);
 
         if (first == null) // cannot get string by key

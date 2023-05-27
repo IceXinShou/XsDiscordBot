@@ -139,8 +139,6 @@ public class Main extends PluginEvent {
     @Override
     public void onGuildVoiceUpdate(GuildVoiceUpdateEvent event) {
         DiscordLocale local = event.getGuild().getLocale();
-        if (local.equals(DiscordLocale.UNKNOWN))
-            local = defaultLocal;
 
         AudioChannelUnion joinChannel = event.getChannelJoined();
         AudioChannelUnion leftChannel = event.getChannelLeft();
@@ -148,7 +146,7 @@ public class Main extends PluginEvent {
         long guildID = event.getGuild().getIdLong();
 
         if (leftChannel != null) { // left
-            DiscordLocale finalLocal = local;
+
             jsonManager.channelSettings.getOrDefault(guildID, new HashMap<>()).forEach(
                     (i, j) -> {
                         if (j.contains(leftChannel.getIdLong())) {
@@ -161,8 +159,8 @@ public class Main extends PluginEvent {
                                 EmbedBuilder builder = new EmbedBuilder()
                                         .setAuthor(member.getEffectiveName() + (member.getNickname() != null ?
                                                 (" (" + member.getUser().getAsTag() + ')') : ""), null, member.getEffectiveAvatarUrl())
-                                        .setTitle(langManager.get("runtime;log;left;title", finalLocal).replace("%channel_name%", title))
-                                        .setFooter(langManager.get("runtime;log;left;footer", finalLocal))
+                                        .setTitle(langManager.get("runtime;log;left;title", local).replace("%channel_name%", title))
+                                        .setFooter(langManager.get("runtime;log;left;footer", local))
                                         .setTimestamp(OffsetDateTime.now())
                                         .setColor(0xff5151);
 
@@ -174,7 +172,6 @@ public class Main extends PluginEvent {
         }
 
         if (joinChannel != null) { // join
-            DiscordLocale finalLocal = local;
             jsonManager.channelSettings.getOrDefault(guildID, new HashMap<>()).forEach(
                     (i, j) -> {
                         if (j.contains(joinChannel.getIdLong())) {
@@ -187,8 +184,8 @@ public class Main extends PluginEvent {
                                 EmbedBuilder builder = new EmbedBuilder()
                                         .setAuthor(member.getEffectiveName() + (member.getNickname() != null ?
                                                 (" (" + member.getUser().getAsTag() + ')') : ""), null, member.getEffectiveAvatarUrl())
-                                        .setTitle(langManager.get("runtime;log;join;title", finalLocal).replace("%channel_name%", title))
-                                        .setFooter(langManager.get("runtime;log;join;footer", finalLocal))
+                                        .setTitle(langManager.get("runtime;log;join;title", local).replace("%channel_name%", title))
+                                        .setFooter(langManager.get("runtime;log;join;footer", local))
                                         .setTimestamp(OffsetDateTime.now())
                                         .setColor(0x34E000);
 
