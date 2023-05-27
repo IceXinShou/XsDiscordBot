@@ -318,10 +318,10 @@ public class Main extends PluginEvent {
             }
             String messageStr = rs.getString("message");
 
-            String removeMessageSql = String.format("DELETE FROM '%d' WHERE message_id = ?", channelID);
-            PreparedStatement removeMessage = conn.prepareStatement(removeMessageSql);
-            removeMessage.setLong(1, messageID);
-            removeMessage.executeUpdate();
+//            String removeMessageSql = String.format("DELETE FROM '%d' WHERE message_id = ?", channelID);
+//            PreparedStatement removeMessage = conn.prepareStatement(removeMessageSql);
+//            removeMessage.setLong(1, messageID);
+//            removeMessage.executeUpdate();
 
             rs.close();
             stmt.close();
