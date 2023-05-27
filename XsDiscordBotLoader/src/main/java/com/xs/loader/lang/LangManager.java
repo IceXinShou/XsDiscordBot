@@ -13,16 +13,18 @@ import java.util.Map;
 public class LangManager {
     private final Map<String, Map<DiscordLocale, String>> langMap = new HashMap<>();
     private final String FOLDER_PATH;
-    private final Logger logger;
-    private final String[] defaultLang;
-    private final FileGetter getter;
+    private final Logger LOGGER;
+    private final String[] DEFAULT_LANGS;
+    private final DiscordLocale DEFAULT_LOCAL;
+    private final FileGetter GETTER;
     private final Class<?> FROM_CLASS;
 
-    public LangManager(final String TAG, final FileGetter GETTER, final String PATH_FOLDER_NAME, final String[] DEFAULT_LANG, final Class<?> fromClass) {
-        logger = new Logger(TAG);
-        this.FOLDER_PATH = MainLoader.ROOT_PATH + "/" + PATH_FOLDER_NAME + "/Lang";
-        this.getter = GETTER;
-        this.defaultLang = DEFAULT_LANG;
+    public LangManager(String tag, FileGetter getter, String pathFolderName, String[] defaultLangs, DiscordLocale defaultLocal, final Class<?> fromClass) {
+        LOGGER = new Logger(tag);
+        this.FOLDER_PATH = MainLoader.ROOT_PATH + "/" + pathFolderName + "/Lang";
+        this.GETTER = getter;
+        this.DEFAULT_LANGS = defaultLangs;
+        DEFAULT_LOCAL = defaultLocal;
         this.FROM_CLASS = fromClass;
 
         new File(FOLDER_PATH).mkdirs();
@@ -33,14 +35,14 @@ public class LangManager {
         for (File i : new File(FOLDER_PATH).listFiles()) {
             DiscordLocale local = DiscordLocale.from(i.getName().replaceAll("\\.\\w+$", ""));
             if (local == DiscordLocale.UNKNOWN) {
-                logger.warn("Cannot find discord locate by file: " + i.getAbsolutePath() + "");
+                LOGGER.warn("Cannot find discord locate by file: " + i.getAbsolutePath() + "");
                 continue;
             }
 
             try {
-                readLang(getter.readFileMapByPath(i.toPath()), "", local);
+                readLang(GETTER.readFileMapByPath(i.toPath()), "", local);
             } catch (Exception e) {
-                logger.warn(e.getMessage());
+                LOGGER.warn(e.getMessage());
             }
         }
         return langMap;
@@ -54,23 +56,23 @@ public class LangManager {
 
         String second = first.get(local);
         if (second == null) // if local not support, return default language
-            return first.get(DiscordLocale.from(defaultLang[0]));
+            return first.get(DEFAULT_LOCAL);
 
         return second;
     }
 
     private void exportDefaultLang() {
-        for (String lang : defaultLang) {
+        for (String lang : DEFAULT_LANGS) {
             String fileName = lang + ".yml";
             File lang_file = new File(FOLDER_PATH + fileName);
             if (lang_file.exists()) continue;
 
             // export is not exist
-            getter.exportResource("lang/" + fileName, "/Lang/" + fileName);
+            GETTER.exportResource("lang/" + fileName, "/Lang/" + fileName);
         }
     }
 
-    private void readLang(final Object origin_json, final String level, final DiscordLocale locale) {
+    private void readLang(Object origin_json, String level, DiscordLocale locale) {
         if (origin_json instanceof Map) {
             Map<String, Object> json = (Map<String, Object>) origin_json;
             for (final String key : json.keySet()) {

@@ -48,8 +48,8 @@ public class Main extends PluginEvent {
     private static final String TAG = "ChatLogger";
     private final String PATH_FOLDER_NAME = "plugins/ChatLogger";
     private Map<String, Map<DiscordLocale, String>> langMap; // Label, Local, Content
-    private final Map<Long, Connection> dbConns = new HashMap<>();
-    private final JsonManager manager = new JsonManager();
+    private final Map<Long, Connection> DB_CONNS = new HashMap<>();
+    private final JsonManager MANAGER = new JsonManager();
     private ButtonSystem buttonSystem;
 
     public Main() {
@@ -80,7 +80,7 @@ public class Main extends PluginEvent {
             if (extensionName == null || !extensionName.equals("db")) continue;
 
             try {
-                dbConns.put(Long.parseLong(i.getName().substring(0, i.getName().indexOf('.'))), DriverManager.getConnection(
+                DB_CONNS.put(Long.parseLong(i.getName().substring(0, i.getName().indexOf('.'))), DriverManager.getConnection(
                         "jdbc:sqlite:" + ROOT_PATH + "/" + PATH_FOLDER_NAME + "/data/" + i.getName()
                 ));
             } catch (SQLException e) {
@@ -92,7 +92,7 @@ public class Main extends PluginEvent {
     @Override
     public void unload() {
 
-        dbConns.forEach((i, j) -> {
+        DB_CONNS.forEach((i, j) -> {
             try {
                 j.close();
             } catch (SQLException e) {
@@ -105,7 +105,7 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadLang() {
-        langManager = new LangManager(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, this.getClass());
+        langManager = new LangManager(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, DiscordLocale.CHINESE_TAIWAN, this.getClass());
 
         langMap = langManager.readLangFileDataMap();
     }
@@ -127,8 +127,8 @@ public class Main extends PluginEvent {
 
     @Override
     public void onReady(ReadyEvent event) {
-        manager.init();
-        buttonSystem = new ButtonSystem(langManager, manager);
+        MANAGER.init();
+        buttonSystem = new ButtonSystem(langManager, MANAGER);
     }
 
     @Override
@@ -195,7 +195,7 @@ public class Main extends PluginEvent {
         messageStr = getMessageOrEmbed(event.getMessage());
 
         try {
-            Connection conn = dbConns.getOrDefault(guildID, DriverManager.getConnection(
+            Connection conn = DB_CONNS.getOrDefault(guildID, DriverManager.getConnection(
                     "jdbc:sqlite:" + ROOT_PATH + "/" + PATH_FOLDER_NAME + "/data/" + guildID + ".db"
             ));
 
@@ -234,7 +234,7 @@ public class Main extends PluginEvent {
         long channelID = event.getChannel().getIdLong();
 
         try {
-            Connection conn = dbConns.getOrDefault(guildID, DriverManager.getConnection(
+            Connection conn = DB_CONNS.getOrDefault(guildID, DriverManager.getConnection(
                     "jdbc:sqlite:" + ROOT_PATH + "/" + PATH_FOLDER_NAME + "/data/" + guildID + ".db"
             ));
 
@@ -257,7 +257,7 @@ public class Main extends PluginEvent {
             rs.close();
             stmt.close();
 
-            manager.channelSettings.getOrDefault(guildID, new HashMap<>()).forEach(
+            MANAGER.channelSettings.getOrDefault(guildID, new HashMap<>()).forEach(
                     (i, j) -> {
                         if (j.contains(channelID, ChannelSetting.DetectType.UPDATE)) {
                             GuildChannel sendChannel = event.getGuild().getGuildChannelById(i);
@@ -301,7 +301,7 @@ public class Main extends PluginEvent {
         long channelID = event.getChannel().getIdLong();
 
         try {
-            Connection conn = dbConns.getOrDefault(guildID, DriverManager.getConnection(
+            Connection conn = DB_CONNS.getOrDefault(guildID, DriverManager.getConnection(
                     "jdbc:sqlite:" + ROOT_PATH + "/" + PATH_FOLDER_NAME + "/data/" + guildID + ".db"
             ));
 
@@ -326,7 +326,7 @@ public class Main extends PluginEvent {
             rs.close();
             stmt.close();
 
-            manager.channelSettings.getOrDefault(guildID, new HashMap<>()).forEach(
+            MANAGER.channelSettings.getOrDefault(guildID, new HashMap<>()).forEach(
                     (i, j) -> {
                         if (j.contains(channelID, ChannelSetting.DetectType.DELETE)) {
                             GuildChannel sendChannel = event.getGuild().getGuildChannelById(i);

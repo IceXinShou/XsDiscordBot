@@ -74,7 +74,7 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadLang() {
-        langManager = new LangManager(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, this.getClass());
+        langManager = new LangManager(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, DiscordLocale.CHINESE_TAIWAN, this.getClass());
 
         langMap = langManager.readLangFileDataMap();
     }
@@ -228,8 +228,11 @@ public class Main extends PluginEvent {
             ownGuild.addRoleToMember(member, role).queue();
         }
 
-        if (event.getGuild().getSelfMember().canInteract(member))
+        if (event.getGuild().getSelfMember().canInteract(member)) {
             member.modifyNickname(step.getNick()).queue();
+        }
+
+        logger.log("new member: " + step.getNick());
 
         TextChannel logChannel = ownGuild.getTextChannelById(LOG_CHANNEL_ID);
         if (logChannel != null) {

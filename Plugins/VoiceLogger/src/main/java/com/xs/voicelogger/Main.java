@@ -36,6 +36,7 @@ public class Main extends PluginEvent {
     private Map<String, Map<DiscordLocale, String>> langMap; // Label, Local, Content
     private final JsonManager jsonManager = new JsonManager();
     private ButtonSystem buttonSystem;
+    private final DiscordLocale defaultLocal = DiscordLocale.CHINESE_TAIWAN;
 
     public Main() {
         super(true);
@@ -57,7 +58,7 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadLang() {
-        langManager = new LangManager(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, this.getClass());
+        langManager = new LangManager(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, DiscordLocale.CHINESE_TAIWAN, this.getClass());
 
         langMap = langManager.readLangFileDataMap();
     }
@@ -138,12 +139,16 @@ public class Main extends PluginEvent {
     @Override
     public void onGuildVoiceUpdate(GuildVoiceUpdateEvent event) {
         DiscordLocale local = event.getGuild().getLocale();
+        if (local.equals(DiscordLocale.UNKNOWN))
+            local = defaultLocal;
+
         AudioChannelUnion joinChannel = event.getChannelJoined();
         AudioChannelUnion leftChannel = event.getChannelLeft();
         Member member = event.getMember();
         long guildID = event.getGuild().getIdLong();
 
         if (leftChannel != null) { // left
+            DiscordLocale finalLocal = local;
             jsonManager.channelSettings.getOrDefault(guildID, new HashMap<>()).forEach(
                     (i, j) -> {
                         if (j.contains(leftChannel.getIdLong())) {
@@ -156,8 +161,8 @@ public class Main extends PluginEvent {
                                 EmbedBuilder builder = new EmbedBuilder()
                                         .setAuthor(member.getEffectiveName() + (member.getNickname() != null ?
                                                 (" (" + member.getUser().getAsTag() + ')') : ""), null, member.getEffectiveAvatarUrl())
-                                        .setTitle(langManager.get("runtime;log;left;title", local).replace("%channel_name%", title))
-                                        .setFooter(langManager.get("runtime;log;left;footer", local))
+                                        .setTitle(langManager.get("runtime;log;left;title", finalLocal).replace("%channel_name%", title))
+                                        .setFooter(langManager.get("runtime;log;left;footer", finalLocal))
                                         .setTimestamp(OffsetDateTime.now())
                                         .setColor(0xff5151);
 
@@ -169,6 +174,7 @@ public class Main extends PluginEvent {
         }
 
         if (joinChannel != null) { // join
+            DiscordLocale finalLocal = local;
             jsonManager.channelSettings.getOrDefault(guildID, new HashMap<>()).forEach(
                     (i, j) -> {
                         if (j.contains(joinChannel.getIdLong())) {
@@ -181,8 +187,8 @@ public class Main extends PluginEvent {
                                 EmbedBuilder builder = new EmbedBuilder()
                                         .setAuthor(member.getEffectiveName() + (member.getNickname() != null ?
                                                 (" (" + member.getUser().getAsTag() + ')') : ""), null, member.getEffectiveAvatarUrl())
-                                        .setTitle(langManager.get("runtime;log;join;title", local).replace("%channel_name%", title))
-                                        .setFooter(langManager.get("runtime;log;join;footer", local))
+                                        .setTitle(langManager.get("runtime;log;join;title", finalLocal).replace("%channel_name%", title))
+                                        .setFooter(langManager.get("runtime;log;join;footer", finalLocal))
                                         .setTimestamp(OffsetDateTime.now())
                                         .setColor(0x34E000);
 
