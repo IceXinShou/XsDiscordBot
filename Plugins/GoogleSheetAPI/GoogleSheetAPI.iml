@@ -22,6 +22,6 @@
     <orderEntry type="module" module-name="XsDiscordBotLoader.main" />
     <orderEntry type="library" name="Gradle: org.jetbrains:annotations:13.0" level="project" />
     <orderEntry type="library" name="Gradle: org.yaml:snakeyaml:1.33" level="project" />
-    <orderEntry type="library" name="Gradle: net.dv8tion:JDA:5.0.0-beta.9" level="project" />
+    <orderEntry type="library" name="Gradle: net.dv8tion:JDA:5.0.0-beta.10" level="project" />
   </component>
 </module>

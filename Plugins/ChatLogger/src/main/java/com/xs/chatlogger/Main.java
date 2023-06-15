@@ -210,6 +210,7 @@ public class Main extends PluginEvent {
                         channelID
                 ));
             }
+            stmt.close();
 
             String insert = String.format("INSERT INTO '" +
                     "%d' VALUES (?, ?, ?)", channelID);
@@ -218,8 +219,6 @@ public class Main extends PluginEvent {
             createMessage.setLong(2, userID);
             createMessage.setString(3, messageStr);
             createMessage.executeUpdate();
-
-            stmt.close();
         } catch (SQLException e) {
             sqlErrorPrinter(e);
         }

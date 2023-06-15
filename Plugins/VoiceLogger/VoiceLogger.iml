@@ -13,6 +13,6 @@
     <orderEntry type="library" name="Gradle: org.json:json:20220924" level="project" />
     <orderEntry type="module" module-name="com.xs.loader.XsDiscordBotLoader.main" />
     <orderEntry type="library" name="Gradle: org.yaml:snakeyaml:1.33" level="project" />
-    <orderEntry type="library" name="Gradle: net.dv8tion:JDA:5.0.0-beta.9" level="project" />
+    <orderEntry type="library" name="Gradle: net.dv8tion:JDA:5.0.0-beta.10" level="project" />
   </component>
 </module>
