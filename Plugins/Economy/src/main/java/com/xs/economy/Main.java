@@ -11,7 +11,6 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
-import net.dv8tion.jda.api.events.user.update.UserUpdateDiscriminatorEvent;
 import net.dv8tion.jda.api.events.user.update.UserUpdateGlobalNameEvent;
 import net.dv8tion.jda.api.events.user.update.UserUpdateNameEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
@@ -261,7 +260,7 @@ public class Main extends PluginEvent {
                         return;
                     }
 
-                    EmbedBuilder builder = fieldGetter(moneyBoard, true, event.getGuild());
+                    EmbedBuilder builder = fieldGetter(totalBoard, false, event.getGuild());
                     event.getHook().editOriginalEmbeds(builder
                             .setTitle(langManager.get("runtime;money_history_board_title", local))
                             .setColor(0x00FFFF)
