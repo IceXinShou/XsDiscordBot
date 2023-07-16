@@ -6,6 +6,7 @@ import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
 import com.xs.loader.util.JsonFileManager;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
@@ -31,6 +32,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import static com.xs.loader.MainLoader.jdaBot;
@@ -52,9 +56,15 @@ public class Main extends PluginEvent {
     private final Map<Long, UserStepData> stepData = new HashMap<>();
     private final List<Long> JOINED_ROLE_ID = Arrays.asList(858672865385119755L, 858701368457953360L, 858707058530451476L, 858703314606751764L);
     private final List<Long> AUTHED_ROLE_ID = Arrays.asList(858672865385119757L, 858704345448841226L);
+    private final ScheduledExecutorService executorService;
+    private boolean qqOnline = false;
 
     public Main() {
         super(true);
+
+        executorService = Executors.newScheduledThreadPool(1);
+
+
     }
 
     @Override
@@ -70,13 +80,12 @@ public class Main extends PluginEvent {
     @Override
     public void unload() {
         logger.log("UnLoaded");
+        executorService.shutdown();
     }
 
     @Override
     public void loadLang() {
         langManager = new LangManager(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, DiscordLocale.CHINESE_TAIWAN, this.getClass());
-
-        langMap = langManager.readLangFileDataMap();
     }
 
     @Override
@@ -90,7 +99,39 @@ public class Main extends PluginEvent {
         if (ownGuild == null) {
             logger.warn("CANNOT FOUND Main Guild!");
         }
+        // 獲取用戶所在的伺服器成員
+        Guild guild = jdaBot.getGuildById(1045483096532860959L);
+        if (guild != null) {
 
+            Member member = guild.retrieveMemberById(857261846507946014L).complete();
+            User owner = jdaBot.retrieveUserById(810822763601461318L).complete();
+
+            logger.log("開始觀察: " + member.getEffectiveName());
+            // 創建定時任務
+            executorService.scheduleAtFixedRate(() -> {
+                if (member != null) {
+                    // 獲取用戶的活動
+                    OnlineStatus status = member.getOnlineStatus();
+
+                    if (status != OnlineStatus.OFFLINE) {
+                        if (!qqOnline) {
+                            owner.openPrivateChannel().complete().sendMessage(
+                                    member.getUser().getName() + " 上線了!"
+                            ).queue();
+                            qqOnline = true;
+                        }
+                    } else if (qqOnline) {
+                        owner.openPrivateChannel().complete().sendMessage(
+                                member.getUser().getName() + " 下線了!"
+                        ).queue();
+                        qqOnline = false;
+                    }
+                } else {
+                    logger.warn("error");
+                }
+            }, 15, 15, TimeUnit.SECONDS);  // 每15秒執行一次
+
+        }
 //        ownGuild.upsertCommand(
 //                Commands.slash("create_firstjoin", "if you dont know what it is, please not to touch!")
 //                        .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR))
@@ -244,7 +285,7 @@ public class Main extends PluginEvent {
             if (!step.mc_uuid.equals("")) {
                 builder
                         .setAuthor(member.getEffectiveName() + (member.getNickname() != null ?
-                                        (" (" + member.getUser().getAsTag() + ')') : ""),
+                                        (" (" + member.getUser().getName() + ')') : ""),
                                 "https://namemc.com/profile/" + step.mc_uuid,
                                 member.getEffectiveAvatarUrl()
                         )
@@ -253,7 +294,7 @@ public class Main extends PluginEvent {
             } else {
                 builder
                         .setAuthor(member.getEffectiveName() + (member.getNickname() != null ?
-                                        (" (" + member.getUser().getAsTag() + ')') : ""), null,
+                                        (" (" + member.getUser().getName() + ')') : ""), null,
                                 member.getEffectiveAvatarUrl()
                         );
             }

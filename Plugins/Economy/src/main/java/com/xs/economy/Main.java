@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.events.user.update.UserUpdateDiscriminatorEvent;
+import net.dv8tion.jda.api.events.user.update.UserUpdateGlobalNameEvent;
 import net.dv8tion.jda.api.events.user.update.UserUpdateNameEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
@@ -78,7 +79,7 @@ public class Main extends PluginEvent {
     public void loadLang() {
         langManager = new LangManager(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, DiscordLocale.CHINESE_TAIWAN, this.getClass());
 
-        langMap = langManager.readLangFileDataMap();
+        langMap = langManager.getMap();
     }
 
     @Override
@@ -208,7 +209,7 @@ public class Main extends PluginEvent {
             userData.put(Long.parseLong(i), new UserData(Long.parseLong(i), object.getInt("money"), object.getInt("total")));
             try {
                 user = getUserById(Long.parseLong(i));
-                nameCache.put(Long.parseLong(i), user.getAsTag());
+                nameCache.put(Long.parseLong(i), user.getName());
             } catch (ErrorResponseException e) {
                 nameCache.put(Long.parseLong(i), "unknown (" + i + ')');
             }
@@ -225,16 +226,16 @@ public class Main extends PluginEvent {
             switch (event.getName()) {
                 case "money": {
                     User user = getUserID(event);
-                    checkData(user.getIdLong(), user.getAsTag());
-                    event.getHook().editOriginalEmbeds(createEmbed(user.getAsTag(),
+                    checkData(user.getIdLong(), user.getName());
+                    event.getHook().editOriginalEmbeds(createEmbed(user.getName(),
                             userData.get(user.getIdLong()).get() + " $", 0x00FFFF)).queue();
                     break;
                 }
 
                 case "money_log": {
                     User user = getUserID(event);
-                    checkData(user.getIdLong(), user.getAsTag());
-                    event.getHook().editOriginalEmbeds(createEmbed(user.getAsTag(),
+                    checkData(user.getIdLong(), user.getName());
+                    event.getHook().editOriginalEmbeds(createEmbed(user.getName(),
                             userData.get(user.getIdLong()).getTotal() + " $", 0x00FFFF)).queue();
                     break;
                 }
@@ -277,9 +278,9 @@ public class Main extends PluginEvent {
 
                     User user = getUserID(event);
                     int value = event.getOption("value").getAsInt();
-                    checkData(user.getIdLong(), user.getAsTag());
+                    checkData(user.getIdLong(), user.getName());
                     userData.get(user.getIdLong()).add(value);
-                    event.getHook().editOriginalEmbeds(createEmbed(user.getAsTag(),
+                    event.getHook().editOriginalEmbeds(createEmbed(user.getName(),
                             langManager.get("runtime;current_money", local).replace("%money%", userData.get(user.getIdLong()).get() + " $"), 0x00FFFF)).queue();
 
                     JSONObject object = manager.getOrDefault(user.getId());
@@ -307,9 +308,9 @@ public class Main extends PluginEvent {
 
                     User user = getUserID(event);
                     int value = event.getOption("value").getAsInt();
-                    checkData(user.getIdLong(), user.getAsTag());
+                    checkData(user.getIdLong(), user.getName());
                     userData.get(user.getIdLong()).remove(value);
-                    event.getHook().editOriginalEmbeds(createEmbed(user.getAsTag(),
+                    event.getHook().editOriginalEmbeds(createEmbed(user.getName(),
                             langManager.get("runtime;current_money", local).replace("%money%", userData.get(user.getIdLong()).get() + " $"), 0x00FFFF)).queue();
 
                     JSONObject object = manager.getOrDefault(user.getId());
@@ -331,9 +332,9 @@ public class Main extends PluginEvent {
 
                     User user = getUserID(event);
                     int value = event.getOption("value").getAsInt();
-                    checkData(user.getIdLong(), user.getAsTag());
+                    checkData(user.getIdLong(), user.getName());
                     userData.get(user.getIdLong()).set(value);
-                    event.getHook().editOriginalEmbeds(createEmbed(user.getAsTag(),
+                    event.getHook().editOriginalEmbeds(createEmbed(user.getName(),
                             langManager.get("runtime;current_money", local).replace("%money%", userData.get(user.getIdLong()).get() + " $"), 0x00FFFF)).queue();
 
                     manager.getOrDefault(user.getId()).put("money", value);
@@ -349,9 +350,9 @@ public class Main extends PluginEvent {
 
                     User user = getUserID(event);
                     int value = event.getOption("value").getAsInt();
-                    checkData(user.getIdLong(), user.getAsTag());
+                    checkData(user.getIdLong(), user.getName());
                     userData.get(user.getIdLong()).addTotal(value);
-                    event.getHook().editOriginalEmbeds(createEmbed(user.getAsTag(),
+                    event.getHook().editOriginalEmbeds(createEmbed(user.getName(),
                             langManager.get("runtime;current_money_history", local).replace("%log_money%", userData.get(user.getIdLong()).getTotal() + " $"), 0x00FFFF)).queue();
 
                     JSONObject object = manager.getOrDefault(user.getId());
@@ -373,9 +374,9 @@ public class Main extends PluginEvent {
 
                     User user = getUserID(event);
                     int value = event.getOption("value").getAsInt();
-                    checkData(user.getIdLong(), user.getAsTag());
+                    checkData(user.getIdLong(), user.getName());
                     userData.get(user.getIdLong()).removeTotal(value);
-                    event.getHook().editOriginalEmbeds(createEmbed(user.getAsTag(),
+                    event.getHook().editOriginalEmbeds(createEmbed(user.getName(),
                             langManager.get("runtime;current_money_history", local).replace("%log_money%",
                                     userData.get(user.getIdLong()).getTotal() + " $"), 0x00FFFF)).queue();
 
@@ -399,9 +400,9 @@ public class Main extends PluginEvent {
 
                     User user = getUserID(event);
                     int value = event.getOption("value").getAsInt();
-                    checkData(user.getIdLong(), user.getAsTag());
+                    checkData(user.getIdLong(), user.getName());
                     userData.get(user.getIdLong()).setTotal(value);
-                    event.getHook().editOriginalEmbeds(createEmbed(user.getAsTag(),
+                    event.getHook().editOriginalEmbeds(createEmbed(user.getName(),
                             langManager.get("runtime;current_money_history", local).replace("%log_money%", userData.get(user.getIdLong()).getTotal() + " $"), 0x00FFFF)).queue();
 
                     manager.getOrDefault(user.getId()).put("total", value);
@@ -414,13 +415,13 @@ public class Main extends PluginEvent {
     }
 
     @Override
-    public void onUserUpdateName(UserUpdateNameEvent event) {
-        nameCache.put(event.getUser().getIdLong(), event.getUser().getAsTag());
+    public void onUserUpdateGlobalName(UserUpdateGlobalNameEvent event) {
+        nameCache.put(event.getUser().getIdLong(), event.getUser().getName());
     }
 
     @Override
-    public void onUserUpdateDiscriminator(UserUpdateDiscriminatorEvent event) {
-        nameCache.put(event.getUser().getIdLong(), event.getUser().getAsTag());
+    public void onUserUpdateName(UserUpdateNameEvent event) {
+        nameCache.put(event.getUser().getIdLong(), event.getUser().getName());
     }
 
     User getUserID(SlashCommandInteractionEvent event) {
@@ -453,7 +454,7 @@ public class Main extends PluginEvent {
             } else {
                 Member member = guild.retrieveMemberById(id).complete();
                 if (member != null) {
-                    nameCache.put(id, (name = member.getUser().getAsTag()));
+                    nameCache.put(id, (name = member.getUser().getName()));
                 } else {
                     logger.warn("cannot found member by id: " + id);
                     name = "unknown";

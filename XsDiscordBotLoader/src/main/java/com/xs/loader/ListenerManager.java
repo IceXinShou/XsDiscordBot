@@ -34,13 +34,13 @@ public class ListenerManager extends ListenerAdapter {
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         event.deferReply(true).queue();
 
-        logger.log(event.getUser().getAsTag() + ": " + event.getCommandString());
+        logger.log(event.getUser().getName() + ": " + event.getCommandString());
     }
 
     @Override
     public void onMessageContextInteraction(MessageContextInteractionEvent event) {
         event.deferReply(true).queue();
 
-        logger.log(event.getUser().getAsTag() + ": " + event.getCommandString());
+        logger.log(event.getUser().getName() + ": " + event.getCommandString());
     }
 }

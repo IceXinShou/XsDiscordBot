@@ -60,7 +60,7 @@ public class Main extends PluginEvent {
     public void loadLang() {
         langManager = new LangManager(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, DiscordLocale.CHINESE_TAIWAN, this.getClass());
 
-        langMap = langManager.readLangFileDataMap();
+        langMap = langManager.getMap();
     }
 
     @Override
@@ -158,7 +158,7 @@ public class Main extends PluginEvent {
 
                                 EmbedBuilder builder = new EmbedBuilder()
                                         .setAuthor(member.getEffectiveName() + (member.getNickname() != null ?
-                                                (" (" + member.getUser().getAsTag() + ')') : ""), null, member.getEffectiveAvatarUrl())
+                                                (" (" + member.getUser().getName() + ')') : ""), null, member.getEffectiveAvatarUrl())
                                         .setTitle(langManager.get("runtime;log;left;title", local).replace("%channel_name%", title))
                                         .setFooter(langManager.get("runtime;log;left;footer", local))
                                         .setTimestamp(OffsetDateTime.now())
@@ -183,7 +183,7 @@ public class Main extends PluginEvent {
 
                                 EmbedBuilder builder = new EmbedBuilder()
                                         .setAuthor(member.getEffectiveName() + (member.getNickname() != null ?
-                                                (" (" + member.getUser().getAsTag() + ')') : ""), null, member.getEffectiveAvatarUrl())
+                                                (" (" + member.getUser().getName() + ')') : ""), null, member.getEffectiveAvatarUrl())
                                         .setTitle(langManager.get("runtime;log;join;title", local).replace("%channel_name%", title))
                                         .setFooter(langManager.get("runtime;log;join;footer", local))
                                         .setTimestamp(OffsetDateTime.now())

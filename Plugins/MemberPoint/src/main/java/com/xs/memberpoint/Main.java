@@ -73,7 +73,7 @@ public class Main extends PluginEvent {
     public void loadLang() {
         langManager = new LangManager(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, DiscordLocale.CHINESE_TAIWAN, this.getClass());
 
-        langMap = langManager.readLangFileDataMap();
+        langMap = langManager.getMap();
     }
 
     @Override
@@ -179,7 +179,7 @@ public class Main extends PluginEvent {
                 case "point": {
                     User user = getUser(event);
                     loadSheet();
-                    event.getHook().editOriginalEmbeds(createEmbed(user.getAsTag(),
+                    event.getHook().editOriginalEmbeds(createEmbed(user.getName(),
                             String.valueOf(userData.get(user.getIdLong()) == null ? 0 : userData.get(user.getIdLong())), 0x00FFFF)).queue();
                     break;
                 }
@@ -196,7 +196,7 @@ public class Main extends PluginEvent {
                     value += userData.getOrDefault(user.getIdLong(), 0);
                     userData.put(user.getIdLong(), value);
                     update(user.getIdLong(), value);
-                    event.getHook().editOriginalEmbeds(createEmbed(user.getAsTag(),
+                    event.getHook().editOriginalEmbeds(createEmbed(user.getName(),
                             langManager.get("runtime;current_point", local).replace("%point%", String.valueOf(value)), 0x00FFFF)).queue();
                     break;
                 }
@@ -214,7 +214,7 @@ public class Main extends PluginEvent {
                     userData.put(user.getIdLong(), value);
                     update(user.getIdLong(), value);
 
-                    event.getHook().editOriginalEmbeds(createEmbed(user.getAsTag(),
+                    event.getHook().editOriginalEmbeds(createEmbed(user.getName(),
                             langManager.get("runtime;current_point", local).replace("%point%", String.valueOf(value)), 0x00FFFF)).queue();
 
                     break;
@@ -233,7 +233,7 @@ public class Main extends PluginEvent {
                     userData.put(user.getIdLong(), value);
                     update(user.getIdLong(), value);
 
-                    event.getHook().editOriginalEmbeds(createEmbed(user.getAsTag(),
+                    event.getHook().editOriginalEmbeds(createEmbed(user.getName(),
                             langManager.get("runtime;current_point", local).replace("%point%", String.valueOf(value)), 0x00FFFF)).queue();
                     break;
                 }

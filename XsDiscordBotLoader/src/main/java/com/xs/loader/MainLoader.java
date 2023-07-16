@@ -368,6 +368,7 @@ public class MainLoader {
                         }
                         break;
 
+                    case "close":
                     case "stop":
                         for (Object listener : jdaBot.getRegisteredListeners()) {
                             jdaBot.removeEventListener(listener);

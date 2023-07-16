@@ -13,38 +13,42 @@ import java.util.Map;
 public class LangManager {
     private final Map<String, Map<DiscordLocale, String>> langMap = new HashMap<>();
     private final String FOLDER_PATH;
-    private final Logger LOGGER;
+    private final Logger logger;
     private final String[] DEFAULT_LANGS;
     private final DiscordLocale DEFAULT_LOCAL;
-    private final FileGetter GETTER;
+    private final FileGetter getter;
     private final Class<?> FROM_CLASS;
 
     public LangManager(String tag, FileGetter getter, String pathFolderName, String[] defaultLangs, DiscordLocale defaultLocal, final Class<?> fromClass) {
-        LOGGER = new Logger(tag);
+        logger = new Logger(tag);
         this.FOLDER_PATH = MainLoader.ROOT_PATH + "/" + pathFolderName + "/Lang";
-        this.GETTER = getter;
+        this.getter = getter;
         this.DEFAULT_LANGS = defaultLangs;
-        DEFAULT_LOCAL = defaultLocal;
+        this.DEFAULT_LOCAL = defaultLocal;
         this.FROM_CLASS = fromClass;
 
         new File(FOLDER_PATH).mkdirs();
         exportDefaultLang();
+        init();
     }
 
-    public Map<String, Map<DiscordLocale, String>> readLangFileDataMap() {
+    private void init() {
         for (File i : new File(FOLDER_PATH).listFiles()) {
             DiscordLocale local = DiscordLocale.from(i.getName().replaceAll("\\.\\w+$", ""));
             if (local == DiscordLocale.UNKNOWN) {
-                LOGGER.warn("Cannot find discord locate by file: " + i.getAbsolutePath() + "");
+                logger.warn("Cannot find discord locate by file: " + i.getAbsolutePath() + "");
                 continue;
             }
 
             try {
-                readLang(GETTER.readFileMapByPath(i.toPath()), "", local);
+                readLang(getter.readFileMapByPath(i.toPath()), "", local);
             } catch (Exception e) {
-                LOGGER.warn(e.getMessage());
+                logger.warn(e.getMessage());
             }
         }
+    }
+
+    public Map<String, Map<DiscordLocale, String>> getMap() {
         return langMap;
     }
 
@@ -70,7 +74,7 @@ public class LangManager {
             if (lang_file.exists()) continue;
 
             // export is not exist
-            GETTER.exportResource("lang/" + fileName, "/Lang/" + fileName);
+            getter.exportResource("lang/" + fileName, "/Lang/" + fileName);
         }
     }
 

@@ -74,7 +74,7 @@ public class Main extends PluginEvent {
     public void loadLang() {
         langManager = new LangManager(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, DiscordLocale.CHINESE_TAIWAN, this.getClass());
 
-        langMap = langManager.readLangFileDataMap();
+        langMap = langManager.getMap();
     }
 
     private Pair<Long, Long> getDataFromSheet(String s) {

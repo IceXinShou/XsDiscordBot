@@ -70,7 +70,7 @@ public class Main extends PluginEvent {
     public void loadLang() {
         langManager = new LangManager(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, DiscordLocale.CHINESE_TAIWAN, this.getClass());
 
-        langMap = langManager.readLangFileDataMap();
+        langMap = langManager.getMap();
     }
 
     @Override
@@ -108,7 +108,7 @@ public class Main extends PluginEvent {
 
         long authorID = event.getAuthor().getIdLong();
         EmbedBuilder builder = new EmbedBuilder()
-                .setAuthor(event.getAuthor().getAsTag() + " (" + authorID + ")",
+                .setAuthor(event.getAuthor().getName() + " (" + authorID + ")",
                         null, event.getAuthor().getAvatarUrl())
                 .setDescription(event.getMessage().getContentRaw())
                 .setTimestamp(OffsetDateTime.now())
@@ -214,7 +214,7 @@ public class Main extends PluginEvent {
         }
 
         EmbedBuilder builder = new EmbedBuilder()
-                .setAuthor(event.getUser().getAsTag() + " (" + event.getUser().getId() + ')',
+                .setAuthor(event.getUser().getName() + " (" + event.getUser().getId() + ')',
                         null, event.getUser().getAvatarUrl())
                 .setTitle(titleMap.getAsString())
                 .setTimestamp(OffsetDateTime.now())

@@ -107,7 +107,7 @@ public class Main extends PluginEvent {
     public void loadLang() {
         langManager = new LangManager(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, DiscordLocale.CHINESE_TAIWAN, this.getClass());
 
-        langMap = langManager.readLangFileDataMap();
+        langMap = langManager.getMap();
     }
 
     @Override
@@ -267,7 +267,7 @@ public class Main extends PluginEvent {
                                         (removeChannel.getName()) :
                                         (removeChannel.getParentCategory().getName() + " > " + removeChannel.getName());
                                 EmbedBuilder builder = new EmbedBuilder()
-                                        .setAuthor(getNickOrTag(sender, event.getGuild()), null, sender.getAvatarUrl())
+                                        .setAuthor(getNickOrName(sender, event.getGuild()), null, sender.getAvatarUrl())
                                         .setTitle(title)
                                         .addField("Before", beforeMessageStr, false)
                                         .addBlankField(false)
@@ -336,7 +336,7 @@ public class Main extends PluginEvent {
                                         (removeChannel.getName()) :
                                         (removeChannel.getParentCategory().getName() + " > " + removeChannel.getName());
                                 EmbedBuilder builder = new EmbedBuilder()
-                                        .setAuthor(getNickOrTag(messageSender, event.getGuild()), null, messageSender.getAvatarUrl())
+                                        .setAuthor(getNickOrName(messageSender, event.getGuild()), null, messageSender.getAvatarUrl())
                                         .setTitle(title)
                                         .setDescription(messageStr)
                                         .setFooter("刪除訊息")

@@ -21,12 +21,12 @@ public class GlobalUtil {
         return null;
     }
 
-    public static String getNickOrTag(User user, Guild guild) {
+    public static String getNickOrName(User user, Guild guild) {
         Member member;
         if ((member = guild.retrieveMemberById(user.getIdLong()).complete()) == null || member.getNickname() == null) {
-            return user.getAsTag();
+            return user.getName();
         }
 
-        return member.getNickname() + " (" + user.getAsTag() + ')';
+        return member.getNickname() + " (" + user.getName() + ')';
     }
 }

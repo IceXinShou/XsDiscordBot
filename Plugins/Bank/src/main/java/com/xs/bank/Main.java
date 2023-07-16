@@ -68,7 +68,7 @@ public class Main extends PluginEvent {
     public void loadLang() {
         langManager = new LangManager(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, DiscordLocale.CHINESE_TAIWAN, this.getClass());
 
-        langMap = langManager.readLangFileDataMap();
+        langMap = langManager.getMap();
     }
 
     @Override
@@ -187,7 +187,7 @@ public class Main extends PluginEvent {
 
                 event.getHook().deleteOriginal().complete();
                 event.getChannel().sendMessageEmbeds(createEmbed(langManager.get("runtime;add_success", local)
-                                .replace("%user%", user.getAsTag())
+                                .replace("%user%", user.getName())
                                 .replace("%type%", type)
                                 .replace("%before_value%", String.valueOf(cur))
                                 .replace("%after_value%", String.valueOf(cur + value)),
@@ -216,7 +216,7 @@ public class Main extends PluginEvent {
 
                 event.getHook().deleteOriginal().complete();
                 event.getChannel().sendMessageEmbeds(createEmbed(langManager.get("runtime;remove_success", local)
-                                .replace("%user%", user.getAsTag())
+                                .replace("%user%", user.getName())
                                 .replace("%type%", type)
                                 .replace("%before_value%", String.valueOf(cur))
                                 .replace("%after_value%", String.valueOf(cur - value)),
@@ -258,7 +258,7 @@ public class Main extends PluginEvent {
                                     event.getChannel().sendMessageEmbeds(createEmbed(langManager.get("runtime;transfer_success", local)
                                                     .replace("%value%", String.valueOf(value))
                                                     .replace("%type%", type)
-                                                    .replace("%user%", toUser.getAsTag()),
+                                                    .replace("%user%", toUser.getName()),
                                             0x00FFFF)).queue();
                                 }));
                 break;
@@ -277,7 +277,7 @@ public class Main extends PluginEvent {
 
                 event.getHook().deleteOriginal().complete();
                 event.getChannel().sendMessageEmbeds(createEmbed(
-                        langManager.get("runtime;check_balance_title", local).replace("%user%", user.getAsTag()),
+                        langManager.get("runtime;check_balance_title", local).replace("%user%", user.getName()),
                         description.toString(),
                         0x00FFFF)
                 ).queue();
