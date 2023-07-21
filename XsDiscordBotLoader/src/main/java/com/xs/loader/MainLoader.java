@@ -67,6 +67,7 @@ public class MainLoader {
                 .setMemberCachePolicy(MemberCachePolicy.ALL)
                 .enableCache(
                         CacheFlag.ONLINE_STATUS,
+                        CacheFlag.CLIENT_STATUS,
                         CacheFlag.ACTIVITY
                 )
                 .enableIntents(

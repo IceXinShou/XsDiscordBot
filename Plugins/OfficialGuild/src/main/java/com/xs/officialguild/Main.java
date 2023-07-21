@@ -7,10 +7,7 @@ import com.xs.loader.util.FileGetter;
 import com.xs.loader.util.JsonFileManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.OnlineStatus;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
@@ -101,36 +98,39 @@ public class Main extends PluginEvent {
         }
         // 獲取用戶所在的伺服器成員
         Guild guild = jdaBot.getGuildById(1045483096532860959L);
+        User owner = jdaBot.retrieveUserById(810822763601461318L).complete();
         if (guild != null) {
-
             Member member = guild.retrieveMemberById(857261846507946014L).complete();
-            User owner = jdaBot.retrieveUserById(810822763601461318L).complete();
+            if (member != null) {
+                logger.log("開始觀察: " + member.getEffectiveName());
+                // 創建定時任務
+                executorService.scheduleAtFixedRate(() -> {
 
-            logger.log("開始觀察: " + member.getEffectiveName());
-            // 創建定時任務
-            executorService.scheduleAtFixedRate(() -> {
-                if (member != null) {
+                    StringBuilder clientStringBuilder = new StringBuilder();
+
                     // 獲取用戶的活動
                     OnlineStatus status = member.getOnlineStatus();
+                    member.getActiveClients().forEach(i -> {
+                        clientStringBuilder.append(i.toString()).append(' ');
+                    });
 
                     if (status != OnlineStatus.OFFLINE) {
                         if (!qqOnline) {
                             owner.openPrivateChannel().complete().sendMessage(
-                                    member.getUser().getName() + " 上線了!"
+                                    member.getUser().getName() + " 上線了! (" + clientStringBuilder + ")"
                             ).queue();
                             qqOnline = true;
                         }
                     } else if (qqOnline) {
                         owner.openPrivateChannel().complete().sendMessage(
-                                member.getUser().getName() + " 下線了!"
+                                member.getUser().getName() + " 下線了! (" + clientStringBuilder + ")"
                         ).queue();
                         qqOnline = false;
                     }
-                } else {
-                    logger.warn("error");
-                }
-            }, 15, 15, TimeUnit.SECONDS);  // 每15秒執行一次
-
+                }, 0, 15, TimeUnit.SECONDS);  // 每15秒執行一次
+            } else {
+                logger.warn("error");
+            }
         }
 //        ownGuild.upsertCommand(
 //                Commands.slash("create_firstjoin", "if you dont know what it is, please not to touch!")
