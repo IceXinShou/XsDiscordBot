@@ -113,6 +113,10 @@ public class Main extends PluginEvent {
                     OnlineStatus status = member.getOnlineStatus();
 
                     if (status != OnlineStatus.OFFLINE) {
+                        clientStringBuilder = new StringBuilder();
+                        member.getActiveClients().forEach(i -> {
+                            clientStringBuilder.append(i.getKey()).append(' ');
+                        });
                         if (!qqOnline) {
                             owner.openPrivateChannel().complete().sendMessage(
                                     member.getUser().getName() + " 上線了! (" + clientStringBuilder + ")"
