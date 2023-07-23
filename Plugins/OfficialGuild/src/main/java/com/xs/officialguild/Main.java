@@ -55,6 +55,7 @@ public class Main extends PluginEvent {
     private final List<Long> AUTHED_ROLE_ID = Arrays.asList(858672865385119757L, 858704345448841226L);
     private final ScheduledExecutorService executorService;
     private boolean qqOnline = false;
+    private StringBuilder clientStringBuilder = new StringBuilder();
 
     public Main() {
         super(true);
@@ -106,13 +107,10 @@ public class Main extends PluginEvent {
                 // 創建定時任務
                 executorService.scheduleAtFixedRate(() -> {
 
-                    StringBuilder clientStringBuilder = new StringBuilder();
+
 
                     // 獲取用戶的活動
                     OnlineStatus status = member.getOnlineStatus();
-                    member.getActiveClients().forEach(i -> {
-                        clientStringBuilder.append(i.toString()).append(' ');
-                    });
 
                     if (status != OnlineStatus.OFFLINE) {
                         if (!qqOnline) {
@@ -127,6 +125,11 @@ public class Main extends PluginEvent {
                         ).queue();
                         qqOnline = false;
                     }
+
+                    clientStringBuilder = new StringBuilder();
+                    member.getActiveClients().forEach(i -> {
+                        clientStringBuilder.append(i.getKey()).append(' ');
+                    });
                 }, 0, 15, TimeUnit.SECONDS);  // 每15秒執行一次
             } else {
                 logger.warn("error");
