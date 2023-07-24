@@ -1,6 +1,6 @@
 package com.xs.googlesheetapi;
 
-import com.xs.loader.PluginEvent;
+import com.xs.loader.plugin.Event;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
 import org.yaml.snakeyaml.Yaml;
@@ -9,7 +9,7 @@ import org.yaml.snakeyaml.constructor.Constructor;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class Main extends PluginEvent {
+public class Main extends Event {
     public static MainConfig configFile;
     private FileGetter getter;
     private Logger logger;

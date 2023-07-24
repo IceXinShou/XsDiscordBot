@@ -1,6 +1,6 @@
-package com.xs.loader;
+package com.xs.loader.plugin;
 
-public class PluginConfig {
+public class Config {
     public String author;
     public String main;
     public String name;

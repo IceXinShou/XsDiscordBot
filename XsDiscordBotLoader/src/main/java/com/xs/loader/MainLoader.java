@@ -2,11 +2,16 @@ package com.xs.loader;
 
 import com.xs.loader.logger.Color;
 import com.xs.loader.logger.Logger;
+import com.xs.loader.plugin.ClassLoader;
+import com.xs.loader.plugin.Config;
+import com.xs.loader.plugin.Event;
+import com.xs.loader.plugin.Info;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
@@ -34,18 +39,19 @@ import static com.xs.loader.util.GlobalUtil.getExtensionName;
 
 public class MainLoader {
     public static JDA jdaBot;
+    public static User bot;
     public static long botID;
     private final List<CommandData> guildCommands = new ArrayList<>();
     private final List<CommandData> globalCommands = new ArrayList<>();
     public static final String ROOT_PATH = new File(System.getProperty("user.dir")).toString();
-    private final Queue<PluginEvent> listeners = new ArrayDeque<>();
+    private final Queue<Event> listeners = new ArrayDeque<>();
     private final Logger logger;
     private final String version = "v1.5";
     private String BOT_TOKEN;
     private MainConfig configFile;
     private final List<String> botStatus = new ArrayList<>();
-    private final Map<String, PluginInfo> plugins = new HashMap<>();
-    private final LinkedHashMap<String, PluginEvent> plugin_queue = new LinkedHashMap<>();
+    private final Map<String, Info> plugins = new HashMap<>();
+    private final LinkedHashMap<String, Event> plugin_queue = new LinkedHashMap<>();
     private ScheduledExecutorService threadPool;
     private static boolean ignore_version_check = false;
 
@@ -79,13 +85,12 @@ public class MainLoader {
                 );
 
         jdaBot = builder.build();
-        botID = jdaBot.getSelfUser().getIdLong();
+        bot = jdaBot.getSelfUser();
+        botID = bot.getIdLong();
 
-        ListenerManager listenerManager = new ListenerManager(guildCommands);
-
-        jdaBot.addEventListener(listenerManager);
-
-        while (!listeners.isEmpty()) jdaBot.addEventListener(listeners.poll());
+        jdaBot.addEventListener(new ListenerManager(guildCommands));
+        while (!listeners.isEmpty())
+            jdaBot.addEventListener(listeners.poll());
 
         jdaBot.updateCommands().addCommands(globalCommands).queue();
         setStatus();
@@ -105,14 +110,14 @@ public class MainLoader {
         logger.log("Version checking...");
 
         try {
-            url = new URL("https://github.com/IceLeiYu/XsDiscordBot/releases/latest");
+            url = new URL("https://github.com/IceXinShou/XsDiscordBot/releases/latest");
             HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
             conn.connect();
             conn.getInputStream().close();
             String tmp = conn.getURL().toString();
             latestVersion = tmp.substring(tmp.lastIndexOf('/') + 1);
             fileName = "XsDiscordBotLoader_" + latestVersion + ".jar";
-            downloadURL = new URL("https://github.com/IceLeiYu/XsDiscordBot/releases/download/" + latestVersion + '/' + fileName);
+            downloadURL = new URL("https://github.com/IceXinShou/XsDiscordBot/releases/download/" + latestVersion + '/' + fileName);
             conn.disconnect();
 
 
@@ -148,7 +153,7 @@ public class MainLoader {
             logger.warn("File Initialized failed");
     }
 
-    boolean loadPlugin(PluginInfo pluginInfo) {
+    boolean loadPlugin(Info pluginInfo) {
         if (pluginInfo.depend != null)
             for (String depend : pluginInfo.depend) {
                 // plugin list have depend
@@ -192,15 +197,15 @@ public class MainLoader {
                 if ((tmp = getExtensionName(file.getName())) == null || !tmp.equals("jar")) continue;
                 JarFile jarFile = new JarFile(file);
                 InputStream inputStream = jarFile.getInputStream(jarFile.getEntry("info.yml"));
-                PluginConfig config = new Yaml().loadAs(inputStream, PluginConfig.class);
+                Config config = new Yaml().loadAs(inputStream, Config.class);
 
                 if (!plugins.containsKey(config.name)) {
                     loader.addJar(file, config.main);
-                    plugins.put(config.name, new PluginInfo(
+                    plugins.put(config.name, new Info(
                                     config.name,
 
                                     // plugin
-                                    (PluginEvent) loader.getClass(config.main)
+                                    (Event) loader.getClass(config.main)
                                             .getDeclaredConstructor().newInstance(),
 
                                     // dependencies
@@ -225,7 +230,7 @@ public class MainLoader {
             }
         }
 
-        for (PluginInfo i : plugins.values()) {
+        for (Info i : plugins.values()) {
             // if added
             if (plugin_queue.containsKey(i.name)) continue;
 
@@ -236,7 +241,7 @@ public class MainLoader {
             }
         }
 
-        for (PluginEvent plugin : plugin_queue.values()) {
+        for (Event plugin : plugin_queue.values()) {
             plugin.initLoad();
 
             CommandData[] guildCommandsTmp;
@@ -252,7 +257,7 @@ public class MainLoader {
             if (plugin.listener) listeners.add(plugin);
         }
 
-        for (PluginEvent plugin : plugin_queue.values()) plugin.finishLoad();
+        for (Event plugin : plugin_queue.values()) plugin.finishLoad();
 
         if (fail > 0)
             logger.warn(fail + " Plugin(s) Loading Failed!");
@@ -315,6 +320,7 @@ public class MainLoader {
                 String[] cmd = scanner.nextLine().split(" ");
 
                 switch (cmd[0].toLowerCase()) {
+                    /* say <GuildID> */
                     case "dm":
                         jdaBot.retrieveUserById(cmd[1]).onSuccess(i -> {
                             i.openPrivateChannel(
@@ -330,10 +336,12 @@ public class MainLoader {
                         }).complete();
                         break;
 
+                    /* say <GuildID> <VoiceChannel> */
                     case "say":
                         jdaBot.getGuildById(cmd[1]).getTextChannelById(cmd[2]).sendMessage(cmd[3]).queue();
                         break;
 
+                    /* join <GuildID> <VoiceChannelID> */
                     case "join":
                         Guild guild = jdaBot.getGuildById(cmd[1]);
                         guild.getAudioManager().openAudioConnection(guild.getVoiceChannelById(cmd[2]));
@@ -375,9 +383,9 @@ public class MainLoader {
                             jdaBot.removeEventListener(listener);
                         }
 
-                        List<PluginEvent> stopPlugins = new ArrayList<>(plugin_queue.values());
+                        List<Event> stopPlugins = new ArrayList<>(plugin_queue.values());
                         Collections.reverse(stopPlugins);
-                        for (PluginEvent plugin : stopPlugins) {
+                        for (Event plugin : stopPlugins) {
                             plugin.unload();
                         }
 
@@ -392,12 +400,12 @@ public class MainLoader {
                     case "reload":
                         logger.log("Reloading...");
 
-                        List<PluginEvent> reloadPlugins = new ArrayList<>(plugin_queue.values());
+                        List<Event> reloadPlugins = new ArrayList<>(plugin_queue.values());
                         Collections.reverse(reloadPlugins);
-                        for (PluginEvent plugin : reloadPlugins) {
+                        for (Event plugin : reloadPlugins) {
                             plugin.unload();
                         }
-                        for (PluginEvent plugin : plugin_queue.values()) {
+                        for (Event plugin : plugin_queue.values()) {
                             plugin.initLoad();
                         }
 

@@ -1,6 +1,6 @@
 package com.xs.economy;
 
-import com.xs.loader.PluginEvent;
+import com.xs.loader.plugin.Event;
 import com.xs.loader.lang.LangManager;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
@@ -37,7 +37,7 @@ import static net.dv8tion.jda.api.Permission.ADMINISTRATOR;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.INTEGER;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.USER;
 
-public class Main extends PluginEvent {
+public class Main extends Event {
     private MainConfig configFile;
     private final Map<Long, String> nameCache = new HashMap<>();
     private final Map<Long, UserData> userData = new HashMap<>();

@@ -1,6 +1,6 @@
 package com.xs.poll;
 
-import com.xs.loader.PluginEvent;
+import com.xs.loader.plugin.Event;
 import com.xs.loader.lang.LangManager;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
@@ -33,7 +33,7 @@ import static com.xs.loader.util.EmbedCreator.createEmbed;
 import static net.dv8tion.jda.api.Permission.MANAGE_EVENTS;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.STRING;
 
-public class Main extends PluginEvent {
+public class Main extends Event {
 
     private MainConfig configFile;
     private LangManager langManager;

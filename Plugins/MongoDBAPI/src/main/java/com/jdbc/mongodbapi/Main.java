@@ -1,9 +1,9 @@
 package com.jdbc.mongodbapi;
 
-import com.xs.loader.PluginEvent;
+import com.xs.loader.plugin.Event;
 import com.xs.loader.logger.Logger;
 
-public class Main extends PluginEvent {
+public class Main extends Event {
     Logger logger;
     private static final String TAG = "MongoDBAPI";
 

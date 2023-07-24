@@ -1,6 +1,6 @@
 package com.xs.privatechannelmanager;
 
-import com.xs.loader.PluginEvent;
+import com.xs.loader.plugin.Event;
 import com.xs.loader.lang.LangManager;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
@@ -37,7 +37,7 @@ import java.util.Map;
 import static com.xs.loader.MainLoader.jdaBot;
 import static com.xs.loader.util.EmbedCreator.createEmbed;
 
-public class Main extends PluginEvent {
+public class Main extends Event {
     private MainConfig configFile;
     private LangManager langManager;
     private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};

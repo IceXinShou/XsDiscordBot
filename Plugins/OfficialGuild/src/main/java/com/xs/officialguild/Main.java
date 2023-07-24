@@ -1,6 +1,6 @@
 package com.xs.officialguild;
 
-import com.xs.loader.PluginEvent;
+import com.xs.loader.plugin.Event;
 import com.xs.loader.lang.LangManager;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
@@ -38,7 +38,7 @@ import static com.xs.loader.MainLoader.jdaBot;
 import static com.xs.loader.util.EmbedCreator.createEmbed;
 import static com.xs.loader.util.UrlDataGetter.getData;
 
-public class Main extends PluginEvent {
+public class Main extends Event {
     private LangManager langManager;
     private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
     private FileGetter getter;
@@ -234,7 +234,7 @@ public class Main extends PluginEvent {
 
         event.replyModal(
                 Modal.create("xs:og:set_chi", langManager.get("runtime;steps;chi;title", local))
-                        .addActionRows(ActionRow.of(chiInp))
+                        .addComponents(ActionRow.of(chiInp))
                         .build()
         ).queue();
     }
@@ -256,7 +256,7 @@ public class Main extends PluginEvent {
 
         event.replyModal(
                 Modal.create("xs:og:set_eng", langManager.get("runtime;steps;eng;title", local))
-                        .addActionRows(ActionRow.of(engInp), ActionRow.of(mcInp))
+                        .addComponents(ActionRow.of(engInp), ActionRow.of(mcInp))
                         .build()
         ).queue();
     }

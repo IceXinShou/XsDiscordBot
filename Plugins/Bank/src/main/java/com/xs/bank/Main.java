@@ -1,6 +1,6 @@
 package com.xs.bank;
 
-import com.xs.loader.PluginEvent;
+import com.xs.loader.plugin.Event;
 import com.xs.loader.lang.LangManager;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
@@ -31,7 +31,7 @@ import static net.dv8tion.jda.api.Permission.ADMINISTRATOR;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.INTEGER;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.USER;
 
-public class Main extends PluginEvent {
+public class Main extends Event {
     public static MainConfig configFile;
     private LangManager langManager;
     private final String[] LANG_DEFAULT = {"en-US", "zh-TW", "zh-CN"};
