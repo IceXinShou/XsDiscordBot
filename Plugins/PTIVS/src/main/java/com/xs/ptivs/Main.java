@@ -1,4 +1,4 @@
-package com.xs.ban;
+package com.xs.ptivs;
 
 import com.xs.loader.PluginEvent;
 import com.xs.loader.lang.LangGetter;
@@ -16,7 +16,6 @@ import java.util.Map;
 
 import static com.xs.loader.util.EmbedCreator.createEmbed;
 import static net.dv8tion.jda.api.Permission.ADMINISTRATOR;
-import static net.dv8tion.jda.api.Permission.BAN_MEMBERS;
 
 public class Main extends PluginEvent {
     private static final String TAG = "PTIVS";

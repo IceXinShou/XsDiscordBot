@@ -1,7 +1,7 @@
 package com.xs.loader.plugin;
 
 
-import com.xs.loader.MainLoader;
+import com.xs.loader.Loader;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -12,11 +12,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ClassLoader extends URLClassLoader {
-    public ClassLoader() {
-        super(new URL[0], MainLoader.class.getClassLoader());
-    }
-
     private final Map<String, URL> resourcePath = new HashMap<>();
+
+    public ClassLoader() {
+        super(new URL[0], Loader.class.getClassLoader());
+    }
 
     public void addJar(File file, String main) {
         try {

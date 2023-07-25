@@ -7,9 +7,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class ChannelSetting {
-    public boolean whitelistStat; // changeable
     public final Set<ListData> white = new HashSet<>();
     public final Set<ListData> black = new HashSet<>();
+    public boolean whitelistStat; // changeable
 
     public ChannelSetting() {
         this.whitelistStat = true;
@@ -58,15 +58,15 @@ public class ChannelSetting {
     }
 
     public static class ListData {
+        public final long detectID;
+        public final boolean update;
+        public final boolean delete;
+
         public ListData(long detectID, boolean update, boolean delete) {
             this.detectID = detectID;
             this.update = update;
             this.delete = delete;
         }
-
-        public final long detectID;
-        public final boolean update;
-        public final boolean delete;
 
         public boolean contains(long channelID, DetectType type) {
             if (detectID == channelID) {

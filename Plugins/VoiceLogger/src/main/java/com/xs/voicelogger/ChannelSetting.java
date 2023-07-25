@@ -8,9 +8,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class ChannelSetting {
-    public boolean whitelistStat; // changeable
     public final Set<Long> white = new HashSet<>();
     public final Set<Long> black = new HashSet<>();
+    public boolean whitelistStat; // changeable
 
     public ChannelSetting() {
         this.whitelistStat = true;

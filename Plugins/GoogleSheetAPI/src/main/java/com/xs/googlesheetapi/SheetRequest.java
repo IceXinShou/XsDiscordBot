@@ -28,12 +28,12 @@ import static com.xs.googlesheetapi.Main.configFile;
 public class SheetRequest {
     public final Sheets service;
     private final Logger logger;
-    private String sheetID = "";
-    private String sheetRange = "";
-    private List<List<Object>> data;
     private final List<String> SCOPES = Collections.singletonList(SheetsScopes.DRIVE);
     private final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
     private final MainConfig config;
+    private String sheetID = "";
+    private String sheetRange = "";
+    private List<List<Object>> data;
 
     public SheetRequest(Logger logger) throws IOException, GeneralSecurityException {
         this.logger = logger;

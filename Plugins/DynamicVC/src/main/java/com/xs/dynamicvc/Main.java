@@ -1,8 +1,8 @@
 package com.xs.dynamicvc;
 
-import com.xs.loader.plugin.Event;
 import com.xs.loader.lang.LangManager;
 import com.xs.loader.logger.Logger;
+import com.xs.loader.plugin.Event;
 import com.xs.loader.util.FileGetter;
 import com.xs.loader.util.JsonFileManager;
 import net.dv8tion.jda.api.entities.ISnowflake;
@@ -24,18 +24,18 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.xs.loader.MainLoader.ROOT_PATH;
+import static com.xs.loader.Loader.ROOT_PATH;
 import static com.xs.loader.util.EmbedCreator.createEmbed;
 import static net.dv8tion.jda.api.Permission.ADMINISTRATOR;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.CHANNEL;
 
 public class Main extends Event {
     private static final String TAG = "DynamicVC";
-    private LangManager langManager;
     private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
     private final String PATH_FOLDER_NAME = "plugins/DynamicVC";
     private final HashSet<Long> trackedChannel = new HashSet<>();
     private final HashSet<TrackedChannel> originChannel = new HashSet<>();
+    private LangManager langManager;
     private FileGetter getter;
     private Logger logger;
     private Map<String, Map<DiscordLocale, String>> langMap; // Label, Local, Content
@@ -84,7 +84,7 @@ public class Main extends Event {
 
     @Override
     public void loadLang() {
-        langManager = new LangManager(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, DiscordLocale.CHINESE_TAIWAN, this.getClass());
+        langManager = new LangManager(logger, getter, PATH_FOLDER_NAME, LANG_DEFAULT, DiscordLocale.CHINESE_TAIWAN);
 
         langMap = langManager.getMap();
     }

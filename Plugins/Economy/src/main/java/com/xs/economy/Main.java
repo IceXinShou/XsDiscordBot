@@ -1,8 +1,8 @@
 package com.xs.economy;
 
-import com.xs.loader.plugin.Event;
 import com.xs.loader.lang.LangManager;
 import com.xs.loader.logger.Logger;
+import com.xs.loader.plugin.Event;
 import com.xs.loader.util.FileGetter;
 import com.xs.loader.util.JsonFileManager;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -30,7 +30,7 @@ import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.xs.loader.MainLoader.ROOT_PATH;
+import static com.xs.loader.Loader.ROOT_PATH;
 import static com.xs.loader.util.EmbedCreator.createEmbed;
 import static com.xs.loader.util.GlobalUtil.getUserById;
 import static net.dv8tion.jda.api.Permission.ADMINISTRATOR;
@@ -38,19 +38,19 @@ import static net.dv8tion.jda.api.interactions.commands.OptionType.INTEGER;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.USER;
 
 public class Main extends Event {
-    private MainConfig configFile;
+    private static final String TAG = "Economy";
     private final Map<Long, String> nameCache = new HashMap<>();
     private final Map<Long, UserData> userData = new HashMap<>();
     private final List<UserData> moneyBoard = new ArrayList<>();
     private final List<UserData> totalBoard = new ArrayList<>();
-    private LangManager langManager;
     private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
+    private final String PATH_FOLDER_NAME = "plugins/Economy";
+    private final List<Long> ownerIDs = new ArrayList<>();
+    private MainConfig configFile;
+    private LangManager langManager;
     private FileGetter getter;
     private Logger logger;
-    private static final String TAG = "Economy";
-    private final String PATH_FOLDER_NAME = "plugins/Economy";
     private JsonFileManager manager;
-    private final List<Long> ownerIDs = new ArrayList<>();
     private int boardUserShowLimit;
     private Map<String, Map<DiscordLocale, String>> langMap; // Label, Local, Content
 
@@ -76,7 +76,7 @@ public class Main extends Event {
 
     @Override
     public void loadLang() {
-        langManager = new LangManager(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, DiscordLocale.CHINESE_TAIWAN, this.getClass());
+        langManager = new LangManager(logger, getter, PATH_FOLDER_NAME, LANG_DEFAULT, DiscordLocale.CHINESE_TAIWAN);
 
         langMap = langManager.getMap();
     }

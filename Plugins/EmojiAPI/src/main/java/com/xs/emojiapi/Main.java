@@ -1,7 +1,7 @@
 package com.xs.emojiapi;
 
-import com.xs.loader.plugin.Event;
 import com.xs.loader.logger.Logger;
+import com.xs.loader.plugin.Event;
 import com.xs.loader.util.FileGetter;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
@@ -14,16 +14,16 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.xs.loader.MainLoader.jdaBot;
+import static com.xs.loader.Loader.jdaBot;
 
 public class Main extends Event {
 
+    private static final String TAG = "EmojiAPI";
+    public static Map<String, Map<Long, Emoji>> emojis = new HashMap<>();
+    private final String PATH_FOLDER_NAME = "plugins/EmojiAPI";
     private MainConfig configFile;
     private FileGetter getter;
     private Logger logger;
-    private static final String TAG = "EmojiAPI";
-    private final String PATH_FOLDER_NAME = "plugins/EmojiAPI";
-    public static Map<String, Map<Long, Emoji>> emojis = new HashMap<>();
     private boolean setup = false;
 
     public Main() {

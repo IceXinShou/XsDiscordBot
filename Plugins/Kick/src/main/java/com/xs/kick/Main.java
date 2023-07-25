@@ -1,8 +1,8 @@
 package com.xs.kick;
 
-import com.xs.loader.plugin.Event;
 import com.xs.loader.lang.LangManager;
 import com.xs.loader.logger.Logger;
+import com.xs.loader.plugin.Event;
 import com.xs.loader.util.FileGetter;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -21,12 +21,12 @@ import static net.dv8tion.jda.api.interactions.commands.OptionType.STRING;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.USER;
 
 public class Main extends Event {
-    private LangManager langManager;
+    private static final String TAG = "Kick";
     private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
+    private final String PATH_FOLDER_NAME = "plugins/Kick";
+    private LangManager langManager;
     private FileGetter getter;
     private Logger logger;
-    private static final String TAG = "Kick";
-    private final String PATH_FOLDER_NAME = "plugins/Kick";
     private Map<String, Map<DiscordLocale, String>> langMap; // Label, Local, Content
 
     public Main() {
@@ -49,7 +49,7 @@ public class Main extends Event {
 
     @Override
     public void loadLang() {
-        langManager = new LangManager(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, DiscordLocale.CHINESE_TAIWAN, this.getClass());
+        langManager = new LangManager(logger, getter, PATH_FOLDER_NAME, LANG_DEFAULT, DiscordLocale.CHINESE_TAIWAN);
 
         langMap = langManager.getMap();
     }

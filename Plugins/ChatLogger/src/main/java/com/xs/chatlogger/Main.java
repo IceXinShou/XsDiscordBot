@@ -1,8 +1,8 @@
 package com.xs.chatlogger;
 
-import com.xs.loader.plugin.Event;
 import com.xs.loader.lang.LangManager;
 import com.xs.loader.logger.Logger;
+import com.xs.loader.plugin.Event;
 import com.xs.loader.util.FileGetter;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
@@ -35,21 +35,21 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.xs.loader.MainLoader.ROOT_PATH;
-import static com.xs.loader.MainLoader.jdaBot;
+import static com.xs.loader.Loader.ROOT_PATH;
+import static com.xs.loader.Loader.jdaBot;
 import static com.xs.loader.util.GlobalUtil.*;
 import static net.dv8tion.jda.api.Permission.ADMINISTRATOR;
 
 public class Main extends Event {
-    private LangManager langManager;
-    private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
-    private FileGetter getter;
-    private Logger logger;
     private static final String TAG = "ChatLogger";
+    private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
     private final String PATH_FOLDER_NAME = "plugins/ChatLogger";
-    private Map<String, Map<DiscordLocale, String>> langMap; // Label, Local, Content
     private final Map<Long, Connection> DB_CONNS = new HashMap<>();
     private final JsonManager MANAGER = new JsonManager();
+    private LangManager langManager;
+    private FileGetter getter;
+    private Logger logger;
+    private Map<String, Map<DiscordLocale, String>> langMap; // Label, Local, Content
     private ButtonSystem buttonSystem;
 
     public Main() {
@@ -76,7 +76,7 @@ public class Main extends Event {
         f.mkdirs();
 
         for (File i : f.listFiles()) {
-            String extensionName = getExtensionName(i.getName());
+            String extensionName = getExtensionByName(i.getName());
             if (extensionName == null || !extensionName.equals("db")) continue;
 
             try {
@@ -105,7 +105,7 @@ public class Main extends Event {
 
     @Override
     public void loadLang() {
-        langManager = new LangManager(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, DiscordLocale.CHINESE_TAIWAN, this.getClass());
+        langManager = new LangManager(logger, getter, PATH_FOLDER_NAME, LANG_DEFAULT, DiscordLocale.CHINESE_TAIWAN);
 
         langMap = langManager.getMap();
     }

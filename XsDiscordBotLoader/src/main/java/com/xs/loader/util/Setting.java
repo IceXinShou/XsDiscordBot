@@ -1,6 +1,6 @@
-package com.xs.loader;
+package com.xs.loader.util;
 
-public class MainConfig {
+public class Setting {
 
     public GeneralSettings GeneralSettings;
 

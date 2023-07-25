@@ -1,8 +1,8 @@
 package com.xs.poll;
 
-import com.xs.loader.plugin.Event;
 import com.xs.loader.lang.LangManager;
 import com.xs.loader.logger.Logger;
+import com.xs.loader.plugin.Event;
 import com.xs.loader.util.FileGetter;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -28,23 +28,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.xs.loader.MainLoader.jdaBot;
+import static com.xs.loader.Loader.jdaBot;
 import static com.xs.loader.util.EmbedCreator.createEmbed;
 import static net.dv8tion.jda.api.Permission.MANAGE_EVENTS;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.STRING;
 
 public class Main extends Event {
 
+    private static final String TAG = "Poll";
+    private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
+    private final String PATH_FOLDER_NAME = "plugins/Poll";
+    private final List<Emoji> votes = new ArrayList<>();
     private MainConfig configFile;
     private LangManager langManager;
-    private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
     private FileGetter getter;
     private Logger logger;
-    private static final String TAG = "Poll";
-    private final String PATH_FOLDER_NAME = "plugins/Poll";
     private Map<String, Map<DiscordLocale, String>> langMap; // Label, Local, Content
     private Map<Long, List<String>> emojiData;
-    private final List<Emoji> votes = new ArrayList<>();
     private boolean setup = false;
 
     public Main() {
@@ -68,7 +68,7 @@ public class Main extends Event {
 
     @Override
     public void loadLang() {
-        langManager = new LangManager(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, DiscordLocale.CHINESE_TAIWAN, this.getClass());
+        langManager = new LangManager(logger, getter, PATH_FOLDER_NAME, LANG_DEFAULT, DiscordLocale.CHINESE_TAIWAN);
 
         langMap = langManager.getMap();
     }

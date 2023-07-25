@@ -16,7 +16,6 @@ import static com.xs.loader.util.EmbedCreator.createEmbed;
 
 public class WhoIsSpy {
     private final Guild guild;
-    private TextChannel channel;
     private final List<Member> users;
     private final List<Member> admins;
     private final int spy;
@@ -26,6 +25,7 @@ public class WhoIsSpy {
     private final List<Member> spys = new ArrayList<>();
     private final List<Member> whites = new ArrayList<>();
     private final Map<Long, String> data = new HashMap<>();
+    private TextChannel channel;
 
     WhoIsSpy(Guild guild, Category category, List<Member> users, List<Member> admins, int spy, int white, String problem, String spy_problem) {
         this.guild = guild;

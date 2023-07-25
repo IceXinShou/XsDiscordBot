@@ -6,6 +6,7 @@ import com.xs.loader.plugin.ClassLoader;
 import com.xs.loader.plugin.Config;
 import com.xs.loader.plugin.Event;
 import com.xs.loader.plugin.Info;
+import com.xs.loader.util.Setting;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -16,7 +17,6 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
-import org.fusesource.jansi.AnsiConsole;
 import org.jetbrains.annotations.Nullable;
 import org.yaml.snakeyaml.Yaml;
 
@@ -35,27 +35,36 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.jar.JarFile;
 
-import static com.xs.loader.util.GlobalUtil.getExtensionName;
+import static com.xs.loader.util.GlobalUtil.getExtensionByName;
 
-public class MainLoader {
+public class Loader {
+    public static final String ROOT_PATH = new File(System.getProperty("user.dir")).toString();
     public static JDA jdaBot;
     public static User bot;
     public static long botID;
+    private static boolean ignore_version_check = false;
     private final List<CommandData> guildCommands = new ArrayList<>();
     private final List<CommandData> globalCommands = new ArrayList<>();
-    public static final String ROOT_PATH = new File(System.getProperty("user.dir")).toString();
     private final Queue<Event> listeners = new ArrayDeque<>();
     private final Logger logger;
     private final String version = "v1.5";
-    private String BOT_TOKEN;
-    private MainConfig configFile;
     private final List<String> botStatus = new ArrayList<>();
     private final Map<String, Info> plugins = new HashMap<>();
     private final LinkedHashMap<String, Event> plugin_queue = new LinkedHashMap<>();
+    private String BOT_TOKEN;
+    private Setting configFile;
     private ScheduledExecutorService threadPool;
-    private static boolean ignore_version_check = false;
 
-    MainLoader() {
+    Loader(String[] args) throws IOException {
+        for (String i : args) {
+            switch (i) {
+                case "-ignore-version-check": {
+                    ignore_version_check = true;
+                    break;
+                }
+            }
+        }
+
         logger = new Logger("Main");
 
         if (versionCheck()) {
@@ -63,7 +72,7 @@ public class MainLoader {
         }
 
         defaultFileInit();
-        loadConfigFile();
+        loadSettingFile();
         loadVariables();
         loadPlugins();
 
@@ -194,7 +203,7 @@ public class MainLoader {
         for (File file : new File("plugins").listFiles()) {
             try {
                 if (file == null) continue;
-                if ((tmp = getExtensionName(file.getName())) == null || !tmp.equals("jar")) continue;
+                if ((tmp = getExtensionByName(file.getName())) == null || !tmp.equals("jar")) continue;
                 JarFile jarFile = new JarFile(file);
                 InputStream inputStream = jarFile.getInputStream(jarFile.getEntry("info.yml"));
                 Config config = new Yaml().loadAs(inputStream, Config.class);
@@ -264,20 +273,19 @@ public class MainLoader {
         logger.log(count + " Plugin(s) Loading Successfully");
     }
 
-    private void loadConfigFile() {
+    private void loadSettingFile() throws IOException {
         InputStream inputStream = readOrDefaultYml("config_0A2F7C.yml", "config.yml", this.getClass().getClassLoader());
-        configFile = new Yaml().loadAs(inputStream, MainConfig.class);
-        try {
+        configFile = new Yaml().loadAs(inputStream, Setting.class);
+
+        if (inputStream != null) {
             inputStream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
+
         logger.log("Setting file loaded");
     }
 
-
     private void loadVariables() {
-        MainConfig.GeneralSettings general = configFile.GeneralSettings;
+        Setting.GeneralSettings general = configFile.GeneralSettings;
         BOT_TOKEN = general.botToken;
         if (general.activityMessage != null)
             botStatus.addAll(Arrays.asList(general.activityMessage));
@@ -410,7 +418,7 @@ public class MainLoader {
                         }
 
                         threadPool.shutdown();
-                        loadConfigFile();
+                        loadSettingFile();
                         loadVariables();
                         setStatus();
 
@@ -449,25 +457,6 @@ public class MainLoader {
         }
     }
 
-    @Nullable
-    public File exportResource(String sourceFile, String outputName, String outputPath, java.lang.ClassLoader loader) {
-        InputStream fileInJar = loader.getResourceAsStream(sourceFile);
-
-        try {
-            if (fileInJar == null) {
-                logger.warn("can not find resource: " + sourceFile);
-                return null;
-            }
-            Files.copy(fileInJar, Paths.get(MainLoader.ROOT_PATH + "/" + outputPath + "/" + outputName), StandardCopyOption.REPLACE_EXISTING);
-            fileInJar.close();
-            return new File(MainLoader.ROOT_PATH + "/" + outputPath + "/" + outputName);
-        } catch (IOException e) {
-            logger.warn("read resource failed");
-            logger.warn(e.getMessage());
-        }
-        return null;
-    }
-
 //    public Map<String, Object> readOrDefaultYml(String name, String outName) {
 //        File settingFile = new File(System.getProperty("user.dir") + '/' + outName);
 //        if (!settingFile.exists()) {
@@ -489,17 +478,22 @@ public class MainLoader {
 //        return new Yaml().load(settingText);
 //    }
 
-    public static void main(String[] args) {
-        for (String i : args) {
-            switch (i) {
-                case "-ignore-version-check": {
-                    ignore_version_check = true;
-                    break;
-                }
+    @Nullable
+    public File exportResource(String sourceFile, String outputName, String outputPath, java.lang.ClassLoader loader) {
+        InputStream fileInJar = loader.getResourceAsStream(sourceFile);
+
+        try {
+            if (fileInJar == null) {
+                logger.warn("can not find resource: " + sourceFile);
+                return null;
             }
+            Files.copy(fileInJar, Paths.get(Loader.ROOT_PATH + "/" + outputPath + "/" + outputName), StandardCopyOption.REPLACE_EXISTING);
+            fileInJar.close();
+            return new File(Loader.ROOT_PATH + "/" + outputPath + "/" + outputName);
+        } catch (IOException e) {
+            logger.warn("read resource failed");
+            logger.warn(e.getMessage());
         }
-        AnsiConsole.systemInstall();
-        new MainLoader();
-        AnsiConsole.systemUninstall();
+        return null;
     }
 }

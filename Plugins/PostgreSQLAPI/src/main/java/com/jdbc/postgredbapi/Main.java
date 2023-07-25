@@ -1,11 +1,11 @@
 package com.jdbc.postgredbapi;
 
-import com.xs.loader.plugin.Event;
 import com.xs.loader.logger.Logger;
+import com.xs.loader.plugin.Event;
 
 public class Main extends Event {
-    Logger logger;
     private static final String TAG = "PostgreDBAPI";
+    Logger logger;
 
     public Main() {
         super(false);

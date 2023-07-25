@@ -1,6 +1,6 @@
 package com.xs.loader.util;
 
-import com.xs.loader.MainLoader;
+import com.xs.loader.Loader;
 import com.xs.loader.logger.Logger;
 import org.jetbrains.annotations.Nullable;
 import org.yaml.snakeyaml.Yaml;
@@ -21,7 +21,7 @@ public class FileGetter {
 
     public FileGetter(final Logger logger, final String PATH_FOLDER_NAME, final Class<?> CLASS) {
         this.logger = logger;
-        this.FOLDER_PATH = MainLoader.ROOT_PATH + "/" + PATH_FOLDER_NAME;
+        this.FOLDER_PATH = Loader.ROOT_PATH + "/" + PATH_FOLDER_NAME;
         this.CLASS = CLASS;
 
         new File(FOLDER_PATH).mkdirs();

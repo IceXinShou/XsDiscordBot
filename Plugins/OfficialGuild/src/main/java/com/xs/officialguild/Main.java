@@ -1,13 +1,16 @@
 package com.xs.officialguild;
 
-import com.xs.loader.plugin.Event;
 import com.xs.loader.lang.LangManager;
 import com.xs.loader.logger.Logger;
+import com.xs.loader.plugin.Event;
 import com.xs.loader.util.FileGetter;
 import com.xs.loader.util.JsonFileManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.OnlineStatus;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
@@ -34,26 +37,26 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
-import static com.xs.loader.MainLoader.jdaBot;
+import static com.xs.loader.Loader.jdaBot;
 import static com.xs.loader.util.EmbedCreator.createEmbed;
 import static com.xs.loader.util.UrlDataGetter.getData;
 
 public class Main extends Event {
-    private LangManager langManager;
-    private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
-    private FileGetter getter;
-    private Logger logger;
     private static final String TAG = "OG";
+    private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
     private final String PATH_FOLDER_NAME = "plugins/OfficialGuild";
     private final long OWN_GUILD_ID = 858672865355890708L;
-    private Guild ownGuild;
     private final long LOG_CHANNEL_ID = 858672865816346634L;
-    private Map<String, Map<DiscordLocale, String>> langMap; // Label, Local, Content
-    private JsonFileManager manager;
     private final Map<Long, UserStepData> stepData = new HashMap<>();
     private final List<Long> JOINED_ROLE_ID = Arrays.asList(858672865385119755L, 858701368457953360L, 858707058530451476L, 858703314606751764L);
     private final List<Long> AUTHED_ROLE_ID = Arrays.asList(858672865385119757L, 858704345448841226L);
     private final ScheduledExecutorService executorService;
+    private LangManager langManager;
+    private FileGetter getter;
+    private Logger logger;
+    private Guild ownGuild;
+    private Map<String, Map<DiscordLocale, String>> langMap; // Label, Local, Content
+    private JsonFileManager manager;
     private boolean qqOnline = false;
     private StringBuilder clientStringBuilder = new StringBuilder();
 
@@ -83,7 +86,7 @@ public class Main extends Event {
 
     @Override
     public void loadLang() {
-        langManager = new LangManager(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, DiscordLocale.CHINESE_TAIWAN, this.getClass());
+        langManager = new LangManager(logger, getter, PATH_FOLDER_NAME, LANG_DEFAULT, DiscordLocale.CHINESE_TAIWAN);
     }
 
     @Override
@@ -106,7 +109,6 @@ public class Main extends Event {
                 logger.log("開始觀察: " + member.getEffectiveName());
                 // 創建定時任務
                 executorService.scheduleAtFixedRate(() -> {
-
 
 
                     // 獲取用戶的活動

@@ -1,6 +1,6 @@
 package com.xs.loader.lang;
 
-import com.xs.loader.MainLoader;
+import com.xs.loader.Loader;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
@@ -17,15 +17,13 @@ public class LangManager {
     private final String[] DEFAULT_LANGS;
     private final DiscordLocale DEFAULT_LOCAL;
     private final FileGetter getter;
-    private final Class<?> FROM_CLASS;
 
-    public LangManager(String tag, FileGetter getter, String pathFolderName, String[] defaultLangs, DiscordLocale defaultLocal, final Class<?> fromClass) {
-        logger = new Logger(tag);
-        this.FOLDER_PATH = MainLoader.ROOT_PATH + "/" + pathFolderName + "/Lang";
+    public LangManager(Logger logger, FileGetter getter, String pathFolderName, String[] defaultLangs, DiscordLocale defaultLocal) {
+        this.logger = logger;
+        this.FOLDER_PATH = Loader.ROOT_PATH + "/" + pathFolderName + "/Lang";
         this.getter = getter;
         this.DEFAULT_LANGS = defaultLangs;
         this.DEFAULT_LOCAL = defaultLocal;
-        this.FROM_CLASS = fromClass;
 
         new File(FOLDER_PATH).mkdirs();
         exportDefaultLang();
@@ -36,7 +34,7 @@ public class LangManager {
         for (File i : new File(FOLDER_PATH).listFiles()) {
             DiscordLocale local = DiscordLocale.from(i.getName().replaceAll("\\.\\w+$", ""));
             if (local == DiscordLocale.UNKNOWN) {
-                logger.warn("Cannot find discord locate by file: " + i.getAbsolutePath() + "");
+                logger.warn("Cannot find discord locate by file: " + i.getAbsolutePath());
                 continue;
             }
 

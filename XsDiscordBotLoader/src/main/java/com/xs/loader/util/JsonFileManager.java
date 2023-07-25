@@ -1,6 +1,6 @@
 package com.xs.loader.util;
 
-import com.xs.loader.MainLoader;
+import com.xs.loader.Loader;
 import com.xs.loader.logger.Logger;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
@@ -12,16 +12,27 @@ import java.nio.file.Files;
 
 public class JsonFileManager {
     private final File FILE;
-    private JSONObject data_obj;
-    private JSONArray data_ary;
     private final Logger logger;
     private final boolean isObject;
+    private JSONObject data_obj;
+    private JSONArray data_ary;
 
     public JsonFileManager(String FILE_PATH, String TAG, boolean isObject) {
-        this.FILE = new File(MainLoader.ROOT_PATH + '/' + FILE_PATH);
+        this.FILE = new File(Loader.ROOT_PATH + '/' + FILE_PATH);
         this.logger = new Logger(TAG);
         this.isObject = isObject;
         initData();
+    }
+
+    public static String streamToString(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream result = new ByteArrayOutputStream();
+        byte[] buffer = new byte[1024];
+        for (int length; (length = inputStream.read(buffer)) != -1; ) {
+            result.write(buffer, 0, length);
+        }
+
+        result.close();
+        return result.toString("UTF-8");
     }
 
     private void initData() {
@@ -47,7 +58,6 @@ public class JsonFileManager {
             logger.warn(e.getMessage());
         }
     }
-
 
     public JSONObject getObj() {
         return data_obj;
@@ -106,7 +116,6 @@ public class JsonFileManager {
         }
     }
 
-
     public JsonFileManager removeObj(String id) {
         if (data_obj.has(id)) {
             data_obj.remove(id);
@@ -129,16 +138,5 @@ public class JsonFileManager {
         } catch (IOException e) {
             logger.warn("Cannot save file: " + e.getMessage());
         }
-    }
-
-    public static String streamToString(InputStream inputStream) throws IOException {
-        ByteArrayOutputStream result = new ByteArrayOutputStream();
-        byte[] buffer = new byte[1024];
-        for (int length; (length = inputStream.read(buffer)) != -1; ) {
-            result.write(buffer, 0, length);
-        }
-
-        result.close();
-        return result.toString("UTF-8");
     }
 }

@@ -1,8 +1,8 @@
 package com.xs.whoisspy;
 
-import com.xs.loader.plugin.Event;
 import com.xs.loader.lang.LangManager;
 import com.xs.loader.logger.Logger;
+import com.xs.loader.plugin.Event;
 import com.xs.loader.util.FileGetter;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -26,12 +26,15 @@ import static com.xs.loader.util.EmbedCreator.createEmbed;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.*;
 
 public class Main extends Event {
-    private LangManager langManager;
+    private static final String TAG = "WhoIsSpy";
     private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
+    private final String PATH_FOLDER_NAME = "plugins/WhoIsSpy";
+    private final List<Member> users = new ArrayList<>();
+    private final List<Member> admins = new ArrayList<>();
+    private final Map<Long, Integer> voteData = new HashMap<>();
+    private LangManager langManager;
     private FileGetter getter;
     private Logger logger;
-    private static final String TAG = "WhoIsSpy";
-    private final String PATH_FOLDER_NAME = "plugins/WhoIsSpy";
     private Map<String, Map<DiscordLocale, String>> langMap; // Label, Local, Content
     private boolean start = false;
     private Message message;
@@ -40,8 +43,6 @@ public class Main extends Event {
     private int spyCount;
     private int whiteCount;
     private Category category = null;
-    private final List<Member> users = new ArrayList<>();
-    private final List<Member> admins = new ArrayList<>();
     private WhoIsSpy game;
 
     public Main() {
@@ -77,7 +78,7 @@ public class Main extends Event {
 
     @Override
     public void loadLang() {
-        langManager = new LangManager(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, DiscordLocale.CHINESE_TAIWAN, this.getClass());
+        langManager = new LangManager(logger, getter, PATH_FOLDER_NAME, LANG_DEFAULT, DiscordLocale.CHINESE_TAIWAN);
 
         langMap = langManager.getMap();
     }
@@ -264,8 +265,6 @@ public class Main extends Event {
             }
         }
     }
-
-    private final Map<Long, Integer> voteData = new HashMap<>();
 
 
 //    @Override

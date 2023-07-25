@@ -5,7 +5,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import org.jetbrains.annotations.Nullable;
 
-import static com.xs.loader.MainLoader.jdaBot;
+import static com.xs.loader.Loader.jdaBot;
 
 public class GlobalUtil {
     public static User getUserById(Long id) {
@@ -13,7 +13,7 @@ public class GlobalUtil {
     }
 
     @Nullable
-    public static String getExtensionName(String fileName) {
+    public static String getExtensionByName(String fileName) {
         int i = fileName.lastIndexOf('.');
         if (i > 0) {
             return fileName.substring(i + 1);

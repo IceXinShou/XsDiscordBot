@@ -1,7 +1,7 @@
 package com.xs.googlesheetapi;
 
-import com.xs.loader.plugin.Event;
 import com.xs.loader.logger.Logger;
+import com.xs.loader.plugin.Event;
 import com.xs.loader.util.FileGetter;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
@@ -10,11 +10,11 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class Main extends Event {
+    private static final String TAG = "GoogleSheetAPI";
     public static MainConfig configFile;
+    private final String PATH_FOLDER_NAME = "plugins/GoogleSheetAPI";
     private FileGetter getter;
     private Logger logger;
-    private static final String TAG = "GoogleSheetAPI";
-    private final String PATH_FOLDER_NAME = "plugins/GoogleSheetAPI";
 
     public Main() {
         super(false);
