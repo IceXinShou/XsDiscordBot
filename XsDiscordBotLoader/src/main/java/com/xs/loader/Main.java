@@ -1,24 +1,18 @@
 package com.xs.loader;
 
+import asg.cliche.ShellFactory;
 import org.fusesource.jansi.AnsiConsole;
 
 import java.io.IOException;
 
 public class Main {
+    public static Loader loader;
 
     public static void main(String[] args) {
-//        for (String i : args) {
-//            switch (i) {
-//                case "-ignore-version-check": {
-//                    ignore_version_check = true;
-//                    break;
-//                }
-//            }
-//        }
-
         AnsiConsole.systemInstall();
         try {
-            new Loader(args);
+            loader = new Loader(args);
+            ShellFactory.createConsoleShell("", null, new CLICommands()).commandLoop();
         } catch (IOException e) {
             e.printStackTrace();
         }

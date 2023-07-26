@@ -104,7 +104,7 @@ public class Loader {
         jdaBot.updateCommands().addCommands(globalCommands).queue();
         setStatus();
         logger.log("Bot Initialized");
-        getInput();
+//        getInput();
     }
 
     private boolean versionCheck() {
@@ -321,6 +321,40 @@ public class Loader {
         });
     }
 
+    public void stop() {
+        for (Object listener : jdaBot.getRegisteredListeners()) {
+            jdaBot.removeEventListener(listener);
+        }
+
+        List<Event> stopPlugins = new ArrayList<>(plugin_queue.values());
+        Collections.reverse(stopPlugins);
+        for (Event plugin : stopPlugins) {
+            plugin.unload();
+        }
+
+        plugins.clear();
+        plugin_queue.clear();
+
+        threadPool.shutdown();
+        jdaBot.shutdown();
+    }
+
+    public void reload() throws IOException {
+        List<Event> reloadPlugins = new ArrayList<>(plugin_queue.values());
+        Collections.reverse(reloadPlugins);
+        for (Event plugin : reloadPlugins) {
+            plugin.unload();
+        }
+        for (Event plugin : plugin_queue.values()) {
+            plugin.initLoad();
+        }
+
+        threadPool.shutdown();
+        loadSettingFile();
+        loadVariables();
+        setStatus();
+    }
+
     void getInput() {
         Scanner scanner = new Scanner(System.in);
         while (true) {
@@ -387,41 +421,12 @@ public class Loader {
 
                     case "close":
                     case "stop":
-                        for (Object listener : jdaBot.getRegisteredListeners()) {
-                            jdaBot.removeEventListener(listener);
-                        }
-
-                        List<Event> stopPlugins = new ArrayList<>(plugin_queue.values());
-                        Collections.reverse(stopPlugins);
-                        for (Event plugin : stopPlugins) {
-                            plugin.unload();
-                        }
-
-                        plugins.clear();
-                        plugin_queue.clear();
-
-                        threadPool.shutdown();
-                        jdaBot.shutdown();
-                        logger.log("Stopped");
+                        stop();
                         return;
 
                     case "reload":
                         logger.log("Reloading...");
-
-                        List<Event> reloadPlugins = new ArrayList<>(plugin_queue.values());
-                        Collections.reverse(reloadPlugins);
-                        for (Event plugin : reloadPlugins) {
-                            plugin.unload();
-                        }
-                        for (Event plugin : plugin_queue.values()) {
-                            plugin.initLoad();
-                        }
-
-                        threadPool.shutdown();
-                        loadSettingFile();
-                        loadVariables();
-                        setStatus();
-
+                        reload();
                         logger.log("Reloaded");
                         break;
 
@@ -456,27 +461,6 @@ public class Loader {
             return null;
         }
     }
-
-//    public Map<String, Object> readOrDefaultYml(String name, String outName) {
-//        File settingFile = new File(System.getProperty("user.dir") + '/' + outName);
-//        if (!settingFile.exists()) {
-//            logger.warn(outName + " not found, create default " + outName);
-//            settingFile = getter.exportResource(name, outName, "");
-//            if (settingFile == null) {
-//                logger.warn("read " + name + " failed");
-//                return null;
-//            }
-//        }
-//        logger.log("load " + settingFile.getPath());
-//        String settingText = null;
-//        try {
-//            settingText = streamToString(Files.newInputStream(settingFile.toPath()));
-//        } catch (IOException e) {
-//            logger.warn(e.getMessage());
-//        }
-//
-//        return new Yaml().load(settingText);
-//    }
 
     @Nullable
     public File exportResource(String sourceFile, String outputName, String outputPath, java.lang.ClassLoader loader) {
