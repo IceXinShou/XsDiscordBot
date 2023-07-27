@@ -17,7 +17,7 @@ public class Main {
         AnsiConsole.systemInstall();
 
         arg = new Arguments(args);
-        loader = new Loader(args);
+        loader = new Loader();
         ShellFactory.createConsoleShell("", null, new CLICommands()).commandLoop();
 
         AnsiConsole.systemUninstall();

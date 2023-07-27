@@ -53,7 +53,7 @@ public class Loader {
     private Setting configFile;
     private ScheduledExecutorService threadPool;
 
-    public Loader(String[] args) throws IOException {
+    public Loader() throws IOException {
         logger = new Logger("Main");
 
         if (versionCheck()) {
