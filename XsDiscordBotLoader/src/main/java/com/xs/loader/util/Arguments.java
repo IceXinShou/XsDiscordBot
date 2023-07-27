@@ -2,8 +2,6 @@ package com.xs.loader.util;
 
 import org.apache.commons.cli.*;
 
-import static java.lang.System.exit;
-
 public class Arguments {
     public final boolean ignore_version_check;
 
@@ -18,7 +16,7 @@ public class Arguments {
         if (cmd.hasOption("h")) {
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp("ApacheCommonsCLIWithTerminalInput", options);
-            exit(0);
+            System.exit(0);
         }
 
         if (cmd.hasOption("ign")) {

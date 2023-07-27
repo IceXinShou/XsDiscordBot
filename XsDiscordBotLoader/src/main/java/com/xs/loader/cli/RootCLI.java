@@ -1,7 +1,8 @@
-package com.xs.loader.base;
+package com.xs.loader.cli;
 
 import asg.cliche.Command;
 import asg.cliche.Param;
+import asg.cliche.ShellFactory;
 import com.xs.loader.error.ClassType;
 import com.xs.loader.error.Exceptions;
 import com.xs.loader.logger.Logger;
@@ -10,20 +11,59 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.concrete.*;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.managers.AudioManager;
+import org.fusesource.jansi.AnsiConsole;
 
 import static com.xs.loader.Main.loader;
 import static com.xs.loader.base.Loader.jdaBot;
 import static com.xs.loader.error.Checks.notNull;
-import static java.lang.System.exit;
 
-public class CLICommands {
+public class RootCLI {
     private static final Logger logger = new Logger("CLI");
 
-    @Command(name = "dm", description = "direct message to the user")
+    /* Bind Control */
+    @Command(name = "bind-guild", abbrev = "bg", description = "bind to a specific Guild")
+    public void bindGuild(
+            @Param(name = "guildID", description = "specific guild") String guildID
+    ) throws Exception {
+        Guild guild = jdaBot.getGuildById(guildID);
+        notNull(ClassType.Guild, guild);
+
+        ShellFactory.createConsoleShell(guild.getName(), null, new GuildCLI(guild)).commandLoop();
+    }
+
+    @Command(name = "bind-guild-channel", abbrev = "bgc", description = "bind to a specific channel of Guild")
+    public void bindGuildChannel(
+            @Param(name = "guildID", description = "specific guild") String guildID,
+            @Param(name = "channelID", description = "specific channel id") String channelID
+
+    ) throws Exception {
+        Guild guild = jdaBot.getGuildById(guildID);
+        notNull(ClassType.Guild, guild);
+
+        GuildChannel channel = guild.getGuildChannelById(channelID);
+        notNull(ClassType.GuildChannel, channel);
+
+        ShellFactory.createConsoleShell(guild.getName() + " | " + channel.getName()
+                , null, new GuildChannelCLI(guild, channel)).commandLoop();
+    }
+
+    @Command(name = "bind-private-channel", abbrev = "bpc", description = "bind to a specific private channel of User")
+    public void bindPrivateChannel(
+            @Param(name = "userID", description = "specific User id") String userID
+    ) throws Exception {
+        User user = jdaBot.retrieveUserById(userID).complete();
+        notNull(ClassType.User, user);
+
+        ShellFactory.createConsoleShell(user.getName(), null, new PrivateChannelCLI(user)).commandLoop();
+    }
+
+    @Command(name = "direct-message", abbrev = "dm", description = "direct message to the User")
     public void dm(
-            @Param(name = "userID", description = "user id") String userID,
-            @Param(name = "content", description = "message content") String content) throws Exception {
+            @Param(name = "userID", description = "User id") String userID,
+            @Param(name = "content", description = "message content") String content
+    ) throws Exception {
         User user = jdaBot.retrieveUserById(userID).complete();
         notNull(ClassType.User, user);
 
@@ -33,14 +73,17 @@ public class CLICommands {
         privateChannel.sendMessage(content).queue();
     }
 
-    @Command(name = "say", abbrev = "say", description = "send message to the Channle of Guild")
-    public void say(@Param(name = "guildID", description = "your Guild id") String guildID,
-                    @Param(name = "channelID", description = "your TextChannel id") String channelID,
-                    @Param(name = "content", description = "message content") String content) throws Exception {
+    /* Guild Channel Control */
+    @Command(name = "say", abbrev = "sa", description = "send message to the Channel of Guild")
+    public void say(
+            @Param(name = "guildID", description = "your Guild id") String guildID,
+            @Param(name = "channelID", description = "your TextChannel id") String channelID,
+            @Param(name = "content", description = "message content") String content
+    ) throws Exception {
         Guild guild = jdaBot.getGuildById(guildID);
         notNull(ClassType.Guild, guild);
 
-        Channel channel = guild.getChannelById(Channel.class, channelID);
+        GuildChannel channel = guild.getGuildChannelById(channelID);
         notNull(ClassType.Channel, channel);
 
         if (channel instanceof TextChannel) {
@@ -56,9 +99,12 @@ public class CLICommands {
         }
     }
 
+    /* Guild Control */
     @Command(name = "join", abbrev = "jo", description = "make the bot join the AudioChannel of Guild")
-    public void join(@Param(name = "guildID", description = "your Guild id") String guildID,
-                     @Param(name = "channelID", description = "your AudioChannel id") String channelID) throws Exception {
+    public void join(
+            @Param(name = "guildID", description = "your Guild id") String guildID,
+            @Param(name = "channelID", description = "your AudioChannel id") String channelID
+    ) throws Exception {
         Guild guild = jdaBot.getGuildById(guildID);
         notNull(ClassType.Guild, guild);
 
@@ -73,7 +119,9 @@ public class CLICommands {
     }
 
     @Command(name = "leave", abbrev = "le", description = "make the bot leave the AudioChannel of Guild")
-    public void leave(@Param(name = "guildID", description = "your Guild id") String guildID) throws Exception {
+    public void leave(
+            @Param(name = "guildID", description = "your Guild id") String guildID
+    ) throws Exception {
         Guild guild = jdaBot.getGuildById(guildID);
         notNull(ClassType.Guild, guild);
 
@@ -81,7 +129,9 @@ public class CLICommands {
     }
 
     @Command(name = "mute", abbrev = "mu", description = "make the bot muted")
-    public void mute(@Param(name = "guildID", description = "your Guild id") String guildID) throws Exception {
+    public void mute(
+            @Param(name = "guildID", description = "your Guild id") String guildID
+    ) throws Exception {
         Guild guild = jdaBot.getGuildById(guildID);
         notNull(ClassType.Guild, guild);
 
@@ -90,7 +140,9 @@ public class CLICommands {
     }
 
     @Command(name = "deafen", abbrev = "de", description = "make the bot deafened")
-    public void deafen(@Param(name = "guildID", description = "your Guild id") String guildID) throws Exception {
+    public void deafen(
+            @Param(name = "guildID", description = "your Guild id") String guildID
+    ) throws Exception {
         Guild guild = jdaBot.getGuildById(guildID);
         notNull(ClassType.Guild, guild);
 
@@ -101,8 +153,9 @@ public class CLICommands {
     @Command(name = "stop", abbrev = "close", description = "shutdown the program")
     public void stop() {
         loader.stop();
+        AnsiConsole.systemUninstall();
         logger.log("Stopped");
-        exit(0);
+        System.exit(0);
     }
 
     @Command()
