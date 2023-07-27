@@ -1,7 +1,7 @@
 package com.xs.loader.plugin;
 
 
-import com.xs.loader.Loader;
+import com.xs.loader.base.Loader;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;

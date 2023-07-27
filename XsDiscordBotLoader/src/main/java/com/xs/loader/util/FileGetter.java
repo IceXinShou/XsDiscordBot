@@ -1,6 +1,6 @@
 package com.xs.loader.util;
 
-import com.xs.loader.Loader;
+import com.xs.loader.base.Loader;
 import com.xs.loader.logger.Logger;
 import org.jetbrains.annotations.Nullable;
 import org.yaml.snakeyaml.Yaml;

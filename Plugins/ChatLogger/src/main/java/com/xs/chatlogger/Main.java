@@ -35,8 +35,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.xs.loader.Loader.ROOT_PATH;
-import static com.xs.loader.Loader.jdaBot;
+import static com.xs.loader.base.Loader.ROOT_PATH;
+import static com.xs.loader.base.Loader.jdaBot;
 import static com.xs.loader.util.GlobalUtil.*;
 import static net.dv8tion.jda.api.Permission.ADMINISTRATOR;
 

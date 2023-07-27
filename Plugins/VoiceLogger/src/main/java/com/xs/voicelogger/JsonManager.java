@@ -1,10 +1,10 @@
 package com.xs.voicelogger;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonArray;
 import com.xs.loader.util.JsonFileManager;
 import net.dv8tion.jda.api.entities.Guild;
 import org.jetbrains.annotations.Nullable;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.util.Arrays;
@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.xs.loader.Loader.jdaBot;
+import static com.xs.loader.base.Loader.jdaBot;
 
 public class JsonManager {
     public final Map<Long, Map<Long, ChannelSetting>> channelSettings = new HashMap<>();
@@ -44,12 +44,12 @@ public class JsonManager {
                 // if channel cannot access, skip it
                 if (guild.getGuildChannelById(channelID) == null) continue;
 
-                JSONObject settingObj = manager.getObj().getJSONObject(channelID);
+                JsonObject settingObj = manager.getObj().get(channelID).getAsJsonObject();
                 Map<Long, ChannelSetting> tmp = new HashMap<>();
                 tmp.put(Long.parseLong(channelID), new ChannelSetting(
-                        settingObj.getBoolean("whitelist"),
-                        settingObj.getJSONArray("white"),
-                        settingObj.getJSONArray("black")
+                        settingObj.get("whitelist").getAsBoolean(),
+                        settingObj.get("white").getAsJsonArray(),
+                        settingObj.get("black").getAsJsonArray()
                 ));
                 channelSettings.put(guildID, tmp);
             }
@@ -63,10 +63,10 @@ public class JsonManager {
 
         // update json file
         JsonFileManager manager = fileManager.get(guildID);
-        JSONObject obj = manager.getObj(String.valueOf(channelID));
+        JsonObject obj = manager.getObj(String.valueOf(channelID));
         if (obj == null) return null; // WTF
 
-        obj.put("whitelist", setting.whitelistStat);
+        obj.addProperty("whitelist", setting.whitelistStat);
         manager.save();
 
         return setting;
@@ -75,13 +75,13 @@ public class JsonManager {
     @Nullable
     public ChannelSetting addChannels(long guildID, long rootID, List<Long> channelIDs, boolean whitelist) {
         JsonFileManager manager = fileManager.get(guildID);
-        JSONObject obj = manager.getObj(String.valueOf(rootID));
+        JsonObject obj = manager.getObj(String.valueOf(rootID));
         if (obj == null) return null; // WTF
 
-        JSONArray channelsObj = obj.getJSONArray(whitelist ? "white" : "black");
+        JsonArray channelsObj = obj.get(whitelist ? "white" : "black").getAsJsonArray();
 
         for (Long channelID : channelIDs) {
-            channelsObj.put(channelID);
+            channelsObj.add(channelID);
         }
 
         manager.save();
@@ -109,11 +109,11 @@ public class JsonManager {
         settingMap.put(channelID, setting);
 
 
-        JSONObject tmp = new JSONObject();
-        tmp.put("whitelist", true);
-        tmp.put("white", new JSONArray());
-        tmp.put("black", new JSONArray());
-        manager.getObj().put(String.valueOf(channelID), tmp);
+        JsonObject tmp = new JsonObject();
+        tmp.addProperty("whitelist", true);
+        tmp.add("white", new JsonArray());
+        tmp.add("black", new JsonArray());
+        manager.getObj().add(String.valueOf(channelID), tmp);
         manager.save();
 
         return setting;

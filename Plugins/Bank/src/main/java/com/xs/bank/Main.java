@@ -1,5 +1,6 @@
 package com.xs.bank;
 
+import com.google.gson.JsonObject;
 import com.xs.loader.lang.LangManager;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.plugin.Event;
@@ -12,7 +13,6 @@ import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.build.*;
-import org.json.JSONObject;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
@@ -25,7 +25,7 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.xs.loader.Loader.ROOT_PATH;
+import static com.xs.loader.base.Loader.ROOT_PATH;
 import static com.xs.loader.util.EmbedCreator.createEmbed;
 import static net.dv8tion.jda.api.Permission.ADMINISTRATOR;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.INTEGER;
@@ -178,11 +178,11 @@ public class Main extends Event {
 
                 String type = event.getSubcommandName();
                 User user = event.getOption("user").getAsUser();
-                JSONObject obj = checkData(user.getId(), type);
-                int cur = obj.getInt(type);
+                JsonObject obj = checkData(user.getId(), type);
+                int cur = obj.get(type).getAsInt();
                 int value = event.getOption("value").getAsInt();
 
-                obj.put(type, cur + value);
+                obj.addProperty(type, cur + value);
                 manager.save();
 
                 event.getHook().deleteOriginal().complete();
@@ -201,17 +201,17 @@ public class Main extends Event {
 
                 String type = event.getSubcommandName();
                 User user = event.getOption("user").getAsUser();
-                JSONObject obj = checkData(user.getId(), type);
-                int cur = obj.getInt(type);
+                JsonObject obj = checkData(user.getId(), type);
+                int cur = obj.get(type).getAsInt();
                 int value = event.getOption("value").getAsInt();
 
-                if (obj.getInt(type) < value) {
+                if (obj.get(type).getAsInt() < value) {
                     event.getHook().deleteOriginal().complete();
                     event.getChannel().sendMessageEmbeds(createEmbed(langManager.get("runtime;errors;no_such_money", local), 0xFF0000)).queue();
                     return;
                 }
 
-                obj.put(type, cur - value);
+                obj.addProperty(type, cur - value);
                 manager.save();
 
                 event.getHook().deleteOriginal().complete();
@@ -237,11 +237,11 @@ public class Main extends Event {
                     return;
                 }
 
-                JSONObject fromObj = checkData(fromUser.getId(), type);
-                JSONObject toObj = checkData(toUser.getId(), type);
+                JsonObject fromObj = checkData(fromUser.getId(), type);
+                JsonObject toObj = checkData(toUser.getId(), type);
                 int value = event.getOption("value").getAsInt();
 
-                if (fromObj.getInt(type) < value + moneyTypes.get(type)) {
+                if (fromObj.get(type).getAsInt() < value + moneyTypes.get(type)) {
                     event.getHook().deleteOriginal().complete();
                     event.getChannel().sendMessageEmbeds(createEmbed(langManager.get("runtime;errors;no_such_money", local), 0xFF0000)).queue();
                     return;
@@ -252,8 +252,8 @@ public class Main extends Event {
                         .delay(new Random().nextInt(configFile.transferMaxDelay), TimeUnit.SECONDS)
                         .queue(i -> i.editMessageEmbeds(createEmbed(langManager.get("runtime;transfer_done", local), 0x2cff20))
                                 .queue(j -> {
-                                    fromObj.put(type, fromObj.getInt(type) - value - moneyTypes.get(type));
-                                    toObj.put(type, toObj.getInt(type) + value);
+                                    fromObj.addProperty(type, fromObj.get(type).getAsInt() - value - moneyTypes.get(type));
+                                    toObj.addProperty(type, toObj.get(type).getAsInt() + value);
                                     manager.save();
                                     event.getChannel().sendMessageEmbeds(createEmbed(langManager.get("runtime;transfer_success", local)
                                                     .replace("%value%", String.valueOf(value))
@@ -268,9 +268,9 @@ public class Main extends Event {
                 User user = getUserID(event);
                 StringBuilder description = new StringBuilder();
                 for (String i : moneyTypes.keySet()) {
-                    JSONObject obj = checkData(user.getId(), i);
+                    JsonObject obj = checkData(user.getId(), i);
                     description.append(langManager.get("runtime;check_balance_description", local)
-                            .replace("%value%", String.valueOf(obj.getInt(i)))
+                            .replace("%value%", String.valueOf(obj.get(i).getAsInt()))
                             .replace("%type%", i)
                     );
                 }
@@ -295,14 +295,16 @@ public class Main extends Event {
         return event.getUser();
     }
 
-    JSONObject checkData(String userID, String type) {
+    JsonObject checkData(String userID, String type) {
         if (!manager.getObj().has(userID)) { // if user data is not exist
-            manager.getObj().put(userID, new JSONObject().put(type, 0));
-        } else if (!manager.getObj().getJSONObject(userID).has(type)) { // if value data is not exist
-            manager.getObj().getJSONObject(userID).put(type, 0);
+            JsonObject tmp = new JsonObject();
+            tmp.addProperty(type, 0);
+            manager.getObj().add(userID, tmp);
+        } else if (!manager.getObj().get(userID).getAsJsonObject().has(type)) { // if value data is not exist
+            manager.getObj().get(userID).getAsJsonObject().addProperty(type, 0);
         }
 
         manager.save();
-        return manager.getObj().getJSONObject(userID);
+        return manager.getObj().get(userID).getAsJsonObject();
     }
 }

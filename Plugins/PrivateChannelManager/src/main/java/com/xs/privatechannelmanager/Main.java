@@ -34,7 +34,7 @@ import java.io.InputStream;
 import java.time.OffsetDateTime;
 import java.util.Map;
 
-import static com.xs.loader.Loader.jdaBot;
+import static com.xs.loader.base.Loader.jdaBot;
 import static com.xs.loader.util.EmbedCreator.createEmbed;
 
 public class Main extends Event {

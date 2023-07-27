@@ -1,10 +1,11 @@
 package com.xs.officialguild;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.internal.interactions.component.ButtonImpl;
 import org.jetbrains.annotations.Nullable;
-import org.json.JSONObject;
 
 import java.time.OffsetDateTime;
 
@@ -62,10 +63,12 @@ public class UserStepData {
                 .queue();
     }
 
-    JSONObject getObj() {
-        JSONObject obj = new JSONObject();
-        obj.put("chi", chineseName).put("eng", englishName);
-        if (!mc_uuid.equals("")) obj.put("mc", mc_uuid);
+    JsonObject getObj() {
+        JsonObject obj = new JsonObject();
+        obj.addProperty("chi", chineseName);
+        obj.addProperty("eng", englishName);
+        if (!mc_uuid.equals(""))
+            obj.addProperty("mc", mc_uuid);
         return obj;
     }
 
@@ -78,9 +81,9 @@ public class UserStepData {
 
     @Nullable
     String uuidToName() {
-        JSONObject respond = new JSONObject(getData("https://sessionserver.mojang.com/session/minecraft/profile/" + mc_uuid));
+        JsonObject respond = JsonParser.parseString(getData("https://sessionserver.mojang.com/session/minecraft/profile/" + mc_uuid)).getAsJsonObject();
         if (respond.has("name"))
-            return respond.getString("name");
+            return respond.get("name").getAsString();
 
         return null;
     }

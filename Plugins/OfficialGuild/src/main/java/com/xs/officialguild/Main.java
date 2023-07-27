@@ -1,5 +1,7 @@
 package com.xs.officialguild;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.xs.loader.lang.LangManager;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.plugin.Event;
@@ -24,7 +26,6 @@ import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 import org.jetbrains.annotations.Nullable;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.time.OffsetDateTime;
@@ -37,7 +38,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
-import static com.xs.loader.Loader.jdaBot;
+import static com.xs.loader.base.Loader.jdaBot;
 import static com.xs.loader.util.EmbedCreator.createEmbed;
 import static com.xs.loader.util.UrlDataGetter.getData;
 
@@ -265,7 +266,7 @@ public class Main extends Event {
 
     private void verifyButton(ButtonInteractionEvent event) {
         UserStepData step = stepData.get(event.getUser().getIdLong());
-        manager.getObj().put(event.getUser().getId(), step.getObj());
+        manager.getObj().add(event.getUser().getId(), step.getObj());
         manager.save();
         event.deferEdit().queue();
         Member member = event.getMember();
@@ -382,8 +383,8 @@ public class Main extends Event {
         String respond = getData(check_url + mcName);
         if (respond == null) return null;
 
-        JSONObject data = new JSONObject(respond);
-        if (data.has("id")) return data.getString("id");
+        JsonObject data = JsonParser.parseString(respond).getAsJsonObject();
+        if (data.has("id")) return data.get("id").getAsString();
 
         return null;
     }

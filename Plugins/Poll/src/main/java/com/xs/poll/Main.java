@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.xs.loader.Loader.jdaBot;
+import static com.xs.loader.base.Loader.jdaBot;
 import static com.xs.loader.util.EmbedCreator.createEmbed;
 import static net.dv8tion.jda.api.Permission.MANAGE_EVENTS;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.STRING;

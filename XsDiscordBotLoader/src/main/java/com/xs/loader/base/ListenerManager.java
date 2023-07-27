@@ -1,4 +1,4 @@
-package com.xs.loader;
+package com.xs.loader.base;
 
 import com.xs.loader.logger.Logger;
 import net.dv8tion.jda.api.entities.Guild;

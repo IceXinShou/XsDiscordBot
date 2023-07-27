@@ -1,8 +1,8 @@
 package com.xs.voicelogger;
 
+import com.google.gson.JsonArray;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.json.JSONArray;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -16,7 +16,7 @@ public class ChannelSetting {
         this.whitelistStat = true;
     }
 
-    public ChannelSetting(boolean whitelist, @Nullable JSONArray white, @Nullable JSONArray black) {
+    public ChannelSetting(boolean whitelist, @Nullable JsonArray white, @Nullable JsonArray black) {
         this.whitelistStat = whitelist;
         if (white != null) add(white, true);
         if (black != null) add(black, false);
@@ -27,7 +27,7 @@ public class ChannelSetting {
         return this;
     }
 
-    public ChannelSetting add(@NotNull JSONArray ids, boolean white) {
+    public ChannelSetting add(@NotNull JsonArray ids, boolean white) {
         if (white) {
             for (Object i : ids) {
                 if (i instanceof Long)

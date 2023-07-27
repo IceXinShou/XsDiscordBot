@@ -14,7 +14,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.xs.loader.Loader.jdaBot;
+import static com.xs.loader.base.Loader.jdaBot;
 
 public class Main extends Event {
 

@@ -1,10 +1,11 @@
 package com.xs.loader.util;
 
-import com.xs.loader.Loader;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.xs.loader.base.Loader;
 import com.xs.loader.logger.Logger;
 import org.jetbrains.annotations.Nullable;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -14,8 +15,8 @@ public class JsonFileManager {
     private final File FILE;
     private final Logger logger;
     private final boolean isObject;
-    private JSONObject data_obj;
-    private JSONArray data_ary;
+    private JsonObject data_obj;
+    private JsonArray data_ary;
 
     public JsonFileManager(String FILE_PATH, String TAG, boolean isObject) {
         this.FILE = new File(Loader.ROOT_PATH + '/' + FILE_PATH);
@@ -41,46 +42,46 @@ public class JsonFileManager {
             if (!FILE.exists() || (tmp = streamToString(Files.newInputStream(FILE.toPath()))).length() == 0) {
                 FILE.createNewFile();
                 if (isObject) {
-                    data_obj = new JSONObject("{}");
+                    data_obj = new JsonObject();
                 } else {
-                    data_ary = new JSONArray("[]");
+                    data_ary = new JsonArray();
                 }
                 save();
                 return;
             }
 
             if (isObject) {
-                data_obj = new JSONObject(tmp);
+                data_obj = JsonParser.parseString(tmp).getAsJsonObject();
             } else {
-                data_ary = new JSONArray(tmp);
+                data_ary = JsonParser.parseString(tmp).getAsJsonArray();
             }
         } catch (IOException e) {
             logger.warn(e.getMessage());
         }
     }
 
-    public JSONObject getObj() {
+    public JsonObject getObj() {
         return data_obj;
     }
 
     @Nullable
-    public JSONObject getObj(String key) {
+    public JsonObject getObj(String key) {
         if (data_obj.has(key))
-            return data_obj.getJSONObject(key);
+            return data_obj.get(key).getAsJsonObject();
         return null;
     }
 
-    public JSONArray getAry() {
+    public JsonArray getAry() {
         return data_ary;
     }
 
     @Nullable
-    public JSONObject getOrDefault(String key) {
+    public JsonObject getOrDefault(String key) {
         if (isObject) {
-            if (data_obj.has(key)) return data_obj.getJSONObject(key);
+            if (data_obj.has(key)) return data_obj.get(key).getAsJsonObject();
             else {
-                JSONObject tmp = new JSONObject();
-                data_obj.put(key, tmp);
+                JsonObject tmp = new JsonObject();
+                data_obj.add(key, tmp);
                 return tmp;
             }
         }
@@ -88,30 +89,30 @@ public class JsonFileManager {
     }
 
     @Nullable
-    public JSONObject getOrDefault(String key, JSONObject object) {
+    public JsonObject getOrDefault(String key, JsonObject object) {
         if (isObject) {
-            if (data_obj.has(key)) return data_obj.getJSONObject(key);
+            if (data_obj.has(key)) return data_obj.get(key).getAsJsonObject();
             else {
-                data_obj.put(key, object);
+                data_obj.add(key, object);
                 return object;
             }
         }
         return null;
     }
 
-    public JSONArray getOrDefaultArray(String key) {
-        if (data_obj.has(key)) return data_obj.getJSONArray(key);
+    public JsonArray getOrDefaultArray(String key) {
+        if (data_obj.has(key)) return data_obj.get(key).getAsJsonArray();
         else {
-            JSONArray tmp = new JSONArray();
-            data_obj.put(key, tmp);
+            JsonArray tmp = new JsonArray();
+            data_obj.add(key, tmp);
             return tmp;
         }
     }
 
-    public JSONArray getOrDefaultArray(String key, JSONArray array) {
-        if (data_obj.has(key)) return data_obj.getJSONArray(key);
+    public JsonArray getOrDefaultArray(String key, JsonArray array) {
+        if (data_obj.has(key)) return data_obj.get(key).getAsJsonArray();
         else {
-            data_obj.put(key, array);
+            data_obj.add(key, array);
             return array;
         }
     }

@@ -1,7 +1,7 @@
 package com.xs.chatlogger;
 
+import com.google.gson.JsonObject;
 import org.jetbrains.annotations.Nullable;
-import org.json.JSONObject;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -15,7 +15,7 @@ public class ChannelSetting {
         this.whitelistStat = true;
     }
 
-    public ChannelSetting(boolean whitelist, @Nullable JSONObject white, @Nullable JSONObject black) {
+    public ChannelSetting(boolean whitelist, @Nullable JsonObject white, @Nullable JsonObject black) {
         this.whitelistStat = whitelist;
         if (white != null) add(white, true);
         if (black != null) add(black, false);
@@ -26,13 +26,13 @@ public class ChannelSetting {
         return this;
     }
 
-    public ChannelSetting add(JSONObject obj, boolean white) {
+    public ChannelSetting add(JsonObject obj, boolean white) {
         for (String detectID : obj.keySet()) {
-            JSONObject setting = obj.getJSONObject(detectID);
+            JsonObject setting = obj.get(detectID).getAsJsonObject();
             ListData data = new ListData(
                     Long.parseLong(detectID),
-                    setting.getBoolean("update"),
-                    setting.getBoolean("delete")
+                    setting.get("update").getAsBoolean(),
+                    setting.get("delete").getAsBoolean()
             );
 
             if (white)

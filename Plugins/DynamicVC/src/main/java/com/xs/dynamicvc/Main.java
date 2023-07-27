@@ -1,5 +1,7 @@
 package com.xs.dynamicvc;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.xs.loader.lang.LangManager;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.plugin.Event;
@@ -15,8 +17,6 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.build.*;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.util.Arrays;
@@ -24,7 +24,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.xs.loader.Loader.ROOT_PATH;
+import static com.xs.loader.base.Loader.ROOT_PATH;
 import static com.xs.loader.util.EmbedCreator.createEmbed;
 import static net.dv8tion.jda.api.Permission.ADMINISTRATOR;
 import static net.dv8tion.jda.api.interactions.commands.OptionType.CHANNEL;
@@ -64,13 +64,13 @@ public class Main extends Event {
             JsonFileManager fileManager = new JsonFileManager(PATH_FOLDER_NAME + "/Data/" + i.getName(), TAG, false);
 
             for (Object j : fileManager.getAry()) {
-                JSONObject obj = (JSONObject) j;
+                JsonObject obj = (JsonObject) j;
                 originChannel.add(new TrackedChannel(
                                 Long.parseLong(i.getName().substring(0, i.getName().length() - 5)),
-                                obj.getLong("category"),
-                                obj.getString("name"),
-                                obj.getInt("bitrate"),
-                                obj.getInt("limit")
+                                obj.get("category").getAsLong(),
+                                obj.get("name").getAsString(),
+                                obj.get("bitrate").getAsInt(),
+                                obj.get("limit").getAsInt()
                         )
                 );
             }
@@ -137,14 +137,14 @@ public class Main extends Event {
                     bitrate = channel.getBitrate();
                     limit = channel.getUserLimit();
 
-                    JSONObject object = new JSONObject();
-                    object.put("category", category);
-                    object.put("name", name);
-                    object.put("bitrate", bitrate);
-                    object.put("limit", limit);
+                    JsonObject object = new JsonObject();
+                    object.addProperty("category", category);
+                    object.addProperty("name", name);
+                    object.addProperty("bitrate", bitrate);
+                    object.addProperty("limit", limit);
 
                     JsonFileManager fileManager = new JsonFileManager(PATH_FOLDER_NAME + "/Data/" + guildID + ".json", TAG, false);
-                    fileManager.getAry().put(object);
+                    fileManager.getAry().add(object);
                     fileManager.save();
 
                     trackedChannel.add(channel.getIdLong());
@@ -163,23 +163,20 @@ public class Main extends Event {
                 JsonFileManager fileManager = new JsonFileManager(PATH_FOLDER_NAME + "/Data/" + guildID + ".json", TAG, false);
                 VoiceChannel channel = event.getOption("detect").getAsChannel().asVoiceChannel();
 
-                JSONObject targetObject = new JSONObject();
-                targetObject.put("category", channel.getParentCategoryIdLong());
-                targetObject.put("name", channel.getName());
-                targetObject.put("limit", channel.getUserLimit());
-                targetObject.put("bitrate", channel.getBitrate());
+                JsonObject targetObject = new JsonObject();
+                targetObject.addProperty("category", channel.getParentCategoryIdLong());
+                targetObject.addProperty("name", channel.getName());
+                targetObject.addProperty("limit", channel.getUserLimit());
+                targetObject.addProperty("bitrate", channel.getBitrate());
 
-                JSONArray array = fileManager.getAry();
+                JsonArray array = fileManager.getAry();
 
                 boolean removed = false;
-                int removedCount = 0;
-                for (int i = 0; i < array.length(); i++) {
-                    JSONObject obj = array.getJSONObject(0);
-
-                    if (obj.similar(targetObject)) {
+                for (int i = 0; i < array.size(); i++) {
+                    JsonObject obj = array.get(i).getAsJsonObject();
+                    if (obj.equals(targetObject)) {
                         array.remove(i);
                         removed = true;
-                        ++removedCount;
                     }
                 }
 

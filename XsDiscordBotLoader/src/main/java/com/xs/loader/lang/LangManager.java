@@ -1,6 +1,6 @@
 package com.xs.loader.lang;
 
-import com.xs.loader.Loader;
+import com.xs.loader.base.Loader;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.util.FileGetter;
 import net.dv8tion.jda.api.interactions.DiscordLocale;

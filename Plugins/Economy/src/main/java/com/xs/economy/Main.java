@@ -1,5 +1,6 @@
 package com.xs.economy;
 
+import com.google.gson.JsonObject;
 import com.xs.loader.lang.LangManager;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.plugin.Event;
@@ -20,7 +21,6 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
-import org.json.JSONObject;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
@@ -30,7 +30,7 @@ import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.xs.loader.Loader.ROOT_PATH;
+import static com.xs.loader.base.Loader.ROOT_PATH;
 import static com.xs.loader.util.EmbedCreator.createEmbed;
 import static com.xs.loader.util.GlobalUtil.getUserById;
 import static net.dv8tion.jda.api.Permission.ADMINISTRATOR;
@@ -204,8 +204,8 @@ public class Main extends Event {
     public void onReady(ReadyEvent event) {
         for (String i : manager.getObj().keySet()) {
             User user;
-            JSONObject object = manager.getOrDefault(i);
-            userData.put(Long.parseLong(i), new UserData(Long.parseLong(i), object.getInt("money"), object.getInt("total")));
+            JsonObject object = manager.getOrDefault(i);
+            userData.put(Long.parseLong(i), new UserData(Long.parseLong(i), object.get("money").getAsInt(), object.get("total").getAsInt()));
             try {
                 user = getUserById(Long.parseLong(i));
                 nameCache.put(Long.parseLong(i), user.getName());
@@ -282,16 +282,16 @@ public class Main extends Event {
                     event.getHook().editOriginalEmbeds(createEmbed(user.getName(),
                             langManager.get("runtime;current_money", local).replace("%money%", userData.get(user.getIdLong()).get() + " $"), 0x00FFFF)).queue();
 
-                    JSONObject object = manager.getOrDefault(user.getId());
+                    JsonObject object = manager.getOrDefault(user.getId());
                     if (object.has("money"))
-                        object.put("money", object.getInt("money") + value);
+                        object.addProperty("money", object.get("money").getAsInt() + value);
                     else
-                        object.put("money", value);
+                        object.addProperty("money", value);
 
                     if (object.has("total"))
-                        object.put("total", object.getInt("total") + value);
+                        object.addProperty("total", object.get("total").getAsInt() + value);
                     else
-                        object.put("total", value);
+                        object.addProperty("total", value);
 
                     manager.save();
                     updateMoney();
@@ -312,11 +312,11 @@ public class Main extends Event {
                     event.getHook().editOriginalEmbeds(createEmbed(user.getName(),
                             langManager.get("runtime;current_money", local).replace("%money%", userData.get(user.getIdLong()).get() + " $"), 0x00FFFF)).queue();
 
-                    JSONObject object = manager.getOrDefault(user.getId());
+                    JsonObject object = manager.getOrDefault(user.getId());
                     if (object.has("money"))
-                        object.put("money", object.getInt("money") - value);
+                        object.addProperty("money", object.get("money").getAsInt() - value);
                     else
-                        object.put("money", -value);
+                        object.addProperty("money", -value);
 
                     manager.save();
                     updateMoney();
@@ -336,7 +336,7 @@ public class Main extends Event {
                     event.getHook().editOriginalEmbeds(createEmbed(user.getName(),
                             langManager.get("runtime;current_money", local).replace("%money%", userData.get(user.getIdLong()).get() + " $"), 0x00FFFF)).queue();
 
-                    manager.getOrDefault(user.getId()).put("money", value);
+                    manager.getOrDefault(user.getId()).addProperty("money", value);
                     manager.save();
                     updateMoney();
                     break;
@@ -354,11 +354,11 @@ public class Main extends Event {
                     event.getHook().editOriginalEmbeds(createEmbed(user.getName(),
                             langManager.get("runtime;current_money_history", local).replace("%log_money%", userData.get(user.getIdLong()).getTotal() + " $"), 0x00FFFF)).queue();
 
-                    JSONObject object = manager.getOrDefault(user.getId());
+                    JsonObject object = manager.getOrDefault(user.getId());
                     if (object.has("total"))
-                        object.put("total", object.getInt("total") + value);
+                        object.addProperty("total", object.get("total").getAsInt() + value);
                     else
-                        object.put("total", value);
+                        object.addProperty("total", value);
 
                     manager.save();
                     updateTotal();
@@ -379,12 +379,12 @@ public class Main extends Event {
                             langManager.get("runtime;current_money_history", local).replace("%log_money%",
                                     userData.get(user.getIdLong()).getTotal() + " $"), 0x00FFFF)).queue();
 
-                    JSONObject object = manager.getOrDefault(user.getId());
+                    JsonObject object = manager.getOrDefault(user.getId());
 
                     if (object.has("total"))
-                        object.put("total", object.getInt("total") - value);
+                        object.addProperty("total", object.get("total").getAsInt() - value);
                     else
-                        object.put("total", -value);
+                        object.addProperty("total", -value);
 
                     manager.save();
                     updateTotal();
@@ -404,7 +404,7 @@ public class Main extends Event {
                     event.getHook().editOriginalEmbeds(createEmbed(user.getName(),
                             langManager.get("runtime;current_money_history", local).replace("%log_money%", userData.get(user.getIdLong()).getTotal() + " $"), 0x00FFFF)).queue();
 
-                    manager.getOrDefault(user.getId()).put("total", value);
+                    manager.getOrDefault(user.getId()).addProperty("total", value);
                     manager.save();
                     updateTotal();
                     break;
@@ -471,9 +471,9 @@ public class Main extends Event {
     void checkData(long id, String name) {
         if (!userData.containsKey(id)) {
             userData.put(id, new UserData(id));
-            JSONObject object = manager.getOrDefault(String.valueOf(id));
-            object.put("money", 0);
-            object.put("total", 0);
+            JsonObject object = manager.getOrDefault(String.valueOf(id));
+            object.addProperty("money", 0);
+            object.addProperty("total", 0);
             manager.save();
             nameCache.put(id, name);
             updateMoney();
