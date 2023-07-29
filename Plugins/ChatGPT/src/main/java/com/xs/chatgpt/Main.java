@@ -8,23 +8,23 @@ import com.xs.loader.logger.Logger;
 import com.xs.loader.plugin.Event;
 import com.xs.loader.util.FileGetter;
 import com.xs.loader.util.JsonFileManager;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.session.ShutdownEvent;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
-import org.jetbrains.annotations.Nullable;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import static com.xs.loader.base.Loader.ROOT_PATH;
 
@@ -33,16 +33,18 @@ public class Main extends Event {
     private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
     private final String PATH_FOLDER_NAME = "plugins/ChatGPT";
     private final List<Long> allowUserID = new ArrayList<>();
-    private final HashSet<Long> waitingList = new HashSet<>();
-    private final ExecutorService reqExecutors = Executors.newFixedThreadPool(8);
-    private String apiKey;
-    private String module;
-    private JsonArray defaultAry;
+    private final List<Long> allowForumChannelID = new ArrayList<>();
+    public static final Set<Long> waitingList = ConcurrentHashMap.newKeySet();
+    private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(3);
+    public static String apiKey;
+    public static String module;
+    public static JsonArray defaultAry;
     private MainConfig configFile;
     private LangManager langManager;
     private FileGetter getter;
     private Logger logger;
-    private JsonFileManager manager;
+    private JsonFileManager dmManager;
+    private final Map<Long, JsonFileManager> guildsManager = new HashMap<>();
     private Map<String, Map<DiscordLocale, String>> langMap; // Label, Local, Content
 
     public Main() {
@@ -85,6 +87,7 @@ public class Main extends Event {
             e.printStackTrace();
         }
         allowUserID.addAll(Arrays.asList(configFile.AllowUserID));
+        allowForumChannelID.addAll(Arrays.asList(configFile.AllowForumChannelID));
         apiKey = configFile.API_KEY;
         module = configFile.Module;
         defaultAry = JsonParser.parseString(
@@ -93,7 +96,7 @@ public class Main extends Event {
 
 
         new File(ROOT_PATH + "/" + PATH_FOLDER_NAME + "/data").mkdirs();
-        manager = new JsonFileManager("/" + PATH_FOLDER_NAME + "/data/data.json", TAG, true);
+        dmManager = new JsonFileManager("/" + PATH_FOLDER_NAME + "/data/dm.json", TAG, true);
 
         logger.log("Setting File Loaded Successfully");
     }
@@ -101,6 +104,18 @@ public class Main extends Event {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
+        dmListener(event);
+        forumListener(event);
+    }
+
+    @Override
+    public void onShutdown(ShutdownEvent event) {
+        executor.shutdown();
+    }
+
+
+    private void dmListener(MessageReceivedEvent event) {
+
         // Only from private channel
         if (!event.isFromType(ChannelType.PRIVATE)) return;
 
@@ -113,8 +128,51 @@ public class Main extends Event {
         if (!allowUserID.contains(id)) return;
 
         String msg = event.getMessage().getContentRaw();
-        JsonObject obj = manager.getObj();
+        JsonObject obj = dmManager.getObj();
 
+        if (msg.equals("結束對話") || msg.equalsIgnoreCase("end")) {
+            obj.add(String.valueOf(id), defaultAry.deepCopy());
+            dmManager.save();
+            waitingList.remove(id);
+            event.getChannel().sendMessage("對話已結束，可以開始新的話題了~").queue();
+            return;
+        }
+
+        // WaitingList Filter
+        if (waitingList.contains(id)) {
+            event.getMessage().reply("請等待上一個訊息完成...").queueAfter(3, TimeUnit.SECONDS, i -> i.delete().queue());
+            return;
+        }
+
+        waitingList.add(id);
+        event.getChannel().sendTyping().queue();
+        new MessageManager(dmManager, event.getMessage(), msg, id);
+    }
+
+    private void forumListener(MessageReceivedEvent event) {
+        // Only from forum channel
+        if (!event.isFromType(ChannelType.GUILD_PUBLIC_THREAD)) return;
+
+        // Bot Filter
+        User user = event.getAuthor();
+        if (user.isBot()) return;
+
+        // AllowList Filter
+        ThreadChannel channel = event.getChannel().asThreadChannel();
+        if (!allowForumChannelID.contains(channel.getParentChannel().getIdLong())) return;
+
+        String msg = event.getMessage().getContentRaw();
+        long id = channel.getIdLong();
+        long guildID = event.getGuild().getIdLong();
+        JsonFileManager manager;
+        if (guildsManager.containsKey(guildID)) {
+            manager = guildsManager.get(guildID);
+        } else {
+            manager = new JsonFileManager("/" + PATH_FOLDER_NAME + "/data/" + guildID + ".json", TAG, true);
+            guildsManager.put(guildID, manager);
+        }
+
+        JsonObject obj = manager.getObj();
         if (msg.equals("結束對話") || msg.equalsIgnoreCase("end")) {
             obj.add(String.valueOf(id), defaultAry.deepCopy());
             manager.save();
@@ -125,178 +183,12 @@ public class Main extends Event {
 
         // WaitingList Filter
         if (waitingList.contains(id)) {
-            event.getMessage().reply("請等待上一個訊息完成...").queue();
+            event.getMessage().reply("請等待上一個訊息完成...").queueAfter(3, TimeUnit.SECONDS, i -> i.delete().queue());
             return;
         }
 
         waitingList.add(id);
         event.getChannel().sendTyping().queue();
-
-        reqExecutors.submit(() -> {
-
-            // 初始化部分請求內容
-            JsonArray ary;
-            if (!obj.has(String.valueOf(id))) {
-                ary = defaultAry.deepCopy();
-                obj.add(String.valueOf(id), ary);
-            } else {
-                ary = obj.get(String.valueOf(id)).getAsJsonArray();
-            }
-
-            // 新增訊息至部分請求內容
-            ary.add(JsonParser.parseString("{\"role\":\"user\",\"content\":\"" + msg + "\"}").getAsJsonObject());
-
-            // 完整請求建構
-            JsonObject postObj = JsonParser.parseString("{\"stream\":true,\"model\": \"" + module + "\",\"messages\":" + ary + "}").getAsJsonObject();
-
-            try {
-                String postStr = postObj.toString();
-                URL url = new URL("https://api.openai.com/v1/chat/completions");
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                conn.setRequestMethod("POST");
-                conn.setRequestProperty("Content-Type", "application/json");
-                conn.setRequestProperty("Authorization", "Bearer " + apiKey);
-                conn.setConnectTimeout(20000);
-                conn.setReadTimeout(60000);
-                conn.setDoOutput(true);
-
-                try (DataOutputStream wr = new DataOutputStream(conn.getOutputStream())) {
-                    wr.write(postStr.getBytes(StandardCharsets.UTF_8));
-                }
-
-                StringBuilder fullRep = new StringBuilder();
-                Message lastReplyMessage = null;
-                StringBuffer lastDCMsgContent = new StringBuffer();
-                switch (conn.getResponseCode()) {
-                    case 200: {
-                        BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-
-                        String line;
-                        String newMsg;
-                        long lastTime = 0;
-                        while ((line = reader.readLine()) != null) {
-                            // 過濾系統通知與空回覆
-                            if (line.contains("assistant") || line.isEmpty()) {
-                                continue;
-                            }
-                            JsonObject streamObj = JsonParser.parseString(line.substring(6)).getAsJsonObject();
-
-                            // 傳輸結束
-                            if (!streamObj.get("choices").getAsJsonArray().get(0).getAsJsonObject().get("finish_reason").isJsonNull()) {
-                                break;
-                            }
-
-                            // 取得文字內容
-                            newMsg = streamObj.get("choices").getAsJsonArray()
-                                    .get(0).getAsJsonObject()
-                                    .get("delta").getAsJsonObject()
-                                    .get("content").getAsString();
-                            fullRep.append(newMsg);
-                            lastDCMsgContent.append(newMsg);
-
-                            // 每 2 秒更新文字
-                            if (System.currentTimeMillis() - lastTime > 2000) {
-                                if (lastTime == 0) {
-                                    lastReplyMessage = event.getMessage().reply(lastDCMsgContent.toString()).complete();
-                                } else {
-                                    StringBuffer buffer = updateMessage(event.getMessage(), lastReplyMessage, lastDCMsgContent.toString(), false);
-                                    if (buffer != null)
-                                        lastDCMsgContent = buffer;
-                                }
-
-                                lastTime = System.currentTimeMillis();
-                            }
-                        }
-
-                        reader.close();
-                        break;
-                    }
-
-                    // 例外情況
-                    default: {
-                        InputStreamReader reader = new InputStreamReader(conn.getErrorStream());
-                        JsonObject rep = JsonParser.parseReader(reader).getAsJsonObject();
-                        reader.close();
-
-                        logger.warn(conn.getResponseCode() + " error on requesting...");
-                        logger.warn(rep.toString());
-
-                        waitingList.remove(id);
-                        event.getMessage().reply("很抱歉，出現了一些錯誤。請等待修復或通知開發人員").queue();
-                        return;
-                    }
-                }
-
-                // 更新剩下文字
-                updateMessage(event.getMessage(), lastReplyMessage, lastDCMsgContent.toString(), true);
-                ary.add(JsonParser.parseString("{\"role\":\"user\",\"content\":\"" + fullRep + "\"}").getAsJsonObject());
-
-                logger.log("<- " + user.getName() + ": " + msg);
-                logger.log("-> " + user.getName() + ": " + fullRep);
-
-                manager.save();
-                waitingList.remove(id);
-            } catch (IOException e) {
-                logger.warn(e.getMessage());
-                waitingList.remove(id);
-                event.getChannel().sendMessage("很抱歉，出現了一些錯誤。請等待修復或通知開發人員").queue();
-            }
-        });
-    }
-
-    @Override
-    public void onShutdown(ShutdownEvent event) {
-        reqExecutors.shutdown();
-    }
-
-    @Nullable
-    private StringBuffer updateMessage(Message originMsg, Message latestMsg, String msg, boolean complete) {
-        List<String> msgList = splitMessage(msg);
-
-        if (msgList.size() != 1) {
-            for (int i = 1; i < msgList.size(); i++) {
-                if (i != msgList.size() - 1) { // multi reply
-                    originMsg.reply(msgList.get(i)).queue();
-
-                } else {
-                    originMsg.reply(msgList.get(i)).complete();
-                    return new StringBuffer(msgList.get(i));
-                }
-            }
-        }
-
-        if (complete)
-            latestMsg.editMessage(msg).complete();
-        else
-            latestMsg.editMessage(msg).queue();
-        return null;
-    }
-
-    private List<String> splitMessage(String msg) {
-        List<String> msgs = new ArrayList<>();
-        int maxMessageLength = 1999;
-
-        while (msg.length() > maxMessageLength) {
-            String part = msg.substring(0, maxMessageLength);
-
-            int lastCodeEndIndex = part.lastIndexOf("```\n");
-            if (lastCodeEndIndex > 0) {
-                part = part.substring(0, lastCodeEndIndex + 4);
-            } else {
-                int lastNewlineIndex = part.lastIndexOf('\n');
-                if (lastNewlineIndex > 0) {
-                    part = part.substring(0, lastNewlineIndex);
-                }
-            }
-
-            msgs.add(part);
-            msg = msg.substring(part.length());
-        }
-
-        if (!msg.isEmpty()) {
-            msgs.add(msg);
-        }
-
-        return msgs;
+        new MessageManager(manager, event.getMessage(), msg, id);
     }
 }
