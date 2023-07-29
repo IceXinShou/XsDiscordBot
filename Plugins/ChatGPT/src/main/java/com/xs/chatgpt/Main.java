@@ -9,6 +9,7 @@ import com.xs.loader.logger.Logger;
 import com.xs.loader.plugin.Event;
 import com.xs.loader.util.FileGetter;
 import com.xs.loader.util.JsonFileManager;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -32,6 +33,7 @@ public class Main extends Event {
     private final String PATH_FOLDER_NAME = "plugins/ChatGPT";
     private final List<Long> allowUserID = new ArrayList<>();
     private final HashSet<Long> waitingList = new HashSet<>();
+    private final ExecutorService reqExecutors = Executors.newFixedThreadPool(8);
     private String apiKey;
     private String module;
     private JsonArray defaultAry;
@@ -41,8 +43,6 @@ public class Main extends Event {
     private Logger logger;
     private JsonFileManager manager;
     private Map<String, Map<DiscordLocale, String>> langMap; // Label, Local, Content
-    private final ExecutorService reqExecutors = Executors.newFixedThreadPool(8);
-    private final ScheduledExecutorService typingScheduler = Executors.newScheduledThreadPool(8);
 
     public Main() {
         super(true);
@@ -129,11 +129,7 @@ public class Main extends Event {
         }
 
         waitingList.add(id);
-
-
-        ScheduledFuture<?> typingTask = typingScheduler.scheduleAtFixedRate(() -> {
-            event.getChannel().sendTyping().queue();
-        }, 0, 6, TimeUnit.SECONDS);
+        event.getChannel().sendTyping().queue();
 
         reqExecutors.submit(() -> {
             JsonArray ary;
@@ -144,7 +140,6 @@ public class Main extends Event {
                 ary = obj.get(String.valueOf(id)).getAsJsonArray();
             }
 
-            ary.add(JsonParser.parseString("{\"role\":\"user\",\"content\":\"" + msg + "\"}").getAsJsonObject());
 
             JsonObject postData = JsonParser.parseString("{\"stream\":true,\"model\": \"" + module + "\",\"messages\":" + ary + "}").getAsJsonObject();
 
@@ -163,17 +158,21 @@ public class Main extends Event {
                     wr.write(str.getBytes(StandardCharsets.UTF_8));
                 }
 
+                StringBuilder fullRep = new StringBuilder();
                 switch (conn.getResponseCode()) {
                     case 200: {
                         BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 
                         String line;
-                        StringBuilder fullRep = new StringBuilder();
-                        StringBuilder lastRepMsgContent = new StringBuilder();
-
+                        StringBuilder lastDCMsgContent = new StringBuilder();
+                        Message lastReplyMessage = null;
                         String newMsg;
                         long lastTime = 0;
                         while ((line = reader.readLine()) != null) {
+                            if (line.equals("data: [DONE]")) {
+                                break;
+                            }
+
                             JsonObject streamObj = JsonParser.parseString(line).getAsJsonObject();
                             newMsg = streamObj.get("choices").getAsJsonArray()
                                     .get(0).getAsJsonObject()
@@ -181,52 +180,56 @@ public class Main extends Event {
                                     .get("content").getAsString();
 
                             fullRep.append(newMsg);
-                            lastRepMsgContent.append(newMsg);
+                            lastDCMsgContent.append(newMsg);
 
                             if (System.currentTimeMillis() - lastTime > 3000) {
+                                if (lastTime == 0) {
+                                    lastReplyMessage = event.getMessage().reply(lastDCMsgContent.toString()).complete();
+                                } else {
+                                    List<String> msgList = splitMessage(lastDCMsgContent.toString());
+                                    lastReplyMessage.editMessage(msgList.get(0)).queue();
+                                    if (msgList.size() > 1) {
+                                        for (int i = 1; i < msgList.size(); i++) {
+                                            if (i == msgList.size() - 1) {
+                                                lastReplyMessage = event.getMessage().reply(msgList.get(i)).complete();
+                                            } else {
+                                                event.getMessage().reply(msgList.get(i)).queue();
+                                            }
+                                        }
+                                    }
+                                }
+
                                 lastTime = System.currentTimeMillis();
                             }
                         }
-
-
                         reader.close();
-
-                        return obj;
+                        break;
                     }
                     default: {
                         InputStreamReader reader = new InputStreamReader(conn.getErrorStream());
-                        JsonObject obj = JsonParser.parseReader(reader).getAsJsonObject();
+                        JsonObject rep = JsonParser.parseReader(reader).getAsJsonObject();
                         reader.close();
-                        logger.warn(obj.toString());
 
-                        return null;
+                        logger.warn("error on requesting...");
+                        logger.warn(rep.toString());
+
+                        waitingList.remove(id);
+                        event.getMessage().reply("很抱歉，出現了一些錯誤。請等待修復或通知開發人員").queue();
+                        return;
                     }
                 }
 
-
-                if (response == null) {
-                    logger.warn("error on requesting...");
-                    typingTask.cancel(false);
-                    waitingList.remove(id);
-                    event.getChannel().sendMessage("很抱歉，出現了一些錯誤。請等待修復或通知開發人員").queue();
-                    return;
-                }
-
-//                logger.log(new GsonBuilder().setPrettyPrinting().create().toJson(response));
+                logger.log(new GsonBuilder().setPrettyPrinting().create().toJson(fullRep.toString()));
 
 
-                ary.add(resp_msg);
+                ary.add(JsonParser.parseString("{\"role\":\"user\",\"content\":\"" + msg + "\"}").getAsJsonObject());
+                ary.add(JsonParser.parseString("{\"assistant\":\"user\",\"content\":\"" + fullRep + "\"}").getAsJsonObject());
                 manager.save();
 
-                typingTask.cancel(false);
-                for (String i : splitMessage(resp_msg.get("content").getAsString())) {
-                    event.getMessage().reply(i).queue();
-                }
 
                 waitingList.remove(id);
             } catch (IOException e) {
                 waitingList.remove(id);
-                typingTask.cancel(false);
                 event.getChannel().sendMessage("很抱歉，出現了一些錯誤。請等待修復或通知開發人員").queue();
                 throw new RuntimeException(e);
             }
@@ -236,7 +239,6 @@ public class Main extends Event {
     @Override
     public void onShutdown(ShutdownEvent event) {
         reqExecutors.shutdown();
-        typingScheduler.shutdown();
     }
 
 

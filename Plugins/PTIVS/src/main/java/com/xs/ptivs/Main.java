@@ -1,8 +1,8 @@
 package com.xs.ptivs;
 
-import com.xs.loader.PluginEvent;
-import com.xs.loader.lang.LangGetter;
+import com.xs.loader.lang.LangManager;
 import com.xs.loader.logger.Logger;
+import com.xs.loader.plugin.Event;
 import com.xs.loader.util.FileGetter;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
@@ -17,7 +17,7 @@ import java.util.Map;
 import static com.xs.loader.util.EmbedCreator.createEmbed;
 import static net.dv8tion.jda.api.Permission.ADMINISTRATOR;
 
-public class Main extends PluginEvent {
+public class Main extends Event {
     private static final String TAG = "PTIVS";
     private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
     private final String PATH_FOLDER_NAME = "./plugins/PTIVS";
@@ -45,11 +45,10 @@ public class Main extends PluginEvent {
 
     @Override
     public void loadLang() {
-        LangGetter langGetter = new LangGetter(TAG, getter, PATH_FOLDER_NAME, LANG_DEFAULT, this.getClass());
+        LangManager langManager = new LangManager(logger, getter, PATH_FOLDER_NAME, LANG_DEFAULT, DiscordLocale.CHINESE_TAIWAN);
 
         // expert files
-        langGetter.exportDefaultLang();
-        lang = langGetter.readLangFileData();
+        lang = langManager.getMap();
     }
 
     @Override
