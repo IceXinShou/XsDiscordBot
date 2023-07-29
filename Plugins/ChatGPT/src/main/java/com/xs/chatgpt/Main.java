@@ -140,7 +140,7 @@ public class Main extends Event {
 
         // WaitingList Filter
         if (waitingList.contains(id)) {
-            event.getMessage().reply("請等待上一個訊息完成...").queueAfter(3, TimeUnit.SECONDS, i -> i.delete().queue());
+            event.getMessage().reply("請等待上一個訊息完成...").queue(i -> i.delete().queueAfter(3, TimeUnit.SECONDS));
             return;
         }
 
@@ -171,7 +171,6 @@ public class Main extends Event {
             manager = new JsonFileManager("/" + PATH_FOLDER_NAME + "/data/" + guildID + ".json", TAG, true);
             guildsManager.put(guildID, manager);
         }
-
         JsonObject obj = manager.getObj();
         if (msg.equals("結束對話") || msg.equalsIgnoreCase("end")) {
             obj.add(String.valueOf(id), defaultAry.deepCopy());
@@ -183,7 +182,7 @@ public class Main extends Event {
 
         // WaitingList Filter
         if (waitingList.contains(id)) {
-            event.getMessage().reply("請等待上一個訊息完成...").queueAfter(3, TimeUnit.SECONDS, i -> i.delete().queue());
+            event.getMessage().reply("請等待上一個訊息完成...").queue(i -> i.delete().queueAfter(3, TimeUnit.SECONDS));
             return;
         }
 
