@@ -1,6 +1,5 @@
 package com.xs.chatgpt;
 
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -15,6 +14,7 @@ import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.session.ShutdownEvent;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
+import org.jetbrains.annotations.Nullable;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
@@ -23,7 +23,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static com.xs.loader.base.Loader.ROOT_PATH;
 
@@ -132,6 +133,8 @@ public class Main extends Event {
         event.getChannel().sendTyping().queue();
 
         reqExecutors.submit(() -> {
+
+            // 初始化部分請求內容
             JsonArray ary;
             if (!obj.has(String.valueOf(id))) {
                 ary = defaultAry.deepCopy();
@@ -140,11 +143,14 @@ public class Main extends Event {
                 ary = obj.get(String.valueOf(id)).getAsJsonArray();
             }
 
+            // 新增訊息至部分請求內容
+            ary.add(JsonParser.parseString("{\"role\":\"user\",\"content\":\"" + msg + "\"}").getAsJsonObject());
 
-            JsonObject postData = JsonParser.parseString("{\"stream\":true,\"model\": \"" + module + "\",\"messages\":" + ary + "}").getAsJsonObject();
+            // 完整請求建構
+            JsonObject postObj = JsonParser.parseString("{\"stream\":true,\"model\": \"" + module + "\",\"messages\":" + ary + "}").getAsJsonObject();
 
             try {
-                String str = postData.toString();
+                String postStr = postObj.toString();
                 URL url = new URL("https://api.openai.com/v1/chat/completions");
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("POST");
@@ -155,62 +161,64 @@ public class Main extends Event {
                 conn.setDoOutput(true);
 
                 try (DataOutputStream wr = new DataOutputStream(conn.getOutputStream())) {
-                    wr.write(str.getBytes(StandardCharsets.UTF_8));
+                    wr.write(postStr.getBytes(StandardCharsets.UTF_8));
                 }
 
                 StringBuilder fullRep = new StringBuilder();
+                Message lastReplyMessage = null;
+                StringBuffer lastDCMsgContent = new StringBuffer();
                 switch (conn.getResponseCode()) {
                     case 200: {
                         BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 
                         String line;
-                        StringBuilder lastDCMsgContent = new StringBuilder();
-                        Message lastReplyMessage = null;
                         String newMsg;
                         long lastTime = 0;
                         while ((line = reader.readLine()) != null) {
-                            if (line.equals("data: [DONE]")) {
+                            // 過濾系統通知與空回覆
+                            if (line.contains("assistant") || line.isEmpty()) {
+                                continue;
+                            }
+                            JsonObject streamObj = JsonParser.parseString(line.substring(6)).getAsJsonObject();
+
+                            // 傳輸結束
+                            if (!streamObj.get("choices").getAsJsonArray().get(0).getAsJsonObject().get("finish_reason").isJsonNull()) {
                                 break;
                             }
 
-                            JsonObject streamObj = JsonParser.parseString(line).getAsJsonObject();
+                            // 取得文字內容
                             newMsg = streamObj.get("choices").getAsJsonArray()
                                     .get(0).getAsJsonObject()
                                     .get("delta").getAsJsonObject()
                                     .get("content").getAsString();
-
                             fullRep.append(newMsg);
                             lastDCMsgContent.append(newMsg);
 
-                            if (System.currentTimeMillis() - lastTime > 3000) {
+                            // 每 2 秒更新文字
+                            if (System.currentTimeMillis() - lastTime > 2000) {
                                 if (lastTime == 0) {
                                     lastReplyMessage = event.getMessage().reply(lastDCMsgContent.toString()).complete();
                                 } else {
-                                    List<String> msgList = splitMessage(lastDCMsgContent.toString());
-                                    lastReplyMessage.editMessage(msgList.get(0)).queue();
-                                    if (msgList.size() > 1) {
-                                        for (int i = 1; i < msgList.size(); i++) {
-                                            if (i == msgList.size() - 1) {
-                                                lastReplyMessage = event.getMessage().reply(msgList.get(i)).complete();
-                                            } else {
-                                                event.getMessage().reply(msgList.get(i)).queue();
-                                            }
-                                        }
-                                    }
+                                    StringBuffer buffer = updateMessage(event.getMessage(), lastReplyMessage, lastDCMsgContent.toString(), false);
+                                    if (buffer != null)
+                                        lastDCMsgContent = buffer;
                                 }
 
                                 lastTime = System.currentTimeMillis();
                             }
                         }
+
                         reader.close();
                         break;
                     }
+
+                    // 例外情況
                     default: {
                         InputStreamReader reader = new InputStreamReader(conn.getErrorStream());
                         JsonObject rep = JsonParser.parseReader(reader).getAsJsonObject();
                         reader.close();
 
-                        logger.warn("error on requesting...");
+                        logger.warn(conn.getResponseCode() + " error on requesting...");
                         logger.warn(rep.toString());
 
                         waitingList.remove(id);
@@ -219,19 +227,19 @@ public class Main extends Event {
                     }
                 }
 
-                logger.log(new GsonBuilder().setPrettyPrinting().create().toJson(fullRep.toString()));
+                // 更新剩下文字
+                updateMessage(event.getMessage(), lastReplyMessage, lastDCMsgContent.toString(), true);
+                ary.add(JsonParser.parseString("{\"role\":\"user\",\"content\":\"" + fullRep + "\"}").getAsJsonObject());
 
+                logger.log("<- " + user.getName() + ": " + msg);
+                logger.log("-> " + user.getName() + ": " + fullRep);
 
-                ary.add(JsonParser.parseString("{\"role\":\"user\",\"content\":\"" + msg + "\"}").getAsJsonObject());
-                ary.add(JsonParser.parseString("{\"assistant\":\"user\",\"content\":\"" + fullRep + "\"}").getAsJsonObject());
                 manager.save();
-
-
                 waitingList.remove(id);
             } catch (IOException e) {
+                logger.warn(e.getMessage());
                 waitingList.remove(id);
                 event.getChannel().sendMessage("很抱歉，出現了一些錯誤。請等待修復或通知開發人員").queue();
-                throw new RuntimeException(e);
             }
         });
     }
@@ -241,6 +249,28 @@ public class Main extends Event {
         reqExecutors.shutdown();
     }
 
+    @Nullable
+    private StringBuffer updateMessage(Message originMsg, Message latestMsg, String msg, boolean complete) {
+        List<String> msgList = splitMessage(msg);
+
+        if (msgList.size() != 1) {
+            for (int i = 1; i < msgList.size(); i++) {
+                if (i != msgList.size() - 1) { // multi reply
+                    originMsg.reply(msgList.get(i)).queue();
+
+                } else {
+                    originMsg.reply(msgList.get(i)).complete();
+                    return new StringBuffer(msgList.get(i));
+                }
+            }
+        }
+
+        if (complete)
+            latestMsg.editMessage(msg).complete();
+        else
+            latestMsg.editMessage(msg).queue();
+        return null;
+    }
 
     private List<String> splitMessage(String msg) {
         List<String> msgs = new ArrayList<>();
