@@ -94,11 +94,11 @@ public class SheetRequest {
     }
 
     public boolean refresh() throws IOException {
-        if (sheetID.equals("")) {
+        if (sheetID.isEmpty()) {
             logger.warn("sheetID is empty");
             return false;
         }
-        if (sheetRange.equals("")) {
+        if (sheetRange.isEmpty()) {
             logger.warn("sheetRange is empty");
             return false;
         }

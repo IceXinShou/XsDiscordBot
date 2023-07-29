@@ -20,7 +20,7 @@ public class LangManager {
 
     public LangManager(Logger logger, FileGetter getter, String pathFolderName, String[] defaultLangs, DiscordLocale defaultLocal) {
         this.logger = logger;
-        this.FOLDER_PATH = Loader.ROOT_PATH + "/" + pathFolderName + "/Lang";
+        this.FOLDER_PATH = Loader.ROOT_PATH + "/" + pathFolderName + "/lang";
         this.getter = getter;
         this.DEFAULT_LANGS = defaultLangs;
         this.DEFAULT_LOCAL = defaultLocal;
@@ -72,7 +72,7 @@ public class LangManager {
             if (lang_file.exists()) continue;
 
             // export is not exist
-            getter.exportResource("lang/" + fileName, "/Lang/" + fileName);
+            getter.exportResource("lang/" + fileName);
         }
     }
 
@@ -81,7 +81,7 @@ public class LangManager {
             Map<String, Object> json = (Map<String, Object>) origin_json;
             for (final String key : json.keySet()) {
                 Object i = json.get(key);
-                if (level.equals("")) {
+                if (level.isEmpty()) {
                     readLang(i, key, locale);
                 } else {
                     readLang(i, level + ';' + key, locale);

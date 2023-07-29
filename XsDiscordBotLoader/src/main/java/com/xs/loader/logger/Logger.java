@@ -20,10 +20,10 @@ public class Logger {
     }
 
     public void warn(final String msg) {
-        System.err.println('[' + new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime()) + "] " + TAG + msg);
+        System.err.println('[' + new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime()) + "] " + ERRTAG + msg);
     }
 
     public void printWarn(final String msg) {
-        System.err.print('[' + new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime()) + "] " + TAG + msg);
+        System.err.print('[' + new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime()) + "] " + ERRTAG + msg);
     }
 }

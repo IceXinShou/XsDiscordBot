@@ -22,14 +22,14 @@ public class UserStepData {
      * @return <code>true</code> if chinese name set
      */
     public boolean chi() {
-        return !chineseName.equals("");
+        return !chineseName.isEmpty();
     }
 
     /**
      * @return <code>true</code> if english name set
      */
     public boolean eng() {
-        return !englishName.equals("") || !mc_uuid.equals("");
+        return !englishName.isEmpty() || !mc_uuid.isEmpty();
     }
 
     /**
@@ -48,9 +48,9 @@ public class UserStepData {
                 .setTimestamp(OffsetDateTime.now())
                 .setColor(0x00FFFF)
                 .addField("中文暱稱", chi() ? chineseName : "尚未設定", true)
-                .addField("英文暱稱", !englishName.equals("") ? englishName : "尚未設定", true);
+                .addField("英文暱稱", !englishName.isEmpty() ? englishName : "尚未設定", true);
 
-        if (!mc_uuid.equals("")) {
+        if (!mc_uuid.isEmpty()) {
             builder.addField("Minecraft UUID", mc_uuid, true);
         }
 
@@ -67,13 +67,13 @@ public class UserStepData {
         JsonObject obj = new JsonObject();
         obj.addProperty("chi", chineseName);
         obj.addProperty("eng", englishName);
-        if (!mc_uuid.equals(""))
+        if (!mc_uuid.isEmpty())
             obj.addProperty("mc", mc_uuid);
         return obj;
     }
 
     String getNick() {
-        if (!mc_uuid.equals(""))
+        if (!mc_uuid.isEmpty())
             return chineseName + " - " + uuidToName();
 
         return chineseName + " - " + englishName + "*";

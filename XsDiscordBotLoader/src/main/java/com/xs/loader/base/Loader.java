@@ -45,7 +45,6 @@ public class Loader {
     private final List<CommandData> globalCommands = new ArrayList<>();
     private final Queue<Event> listeners = new ArrayDeque<>();
     private final Logger logger;
-    private final String version = "v1.6";
     private final List<String> botStatus = new ArrayList<>();
     private final Map<String, Info> plugins = new HashMap<>();
     private final LinkedHashMap<String, Event> plugin_queue = new LinkedHashMap<>();
@@ -118,6 +117,7 @@ public class Loader {
             conn.disconnect();
 
 
+            final String version = "v1.6";
             if (version.equals(latestVersion)) {
                 logger.log("You are running on the latest version: " + Color.GREEN + version + Color.RESET);
                 return false;

@@ -292,7 +292,7 @@ public class Main extends Event {
                     .setFooter("成員誕生")
                     .setTimestamp(OffsetDateTime.now())
                     .setColor(0xFFCCDD);
-            if (!step.mc_uuid.equals("")) {
+            if (!step.mc_uuid.isEmpty()) {
                 builder
                         .setAuthor(member.getEffectiveName() + (member.getNickname() != null ?
                                         (" (" + member.getUser().getName() + ')') : ""),
@@ -354,7 +354,7 @@ public class Main extends Event {
         if ((engInp = event.getValue("eng")) == null) return;
         if ((mcid_inp = event.getValue("mcid")) == null) return;
 
-        if (!mcid_inp.getAsString().equals("")) {
+        if (!mcid_inp.getAsString().isEmpty()) {
             String uuid = getUUIDByName(mcid_inp.getAsString());
             if (uuid == null) {
                 event.deferReply(true).setEmbeds(

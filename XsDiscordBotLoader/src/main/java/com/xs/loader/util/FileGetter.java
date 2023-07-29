@@ -75,27 +75,19 @@ public class FileGetter {
         return null;
     }
 
+    /**
+     * @param sourceFilePath ex. "/info.yml"
+     */
     @Nullable
-    public File exportResource(String sourceFileName) {
-        InputStream fileInJar = CLASS.getResourceAsStream(sourceFileName);
-        try {
-            if (fileInJar == null) {
-                logger.warn("can not find resource: " + sourceFileName);
-                return null;
-            }
-
-            Files.copy(fileInJar, Paths.get(FOLDER_PATH + '/' + sourceFileName), StandardCopyOption.REPLACE_EXISTING);
-            fileInJar.close();
-            return new File(FOLDER_PATH + '/' + sourceFileName);
-        } catch (IOException e) {
-            logger.warn(e.getMessage());
-            logger.warn("read resource failed");
-        }
-        return null;
+    public InputStream getResource(String sourceFilePath) {
+        return CLASS.getResourceAsStream(sourceFilePath);
     }
 
+    /**
+     * @param sourceFilePath ex. "/info.yml"
+     */
     @Nullable
-    public File exportResource(String sourceFilePath, String outputName) {
+    public File exportResource(String sourceFilePath) {
         InputStream fileInJar = CLASS.getResourceAsStream(sourceFilePath);
 
         try {
@@ -104,9 +96,33 @@ public class FileGetter {
                 return null;
             }
 
-            Files.copy(fileInJar, Paths.get(FOLDER_PATH + '/' + outputName), StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(fileInJar, Paths.get(FOLDER_PATH + '/' + sourceFilePath), StandardCopyOption.REPLACE_EXISTING);
             fileInJar.close();
-            return new File(FOLDER_PATH + '/' + outputName);
+            return new File(FOLDER_PATH + '/' + sourceFilePath);
+        } catch (IOException e) {
+            logger.warn(e.getMessage());
+            logger.warn("read resource failed");
+        }
+        return null;
+    }
+
+    /**
+     * @param sourceFilePath ex. "/info.yml"
+     * @param outputPath     ex."/data/info.yml"
+     */
+    @Nullable
+    public File exportResource(String sourceFilePath, String outputPath) {
+        InputStream fileInJar = CLASS.getResourceAsStream(sourceFilePath);
+
+        try {
+            if (fileInJar == null) {
+                logger.warn("can not find resource: " + sourceFilePath);
+                return null;
+            }
+
+            Files.copy(fileInJar, Paths.get(FOLDER_PATH + '/' + outputPath), StandardCopyOption.REPLACE_EXISTING);
+            fileInJar.close();
+            return new File(FOLDER_PATH + '/' + outputPath);
         } catch (IOException e) {
             logger.warn("read resource failed");
             logger.warn(e.getMessage());
