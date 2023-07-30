@@ -29,22 +29,22 @@ import java.util.concurrent.TimeUnit;
 import static com.xs.loader.base.Loader.ROOT_PATH;
 
 public class Main extends Event {
+    public static final Set<Long> waitingList = ConcurrentHashMap.newKeySet();
     private static final String TAG = "ChatGPT";
+    public static String apiKey;
+    public static String module;
+    public static JsonArray defaultAry;
     private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
     private final String PATH_FOLDER_NAME = "plugins/ChatGPT";
     private final List<Long> allowUserID = new ArrayList<>();
     private final List<Long> allowForumChannelID = new ArrayList<>();
-    public static final Set<Long> waitingList = ConcurrentHashMap.newKeySet();
     private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(3);
-    public static String apiKey;
-    public static String module;
-    public static JsonArray defaultAry;
+    private final Map<Long, JsonFileManager> guildsManager = new HashMap<>();
     private MainConfig configFile;
     private LangManager langManager;
     private FileGetter getter;
     private Logger logger;
     private JsonFileManager dmManager;
-    private final Map<Long, JsonFileManager> guildsManager = new HashMap<>();
     private Map<String, Map<DiscordLocale, String>> langMap; // Label, Local, Content
 
     public Main() {
@@ -90,9 +90,7 @@ public class Main extends Event {
         allowForumChannelID.addAll(Arrays.asList(configFile.AllowForumChannelID));
         apiKey = configFile.API_KEY;
         module = configFile.Module;
-        defaultAry = JsonParser.parseString(
-                "[{\"role\": \"system\", \"content\": \"" + configFile.SystemPrompt + "\"}]"
-        ).getAsJsonArray();
+        defaultAry = JsonParser.parseString("[{\"role\": \"system\", \"content\": \"" + configFile.SystemPrompt + "\"}]").getAsJsonArray();
 
 
         new File(ROOT_PATH + "/" + PATH_FOLDER_NAME + "/data").mkdirs();
@@ -140,13 +138,13 @@ public class Main extends Event {
 
         // WaitingList Filter
         if (waitingList.contains(id)) {
-            event.getMessage().reply("請等待上一個訊息完成...").queue(i -> i.delete().queueAfter(3, TimeUnit.SECONDS));
+            event.getMessage().reply("請等待上一個訊息完成!").queue(i -> i.delete().queueAfter(3, TimeUnit.SECONDS));
             return;
         }
 
         waitingList.add(id);
         event.getChannel().sendTyping().queue();
-        new MessageManager(dmManager, event.getMessage(), msg, id);
+        executor.submit(() -> new MessageManager(dmManager, event.getMessage(), msg, id, user.getName(), logger));
     }
 
     private void forumListener(MessageReceivedEvent event) {
@@ -182,12 +180,12 @@ public class Main extends Event {
 
         // WaitingList Filter
         if (waitingList.contains(id)) {
-            event.getMessage().reply("請等待上一個訊息完成...").queue(i -> i.delete().queueAfter(3, TimeUnit.SECONDS));
+            event.getMessage().reply("請等待上一個訊息完成!").queue(i -> i.delete().queueAfter(3, TimeUnit.SECONDS));
             return;
         }
 
         waitingList.add(id);
         event.getChannel().sendTyping().queue();
-        new MessageManager(manager, event.getMessage(), msg, id);
+        executor.submit(() -> new MessageManager(manager, event.getMessage(), msg, id, user.getName(), logger));
     }
 }
