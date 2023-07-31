@@ -126,9 +126,9 @@ public class Loader {
                 logger.log("Downloading latest version file...");
                 logger.log("Please wait...");
 
-                FileOutputStream fos = new FileOutputStream(ROOT_PATH + '/' + fileName);
-                fos.getChannel().transferFrom(Channels.newChannel(downloadURL.openStream()), 0, Long.MAX_VALUE);
-                fos.close();
+                try (FileOutputStream fos = new FileOutputStream(ROOT_PATH + '/' + fileName)) {
+                    fos.getChannel().transferFrom(Channels.newChannel(downloadURL.openStream()), 0, Long.MAX_VALUE);
+                }
                 logger.log("Download Successfully");
                 logger.log("Please change to the latest version");
                 return true;
@@ -175,11 +175,8 @@ public class Loader {
 
 
     private void loadSettingFile() throws IOException {
-        InputStream inputStream = readOrDefaultYml("config_0A2F7C.yml", "config.yml", this.getClass().getClassLoader());
-        configFile = new Yaml().loadAs(inputStream, Setting.class);
-
-        if (inputStream != null) {
-            inputStream.close();
+        try (InputStream inputStream = readOrDefaultYml("config_0A2F7C.yml", "config.yml", this.getClass().getClassLoader())) {
+            configFile = new Yaml().loadAs(inputStream, Setting.class);
         }
 
         logger.log("Setting file loaded");
@@ -206,31 +203,31 @@ public class Loader {
             try {
                 if (file == null) continue;
                 if ((tmp = getExtensionByName(file.getName())) == null || !tmp.equals("jar")) continue;
-                JarFile jarFile = new JarFile(file);
-                InputStream inputStream = jarFile.getInputStream(jarFile.getEntry("info.yml"));
-                Config config = new Yaml().loadAs(inputStream, Config.class);
+                try (JarFile jarFile = new JarFile(file)) {
+                    try (InputStream inputStream = jarFile.getInputStream(jarFile.getEntry("info.yml"))) {
+                        Config config = new Yaml().loadAs(inputStream, Config.class);
 
-                if (!plugins.containsKey(config.name)) {
-                    loader.addJar(file, config.main);
-                    plugins.put(config.name, new Info(
-                                    config.name,
+                        if (!plugins.containsKey(config.name)) {
+                            loader.addJar(file, config.main);
+                            plugins.put(config.name, new Info(
+                                            config.name,
 
-                                    // plugin
-                                    (Event) loader.getClass(config.main)
-                                            .getDeclaredConstructor().newInstance(),
+                                            // plugin
+                                            (Event) loader.getClass(config.main)
+                                                    .getDeclaredConstructor().newInstance(),
 
-                                    // dependencies
-                                    config.depend,
-                                    config.soft_depend
-                            )
-                    );
-                } else {
-                    logger.warn("same plugin name: " + file.getName());
-                    ++fail;
-                    continue;
+                                            // dependencies
+                                            config.depend,
+                                            config.soft_depend
+                                    )
+                            );
+                        } else {
+                            logger.warn("same plugin name: " + file.getName());
+                            ++fail;
+                            continue;
+                        }
+                    }
                 }
-                inputStream.close();
-                jarFile.close();
                 ++count;
             } catch (Exception e) {
                 ++fail;
@@ -359,15 +356,12 @@ public class Loader {
 
     @Nullable
     private File exportResource(String sourceFile, String outputName, String outputPath, java.lang.ClassLoader loader) {
-        InputStream fileInJar = loader.getResourceAsStream(sourceFile);
-
-        try {
+        try (InputStream fileInJar = loader.getResourceAsStream(sourceFile)) {
             if (fileInJar == null) {
                 logger.warn("can not find resource: " + sourceFile);
                 return null;
             }
             Files.copy(fileInJar, Paths.get(Loader.ROOT_PATH + "/" + outputPath + "/" + outputName), StandardCopyOption.REPLACE_EXISTING);
-            fileInJar.close();
             return new File(Loader.ROOT_PATH + "/" + outputPath + "/" + outputName);
         } catch (IOException e) {
             logger.warn("read resource failed");

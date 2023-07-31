@@ -131,17 +131,15 @@ public class Main extends Event {
 
     @Override
     public void loadConfigFile() {
-        InputStream inputStream = getter.readInputStreamOrDefaultFromSource("config.yml");
-        if (inputStream == null) return;
-
-        try {
+        try (InputStream inputStream = getter.readInputStreamOrDefaultFromSource("config.yml")) {
+            if (inputStream == null) return;
             configFile = new Yaml(new Constructor(MainConfig.class)).load(inputStream);
-            inputStream.close();
             logger.log("Setting File Loaded Successfully");
         } catch (IOException e) {
             logger.warn("Please configure /" + PATH_FOLDER_NAME + "/config.yml");
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
+
         workingGuildID = configFile.guildID;
         moneyTypes.clear();
         for (String i : configFile.moneyType) {

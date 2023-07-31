@@ -88,18 +88,16 @@ public class FileGetter {
      */
     @Nullable
     public File exportResource(String sourceFilePath) {
-        InputStream fileInJar = CLASS.getResourceAsStream(sourceFilePath);
-
-        try {
+        try (InputStream fileInJar = CLASS.getResourceAsStream(sourceFilePath)) {
             if (fileInJar == null) {
                 logger.warn("can not find resource: " + sourceFilePath);
                 return null;
             }
 
             Files.copy(fileInJar, Paths.get(FOLDER_PATH + '/' + sourceFilePath), StandardCopyOption.REPLACE_EXISTING);
-            fileInJar.close();
             return new File(FOLDER_PATH + '/' + sourceFilePath);
         } catch (IOException e) {
+
             logger.warn(e.getMessage());
             logger.warn("read resource failed");
         }
@@ -112,21 +110,19 @@ public class FileGetter {
      */
     @Nullable
     public File exportResource(String sourceFilePath, String outputPath) {
-        InputStream fileInJar = CLASS.getResourceAsStream(sourceFilePath);
-
-        try {
+        try (InputStream fileInJar = CLASS.getResourceAsStream(sourceFilePath)) {
             if (fileInJar == null) {
                 logger.warn("can not find resource: " + sourceFilePath);
                 return null;
             }
 
             Files.copy(fileInJar, Paths.get(FOLDER_PATH + '/' + outputPath), StandardCopyOption.REPLACE_EXISTING);
-            fileInJar.close();
             return new File(FOLDER_PATH + '/' + outputPath);
         } catch (IOException e) {
             logger.warn("read resource failed");
             logger.warn(e.getMessage());
         }
+
         return null;
     }
 }

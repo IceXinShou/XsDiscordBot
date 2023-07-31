@@ -122,44 +122,42 @@ public class MessageManager {
 
         status = Status.READING;
         if (conn.getResponseCode() == 200) {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
+                String line;
+                String newMsg;
+                while ((line = reader.readLine()) != null) {
+                    // 過濾系統通知與空回覆
+                    if (line.contains("assistant") || line.isEmpty()) {
+                        continue;
+                    }
+                    JsonObject streamObj = JsonParser.parseString(line.substring(6)).getAsJsonObject();
 
-            String line;
-            String newMsg;
-            while ((line = reader.readLine()) != null) {
-                // 過濾系統通知與空回覆
-                if (line.contains("assistant") || line.isEmpty()) {
-                    continue;
+                    // 傳輸結束
+                    if (!streamObj.get("choices").getAsJsonArray().get(0).getAsJsonObject().get("finish_reason").isJsonNull()) {
+                        break;
+                    }
+
+                    // 取得文字內容
+                    newMsg = streamObj.get("choices").getAsJsonArray()
+                            .get(0).getAsJsonObject()
+                            .get("delta").getAsJsonObject()
+                            .get("content").getAsString();
+                    fullContent.append(newMsg);
+                    curStr.append(newMsg);
                 }
-                JsonObject streamObj = JsonParser.parseString(line.substring(6)).getAsJsonObject();
-
-                // 傳輸結束
-                if (!streamObj.get("choices").getAsJsonArray().get(0).getAsJsonObject().get("finish_reason").isJsonNull()) {
-                    break;
-                }
-
-                // 取得文字內容
-                newMsg = streamObj.get("choices").getAsJsonArray()
-                        .get(0).getAsJsonObject()
-                        .get("delta").getAsJsonObject()
-                        .get("content").getAsString();
-                fullContent.append(newMsg);
-                curStr.append(newMsg);
+                status = Status.DONE;
             }
-
-            reader.close();
-            status = Status.DONE;
         } else {
             // 例外情況
-            InputStreamReader reader = new InputStreamReader(conn.getErrorStream());
-            JsonObject rep = JsonParser.parseReader(reader).getAsJsonObject();
-            reader.close();
+            try (InputStreamReader reader = new InputStreamReader(conn.getErrorStream())) {
+                JsonObject rep = JsonParser.parseReader(reader).getAsJsonObject();
 
-            logger.warn(conn.getResponseCode() + " error on requesting...");
-            logger.warn(rep.toString());
+                logger.warn(conn.getResponseCode() + " error on requesting...");
+                logger.warn(rep.toString());
 
-            replyMessage.reply("很抱歉，出現了一些錯誤。請等待修復或通知開發人員").queue();
-            status = Status.READ_FAILED;
+                replyMessage.reply("很抱歉，出現了一些錯誤。請等待修復或通知開發人員").queue();
+                status = Status.READ_FAILED;
+            }
         }
     }
 

@@ -26,14 +26,13 @@ public class JsonFileManager {
     }
 
     public static String streamToString(InputStream inputStream) throws IOException {
-        ByteArrayOutputStream result = new ByteArrayOutputStream();
-        byte[] buffer = new byte[1024];
-        for (int length; (length = inputStream.read(buffer)) != -1; ) {
-            result.write(buffer, 0, length);
+        try (ByteArrayOutputStream result = new ByteArrayOutputStream()) {
+            byte[] buffer = new byte[1024];
+            for (int length; (length = inputStream.read(buffer)) != -1; ) {
+                result.write(buffer, 0, length);
+            }
+            return result.toString("UTF-8");
         }
-
-        result.close();
-        return result.toString("UTF-8");
     }
 
     private void initData() {
@@ -128,14 +127,14 @@ public class JsonFileManager {
 
     public void save() {
         try {
-            OutputStreamWriter writer = new OutputStreamWriter(Files.newOutputStream(FILE.toPath()), StandardCharsets.UTF_8);
-//            FileWriter writer = new FileWriter(FILE);
-            if (isObject)
-                writer.write(data_obj.toString());
-            else
-                writer.write(data_ary.toString());
-            writer.flush();
-            writer.close();
+            try (OutputStreamWriter writer = new OutputStreamWriter(Files.newOutputStream(FILE.toPath()), StandardCharsets.UTF_8)) {
+                if (isObject)
+                    writer.write(data_obj.toString());
+                else
+                    writer.write(data_ary.toString());
+                writer.flush();
+//                FileWriter writer = new FileWriter(FILE);
+            }
         } catch (IOException e) {
             logger.warn("Cannot save file: " + e.getMessage());
         }
