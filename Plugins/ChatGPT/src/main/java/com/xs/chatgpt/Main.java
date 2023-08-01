@@ -9,8 +9,6 @@ import com.xs.loader.plugin.Event;
 import com.xs.loader.util.FileGetter;
 import com.xs.loader.util.JsonFileManager;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.channel.ChannelType;
-import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.session.ShutdownEvent;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
@@ -100,8 +98,21 @@ public class Main extends Event {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        dmListener(event);
-        forumListener(event);
+        // Bot Filter
+        User user = event.getAuthor();
+        if (user.isBot()) return;
+
+
+        switch (event.getChannelType()) {
+            case PRIVATE: {
+                dmListener(event);
+                break;
+            }
+            case FORUM: {
+                forumListener(event);
+                break;
+            }
+        }
     }
 
     @Override
@@ -111,54 +122,18 @@ public class Main extends Event {
 
 
     private void dmListener(MessageReceivedEvent event) {
-
-        // Only from private channel
-        if (!event.isFromType(ChannelType.PRIVATE)) return;
-
-        // Bot Filter
-        User user = event.getAuthor();
-        if (user.isBot()) return;
-
         // AllowList Filter
         long id = event.getAuthor().getIdLong();
         if (!allowUserID.contains(id)) return;
 
-        String msg = event.getMessage().getContentRaw();
-        JsonObject obj = dmManager.getObj();
-
-        if (msg.equals("結束對話") || msg.equalsIgnoreCase("end")) {
-            obj.add(String.valueOf(id), defaultAry.deepCopy());
-            dmManager.save();
-            waitingList.remove(id);
-            event.getChannel().sendMessage("對話已結束，可以開始新的話題了~").queue();
-            return;
-        }
-
-        // WaitingList Filter
-        if (waitingList.contains(id)) {
-            event.getMessage().reply("請等待上一個訊息完成!").queue(i -> i.delete().queueAfter(3, TimeUnit.SECONDS));
-            return;
-        }
-
-        waitingList.add(id);
-        event.getChannel().sendTyping().queue();
-        executor.submit(() -> new MessageManager(dmManager, event.getMessage(), msg, id, user.getName(), logger));
+        process(event, dmManager);
     }
 
     private void forumListener(MessageReceivedEvent event) {
-        // Only from forum channel
-        if (!event.isFromType(ChannelType.GUILD_PUBLIC_THREAD)) return;
-
-        // Bot Filter
-        User user = event.getAuthor();
-        if (user.isBot()) return;
-
         // AllowList Filter
-        ThreadChannel channel = event.getChannel().asThreadChannel();
-        if (!allowForumChannelID.contains(channel.getParentChannel().getIdLong())) return;
+        if (!allowForumChannelID.contains(
+                event.getChannel().asThreadChannel().getParentChannel().getIdLong())) return;
 
-        String msg = event.getMessage().getContentRaw();
-        long id = channel.getIdLong();
         long guildID = event.getGuild().getIdLong();
         JsonFileManager manager;
         if (guildsManager.containsKey(guildID)) {
@@ -167,7 +142,15 @@ public class Main extends Event {
             manager = new JsonFileManager("/" + PATH_FOLDER_NAME + "/data/" + guildID + ".json", TAG, true);
             guildsManager.put(guildID, manager);
         }
+
+        process(event, manager);
+    }
+
+    private void process(MessageReceivedEvent event, JsonFileManager manager) {
         JsonObject obj = manager.getObj();
+        long id = event.getAuthor().getIdLong();
+        String msg = event.getMessage().getContentRaw();
+
         if (msg.equals("結束對話") || msg.equalsIgnoreCase("end")) {
             obj.add(String.valueOf(id), defaultAry.deepCopy());
             manager.save();
@@ -184,6 +167,13 @@ public class Main extends Event {
 
         waitingList.add(id);
         event.getChannel().sendTyping().queue();
-        executor.submit(() -> new MessageManager(manager, event.getMessage(), msg, id, user.getName(), logger));
+        String name = event.getAuthor().getName();
+        executor.submit(() -> {
+            logger.log("<- " + name + ": " + msg);
+            MessageManager messageManager = new MessageManager(manager, event.getMessage(), msg, id, logger);
+            logger.log("-> " + name + ": "
+                    + messageManager.fullContent.toString().replace("\n", "\\n"));
+
+        });
     }
 }

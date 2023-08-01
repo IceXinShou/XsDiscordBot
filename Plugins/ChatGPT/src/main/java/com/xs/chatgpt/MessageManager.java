@@ -23,48 +23,35 @@ import static com.xs.chatgpt.Main.*;
 
 public class MessageManager {
 
-    private final StringBuilder fullContent = new StringBuilder();
+    public final StringBuilder fullContent = new StringBuilder();
     private final Message replyMessage;
     private final StringBuffer curStr = new StringBuffer();
     private final Logger logger;
     private Message latestMessage;
     private Status status = Status.INIT;
+    private final String msg;
+    private final JsonObject postObj = new JsonObject();
+    private final JsonArray dataAry;
 
 
-    MessageManager(JsonFileManager manager, Message replyMessage, String msg, long id, String name, Logger logger) {
+    MessageManager(JsonFileManager manager, Message replyMessage, String msg, long id, Logger logger) {
         this.replyMessage = replyMessage;
+        this.msg = msg;
         this.logger = logger;
-        logger.log("<- " + name + ": " + msg);
 
-        JsonObject obj = manager.getObj();
         // 初始化部分請求內容
-        JsonArray ary;
+        JsonObject obj = manager.getObj();
         if (!obj.has(String.valueOf(id))) {
-            ary = defaultAry.deepCopy();
-            obj.add(String.valueOf(id), ary);
+            dataAry = defaultAry.deepCopy();
+            obj.add(String.valueOf(id), dataAry);
         } else {
-            ary = obj.get(String.valueOf(id)).getAsJsonArray();
+            dataAry = obj.get(String.valueOf(id)).getAsJsonArray();
         }
-        // 新增訊息至部分請求內容
 
-        JsonObject msgObj = new JsonObject();
-        msgObj.addProperty("role", "user");
-        msgObj.addProperty("content", msg);
-        int msgObjLen = msgObj.toString().length();
-        int aryLen = ary.toString().length();
-//        while(aryLen)
-        ary.add(msgObj);
-
-        // 完整請求建構
-        JsonObject postObj = new JsonObject();
-        postObj.addProperty("stream", true);
-        postObj.addProperty("model", module);
-        postObj.add("messages", ary);
         ExecutorService executor = Executors.newFixedThreadPool(1);
-
         executor.submit(() -> {
             try {
-                getData(postObj.toString());
+                getData(buildRequest());
             } catch (IOException e) {
                 replyMessage.reply("很抱歉，出現了一些錯誤。請等待修復或通知開發人員").queue();
                 status = Status.ERROR;
@@ -93,17 +80,48 @@ public class MessageManager {
                 lastTime = System.currentTimeMillis();
             }
         }
+
         if (status == Status.DONE) {
             updateMessage(true);
             JsonObject newObj = new JsonObject();
             newObj.addProperty("role", "assistant");
             newObj.addProperty("content", fullContent.toString());
-            ary.add(newObj);
+            dataAry.add(newObj);
             manager.save();
         }
         waitingList.remove(id);
         executor.shutdown();
-        logger.log("-> " + name + ": " + fullContent.toString().replace("\n", "\\n"));
+
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private String buildRequest() {
+        // 新增訊息至部分請求內容
+        JsonObject msgObj = new JsonObject();
+        msgObj.addProperty("role", "user");
+        msgObj.addProperty("content", msg);
+        dataAry.add(msgObj);
+
+        // 完整請求建構
+        postObj.addProperty("stream", true);
+        postObj.addProperty("model", module);
+        postObj.add("messages", dataAry);
+
+        return postObj.toString();
+    }
+
+    private String reBuildRequest() {
+        System.out.println(postObj);
+        dataAry.remove(1); // index 0 is system command
+
+        // 更新請求建構
+        postObj.add("messages", dataAry);
+        System.out.println(postObj);
+        return postObj.toString();
     }
 
     private void getData(String postStr) throws IOException {
@@ -151,6 +169,16 @@ public class MessageManager {
             // 例外情況
             try (InputStreamReader reader = new InputStreamReader(conn.getErrorStream())) {
                 JsonObject rep = JsonParser.parseReader(reader).getAsJsonObject();
+
+                String errorCode = rep.get("error").getAsJsonObject().get("code").getAsString();
+                switch (errorCode) {
+                    case "context_length_exceeded": {
+                        System.out.println("SORT");
+                        // TODO: add gpt3-tokenizer
+                        getData(reBuildRequest());
+                        return;
+                    }
+                }
 
                 logger.warn(conn.getResponseCode() + " error on requesting...");
                 logger.warn(rep.toString());
