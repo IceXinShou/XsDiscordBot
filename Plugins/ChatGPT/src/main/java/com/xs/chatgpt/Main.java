@@ -108,7 +108,7 @@ public class Main extends Event {
                 dmListener(event);
                 break;
             }
-            case FORUM: {
+            case GUILD_PUBLIC_THREAD: {
                 forumListener(event);
                 break;
             }
