@@ -170,7 +170,7 @@ public class Main extends Event {
         String name = event.getAuthor().getName();
         executor.submit(() -> {
             logger.log("<- " + name + ": " + msg);
-            MessageManager messageManager = new MessageManager(manager, event.getMessage(), msg, id, logger);
+            MessageManager messageManager = new MessageManager(manager, event.getMessage(), msg, event.getChannel().getIdLong(), logger);
             logger.log("-> " + name + ": "
                     + messageManager.fullContent.toString().replace("\n", "\\n"));
 
