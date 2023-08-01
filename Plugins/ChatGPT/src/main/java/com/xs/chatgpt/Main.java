@@ -173,7 +173,7 @@ public class Main extends Event {
             MessageManager messageManager = new MessageManager(manager, event.getMessage(), msg, event.getChannel().getIdLong(), logger);
             logger.log("-> " + name + ": "
                     + messageManager.fullContent.toString().replace("\n", "\\n"));
-
+            waitingList.remove(id);
         });
     }
 }

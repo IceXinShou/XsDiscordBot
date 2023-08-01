@@ -89,14 +89,7 @@ public class MessageManager {
             dataAry.add(newObj);
             manager.save();
         }
-        waitingList.remove(id);
         executor.shutdown();
-
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private String buildRequest() {
