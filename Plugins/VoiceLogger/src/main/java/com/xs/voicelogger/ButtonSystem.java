@@ -33,10 +33,10 @@ public class ButtonSystem {
         this.manager = manager;
     }
 
-    public void setting(SlashCommandInteractionEvent event, DiscordLocale local) {
+    public void setting(SlashCommandInteractionEvent event) {
         if (event.getGuild() == null) return;
         ChannelSetting setting = manager.getOrDefault(event.getGuild().getIdLong(), event.getChannel().getIdLong());
-
+        DiscordLocale local = event.getUserLocale();
         event.getHook()
                 .editOriginalEmbeds(getEmbed(setting, local).build())
                 .setActionRow(getButtons(event, local))
@@ -118,7 +118,7 @@ public class ButtonSystem {
 
     private EmbedBuilder getEmbed(ChannelSetting setting, DiscordLocale local) {
         StringBuilder whiteBuilder = new StringBuilder();
-        if (setting.white.size() > 0) {
+        if (!setting.white.isEmpty()) {
             for (long i : setting.white) {
                 whiteBuilder.append("<#").append(i).append(">\n");
             }
@@ -127,7 +127,7 @@ public class ButtonSystem {
         }
 
         StringBuilder blackBuilder = new StringBuilder();
-        if (setting.black.size() > 0) {
+        if (!setting.black.isEmpty()) {
             for (long i : setting.black) {
                 blackBuilder.append("<#").append(i).append(">\n");
             }

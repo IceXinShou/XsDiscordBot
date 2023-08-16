@@ -63,8 +63,6 @@ public class Main extends Event {
         super(true);
 
         executorService = Executors.newScheduledThreadPool(1);
-
-
     }
 
     @Override

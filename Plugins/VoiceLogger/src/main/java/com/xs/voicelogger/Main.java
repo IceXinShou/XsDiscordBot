@@ -88,10 +88,9 @@ public class Main extends Event {
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         if (!event.getName().equals("voice_logger")) return;
         if (event.getSubcommandName() == null) return;
-        DiscordLocale local = event.getUserLocale();
 
         if (event.getSubcommandName().equals("setting")) {
-            buttonSystem.setting(event, local);
+            buttonSystem.setting(event);
         }
     }
 
