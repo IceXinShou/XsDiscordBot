@@ -1,0 +1,3 @@
+register:
+  cmd: ticket
+  description: Create a ticket message with button
