@@ -44,7 +44,7 @@ public class JsonManager {
                 // if channel cannot access, skip it
                 if (guild.getGuildChannelById(channelID) == null) continue;
 
-                JsonObject settingObj = manager.getObj().get(channelID).getAsJsonObject();
+                JsonObject settingObj = manager.getObj(channelID).getAsJsonObject();
                 Map<Long, ChannelSetting> tmp = new HashMap<>();
                 tmp.put(Long.parseLong(channelID), new ChannelSetting(
                         settingObj.get("whitelist").getAsBoolean(),

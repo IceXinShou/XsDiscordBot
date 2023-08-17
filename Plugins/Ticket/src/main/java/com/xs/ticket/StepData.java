@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StepData {
-    public long uniqueId;
     public String author;
     public String authorIconURL;
     public String title;
@@ -19,8 +18,7 @@ public class StepData {
     public Emoji btnEmoji;
     public ButtonStyle btnStyle;
 
-    public StepData(long id) {
-        uniqueId = id;
+    public StepData() {
         author = "Ticket 服務";
         authorIconURL = "https://img.lovepik.com/free-png/20211116/lovepik-customer-service-personnel-icon-png-image_400960955_wh1200.png";
         title = "\uD83D\uDEE0 聯絡我們";

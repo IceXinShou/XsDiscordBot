@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.sun.istack.internal.Nullable;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
@@ -23,7 +24,7 @@ public class CreateStep {
 
     public CreateStep(InteractionHook hook) {
         this.hook = hook;
-        data = new StepData(hook.getInteraction().getIdLong());
+        data = new StepData();
     }
 
     public void updateEmbed() {
@@ -33,16 +34,14 @@ public class CreateStep {
 
                         ActionRow.of(
                                 new ButtonImpl("xs:ticket:cr:author", "設定作者", PRIMARY, false, null),
-                                new ButtonImpl("xs:ticket:cr:title", "設定標體", PRIMARY, false, null),
-                                new ButtonImpl("xs:ticket:cr:desc", "設定內文", PRIMARY, false, null),
+                                new ButtonImpl("xs:ticket:cr:content", "設定文字", PRIMARY, false, null),
                                 new ButtonImpl("xs:ticket:cr:reason", "設定原因", PRIMARY, false, null),
-                                new ButtonImpl("xs:ticket:cr:admin", "設定允許身分組", PRIMARY, false, null)
+                                new ButtonImpl("xs:ticket:cr:admin", "設定允許身分組", PRIMARY, false, null),
+                                new ButtonImpl("xs:ticket:cr:color", "設定顏色", PRIMARY, false, null)
                         ),
 
                         ActionRow.of(
-                                new ButtonImpl("xs:ticket:cr:color", "設定顏色", PRIMARY, false, null),
-                                new ButtonImpl("xs:ticket:cr:btnText", "設定按鈕文字", PRIMARY, false, null),
-                                new ButtonImpl("xs:ticket:cr:btnEmoji", "設定按鈕符號", PRIMARY, false, null),
+                                new ButtonImpl("xs:ticket:cr:btnContent", "設定按鈕文字", PRIMARY, false, null),
                                 new ButtonImpl("xs:ticket:cr:btnColor", "設定按鈕顏色", PRIMARY, false, null),
                                 new ButtonImpl("xs:ticket:cr:confirm", "確定建立", SUCCESS, false, null)
                         )
@@ -123,13 +122,13 @@ public class CreateStep {
         data.btnStyle = style;
     }
 
-    public void confirmCreate(MessageChannelUnion channel) {
-        channel.sendMessageEmbeds(getPreviewEmbed())
-                .setActionRow(
-                        new ButtonImpl("xs:ticket:btn:" + data.uniqueId, data.btnContent, data.btnStyle, false, data.btnEmoji)
-                )
-                .complete();
+    public long confirmCreate(MessageChannelUnion channel) {
+        Message message = channel.sendMessageEmbeds(getPreviewEmbed()).complete();
+        message.editMessageComponents(ActionRow.of(
+                new ButtonImpl("xs:ticket:btn", data.btnContent, data.btnStyle, false, data.btnEmoji)
+        )).queue();
 
         hook.deleteOriginal().queue();
+        return message.getIdLong();
     }
 }

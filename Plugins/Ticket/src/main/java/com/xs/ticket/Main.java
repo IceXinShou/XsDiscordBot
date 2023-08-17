@@ -1,6 +1,7 @@
 package com.xs.ticket;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.xs.loader.lang.LangManager;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.plugin.Event;
@@ -19,6 +20,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.EntitySelectInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
@@ -101,6 +103,10 @@ public class Main extends Event {
         DiscordLocale local = event.getUserLocale();
         if (args[2].equals("cr")) {
             switch (args[3]) {
+                case "back": {
+                    mainMenu(event);
+                    break;
+                }
                 case "btn": {
                     previewReason(event);
                     break;
@@ -109,12 +115,8 @@ public class Main extends Event {
                     authorForm(event);
                     break;
                 }
-                case "title": {
-                    titleForm(event);
-                    break;
-                }
-                case "desc": {
-                    descForm(event);
+                case "content": {
+                    content(event);
                     break;
                 }
                 case "reason": {
@@ -129,12 +131,8 @@ public class Main extends Event {
                     colorForm(event);
                     break;
                 }
-                case "btnText": {
-                    btnTextForm(event);
-                    break;
-                }
-                case "btnEmoji": {
-                    btnEmojiForm(event);
+                case "btnContent": {
+                    btnContentForm(event);
                     break;
                 }
                 case "btnColor": {
@@ -150,8 +148,8 @@ public class Main extends Event {
 
         switch (args[2]) {
             case "btn": {
-                JsonElement tmp;
-                if ((tmp = manager.getObj().get(args[3])) == null) {
+                JsonObject tmp;
+                if ((tmp = manager.getObj(event.getMessageId())) == null) {
                     event.deferReply(true).addContent("錯誤").queue();
                     return;
                 }
@@ -159,7 +157,7 @@ public class Main extends Event {
                 String reason = tmp.getAsJsonObject().get("reasonTitle").getAsString();
                 TextInput reasonInput = TextInput.create("reason", "原因", TextInputStyle.PARAGRAPH).build();
                 event.replyModal(
-                        Modal.create("xs:ticket:push:" + args[3], reason)
+                        Modal.create("xs:ticket:push:" + event.getMessageId(), reason)
                                 .addComponents(ActionRow.of(reasonInput))
                                 .build()
                 ).queue();
@@ -193,12 +191,11 @@ public class Main extends Event {
             }
 
             case "delete": {
-                System.out.println(args[3]);
                 List<Role> roles = new ArrayList<>();
                 Member member = event.getMember();
                 Guild guild = event.getGuild();
 
-                for (JsonElement i : manager.getObj().get(args[3]).getAsJsonObject()
+                for (JsonElement i : manager.getObj(args[3]).getAsJsonObject()
                         .getAsJsonArray("adminIDs").asList()) {
                     Role tmp = guild.getRoleById(i.getAsString());
 
@@ -242,12 +239,8 @@ public class Main extends Event {
                     break;
                 }
 
-                case "title": {
+                case "content": {
                     step.setTitle(event.getValue("title").getAsString());
-                    break;
-                }
-
-                case "desc": {
                     step.setDesc(event.getValue("desc").getAsString());
                     break;
                 }
@@ -285,8 +278,8 @@ public class Main extends Event {
 
         switch (args[2]) {
             case "push": {
-                JsonElement tmp;
-                if ((tmp = manager.getObj().get(args[3])) == null) {
+                JsonObject tmp;
+                if ((tmp = manager.getObj(args[3])) == null) {
                     event.deferReply(true).addContent("錯誤").queue();
                     return;
                 }
@@ -355,6 +348,20 @@ public class Main extends Event {
         }
     }
 
+    @Override
+    public void onMessageDelete(MessageDeleteEvent event) {
+        if (manager.getObj().has(event.getMessageId())) {
+            manager.getObj().remove(event.getMessageId());
+            manager.save();
+        }
+    }
+
+    private void mainMenu(ButtonInteractionEvent event) {
+        CreateStep step = steps.get(event.getUser().getIdLong());
+        step.updateEmbed();
+        event.deferEdit().queue();
+    }
+
     private void previewReason(ButtonInteractionEvent event) {
         CreateStep step = steps.get(event.getUser().getIdLong());
         TextInput reasonInput = TextInput.create("reason", "原因", TextInputStyle.PARAGRAPH).build();
@@ -398,7 +405,7 @@ public class Main extends Event {
         ).queue();
     }
 
-    private void titleForm(ButtonInteractionEvent event) {
+    private void content(ButtonInteractionEvent event) {
         CreateStep step = steps.get(event.getUser().getIdLong());
         TextInput titleInput = TextInput.create("title", "設定標題", TextInputStyle.SHORT)
                 .setValue(step.data.title)
@@ -406,24 +413,19 @@ public class Main extends Event {
                 .setMaxLength(256)
                 .build();
 
-        event.replyModal(
-                Modal.create("xs:ticket:cr:title", "創建客服單")
-                        .addComponents(ActionRow.of(titleInput))
-                        .build()
-        ).queue();
-    }
-
-    private void descForm(ButtonInteractionEvent event) {
-        CreateStep step = steps.get(event.getUser().getIdLong());
         TextInput descInput = TextInput.create("desc", "設定內文", TextInputStyle.PARAGRAPH)
                 .setValue(step.data.description)
                 .setPlaceholder("\uD83D\uDEE0 聯絡我們")
                 .setMaxLength(4000)
                 .build();
 
+
         event.replyModal(
-                Modal.create("xs:ticket:cr:desc", "創建客服單")
-                        .addComponents(ActionRow.of(descInput))
+                Modal.create("xs:ticket:cr:content", "創建客服單")
+                        .addComponents(
+                                ActionRow.of(titleInput),
+                                ActionRow.of(descInput)
+                        )
                         .build()
         ).queue();
     }
@@ -447,10 +449,15 @@ public class Main extends Event {
         CreateStep step = steps.get(event.getUser().getIdLong());
         EntitySelectMenu menu =
                 EntitySelectMenu.create("xs:ticket:cr:admin", EntitySelectMenu.SelectTarget.ROLE)
-                        .setRequiredRange(1, 25)
+                        .setMaxValues(25)
                         .build();
 
-        step.hook.editOriginalComponents(ActionRow.of(menu)).queue();
+
+        step.hook.editOriginalComponents(
+                ActionRow.of(menu),
+                ActionRow.of(Button.of(ButtonStyle.PRIMARY, "xs:ticket:cr:back", "返回"))
+        ).queue();
+        event.deferEdit().queue();
     }
 
     private void colorForm(ButtonInteractionEvent event) {
@@ -467,7 +474,7 @@ public class Main extends Event {
         ).queue();
     }
 
-    private void btnTextForm(ButtonInteractionEvent event) {
+    private void btnContentForm(ButtonInteractionEvent event) {
         CreateStep step = steps.get(event.getUser().getIdLong());
         TextInput btnTextInput = TextInput.create("btnText", "設定按鈕文字", TextInputStyle.SHORT)
                 .setValue(step.data.btnContent)
@@ -475,24 +482,18 @@ public class Main extends Event {
                 .setMaxLength(80)
                 .build();
 
-        event.replyModal(
-                Modal.create("xs:ticket:cr:btnText", "創建客服單")
-                        .addComponents(ActionRow.of(btnTextInput))
-                        .build()
-        ).queue();
-    }
-
-    private void btnEmojiForm(ButtonInteractionEvent event) {
-        CreateStep step = steps.get(event.getUser().getIdLong());
-        TextInput btnEmojiInput = TextInput.create("btnEmoji", "設定按鈕符號", TextInputStyle.PARAGRAPH)
+        TextInput btnEmojiInput = TextInput.create("btnEmoji", "設定按鈕符號", TextInputStyle.SHORT)
                 .setValue(step.data.btnEmoji.getAsReactionCode())
                 .setPlaceholder("✉")
                 .setRequired(false)
                 .build();
 
         event.replyModal(
-                Modal.create("xs:ticket:cr:btnEmoji", "創建客服單")
-                        .addComponents(ActionRow.of(btnEmojiInput))
+                Modal.create("xs:ticket:cr:btnContent", "創建客服單")
+                        .addComponents(
+                                ActionRow.of(btnTextInput),
+                                ActionRow.of(btnEmojiInput)
+                        )
                         .build()
         ).queue();
     }
@@ -507,13 +508,17 @@ public class Main extends Event {
                         .addOption("灰色", "2")
                         .build();
 
-        step.hook.editOriginalComponents(ActionRow.of(menu)).queue();
+        step.hook.editOriginalComponents(
+                ActionRow.of(menu),
+                ActionRow.of(Button.of(ButtonStyle.PRIMARY, "xs:ticket:cr:back", "返回"))
+        ).queue();
+        event.deferEdit().queue();
     }
 
     private void confirmCreate(ButtonInteractionEvent event) {
         CreateStep step = steps.get(event.getUser().getIdLong());
-        step.confirmCreate(event.getChannel());
-        manager.getObj().add(String.valueOf(step.data.uniqueId), step.getJson());
+        long id = step.confirmCreate(event.getChannel());
+        manager.getObj().add(String.valueOf(id), step.getJson());
         manager.save();
     }
 }

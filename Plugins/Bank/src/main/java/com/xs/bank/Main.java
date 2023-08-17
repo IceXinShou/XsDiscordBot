@@ -298,11 +298,11 @@ public class Main extends Event {
             JsonObject tmp = new JsonObject();
             tmp.addProperty(type, 0);
             manager.getObj().add(userID, tmp);
-        } else if (!manager.getObj().get(userID).getAsJsonObject().has(type)) { // if value data is not exist
-            manager.getObj().get(userID).getAsJsonObject().addProperty(type, 0);
+        } else if (!manager.getObj(userID).getAsJsonObject().has(type)) { // if value data is not exist
+            manager.getObj(userID).getAsJsonObject().addProperty(type, 0);
         }
 
         manager.save();
-        return manager.getObj().get(userID).getAsJsonObject();
+        return manager.getObj(userID).getAsJsonObject();
     }
 }
