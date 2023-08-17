@@ -163,22 +163,7 @@ public class Main extends Event {
                 JsonFileManager fileManager = new JsonFileManager(PATH_FOLDER_NAME + "/Data/" + guildID + ".json", TAG, false);
                 VoiceChannel channel = event.getOption("detect").getAsChannel().asVoiceChannel();
 
-                JsonObject targetObject = new JsonObject();
-                targetObject.addProperty("category", channel.getParentCategoryIdLong());
-                targetObject.addProperty("name", channel.getName());
-                targetObject.addProperty("limit", channel.getUserLimit());
-                targetObject.addProperty("bitrate", channel.getBitrate());
-
-                JsonArray array = fileManager.getAry();
-
-                boolean removed = false;
-                for (int i = 0; i < array.size(); i++) {
-                    JsonObject obj = array.get(i).getAsJsonObject();
-                    if (obj.equals(targetObject)) {
-                        array.remove(i);
-                        removed = true;
-                    }
-                }
+                boolean removed = isRemoved(channel, fileManager);
 
                 if (removed) {
                     event.getHook().editOriginalEmbeds(createEmbed(langManager.get("runtime;remove_success", local), 0x00FFFF)).queue();
@@ -189,6 +174,27 @@ public class Main extends Event {
                 break;
             }
         }
+    }
+
+    private static boolean isRemoved(VoiceChannel channel, JsonFileManager fileManager) {
+        JsonObject targetObject = new JsonObject();
+        targetObject.addProperty("category", channel.getParentCategoryIdLong());
+        targetObject.addProperty("name", channel.getName());
+        targetObject.addProperty("limit", channel.getUserLimit());
+        targetObject.addProperty("bitrate", channel.getBitrate());
+
+        JsonArray array = fileManager.getAry();
+
+        boolean removed = false;
+        for (int i = 0; i < array.size(); i++) {
+            JsonObject obj = array.get(i).getAsJsonObject();
+            if (obj.equals(targetObject)) {
+                array.remove(i);
+                removed = true;
+            }
+        }
+
+        return removed;
     }
 
 
