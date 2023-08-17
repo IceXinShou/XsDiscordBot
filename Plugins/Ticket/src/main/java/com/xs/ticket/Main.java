@@ -7,8 +7,10 @@ import com.xs.loader.plugin.Event;
 import com.xs.loader.util.FileGetter;
 import com.xs.loader.util.JsonFileManager;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
@@ -32,9 +34,7 @@ import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.requests.restaction.ChannelAction;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static net.dv8tion.jda.api.Permission.ADMINISTRATOR;
@@ -168,31 +168,50 @@ public class Main extends Event {
 
             case "lock": {
                 TextChannel channel = event.getGuildChannel().asTextChannel();
-                Member member = event.getGuild().retrieveMemberById(args[3]).complete();
+                Member member = event.getGuild().retrieveMemberById(args[4]).complete();
                 channel.upsertPermissionOverride(member).deny(VIEW_CHANNEL).queue();
 
                 event.editComponents(
                         ActionRow.of(
-                                Button.of(ButtonStyle.SUCCESS, "xs:ticket:unlock:" + event.getUser().getId(), "開啟", Emoji.fromUnicode("🔓")),
-                                Button.of(ButtonStyle.DANGER, "xs:ticket:delete", "刪除", Emoji.fromUnicode("🗑")))
+                                Button.of(ButtonStyle.SUCCESS, "xs:ticket:unlock:" + args[3] + ':' + args[4], "開啟", Emoji.fromUnicode("🔓")),
+                                Button.of(ButtonStyle.DANGER, "xs:ticket:delete:" + args[3] + ':' + args[4], "刪除", Emoji.fromUnicode("🗑")))
                 ).queue();
                 break;
             }
 
             case "unlock": {
                 TextChannel channel = event.getGuildChannel().asTextChannel();
-                Member member = event.getGuild().retrieveMemberById(args[3]).complete();
+                Member member = event.getGuild().retrieveMemberById(args[4]).complete();
                 channel.upsertPermissionOverride(member).grant(VIEW_CHANNEL).queue();
 
                 event.editComponents(
                         ActionRow.of(
-                                Button.of(ButtonStyle.DANGER, "xs:ticket:lock:" + event.getUser().getId(), "關閉", Emoji.fromUnicode("🔒")),
-                                Button.of(ButtonStyle.DANGER, "xs:ticket:delete", "刪除", Emoji.fromUnicode("🗑")))
+                                Button.of(ButtonStyle.DANGER, "xs:ticket:lock:" + args[3] + ':' + args[4], "關閉", Emoji.fromUnicode("🔒")),
+                                Button.of(ButtonStyle.DANGER, "xs:ticket:delete:" + args[3] + ':' + args[4], "刪除", Emoji.fromUnicode("🗑")))
                 ).queue();
                 break;
             }
 
             case "delete": {
+                System.out.println(args[3]);
+                List<Role> roles = new ArrayList<>();
+                Member member = event.getMember();
+                Guild guild = event.getGuild();
+
+                for (JsonElement i : manager.getObj().get(args[3]).getAsJsonObject()
+                        .getAsJsonArray("adminIDs").asList()) {
+                    Role tmp = guild.getRoleById(i.getAsString());
+
+                    if (tmp != null)
+                        roles.add(tmp);
+                }
+
+                boolean hasCommon = member.getRoles().stream().anyMatch(roles::contains);
+                if (!hasCommon && !member.hasPermission(ADMINISTRATOR)) {
+                    event.deferEdit().queue();
+                    return;
+                }
+
                 event.deferEdit().queue();
                 event.getGuildChannel().asTextChannel().delete().queue();
                 break;
@@ -292,8 +311,8 @@ public class Main extends Event {
                 TextChannel channel = qu.complete();
                 event.getHook().sendMessage("請到此頻道 <#" + channel.getId() + "> 並等待人員回覆繼續!").queue();
                 channel.sendMessage(builder.toString()).addActionRow(
-                        Button.of(ButtonStyle.DANGER, "xs:ticket:lock:" + event.getUser().getId(), "關閉", Emoji.fromUnicode("🔒")),
-                        Button.of(ButtonStyle.DANGER, "xs:ticket:delete", "刪除", Emoji.fromUnicode("🗑"))
+                        Button.of(ButtonStyle.DANGER, "xs:ticket:lock:" + args[3] + ':' + event.getUser().getId(), "關閉", Emoji.fromUnicode("🔒")),
+                        Button.of(ButtonStyle.DANGER, "xs:ticket:delete:" + args[3] + ':' + event.getUser().getId(), "刪除", Emoji.fromUnicode("🗑"))
                 ).queue();
             }
         }
@@ -396,7 +415,7 @@ public class Main extends Event {
 
     private void descForm(ButtonInteractionEvent event) {
         CreateStep step = steps.get(event.getUser().getIdLong());
-        TextInput descInput = TextInput.create("desc", "設定內文", TextInputStyle.SHORT)
+        TextInput descInput = TextInput.create("desc", "設定內文", TextInputStyle.PARAGRAPH)
                 .setValue(step.data.description)
                 .setPlaceholder("\uD83D\uDEE0 聯絡我們")
                 .setMaxLength(4000)
@@ -450,7 +469,7 @@ public class Main extends Event {
 
     private void btnTextForm(ButtonInteractionEvent event) {
         CreateStep step = steps.get(event.getUser().getIdLong());
-        TextInput btnTextInput = TextInput.create("btnText", "設定按鈕文字", TextInputStyle.PARAGRAPH)
+        TextInput btnTextInput = TextInput.create("btnText", "設定按鈕文字", TextInputStyle.SHORT)
                 .setValue(step.data.btnContent)
                 .setPlaceholder("聯絡我們")
                 .setMaxLength(80)
