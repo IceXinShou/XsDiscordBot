@@ -9,8 +9,11 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildChannel;
+import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -256,10 +259,8 @@ public class Main extends Event {
                                     GuildChannel sendChannel = event.getGuild().getGuildChannelById(i);
 
                                     if (sendChannel != null) {
-                                        TextChannel removeChannel = event.getChannel().asTextChannel();
-                                        String title = removeChannel.getParentCategory() == null ?
-                                                (removeChannel.getName()) :
-                                                (removeChannel.getParentCategory().getName() + " > " + removeChannel.getName());
+                                        String title = getChannelTitle(event.getChannel());
+
                                         EmbedBuilder builder = new EmbedBuilder()
                                                 .setAuthor(getNickOrName(sender, event.getGuild()), null, sender.getAvatarUrl())
                                                 .setTitle(title)
@@ -322,10 +323,8 @@ public class Main extends Event {
                                     GuildChannel sendChannel = event.getGuild().getGuildChannelById(i);
 
                                     if (sendChannel != null) {
-                                        TextChannel removeChannel = event.getChannel().asTextChannel();
-                                        String title = removeChannel.getParentCategory() == null ?
-                                                (removeChannel.getName()) :
-                                                (removeChannel.getParentCategory().getName() + " > " + removeChannel.getName());
+                                        String title = getChannelTitle(event.getChannel());
+
                                         EmbedBuilder builder = new EmbedBuilder()
                                                 .setAuthor(getNickOrName(messageSender, event.getGuild()), null, messageSender.getAvatarUrl())
                                                 .setTitle(title)
@@ -350,6 +349,30 @@ public class Main extends Event {
         } catch (SQLException e) {
             sqlErrorPrinter(e);
         }
+    }
+
+    @Nullable
+    private String getChannelTitle(MessageChannelUnion eventChannel) {
+        String channelCategoryName;
+        String channelName;
+
+        if (eventChannel.getType().isThread()) {
+            ThreadChannel channel = eventChannel.asThreadChannel();
+            channelCategoryName = channel.getParentChannel().getName();
+            channelName = channel.getName();
+        } else if (eventChannel.getType().isMessage()) {
+            StandardGuildChannel channel = (StandardGuildChannel) eventChannel;
+            channelCategoryName = channel.getParentCategory() == null ?
+                    null : channel.getParentCategory().getName();
+            channelName = channel.getName();
+        } else {
+            logger.warn("unknown chat type! : " + eventChannel.getType());
+            return null;
+        }
+
+        return channelCategoryName == null ?
+                (channelName) :
+                (channelCategoryName + " > " + channelName);
     }
 
     @Override
