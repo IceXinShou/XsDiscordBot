@@ -5,6 +5,7 @@ import com.xs.loader.plugin.Event;
 import com.xs.loader.util.FileGetter;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.constructor.CustomClassLoaderConstructor;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,8 +39,8 @@ public class Main extends Event {
     public void loadConfigFile() {
         try (InputStream inputStream = getter.readInputStreamOrDefaultFromSource("config.yml")) {
             if (inputStream == null) return;
-            configFile = new Yaml(new Constructor(MainConfig.class)).load(inputStream);
-            logger.log("Setting File Loaded Successfully");
+            configFile = new Yaml(new CustomClassLoaderConstructor(getClass().getClassLoader()))
+                    .loadAs(inputStream, MainConfig.class);            logger.log("Setting File Loaded Successfully");
         } catch (IOException e) {
             logger.warn("Please configure /" + PATH_FOLDER_NAME + "/config.yml");
             throw new RuntimeException(e);

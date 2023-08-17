@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.constructor.CustomClassLoaderConstructor;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,7 +49,8 @@ public class Main extends Event {
     public void loadConfigFile() {
         try (InputStream inputStream = getter.readInputStreamOrDefaultFromSource("config.yml")) {
             if (inputStream == null) return;
-            configFile = new Yaml(new Constructor(MainConfig.class)).load(inputStream);
+            configFile = new Yaml(new CustomClassLoaderConstructor(getClass().getClassLoader()))
+                    .loadAs(inputStream, MainConfig.class);
             logger.log("Setting File Loaded Successfully");
         } catch (IOException e) {
             logger.warn("Please configure /" + PATH_FOLDER_NAME + "/config.yml");

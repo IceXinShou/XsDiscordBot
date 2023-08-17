@@ -139,6 +139,10 @@ public class Main extends Event {
                     btnColorMenu(event);
                     break;
                 }
+                case "category": {
+                    setCategory(event);
+                    break;
+                }
                 case "confirm": {
                     confirmCreate(event);
                     break;
@@ -215,6 +219,7 @@ public class Main extends Event {
             }
         }
     }
+
 
     @Override
     public void onModalInteraction(ModalInteractionEvent event) {
@@ -354,6 +359,10 @@ public class Main extends Event {
             manager.getObj().remove(event.getMessageId());
             manager.save();
         }
+    }
+
+    private void setCategory(ButtonInteractionEvent event) {
+
     }
 
     private void mainMenu(ButtonInteractionEvent event) {

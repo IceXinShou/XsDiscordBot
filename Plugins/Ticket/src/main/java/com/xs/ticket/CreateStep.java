@@ -43,6 +43,7 @@ public class CreateStep {
                         ActionRow.of(
                                 new ButtonImpl("xs:ticket:cr:btnContent", "設定按鈕文字", PRIMARY, false, null),
                                 new ButtonImpl("xs:ticket:cr:btnColor", "設定按鈕顏色", PRIMARY, false, null),
+                                new ButtonImpl("xs:ticket:cr:category", "設定頻道目錄", PRIMARY, false, null),
                                 new ButtonImpl("xs:ticket:cr:confirm", "確定建立", SUCCESS, false, null)
                         )
                 ).queue();
