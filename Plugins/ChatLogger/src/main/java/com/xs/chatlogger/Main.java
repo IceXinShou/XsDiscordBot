@@ -386,7 +386,7 @@ public class Main extends Event {
 
     String getMessageOrEmbed(Message message) {
 
-        if (message.getEmbeds().size() == 0) {
+        if (message.getEmbeds().isEmpty()) {
             // if it's default message
             return message.getContentRaw();
         } else {

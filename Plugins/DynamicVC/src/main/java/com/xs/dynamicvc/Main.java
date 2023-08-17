@@ -219,7 +219,7 @@ public class Main extends Event {
 
         AudioChannelUnion leftChannel = event.getChannelLeft();
         if (leftChannel != null && trackedChannel.contains(leftChannel.getIdLong())) {
-            if (leftChannel.getMembers().size() == 0) { // remove channel
+            if (leftChannel.getMembers().isEmpty()) { // remove channel
                 trackedChannel.remove(leftChannel.getIdLong());
                 leftChannel.delete().queue();
             }
