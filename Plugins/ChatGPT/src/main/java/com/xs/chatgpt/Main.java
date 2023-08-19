@@ -2,7 +2,6 @@ package com.xs.chatgpt;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.xs.loader.lang.LangManager;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.plugin.Event;
@@ -13,7 +12,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.session.ShutdownEvent;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
 import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.constructor.CustomClassLoaderConstructor;
 
 import java.io.File;
@@ -25,6 +23,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import static com.xs.chatgpt.TokenCounter.getToken;
 import static com.xs.loader.base.Loader.ROOT_PATH;
 
 public class Main extends Event {
@@ -32,7 +31,7 @@ public class Main extends Event {
     private static final String TAG = "ChatGPT";
     public static String apiKey;
     public static String module;
-    public static JsonArray defaultAry;
+    public static JsonArray defaultAry = new JsonArray();
     private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
     private final String PATH_FOLDER_NAME = "plugins/ChatGPT";
     private final List<Long> allowUserID = new ArrayList<>();
@@ -45,6 +44,9 @@ public class Main extends Event {
     private Logger logger;
     private JsonFileManager dmManager;
     private Map<String, Map<DiscordLocale, String>> langMap; // Label, Local, Content
+
+    public static final int MAX_TOKEN = 4097;
+    public static int prompt_token;
 
     public Main() {
         super(true);
@@ -88,8 +90,14 @@ public class Main extends Event {
         allowForumChannelID.addAll(Arrays.asList(configFile.AllowForumChannelID));
         apiKey = configFile.API_KEY;
         module = configFile.Module;
-        defaultAry = JsonParser.parseString("[{\"role\": \"system\", \"content\": \"" + configFile.SystemPrompt + "\"}]").getAsJsonArray();
+        prompt_token = getToken(configFile.SystemPrompt);
 
+        JsonObject defaultObj = new JsonObject();
+        defaultObj.addProperty("role", "system");
+        defaultObj.addProperty("content", configFile.SystemPrompt);
+        defaultObj.addProperty("token", getToken(configFile.SystemPrompt));
+
+        defaultAry.add(defaultObj);
 
         new File(ROOT_PATH + "/" + PATH_FOLDER_NAME + "/data").mkdirs();
         dmManager = new JsonFileManager("/" + PATH_FOLDER_NAME + "/data/dm.json", TAG, true);

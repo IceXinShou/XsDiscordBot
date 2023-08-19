@@ -20,6 +20,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static com.xs.chatgpt.Main.*;
+import static com.xs.chatgpt.TokenCounter.getToken;
 
 public class MessageManager {
 
@@ -86,6 +87,7 @@ public class MessageManager {
             JsonObject newObj = new JsonObject();
             newObj.addProperty("role", "assistant");
             newObj.addProperty("content", fullContent.toString());
+            newObj.addProperty("token", getToken(fullContent.toString() + 7));
             dataAry.add(newObj);
             manager.save();
         }
@@ -97,23 +99,44 @@ public class MessageManager {
         JsonObject msgObj = new JsonObject();
         msgObj.addProperty("role", "user");
         msgObj.addProperty("content", msg);
+        msgObj.addProperty("token", getToken(msg + 7));
         dataAry.add(msgObj);
+
+        JsonArray tmpPostAry = new JsonArray();
+        final int LIMIT_TOKEN = MAX_TOKEN - 1000 - prompt_token;
+        int tokens = 0;
+
+        // add from last message
+        for (int i = dataAry.size() - 1; i >= 0; --i) {
+            JsonObject aryObj = dataAry.get(i).getAsJsonObject();
+            JsonObject obj = new JsonObject();
+
+            int curToken = aryObj.get("token").getAsInt();
+            if (tokens + curToken > LIMIT_TOKEN) {
+                aryObj = dataAry.get(0).getAsJsonObject();
+                obj.addProperty("role", aryObj.get("role").getAsString());
+                obj.addProperty("content", aryObj.get("content").getAsString());
+                tmpPostAry.add(obj);
+                break;
+            }
+            tokens += curToken;
+
+            obj.addProperty("role", aryObj.get("role").getAsString());
+            obj.addProperty("content", aryObj.get("content").getAsString());
+
+            tmpPostAry.add(obj);
+        }
+
+        // reverse
+        JsonArray postAry = new JsonArray();
+        for (int i = tmpPostAry.size() - 1; i >= 0; --i)
+            postAry.add(tmpPostAry.get(i));
 
         // 完整請求建構
         postObj.addProperty("stream", true);
         postObj.addProperty("model", module);
-        postObj.add("messages", dataAry);
+        postObj.add("messages", postAry);
 
-        return postObj.toString();
-    }
-
-    private String reBuildRequest() {
-        System.out.println(postObj);
-        dataAry.remove(1); // index 0 is system command
-
-        // 更新請求建構
-        postObj.add("messages", dataAry);
-        System.out.println(postObj);
         return postObj.toString();
     }
 
@@ -163,15 +186,13 @@ public class MessageManager {
             try (InputStreamReader reader = new InputStreamReader(conn.getErrorStream())) {
                 JsonObject rep = JsonParser.parseReader(reader).getAsJsonObject();
 
-                String errorCode = rep.get("error").getAsJsonObject().get("code").getAsString();
-                switch (errorCode) {
-                    case "context_length_exceeded": {
-                        System.out.println("SORT");
-                        // TODO: add gpt3-tokenizer
-                        getData(reBuildRequest());
-                        return;
-                    }
-                }
+//                String errorCode = rep.get("error").getAsJsonObject().get("code").getAsString();
+//                switch (errorCode) {
+//                    case "context_length_exceeded": {
+//                        getData(reBuildRequest());
+//                        return;
+//                    }
+//                }
 
                 logger.warn(conn.getResponseCode() + " error on requesting...");
                 logger.warn(rep.toString());
