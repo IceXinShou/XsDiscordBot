@@ -11,12 +11,10 @@ import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 
 public class GuildChannelCLI extends GuildCLI {
-//    private final Guild guild;
     private final GuildChannel channel;
 
     public GuildChannelCLI(Guild guild, GuildChannel channel) {
         super(guild);
-//        this.guild = guild;
         this.channel = channel;
     }
 

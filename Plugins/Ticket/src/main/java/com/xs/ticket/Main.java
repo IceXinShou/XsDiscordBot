@@ -345,7 +345,7 @@ public class Main extends Event {
 
         switch (args[3]) {
             case "btnColor": {
-                step.setBtnStyle(ButtonStyle.fromKey(Integer.parseInt(event.getValues().get(0).toString())));
+                step.setBtnStyle(ButtonStyle.fromKey(Integer.parseInt(event.getValues().get(0))));
                 step.updateEmbed();
                 event.deferEdit().queue();
                 break;

@@ -108,12 +108,8 @@ public class Main extends Event {
 
         String userName = member.getEffectiveName();
         event.getGuild().ban(member, delDays, TimeUnit.DAYS).reason(reason).queue(
-                success -> {
-                    event.getHook().editOriginalEmbeds(createEmbed(langManager.get("runtime;success", local) + ' ' + userName, 0xffb1b3)).queue();
-                },
-                error -> {
-                    event.getHook().editOriginalEmbeds(createEmbed(langManager.get("runtime;errors;unknown", local), 0xFF0000)).queue();
-                }
+                success -> event.getHook().editOriginalEmbeds(createEmbed(langManager.get("runtime;success", local) + ' ' + userName, 0xffb1b3)).queue(),
+                error -> event.getHook().editOriginalEmbeds(createEmbed(langManager.get("runtime;errors;unknown", local), 0xFF0000)).queue()
         );
     }
 }

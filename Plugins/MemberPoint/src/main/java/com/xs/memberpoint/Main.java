@@ -19,7 +19,6 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.constructor.CustomClassLoaderConstructor;
 
 import java.io.IOException;
@@ -126,7 +125,8 @@ public class Main extends Event {
         try (InputStream inputStream = getter.readInputStreamOrDefaultFromSource("config.yml")) {
             if (inputStream == null) return;
             configFile = new Yaml(new CustomClassLoaderConstructor(getClass().getClassLoader()))
-                    .loadAs(inputStream, MainConfig.class);            logger.log("Setting File Loaded Successfully");
+                    .loadAs(inputStream, MainConfig.class);
+            logger.log("Setting File Loaded Successfully");
         } catch (IOException e) {
             logger.warn("Please configure /" + PATH_FOLDER_NAME + "/config.yml");
             throw new RuntimeException(e);
@@ -245,7 +245,7 @@ public class Main extends Event {
         List<Role> tmp = new ArrayList<>(member.getRoles());
         tmp.retainAll(adminRoles);
 
-        return tmp.size() <= 0;
+        return tmp.isEmpty();
     }
 
     private void loadSheet() {

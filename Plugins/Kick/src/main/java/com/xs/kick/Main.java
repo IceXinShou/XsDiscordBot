@@ -99,12 +99,8 @@ public class Main extends Event {
         }
 
         event.getGuild().kick(member).reason(reason).queue(
-                success -> {
-                    event.getHook().editOriginalEmbeds(createEmbed(langManager.get("runtime;success", local) + ' ' + member.getEffectiveName(), 0xffd2c5)).queue();
-                },
-                error -> {
-                    event.getHook().editOriginalEmbeds(createEmbed(langManager.get("runtime;errors;unknown", local), 0xFF0000)).queue();
-                }
+                success -> event.getHook().editOriginalEmbeds(createEmbed(langManager.get("runtime;success", local) + ' ' + member.getEffectiveName(), 0xffd2c5)).queue(),
+                error -> event.getHook().editOriginalEmbeds(createEmbed(langManager.get("runtime;errors;unknown", local), 0xFF0000)).queue()
         );
     }
 

@@ -216,9 +216,7 @@ public class Main extends Event {
         AudioChannelUnion joinChannel = event.getChannelJoined();
         if (joinChannel != null && trackedChannel.contains(joinChannel.getIdLong())) {
             if (joinChannel.getMembers().size() == 1) { // copy a new channel
-                joinChannel.createCopy().queue(i -> {
-                    trackedChannel.add(i.getIdLong());
-                });
+                joinChannel.createCopy().queue(i -> trackedChannel.add(i.getIdLong()));
             }
         }
 

@@ -76,13 +76,13 @@ public class GuildCLI extends RootCLI {
     }
 
     @Command(name = "mute", abbrev = "mu", description = "make the bot muted")
-    public void mute() throws Exception {
+    public void mute() {
         AudioManager manager = guild.getAudioManager();
         manager.setSelfMuted(!manager.isSelfMuted());
     }
 
     @Command(name = "deafen", abbrev = "de", description = "make the bot deafened")
-    public void deafen() throws Exception {
+    public void deafen() {
         AudioManager manager = guild.getAudioManager();
         manager.setSelfDeafened(!manager.isSelfDeafened());
     }

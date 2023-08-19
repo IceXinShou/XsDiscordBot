@@ -1,9 +1,7 @@
 package com.xs.privatechannelmanager;
 
-import com.xs.loader.base.Loader;
 import com.xs.loader.lang.LangManager;
 import com.xs.loader.logger.Logger;
-import com.xs.loader.plugin.ClassLoader;
 import com.xs.loader.plugin.Event;
 import com.xs.loader.util.FileGetter;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -28,7 +26,6 @@ import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 import net.dv8tion.jda.internal.interactions.component.ButtonImpl;
 import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.constructor.CustomClassLoaderConstructor;
 
 import java.awt.*;

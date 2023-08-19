@@ -56,8 +56,6 @@ public class Main extends Event {
     private Guild ownGuild;
     private Map<String, Map<DiscordLocale, String>> langMap; // Label, Local, Content
     private JsonFileManager manager;
-    private boolean qqOnline = false;
-    private StringBuilder clientStringBuilder = new StringBuilder();
 
     public Main() {
         super(true);
