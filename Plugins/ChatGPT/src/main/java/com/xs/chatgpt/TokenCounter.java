@@ -10,6 +10,6 @@ public class TokenCounter {
     private static final Encoding ENC = Encodings.newDefaultEncodingRegistry().getEncoding(EncodingType.P50K_BASE);
 
     public static int getToken(String content) {
-        return ENC.encode(content).size();
+        return ENC.encode(content).size() + 7;
     }
 }

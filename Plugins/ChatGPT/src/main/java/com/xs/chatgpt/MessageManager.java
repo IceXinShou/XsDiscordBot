@@ -87,7 +87,7 @@ public class MessageManager {
             JsonObject newObj = new JsonObject();
             newObj.addProperty("role", "assistant");
             newObj.addProperty("content", fullContent.toString());
-            newObj.addProperty("token", getToken(fullContent.toString() + 7));
+            newObj.addProperty("token", getToken(fullContent.toString()));
             dataAry.add(newObj);
             manager.save();
         }
@@ -99,7 +99,7 @@ public class MessageManager {
         JsonObject msgObj = new JsonObject();
         msgObj.addProperty("role", "user");
         msgObj.addProperty("content", msg);
-        msgObj.addProperty("token", getToken(msg + 7));
+        msgObj.addProperty("token", getToken(msg));
         dataAry.add(msgObj);
 
         JsonArray tmpPostAry = new JsonArray();
