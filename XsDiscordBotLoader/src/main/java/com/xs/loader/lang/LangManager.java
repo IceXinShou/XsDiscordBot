@@ -20,7 +20,7 @@ public class LangManager {
 
     public LangManager(Logger logger, FileGetter getter, String pathFolderName, String[] defaultLangs, DiscordLocale defaultLocal) {
         this.logger = logger;
-        this.FOLDER_PATH = Loader.ROOT_PATH + "/" + pathFolderName + "/lang";
+        this.FOLDER_PATH = Loader.ROOT_PATH + '/' + pathFolderName + "/lang";
         this.getter = getter;
         this.DEFAULT_LANGS = defaultLangs;
         this.DEFAULT_LOCAL = defaultLocal;

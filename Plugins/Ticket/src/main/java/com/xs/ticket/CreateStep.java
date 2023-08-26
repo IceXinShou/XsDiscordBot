@@ -70,6 +70,7 @@ public class CreateStep {
 
         object.addProperty("reasonTitle", data.reasonTitle);
         object.add("adminIDs", array);
+        object.addProperty("categoryID", data.categoryID);
 
         return object;
     }
@@ -105,6 +106,10 @@ public class CreateStep {
 
     public void setAdmin(List<Long> adminID) {
         data.adminIDs = adminID;
+    }
+
+    public void setCategoryID(long categoryID) {
+        data.categoryID = categoryID;
     }
 
     public void setColor(int color) {

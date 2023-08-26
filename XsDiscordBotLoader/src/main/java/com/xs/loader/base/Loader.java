@@ -361,8 +361,8 @@ public class Loader {
                 logger.warn("can not find resource: " + sourceFile);
                 return null;
             }
-            Files.copy(fileInJar, Paths.get(Loader.ROOT_PATH + "/" + outputPath + "/" + outputName), StandardCopyOption.REPLACE_EXISTING);
-            return new File(Loader.ROOT_PATH + "/" + outputPath + "/" + outputName);
+            Files.copy(fileInJar, Paths.get(Loader.ROOT_PATH + '/' + outputPath + '/' + outputName), StandardCopyOption.REPLACE_EXISTING);
+            return new File(Loader.ROOT_PATH + '/' + outputPath + '/' + outputName);
         } catch (IOException e) {
             logger.warn("read resource failed");
             logger.warn(e.getMessage());

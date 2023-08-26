@@ -75,7 +75,7 @@ public class Main extends Event {
     }
 
     private void initData() {
-        File f = new File(ROOT_PATH + "/" + PATH_FOLDER_NAME + "/data");
+        File f = new File(ROOT_PATH + '/' + PATH_FOLDER_NAME + "/data");
         f.mkdirs();
 
         for (File i : f.listFiles()) {
@@ -84,7 +84,7 @@ public class Main extends Event {
 
             try {
                 DB_CONNS.put(Long.parseLong(i.getName().substring(0, i.getName().indexOf('.'))), DriverManager.getConnection(
-                        "jdbc:sqlite:" + ROOT_PATH + "/" + PATH_FOLDER_NAME + "/data/" + i.getName()
+                        "jdbc:sqlite:" + ROOT_PATH + '/' + PATH_FOLDER_NAME + "/data/" + i.getName()
                 ));
             } catch (SQLException e) {
                 sqlErrorPrinter(e);
@@ -199,7 +199,7 @@ public class Main extends Event {
 
         try {
             Connection conn = DB_CONNS.getOrDefault(guildID, DriverManager.getConnection(
-                    "jdbc:sqlite:" + ROOT_PATH + "/" + PATH_FOLDER_NAME + "/data/" + guildID + ".db"
+                    "jdbc:sqlite:" + ROOT_PATH + '/' + PATH_FOLDER_NAME + "/data/" + guildID + ".db"
             ));
 
             try (Statement stmt = conn.createStatement()) {
@@ -236,7 +236,7 @@ public class Main extends Event {
 
         try {
             Connection conn = DB_CONNS.getOrDefault(guildID, DriverManager.getConnection(
-                    "jdbc:sqlite:" + ROOT_PATH + "/" + PATH_FOLDER_NAME + "/data/" + guildID + ".db"
+                    "jdbc:sqlite:" + ROOT_PATH + '/' + PATH_FOLDER_NAME + "/data/" + guildID + ".db"
             ));
 
             try (Statement stmt = conn.createStatement()) {
@@ -299,7 +299,7 @@ public class Main extends Event {
 
         try {
             Connection conn = DB_CONNS.getOrDefault(guildID, DriverManager.getConnection(
-                    "jdbc:sqlite:" + ROOT_PATH + "/" + PATH_FOLDER_NAME + "/data/" + guildID + ".db"
+                    "jdbc:sqlite:" + ROOT_PATH + '/' + PATH_FOLDER_NAME + "/data/" + guildID + ".db"
             ));
 
             try (Statement stmt = conn.createStatement()) {
@@ -379,7 +379,7 @@ public class Main extends Event {
     public void onGuildLeave(GuildLeaveEvent event) {
         long guildID = event.getGuild().getIdLong();
 
-        File file = new File(ROOT_PATH + "/" + PATH_FOLDER_NAME + "/data/" + guildID + ".db");
+        File file = new File(ROOT_PATH + '/' + PATH_FOLDER_NAME + "/data/" + guildID + ".db");
         if (file.exists())
             file.delete();
     }

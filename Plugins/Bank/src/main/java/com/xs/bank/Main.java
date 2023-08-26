@@ -147,8 +147,8 @@ public class Main extends Event {
             moneyTypes.put(i.split(";")[0], Integer.parseInt(i.split(";")[1]));
         }
 
-        new File(ROOT_PATH + "/" + PATH_FOLDER_NAME + "/data").mkdirs();
-        manager = new JsonFileManager("/" + PATH_FOLDER_NAME + "/data/data.json", TAG, true);
+        new File(ROOT_PATH + '/' + PATH_FOLDER_NAME + "/data").mkdirs();
+        manager = new JsonFileManager('/' + PATH_FOLDER_NAME + "/data/data.json", TAG, true);
 
         logger.log("Setting File Loaded Successfully");
     }

@@ -99,8 +99,8 @@ public class Main extends Event {
 
         defaultAry.add(defaultObj);
 
-        new File(ROOT_PATH + "/" + PATH_FOLDER_NAME + "/data").mkdirs();
-        dmManager = new JsonFileManager("/" + PATH_FOLDER_NAME + "/data/dm.json", TAG, true);
+        new File(ROOT_PATH + '/' + PATH_FOLDER_NAME + "/data").mkdirs();
+        dmManager = new JsonFileManager('/' + PATH_FOLDER_NAME + "/data/dm.json", TAG, true);
 
         logger.log("Setting File Loaded Successfully");
     }
@@ -149,7 +149,7 @@ public class Main extends Event {
         if (guildsManager.containsKey(guildID)) {
             manager = guildsManager.get(guildID);
         } else {
-            manager = new JsonFileManager("/" + PATH_FOLDER_NAME + "/data/" + guildID + ".json", TAG, true);
+            manager = new JsonFileManager('/' + PATH_FOLDER_NAME + "/data/" + guildID + ".json", TAG, true);
             guildsManager.put(guildID, manager);
         }
 

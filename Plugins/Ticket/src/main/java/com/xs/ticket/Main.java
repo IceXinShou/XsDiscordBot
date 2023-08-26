@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
@@ -61,7 +62,7 @@ public class Main extends Event {
     public void initLoad() {
         logger = new Logger(TAG);
         getter = new FileGetter(logger, PATH_FOLDER_NAME, Main.class);
-        manager = new JsonFileManager("/" + PATH_FOLDER_NAME + "/data.json", TAG, true);
+        manager = new JsonFileManager('/' + PATH_FOLDER_NAME + "/data.json", TAG, true);
         loadLang();
 
         logger.log("Loaded");
@@ -140,7 +141,7 @@ public class Main extends Event {
                     break;
                 }
                 case "category": {
-                    setCategory(event);
+                    categoryMenu(event);
                     break;
                 }
                 case "confirm": {
@@ -291,10 +292,22 @@ public class Main extends Event {
                 String reason = event.getValue("reason").getAsString();
 
                 event.deferReply(true).queue();
-                long[] roleIDs = tmp.getAsJsonObject().getAsJsonArray("adminIDs").asList().stream()
+                long[] roleIDs = tmp.getAsJsonArray("adminIDs").asList().stream()
                         .map(JsonElement::getAsLong).mapToLong(Long::longValue).toArray();
 
-                Category category = event.getGuildChannel().asTextChannel().getParentCategory();
+                Category category;
+                long categoryID = tmp.get("categoryID").getAsLong();
+                if (categoryID != 0)
+                    category = event.getGuild().getCategoryById(categoryID);
+                else {
+                    category = event.getGuildChannel().asTextChannel().getParentCategory();
+                }
+
+                if (category == null) {
+                    event.deferReply(true).addContent("錯誤 (無法取得目錄)").queue();
+                    return;
+                }
+
                 ChannelAction<TextChannel> qu = category.createTextChannel(event.getUser().getName())
                         .addPermissionOverride(event.getGuild().getPublicRole(), Permission.getRaw(), VIEW_CHANNEL.getRawValue())
                         .addMemberPermissionOverride(event.getMember().getIdLong(), VIEW_CHANNEL.getRawValue(), Permission.getRaw());
@@ -333,6 +346,13 @@ public class Main extends Event {
                 event.deferEdit().queue();
                 break;
             }
+
+            case "category": {
+                step.setCategoryID(event.getValues().get(0).getIdLong());
+                step.updateEmbed();
+                event.deferEdit().queue();
+                break;
+            }
         }
     }
 
@@ -361,8 +381,20 @@ public class Main extends Event {
         }
     }
 
-    private void setCategory(ButtonInteractionEvent event) {
+    private void categoryMenu(ButtonInteractionEvent event) {
+        CreateStep step = steps.get(event.getUser().getIdLong());
+        EntitySelectMenu menu =
+                EntitySelectMenu.create("xs:ticket:cr:category", EntitySelectMenu.SelectTarget.CHANNEL)
+                        .setChannelTypes(ChannelType.CATEGORY)
+                        .setRequiredRange(1, 1)
+                        .setPlaceholder("未設定則為預設")
+                        .build();
 
+        step.hook.editOriginalComponents(
+                ActionRow.of(menu),
+                ActionRow.of(Button.of(ButtonStyle.PRIMARY, "xs:ticket:cr:back", "返回"))
+        ).queue();
+        event.deferEdit().queue();
     }
 
     private void mainMenu(ButtonInteractionEvent event) {

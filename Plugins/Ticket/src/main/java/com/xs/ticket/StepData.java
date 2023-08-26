@@ -17,6 +17,7 @@ public class StepData {
     public String btnContent;
     public Emoji btnEmoji;
     public ButtonStyle btnStyle;
+    public long categoryID;
 
     public StepData() {
         author = "Ticket 服務";
@@ -28,5 +29,6 @@ public class StepData {
         btnContent = "聯絡我們";
         btnEmoji = Emoji.fromUnicode("✉");
         btnStyle = ButtonStyle.SUCCESS;
+        categoryID = 0;
     }
 }

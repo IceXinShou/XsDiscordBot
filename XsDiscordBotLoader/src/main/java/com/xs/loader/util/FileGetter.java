@@ -21,7 +21,7 @@ public class FileGetter {
 
     public FileGetter(final Logger logger, final String PATH_FOLDER_NAME, final Class<?> CLASS) {
         this.logger = logger;
-        this.FOLDER_PATH = Loader.ROOT_PATH + "/" + PATH_FOLDER_NAME;
+        this.FOLDER_PATH = Loader.ROOT_PATH + '/' + PATH_FOLDER_NAME;
         this.CLASS = CLASS;
 
         new File(FOLDER_PATH).mkdirs();
@@ -39,7 +39,7 @@ public class FileGetter {
 
     @Nullable
     public Map<String, Object> readFileMapByPathOrDefaultFromSource(String fileName) {
-        File settingFile = new File(FOLDER_PATH + "/" + fileName);
+        File settingFile = new File(FOLDER_PATH + '/' + fileName);
         if (!settingFile.exists()) {
             logger.warn(fileName + " not found, create default " + fileName);
             settingFile = exportResource(fileName);

@@ -190,8 +190,8 @@ public class Main extends Event {
         if (boardUserShowLimit < 0)
             boardUserShowLimit = 0;
 
-        new File(ROOT_PATH + "/" + PATH_FOLDER_NAME + "/data").mkdirs();
-        manager = new JsonFileManager("/" + PATH_FOLDER_NAME + "/data/data.json", TAG, true);
+        new File(ROOT_PATH + '/' + PATH_FOLDER_NAME + "/data").mkdirs();
+        manager = new JsonFileManager('/' + PATH_FOLDER_NAME + "/data/data.json", TAG, true);
 
         logger.log("Setting File Loaded Successfully");
     }

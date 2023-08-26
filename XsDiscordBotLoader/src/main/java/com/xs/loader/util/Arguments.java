@@ -13,7 +13,7 @@ public class Arguments {
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd = parser.parse(options, args);
 
-        if (cmd.hasOption("h")) {
+        if (cmd.hasOption('h')) {
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp("ApacheCommonsCLIWithTerminalInput", options);
             System.exit(0);
