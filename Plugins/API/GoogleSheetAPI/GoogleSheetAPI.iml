@@ -11,11 +11,11 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="file://$MODULE_DIR$/../../lib/GoogleSheetAPI" />
+          <root url="file://$MODULE_DIR$/../../../lib/GoogleSheetAPI" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
-        <jarDirectory url="file://$MODULE_DIR$/../../lib/GoogleSheetAPI" recursive="false" />
+        <jarDirectory url="file://$MODULE_DIR$/../../../lib/GoogleSheetAPI" recursive="false" />
       </library>
     </orderEntry>
     <orderEntry type="module" module-name="com.xs.loader.XsDiscordBotLoader.main" />

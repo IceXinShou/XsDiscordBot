@@ -125,7 +125,7 @@ public class JsonFileManager {
         return this;
     }
 
-    public void save() {
+    public synchronized void save() {
         try {
             try (OutputStreamWriter writer = new OutputStreamWriter(Files.newOutputStream(FILE.toPath()), StandardCharsets.UTF_8)) {
                 if (isObject)
