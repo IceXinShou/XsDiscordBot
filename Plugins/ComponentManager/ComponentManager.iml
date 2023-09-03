@@ -2,12 +2,14 @@
 <module type="JAVA_MODULE" version="4">
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
-    <content url="file://$MODULE_DIR$/../ActionRowManager">
-      <sourceFolder url="file://$MODULE_DIR$/../ActionRowManager/src/main/java" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/../ActionRowManager/src/main/resources" type="java-resource" />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/resources" type="java-resource" />
+      <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="com.xs.loader.XsDiscordBotLoader.main" />
     <orderEntry type="module" module-name="XsDiscordBotLoader.main" />
     <orderEntry type="library" name="Gradle: org.jetbrains:annotations:13.0" level="project" />
     <orderEntry type="library" name="Gradle: org.yaml:snakeyaml:1.33" level="project" />

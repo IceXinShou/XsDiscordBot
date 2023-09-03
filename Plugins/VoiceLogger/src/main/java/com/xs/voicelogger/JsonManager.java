@@ -29,7 +29,8 @@ public class JsonManager {
 
         // delete unable access guild json files
         Arrays.stream(files).forEach(i -> {
-            if (jdaBot.getGuildById(i.getName().substring(0, i.getName().indexOf('.'))) == null) i.delete();
+            if (jdaBot.getGuildById(i.getName().substring(0, i.getName().indexOf('.'))) == null)
+                i.delete();
         });
 
         for (File file : files) {

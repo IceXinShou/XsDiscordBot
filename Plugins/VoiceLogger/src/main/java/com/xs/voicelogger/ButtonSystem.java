@@ -14,7 +14,7 @@ import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.interactions.components.selections.EntitySelectMenu;
 import net.dv8tion.jda.internal.interactions.component.ButtonImpl;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,6 +35,7 @@ public class ButtonSystem {
 
     public void setting(SlashCommandInteractionEvent event) {
         if (event.getGuild() == null) return;
+
         ChannelSetting setting = manager.getOrDefault(event.getGuild().getIdLong(), event.getChannel().getIdLong());
         DiscordLocale local = event.getUserLocale();
         event.getHook()
@@ -60,6 +61,7 @@ public class ButtonSystem {
     public void delete(ButtonInteractionEvent event, String[] args, DiscordLocale local) {
         if (event.getGuild() == null) return;
         if (!args[3].equals(event.getUser().getId())) return;
+
         manager.delete(event.getGuild().getIdLong(), event.getChannel().getIdLong());
 
         event.getHook().editOriginalEmbeds(createEmbed(langManager.get("runtime;setting;delete_success", local), 0x00FFFF)).setComponents(Collections.emptyList()).queue();
@@ -83,7 +85,8 @@ public class ButtonSystem {
         ChannelSetting setting = manager.addChannels(
                 event.getGuild().getIdLong(),
                 Long.parseLong(args[4]),
-                channelIDs, String.valueOf(args[2]).equals("white")
+                channelIDs,
+                String.valueOf(args[2]).equals("white")
         );
 
         if (setting == null) {
@@ -109,28 +112,31 @@ public class ButtonSystem {
                 .setRequiredRange(1, 25)
                 .build();
 
-        Button button = new ButtonImpl("xs:voicelogger:toggle:" + event.getUser().getId() + ':' + event.getChannel().getId(),
-                "返回", ButtonStyle.SECONDARY, false, null);
-
-        event.getHook().editOriginalEmbeds(Collections.emptyList()).setComponents(ActionRow.of(menu), ActionRow.of(button)).queue();
+        event.getHook().editOriginalEmbeds(Collections.emptyList())
+                .setComponents(
+                        ActionRow.of(menu),
+                        ActionRow.of(
+                                new ButtonImpl("xs:voicelogger:toggle:" + event.getUser().getId() + ':' + event.getChannel().getId(),
+                                        "返回", ButtonStyle.SECONDARY, false, null)
+                        )).queue();
         event.deferEdit().queue();
     }
 
     private EmbedBuilder getEmbed(ChannelSetting setting, DiscordLocale local) {
         StringBuilder whiteBuilder = new StringBuilder();
         if (!setting.white.isEmpty()) {
-            for (long i : setting.white) {
-                whiteBuilder.append("<#").append(i).append(">\n");
-            }
+            setting.white.stream()
+                    .map(i -> ("<#" + i + ">\n"))
+                    .forEach(whiteBuilder::append);
         } else {
             whiteBuilder.append(langManager.get("runtime;setting;embed;empty", local));
         }
 
         StringBuilder blackBuilder = new StringBuilder();
         if (!setting.black.isEmpty()) {
-            for (long i : setting.black) {
-                blackBuilder.append("<#").append(i).append(">\n");
-            }
+            setting.black.stream()
+                    .map(i -> ("<#" + i + ">\n"))
+                    .forEach(blackBuilder::append);
         } else {
             blackBuilder.append(langManager.get("runtime;setting;embed;empty", local));
         }
@@ -149,36 +155,24 @@ public class ButtonSystem {
 
     public List<Button> getButtons(GenericInteractionCreateEvent event, DiscordLocale local) {
         if (event.getChannel() == null) return Collections.emptyList();
-        List<Button> buttons = new ArrayList<>();
-        buttons.add(
+
+        return Arrays.asList(
                 new ButtonImpl("xs:voicelogger:toggle:" + event.getUser().getId() + ':' + event.getChannel().getId(),
                         langManager.get("runtime;setting;button;toggle_status", local),
                         ButtonStyle.PRIMARY, false, null
-                )
-        );
-
-        buttons.add(
+                ),
                 new ButtonImpl("xs:voicelogger:white:" + event.getUser().getId() + ':' + event.getChannel().getId(),
                         langManager.get("runtime;setting;button;set_white", local),
                         ButtonStyle.SUCCESS, false, null
-                )
-        );
-
-        buttons.add(
+                ),
                 new ButtonImpl("xs:voicelogger:black:" + event.getUser().getId() + ':' + event.getChannel().getId(),
                         langManager.get("runtime;setting;button;set_black", local),
                         ButtonStyle.SECONDARY, false, null
-                )
-        );
-
-        buttons.add(
+                ),
                 new ButtonImpl("xs:voicelogger:delete:" + event.getUser().getId() + ':' + event.getChannel().getId(),
                         langManager.get("runtime;setting;button;delete", local),
                         ButtonStyle.DANGER, false, null
                 )
         );
-
-        return buttons;
     }
-
 }
