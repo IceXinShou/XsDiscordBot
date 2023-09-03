@@ -1,5 +1,0 @@
-author: MongoDB Inc.
-main: com.jdbc.mongodbapi.Main
-name: MongoDBAPI
-version: '1.0'
-prefix: MongoDBAPI
