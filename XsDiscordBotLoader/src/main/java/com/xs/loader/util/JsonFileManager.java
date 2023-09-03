@@ -1,5 +1,6 @@
 package com.xs.loader.util;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -36,24 +37,28 @@ public class JsonFileManager {
     }
 
     private void initData() {
-        String tmp;
         try {
-            if (!FILE.exists() || (tmp = streamToString(Files.newInputStream(FILE.toPath()))).length() == 0) {
-                FILE.createNewFile();
-                if (isObject) {
-                    data_obj = new JsonObject();
-                } else {
-                    data_ary = new JsonArray();
+            if (FILE.exists()) {
+                try (InputStream inputStream = Files.newInputStream(FILE.toPath())) {
+                    String tmp;
+                    if (!(tmp = streamToString(inputStream)).isEmpty()) {
+                        if (isObject) {
+                            data_obj = JsonParser.parseString(tmp).getAsJsonObject();
+                        } else {
+                            data_ary = JsonParser.parseString(tmp).getAsJsonArray();
+                        }
+                    }
+
                 }
-                save();
-                return;
             }
 
+            FILE.createNewFile();
             if (isObject) {
-                data_obj = JsonParser.parseString(tmp).getAsJsonObject();
+                data_obj = new JsonObject();
             } else {
-                data_ary = JsonParser.parseString(tmp).getAsJsonArray();
+                data_ary = new JsonArray();
             }
+            save();
         } catch (IOException e) {
             logger.warn(e.getMessage());
         }
