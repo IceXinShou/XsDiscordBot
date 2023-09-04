@@ -1,4 +1,8 @@
 API_KEY: ABCDEF123456789
+Module: gpt-3.5-turbo
+MaxToken: 4097
+MinReplyToken: 1000 # keep tokens to let GPT reply
+Prefix: "?"
 
 AllowUserID:
   - 810822763601461318 # xs._.b
@@ -31,5 +35,3 @@ SystemPrompt: |
 # 5. 若因字數限制而無法輸出完整內容時，通知使用者再次詢問來取得完整回覆。
 # 6. 第三方庫專有名詞旁請標示相關原文。例如：進階加密標準(AES)。
 # 7. 請根據問題內容用繁體中文回答
-
-Module: gpt-3.5-turbo

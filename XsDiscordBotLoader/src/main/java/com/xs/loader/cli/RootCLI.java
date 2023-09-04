@@ -5,7 +5,6 @@ import asg.cliche.Param;
 import asg.cliche.ShellFactory;
 import com.xs.loader.error.ClassType;
 import com.xs.loader.error.Exceptions;
-import com.xs.loader.logger.Logger;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.Channel;
@@ -15,12 +14,12 @@ import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.managers.AudioManager;
 import org.fusesource.jansi.AnsiConsole;
 
+import static com.xs.loader.Main.cliLogger;
 import static com.xs.loader.Main.loader;
 import static com.xs.loader.base.Loader.jdaBot;
 import static com.xs.loader.error.Checks.notNull;
 
 public class RootCLI {
-    private static final Logger logger = new Logger("CLI");
 
     /* Bind Control */
     @Command(name = "bind-guild", abbrev = "bg", description = "bind to a specific Guild")
@@ -154,7 +153,7 @@ public class RootCLI {
     public void stop() {
         loader.stop();
         AnsiConsole.systemUninstall();
-        logger.log("Stopped");
+        cliLogger.log("Stopped");
         System.exit(0);
     }
 
@@ -162,4 +161,6 @@ public class RootCLI {
     public void reload() throws Exception {
         loader.reload();
     }
+
+
 }

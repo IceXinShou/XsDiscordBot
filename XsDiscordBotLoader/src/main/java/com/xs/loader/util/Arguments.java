@@ -19,10 +19,6 @@ public class Arguments {
             System.exit(0);
         }
 
-        if (cmd.hasOption("ign")) {
-            ignore_version_check = true;
-        } else {
-            ignore_version_check = false;
-        }
+        ignore_version_check = cmd.hasOption("ign");
     }
 }

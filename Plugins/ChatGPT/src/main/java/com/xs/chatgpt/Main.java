@@ -17,7 +17,10 @@ import org.yaml.snakeyaml.constructor.CustomClassLoaderConstructor;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -29,23 +32,18 @@ import static com.xs.loader.base.Loader.ROOT_PATH;
 public class Main extends Event {
     public static final Set<Long> waitingList = ConcurrentHashMap.newKeySet();
     private static final String TAG = "ChatGPT";
-    public static String apiKey;
-    public static String module;
     public static JsonArray defaultAry = new JsonArray();
     private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
     private final String PATH_FOLDER_NAME = "plugins/ChatGPT";
-    private final List<Long> allowUserID = new ArrayList<>();
-    private final List<Long> allowForumChannelID = new ArrayList<>();
     private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(3);
     private final Map<Long, JsonFileManager> guildsManager = new HashMap<>();
-    private MainConfig configFile;
+    public static MainConfig configFile;
     private LangManager langManager;
     private FileGetter getter;
     private Logger logger;
     private JsonFileManager dmManager;
     private Map<String, Map<DiscordLocale, String>> langMap; // Label, Local, Content
 
-    public static final int MAX_TOKEN = 4097;
     public static int prompt_token;
 
     public Main() {
@@ -86,10 +84,6 @@ public class Main extends Event {
             throw new RuntimeException(e);
         }
 
-        allowUserID.addAll(Arrays.asList(configFile.AllowUserID));
-        allowForumChannelID.addAll(Arrays.asList(configFile.AllowForumChannelID));
-        apiKey = configFile.API_KEY;
-        module = configFile.Module;
         prompt_token = getToken(configFile.SystemPrompt);
 
         JsonObject defaultObj = new JsonObject();
@@ -133,16 +127,21 @@ public class Main extends Event {
 
     private void dmListener(MessageReceivedEvent event) {
         // AllowList Filter
-        long id = event.getAuthor().getIdLong();
-        if (!allowUserID.contains(id)) return;
+        if (!Arrays.asList(configFile.AllowUserID).contains(event.getAuthor().getIdLong())) return;
 
-        process(event, dmManager);
+        String msg = event.getMessage().getContentRaw();
+        if (!msg.startsWith(configFile.Prefix)) return;
+
+        process(event, msg.substring(1), dmManager);
     }
 
     private void forumListener(MessageReceivedEvent event) {
         // AllowList Filter
-        if (!allowForumChannelID.contains(
+        if (!Arrays.asList(configFile.AllowForumChannelID).contains(
                 event.getChannel().asThreadChannel().getParentChannel().getIdLong())) return;
+
+        String msg = event.getMessage().getContentRaw();
+        if (!msg.startsWith(configFile.Prefix)) return;
 
         long guildID = event.getGuild().getIdLong();
         JsonFileManager manager;
@@ -153,13 +152,12 @@ public class Main extends Event {
             guildsManager.put(guildID, manager);
         }
 
-        process(event, manager);
+        process(event, msg.substring(1), manager);
     }
 
-    private void process(MessageReceivedEvent event, JsonFileManager manager) {
+    private void process(MessageReceivedEvent event, String msg, JsonFileManager manager) {
         JsonObject obj = manager.getObj();
         long id = event.getAuthor().getIdLong();
-        String msg = event.getMessage().getContentRaw();
 
         if (msg.equals("結束對話") || msg.equalsIgnoreCase("end")) {
             obj.add(String.valueOf(id), defaultAry.deepCopy());
@@ -179,7 +177,8 @@ public class Main extends Event {
         event.getChannel().sendTyping().queue();
         String name = event.getAuthor().getName();
         executor.submit(() -> {
-            logger.log("<- " + name + ": " + msg);
+            logger.log("<- " + name + ": " + msg.replace("\n", "\\n"));
+
             MessageManager messageManager = new MessageManager(manager, event.getMessage(), msg, event.getChannel().getIdLong(), logger);
             logger.log("-> " + name + ": "
                     + messageManager.fullContent.toString().replace("\n", "\\n"));

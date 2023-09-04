@@ -103,7 +103,7 @@ public class MessageManager {
         dataAry.add(msgObj);
 
         JsonArray tmpPostAry = new JsonArray();
-        final int LIMIT_TOKEN = MAX_TOKEN - 1000 - prompt_token;
+        final int LIMIT_TOKEN = configFile.MaxToken - configFile.MinReplyToken - prompt_token;
         int tokens = 0;
 
         // add from last message
@@ -134,7 +134,7 @@ public class MessageManager {
 
         // 完整請求建構
         postObj.addProperty("stream", true);
-        postObj.addProperty("model", module);
+        postObj.addProperty("model", configFile.Module);
         postObj.add("messages", postAry);
 
         return postObj.toString();
@@ -145,7 +145,7 @@ public class MessageManager {
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("POST");
         conn.setRequestProperty("Content-Type", "application/json");
-        conn.setRequestProperty("Authorization", "Bearer " + apiKey);
+        conn.setRequestProperty("Authorization", "Bearer " + configFile.API_KEY);
         conn.setConnectTimeout(20000);
         conn.setReadTimeout(60000);
         conn.setDoOutput(true);
