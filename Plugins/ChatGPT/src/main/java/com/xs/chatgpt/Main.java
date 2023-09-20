@@ -10,6 +10,9 @@ import com.xs.loader.util.JsonFileManager;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
@@ -130,7 +133,7 @@ public class Main extends Event {
         waitList.remove(event.getMessageIdLong());
 
         Message message = event.retrieveMessage().complete();
-        process(event.retrieveUser().complete(), event.getChannel().asTextChannel(), message, message.getContentRaw(), dmManager);
+        process(event.retrieveUser().complete(), event.getChannel().asThreadChannel(), message, message.getContentRaw(), dmManager);
     }
 
     @Override
@@ -172,10 +175,10 @@ public class Main extends Event {
             guildsManager.put(guildID, manager);
         }
 
-        process(event.getAuthor(), event.getChannel().asTextChannel(), message, raw.substring(1), manager);
+        process(event.getAuthor(), event.getChannel().asThreadChannel(), message, raw.substring(1), manager);
     }
 
-    private void process(User author, TextChannel channel, Message message, String msg, JsonFileManager manager) {
+    private void process(User author, GuildMessageChannel channel, Message message, String msg, JsonFileManager manager) {
         JsonObject obj = manager.getObj();
         long id = author.getIdLong();
 
