@@ -14,10 +14,13 @@ public abstract class Event extends ListenerAdapter {
     public void initLoad() {
     }
 
-    public void finishLoad() {
+    public void onReady() {
     }
 
     public void unload() {
+    }
+
+    public void reload() {
     }
 
     @Nullable

@@ -85,7 +85,7 @@ public class Loader {
         bot = jdaBot.getSelfUser();
         botID = bot.getIdLong();
 
-        jdaBot.addEventListener(new ListenerManager(guildCommands));
+        jdaBot.addEventListener(new ListenerManager(guildCommands, plugin_queue));
         while (!listeners.isEmpty())
             jdaBot.addEventListener(listeners.poll());
 
@@ -262,8 +262,6 @@ public class Loader {
             if (plugin.listener) listeners.add(plugin);
         }
 
-        for (Event plugin : plugin_queue.values()) plugin.finishLoad();
-
         if (fail > 0)
             logger.warn(fail + " Plugin(s) Loading Failed!");
         logger.log(count + " Plugin(s) Loading Successfully");
@@ -300,13 +298,8 @@ public class Loader {
     }
 
     public void reload() throws IOException {
-        List<Event> reloadPlugins = new ArrayList<>(plugin_queue.values());
-        Collections.reverse(reloadPlugins);
-        for (Event plugin : reloadPlugins) {
-            plugin.unload();
-        }
         for (Event plugin : plugin_queue.values()) {
-            plugin.initLoad();
+            plugin.reload();
         }
 
         threadPool.shutdown();
