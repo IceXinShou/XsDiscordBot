@@ -7,8 +7,12 @@ import com.xs.loader.logger.Logger;
 import com.xs.loader.plugin.Event;
 import com.xs.loader.util.FileGetter;
 import com.xs.loader.util.JsonFileManager;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.events.session.ShutdownEvent;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
 import org.yaml.snakeyaml.Yaml;
@@ -17,10 +21,7 @@ import org.yaml.snakeyaml.constructor.CustomClassLoaderConstructor;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -30,7 +31,7 @@ import static com.xs.chatgpt.TokenCounter.getToken;
 import static com.xs.loader.base.Loader.ROOT_PATH;
 
 public class Main extends Event {
-    public static final Set<Long> waitingList = ConcurrentHashMap.newKeySet();
+    public static final Set<Long> processingList = ConcurrentHashMap.newKeySet();
     private static final String TAG = "ChatGPT";
     public static JsonArray defaultAry = new JsonArray();
     public static MainConfig configFile;
@@ -39,6 +40,7 @@ public class Main extends Event {
     private final String PATH_FOLDER_NAME = "plugins/ChatGPT";
     private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(3);
     private final Map<Long, JsonFileManager> guildsManager = new HashMap<>();
+    private final Set<Long> waitList = new HashSet<>();
     private LangManager langManager;
     private FileGetter getter;
     private Logger logger;
@@ -80,8 +82,7 @@ public class Main extends Event {
     public void loadConfigFile() {
         try (InputStream inputStream = getter.readInputStreamOrDefaultFromSource("config.yml")) {
             if (inputStream == null) return;
-            configFile = new Yaml(new CustomClassLoaderConstructor(getClass().getClassLoader()))
-                    .loadAs(inputStream, MainConfig.class);
+            configFile = new Yaml(new CustomClassLoaderConstructor(getClass().getClassLoader())).loadAs(inputStream, MainConfig.class);
             logger.log("Setting File Loaded Successfully");
         } catch (IOException e) {
             logger.warn("Please configure /" + PATH_FOLDER_NAME + "/config.yml");
@@ -124,6 +125,15 @@ public class Main extends Event {
     }
 
     @Override
+    public void onMessageReactionAdd(MessageReactionAddEvent event) {
+        if (!event.getEmoji().getName().equals("\uD83E\uDD16") || !waitList.contains(event.getMessageIdLong())) return;
+        waitList.remove(event.getMessageIdLong());
+
+        Message message = event.retrieveMessage().complete();
+        process(event.retrieveUser().complete(), event.getChannel().asTextChannel(), message, message.getContentRaw(), dmManager);
+    }
+
+    @Override
     public void onShutdown(ShutdownEvent event) {
         executor.shutdown();
     }
@@ -133,19 +143,25 @@ public class Main extends Event {
         // AllowList Filter
         if (!Arrays.asList(configFile.AllowUserID).contains(event.getAuthor().getIdLong())) return;
 
-        String msg = event.getMessage().getContentRaw();
-        if (!msg.startsWith(configFile.Prefix)) return;
+        Message message = event.getMessage();
+        String raw = message.getContentRaw();
+        if (!raw.startsWith(configFile.Prefix)) return;
 
-        process(event, msg.substring(1), dmManager);
+        process(event.getAuthor(), event.getChannel().asTextChannel(), message, raw.substring(1), dmManager);
     }
 
     private void forumListener(MessageReceivedEvent event) {
         // AllowList Filter
-        if (!Arrays.asList(configFile.AllowForumChannelID).contains(
-                event.getChannel().asThreadChannel().getParentChannel().getIdLong())) return;
+        if (!Arrays.asList(configFile.AllowForumChannelID).contains(event.getChannel().asThreadChannel().getParentChannel().getIdLong()))
+            return;
 
-        String msg = event.getMessage().getContentRaw();
-        if (!msg.startsWith(configFile.Prefix)) return;
+        Message message = event.getMessage();
+        String raw = message.getContentRaw();
+        if (!raw.startsWith(configFile.Prefix)) {
+            event.getMessage().addReaction(Emoji.fromUnicode("\uD83E\uDD16")).queue();
+            waitList.add(event.getMessageIdLong());
+            return;
+        }
 
         long guildID = event.getGuild().getIdLong();
         JsonFileManager manager;
@@ -156,37 +172,36 @@ public class Main extends Event {
             guildsManager.put(guildID, manager);
         }
 
-        process(event, msg.substring(1), manager);
+        process(event.getAuthor(), event.getChannel().asTextChannel(), message, raw.substring(1), manager);
     }
 
-    private void process(MessageReceivedEvent event, String msg, JsonFileManager manager) {
+    private void process(User author, TextChannel channel, Message message, String msg, JsonFileManager manager) {
         JsonObject obj = manager.getObj();
-        long id = event.getAuthor().getIdLong();
+        long id = author.getIdLong();
 
         if (msg.equals("結束對話") || msg.equalsIgnoreCase("end")) {
             obj.add(String.valueOf(id), defaultAry.deepCopy());
             manager.save();
-            waitingList.remove(id);
-            event.getChannel().sendMessage("對話已結束，可以開始新的話題了~").queue();
+            processingList.remove(id);
+            channel.sendMessage("對話已結束，可以開始新的話題了~").queue();
             return;
         }
 
         // WaitingList Filter
-        if (waitingList.contains(id)) {
-            event.getMessage().reply("請等待上一個訊息完成!").queue(i -> i.delete().queueAfter(3, TimeUnit.SECONDS));
+        if (processingList.contains(id)) {
+            message.reply("請等待上一個訊息完成!").queue(i -> i.delete().queueAfter(3, TimeUnit.SECONDS));
             return;
         }
 
-        waitingList.add(id);
-        event.getChannel().sendTyping().queue();
-        String name = event.getAuthor().getName();
+        processingList.add(id);
+        channel.sendTyping().queue();
+        String name = author.getName();
         executor.submit(() -> {
             logger.log("<- " + name + ": " + msg.replace("\n", "\\n"));
 
-            MessageManager messageManager = new MessageManager(manager, event.getMessage(), msg, event.getChannel().getIdLong(), logger);
-            logger.log("-> " + name + ": "
-                    + messageManager.fullContent.toString().replace("\n", "\\n"));
-            waitingList.remove(id);
+            MessageManager messageManager = new MessageManager(manager, message, msg, channel.getIdLong(), logger);
+            logger.log("-> " + name + ": " + messageManager.fullContent.toString().replace("\n", "\\n"));
+            processingList.remove(id);
         });
     }
 }
