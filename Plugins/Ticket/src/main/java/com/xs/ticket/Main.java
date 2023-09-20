@@ -47,11 +47,11 @@ public class Main extends Event {
     private static final String TAG = "Ticket";
     private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
     private final String PATH_FOLDER_NAME = "plugins/Ticket";
+    private final Map<Long, CreateStep> steps = new HashMap<>();
     private LangManager langManager;
     private FileGetter getter;
     private Logger logger;
     private Map<String, Map<DiscordLocale, String>> langMap; // Label, Local, Content
-    private final Map<Long, CreateStep> steps = new HashMap<>();
     private JsonFileManager manager;
 
     public Main() {
@@ -66,6 +66,11 @@ public class Main extends Event {
         loadLang();
 
         logger.log("Loaded");
+    }
+
+    @Override
+    public void reload() {
+        loadLang();
     }
 
     @Override

@@ -44,6 +44,26 @@ public class Main extends Event {
         super(true);
     }
 
+    private static boolean isRemoved(VoiceChannel channel, JsonFileManager fileManager) {
+        JsonObject targetObject = new JsonObject();
+        targetObject.addProperty("category", channel.getParentCategoryIdLong());
+        targetObject.addProperty("name", channel.getName());
+        targetObject.addProperty("limit", channel.getUserLimit());
+        targetObject.addProperty("bitrate", channel.getBitrate());
+
+        JsonArray array = fileManager.getAry();
+
+        boolean removed = false;
+        for (int i = 0; i < array.size(); i++) {
+            JsonObject obj = array.get(i).getAsJsonObject();
+            if (obj.equals(targetObject)) {
+                array.remove(i);
+                removed = true;
+            }
+        }
+
+        return removed;
+    }
 
     @Override
     public void initLoad() {
@@ -53,6 +73,12 @@ public class Main extends Event {
         loadLang();
         loadData();
         logger.log("Loaded");
+    }
+
+    @Override
+    public void reload() {
+        loadLang();
+        loadData();
     }
 
     private void loadData() {
@@ -175,28 +201,6 @@ public class Main extends Event {
             }
         }
     }
-
-    private static boolean isRemoved(VoiceChannel channel, JsonFileManager fileManager) {
-        JsonObject targetObject = new JsonObject();
-        targetObject.addProperty("category", channel.getParentCategoryIdLong());
-        targetObject.addProperty("name", channel.getName());
-        targetObject.addProperty("limit", channel.getUserLimit());
-        targetObject.addProperty("bitrate", channel.getBitrate());
-
-        JsonArray array = fileManager.getAry();
-
-        boolean removed = false;
-        for (int i = 0; i < array.size(); i++) {
-            JsonObject obj = array.get(i).getAsJsonObject();
-            if (obj.equals(targetObject)) {
-                array.remove(i);
-                removed = true;
-            }
-        }
-
-        return removed;
-    }
-
 
     @Override
     public void onGuildReady(GuildReadyEvent event) {

@@ -72,6 +72,11 @@ public class Main extends Event {
     }
 
     @Override
+    public void reload() {
+        loadLang();
+    }
+
+    @Override
     public void unload() {
         logger.log("UnLoaded");
     }

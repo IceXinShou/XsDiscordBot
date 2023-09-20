@@ -74,6 +74,12 @@ public class Main extends Event {
         logger.log("Loaded");
     }
 
+    @Override
+    public void reload() {
+        loadLang();
+        initData();
+    }
+
     private void initData() {
         File f = new File(ROOT_PATH + '/' + PATH_FOLDER_NAME + "/data");
         f.mkdirs();

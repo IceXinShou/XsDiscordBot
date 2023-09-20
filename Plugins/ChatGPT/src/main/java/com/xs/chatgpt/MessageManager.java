@@ -28,11 +28,11 @@ public class MessageManager {
     private final Message replyMessage;
     private final StringBuffer curStr = new StringBuffer();
     private final Logger logger;
-    private Message latestMessage;
-    private Status status = Status.INIT;
     private final String msg;
     private final JsonObject postObj = new JsonObject();
     private final JsonArray dataAry;
+    private Message latestMessage;
+    private Status status = Status.INIT;
 
 
     MessageManager(JsonFileManager manager, Message replyMessage, String msg, long id, Logger logger) {

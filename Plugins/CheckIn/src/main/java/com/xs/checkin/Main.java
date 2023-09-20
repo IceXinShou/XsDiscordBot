@@ -66,6 +66,13 @@ public class Main extends Event {
     }
 
     @Override
+    public void reload() {
+        loadConfigFile();
+        loadLang();
+        loadAnnouncements();
+    }
+
+    @Override
     public void unload() {
         logger.log("UnLoaded");
     }

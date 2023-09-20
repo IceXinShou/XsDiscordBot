@@ -33,18 +33,17 @@ public class Main extends Event {
     public static final Set<Long> waitingList = ConcurrentHashMap.newKeySet();
     private static final String TAG = "ChatGPT";
     public static JsonArray defaultAry = new JsonArray();
+    public static MainConfig configFile;
+    public static int prompt_token;
     private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
     private final String PATH_FOLDER_NAME = "plugins/ChatGPT";
     private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(3);
     private final Map<Long, JsonFileManager> guildsManager = new HashMap<>();
-    public static MainConfig configFile;
     private LangManager langManager;
     private FileGetter getter;
     private Logger logger;
     private JsonFileManager dmManager;
     private Map<String, Map<DiscordLocale, String>> langMap; // Label, Local, Content
-
-    public static int prompt_token;
 
     public Main() {
         super(true);
