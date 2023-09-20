@@ -129,6 +129,7 @@ public class Main extends Event {
 
     @Override
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
+        if (event.getMember().getUser().isBot()) return;
         if (!event.getEmoji().getName().equals("\uD83E\uDD16") || !waitList.contains(event.getMessageIdLong())) return;
         waitList.remove(event.getMessageIdLong());
 
