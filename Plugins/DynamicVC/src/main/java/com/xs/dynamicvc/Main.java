@@ -77,6 +77,7 @@ public class Main extends Event {
 
     @Override
     public void reload() {
+        originChannel.clear();
         loadLang();
         loadData();
     }

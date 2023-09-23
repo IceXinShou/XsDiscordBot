@@ -46,12 +46,14 @@ public class JsonFileManager {
                         } else {
                             data_ary = JsonParser.parseString(tmp).getAsJsonArray();
                         }
+                        return;
                     }
-
                 }
+            } else {
+                FILE.createNewFile();
             }
 
-            FILE.createNewFile();
+
             if (isObject) {
                 data_obj = new JsonObject();
             } else {
