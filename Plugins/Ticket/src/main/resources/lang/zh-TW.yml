@@ -1,3 +1,5 @@
 register:
-  cmd: 客服
-  description: 建立客服按鈕訊息
+  cmd_create: 建立客服訊息
+  description_create: 建立客服按鈕訊息
+  cmd_add: 新增客服訊息
+  description_add: 新增客服按鈕訊息

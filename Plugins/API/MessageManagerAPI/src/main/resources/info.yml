@@ -1,0 +1,5 @@
+author: IceXinShou
+main: com.xs.messagemanagerapi.Main
+name: MessageManagerAPI
+version: '1.0'
+prefix: MsgAPI

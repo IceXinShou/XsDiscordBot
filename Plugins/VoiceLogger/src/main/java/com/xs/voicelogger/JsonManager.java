@@ -45,7 +45,7 @@ public class JsonManager {
                 // if channel cannot access, skip it
                 if (guild.getGuildChannelById(channelID) == null) continue;
 
-                JsonObject settingObj = manager.getObj(channelID).getAsJsonObject();
+                JsonObject settingObj = manager.getObjByKey(channelID).getAsJsonObject();
                 Map<Long, ChannelSetting> tmp = new HashMap<>();
                 tmp.put(Long.parseLong(channelID), new ChannelSetting(
                         settingObj.get("whitelist").getAsBoolean(),
@@ -64,7 +64,7 @@ public class JsonManager {
 
         // update json file
         JsonFileManager manager = fileManager.get(guildID);
-        JsonObject obj = manager.getObj(String.valueOf(channelID));
+        JsonObject obj = manager.getObjByKey(String.valueOf(channelID));
         if (obj == null) return null; // WTF
 
         obj.addProperty("whitelist", setting.whitelistStat);
@@ -76,7 +76,7 @@ public class JsonManager {
     @Nullable
     public ChannelSetting addChannels(long guildID, long rootID, List<Long> channelIDs, boolean whitelist) {
         JsonFileManager manager = fileManager.get(guildID);
-        JsonObject obj = manager.getObj(String.valueOf(rootID));
+        JsonObject obj = manager.getObjByKey(String.valueOf(rootID));
         if (obj == null) return null; // WTF
 
         JsonArray channelsObj = obj.get(whitelist ? "white" : "black").getAsJsonArray();

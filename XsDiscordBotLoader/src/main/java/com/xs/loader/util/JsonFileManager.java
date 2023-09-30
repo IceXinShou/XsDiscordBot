@@ -70,11 +70,19 @@ public class JsonFileManager {
     }
 
     @Nullable
-    public JsonObject getObj(String key) {
+    public JsonObject getObjByKey(String key) {
         if (data_obj.has(key))
             return data_obj.get(key).getAsJsonObject();
         return null;
     }
+
+    @Nullable
+    public JsonArray getAryByKey(String key) {
+        if (data_obj.has(key))
+            return data_obj.get(key).getAsJsonArray();
+        return null;
+    }
+
 
     public JsonArray getAry() {
         return data_ary;

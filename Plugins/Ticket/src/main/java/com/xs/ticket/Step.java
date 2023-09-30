@@ -10,55 +10,74 @@ import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.ItemComponent;
+import net.dv8tion.jda.api.interactions.components.LayoutComponent;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.internal.interactions.component.ButtonImpl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle.PRIMARY;
 import static net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle.SUCCESS;
 
-public class CreateStep {
+public class Step {
     public final StepData data;
     public final InteractionHook hook;
+    public final Message message;
 
-    public CreateStep(InteractionHook hook) {
+
+    public Step(Message message, InteractionHook hook) {
+        this.message = message;
+        this.hook = hook;
+        data = new StepData();
+    }
+
+    public Step(InteractionHook hook) {
+        this.message = null;
         this.hook = hook;
         data = new StepData();
     }
 
     public void updateEmbed() {
-        hook.editOriginalEmbeds(getPreviewEmbed())
-                .setComponents(
-                        ActionRow.of(getPreviewComponent()),
+        List<LayoutComponent> actions = new ArrayList<>();
+        actions.add(ActionRow.of(getPreviewComponent()));
 
-                        ActionRow.of(
-                                new ButtonImpl("xs:ticket:cr:author", "設定作者", PRIMARY, false, null),
-                                new ButtonImpl("xs:ticket:cr:content", "設定文字", PRIMARY, false, null),
-                                new ButtonImpl("xs:ticket:cr:reason", "設定原因", PRIMARY, false, null),
-                                new ButtonImpl("xs:ticket:cr:admin", "設定允許身分組", PRIMARY, false, null),
-                                new ButtonImpl("xs:ticket:cr:color", "設定顏色", PRIMARY, false, null)
-                        ),
+        if (message == null)
+            actions.add(ActionRow.of(
+                    new ButtonImpl("xs:ticket:cr:author", "設定作者", PRIMARY, false, null),
+                    new ButtonImpl("xs:ticket:cr:content", "設定文字", PRIMARY, false, null),
+                    new ButtonImpl("xs:ticket:cr:category", "設定頻道目錄", PRIMARY, false, null),
+                    new ButtonImpl("xs:ticket:cr:color", "設定顏色", PRIMARY, false, null)
+            ));
 
-                        ActionRow.of(
-                                new ButtonImpl("xs:ticket:cr:btnContent", "設定按鈕文字", PRIMARY, false, null),
-                                new ButtonImpl("xs:ticket:cr:btnColor", "設定按鈕顏色", PRIMARY, false, null),
-                                new ButtonImpl("xs:ticket:cr:category", "設定頻道目錄", PRIMARY, false, null),
-                                new ButtonImpl("xs:ticket:cr:confirm", "確定建立", SUCCESS, false, null)
-                        )
-                ).queue();
+        actions.add(ActionRow.of(
+                new ButtonImpl("xs:ticket:cr:btnContent", "設定按鈕文字", PRIMARY, false, null),
+                new ButtonImpl("xs:ticket:cr:btnColor", "設定按鈕顏色", PRIMARY, false, null),
+                new ButtonImpl("xs:ticket:cr:reason", "設定詢問標題", PRIMARY, false, null),
+                new ButtonImpl("xs:ticket:cr:admin", "設定允許身分組", PRIMARY, false, null),
+                new ButtonImpl("xs:ticket:cr:confirm", "確定建立", SUCCESS, false, null)
+        ));
+
+        hook.editOriginalEmbeds(getPreviewEmbed()).setComponents(actions).queue();
     }
 
     private MessageEmbed getPreviewEmbed() {
-        return new EmbedBuilder()
-                .setAuthor(data.author, null, data.authorIconURL)
-                .setTitle(data.title)
-                .setDescription(data.description)
-                .setColor(data.color).build();
+        if (message == null)
+            return new EmbedBuilder()
+                    .setAuthor(data.author, null, data.authorIconURL)
+                    .setTitle(data.title)
+                    .setDescription(data.description)
+                    .setColor(data.color).build();
+
+        return message.getEmbeds().get(0);
     }
 
-    private ButtonImpl getPreviewComponent() {
-        return new ButtonImpl("xs:ticket:cr:btn", data.btnContent, data.btnStyle, false, data.btnEmoji);
+    private Button[] getPreviewComponent() {
+        return new Button[]{
+                new ButtonImpl("xs:ticket:cr:btn", data.btnContent, data.btnStyle, false, data.btnEmoji)
+        };
     }
 
     public JsonObject getJson() {
@@ -131,8 +150,17 @@ public class CreateStep {
     public long confirmCreate(MessageChannelUnion channel) {
         Message message = channel.sendMessageEmbeds(getPreviewEmbed()).complete();
         message.editMessageComponents(ActionRow.of(
-                new ButtonImpl("xs:ticket:btn", data.btnContent, data.btnStyle, false, data.btnEmoji)
+                new ButtonImpl("xs:ticket:btn:0", data.btnContent, data.btnStyle, false, data.btnEmoji)
         )).queue();
+
+        hook.deleteOriginal().queue();
+        return message.getIdLong();
+    }
+
+    public long confirmCreate() {
+        List<ItemComponent> rowData = message.getActionRows().get(0).getComponents();
+        rowData.add(new ButtonImpl("xs:ticket:btn:" + rowData.size(), data.btnContent, data.btnStyle, false, data.btnEmoji));
+        message.editMessageComponents(ActionRow.of(rowData)).queue();
 
         hook.deleteOriginal().queue();
         return message.getIdLong();

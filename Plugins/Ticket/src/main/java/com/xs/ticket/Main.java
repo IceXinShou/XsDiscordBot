@@ -8,10 +8,7 @@ import com.xs.loader.plugin.Event;
 import com.xs.loader.util.FileGetter;
 import com.xs.loader.util.JsonFileManager;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.ISnowflake;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -24,8 +21,10 @@ import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionE
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
@@ -47,7 +46,7 @@ public class Main extends Event {
     private static final String TAG = "Ticket";
     private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
     private final String PATH_FOLDER_NAME = "plugins/Ticket";
-    private final Map<Long, CreateStep> steps = new HashMap<>();
+    private final Map<Long, Step> steps = new HashMap<>();
     private LangManager langManager;
     private FileGetter getter;
     private Logger logger;
@@ -81,7 +80,7 @@ public class Main extends Event {
     @Override
     public void loadLang() {
         langManager = new LangManager(logger, getter, PATH_FOLDER_NAME, LANG_DEFAULT, DiscordLocale.CHINESE_TAIWAN);
-
+        Guild guild;
         langMap = langManager.getMap();
     }
 
@@ -89,18 +88,58 @@ public class Main extends Event {
     public CommandData[] guildCommands() {
         return new SlashCommandData[]{
                 Commands.slash("create_ticket", "create custom reason of ticket")
-                        .setNameLocalizations(langMap.get("register;cmd"))
-                        .setDescriptionLocalizations(langMap.get("register;description"))
+                        .setNameLocalizations(langMap.get("register;cmd_create"))
+                        .setDescriptionLocalizations(langMap.get("register;description_create"))
+                        .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR)),
+                Commands.slash("add_ticket", "create custom reason of ticket in the text-channel")
+                        .setNameLocalizations(langMap.get("register;cmd_add"))
+                        .setDescriptionLocalizations(langMap.get("register;description_add"))
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR))
+                        .addOptions(
+                        new OptionData(OptionType.STRING, "message_id", "for adding extra button", true)
+                )
         };
     }
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
-        if (!event.getName().equals("create_ticket")) return;
+        switch (event.getName()) {
+            case "create_ticket": {
+                startCreate(event);
+                break;
+            }
 
-        startCreate(event);
+            case "add_ticket": {
+                startAdd(event);
+                break;
+            }
+        }
+
     }
+
+    private void startAdd(SlashCommandInteractionEvent event) {
+        DiscordLocale local = event.getUserLocale();
+
+
+        long messageID = event.getOption("message_id").getAsLong();
+
+        Message message = event.getMessageChannel().retrieveMessageById(event.getOption("message_id").getAsLong())
+                .onErrorFlatMap(i -> event.getHook().editOriginal("Cannot found the message by id: " + messageID))
+                .complete();
+
+        if (message.getIdLong() != messageID) return;
+
+        if (!message.getActionRows().isEmpty() && message.getActionRows().get(0).getComponents().size() == 5) {
+            event.getHook().editOriginal("This message is full of buttons, please recreate a new message").queue();
+            return;
+        }
+
+        Step step = new Step(message, event.getHook());
+
+        step.updateEmbed();
+        steps.put(event.getUser().getIdLong(), step);
+    }
+
 
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
@@ -159,7 +198,8 @@ public class Main extends Event {
         switch (args[2]) {
             case "btn": {
                 JsonObject tmp;
-                if ((tmp = manager.getObj(event.getMessageId())) == null) {
+
+                if ((tmp = manager.getAryByKey(event.getMessageId()).get(Integer.parseInt(args[3])).getAsJsonObject()) == null) {
                     event.deferReply(true).addContent("錯誤").queue();
                     return;
                 }
@@ -167,7 +207,7 @@ public class Main extends Event {
                 String reason = tmp.getAsJsonObject().get("reasonTitle").getAsString();
                 TextInput reasonInput = TextInput.create("reason", "原因", TextInputStyle.PARAGRAPH).build();
                 event.replyModal(
-                        Modal.create("xs:ticket:push:" + event.getMessageId(), reason)
+                        Modal.create("xs:ticket:push:" + event.getMessageId() + ':' + args[3], reason)
                                 .addComponents(ActionRow.of(reasonInput))
                                 .build()
                 ).queue();
@@ -181,8 +221,8 @@ public class Main extends Event {
 
                 event.editComponents(
                         ActionRow.of(
-                                Button.of(ButtonStyle.SUCCESS, "xs:ticket:unlock:" + args[3] + ':' + args[4], "開啟", Emoji.fromUnicode("🔓")),
-                                Button.of(ButtonStyle.DANGER, "xs:ticket:delete:" + args[3] + ':' + args[4], "刪除", Emoji.fromUnicode("🗑")))
+                                Button.of(ButtonStyle.SUCCESS, "xs:ticket:unlock:" + args[3] + ':' + args[4] + ':' + args[5], "開啟", Emoji.fromUnicode("🔓")),
+                                Button.of(ButtonStyle.DANGER, "xs:ticket:delete:" + args[3] + ':' + args[4] + ':' + args[5], "刪除", Emoji.fromUnicode("🗑")))
                 ).queue();
                 break;
             }
@@ -194,8 +234,8 @@ public class Main extends Event {
 
                 event.editComponents(
                         ActionRow.of(
-                                Button.of(ButtonStyle.DANGER, "xs:ticket:lock:" + args[3] + ':' + args[4], "關閉", Emoji.fromUnicode("🔒")),
-                                Button.of(ButtonStyle.DANGER, "xs:ticket:delete:" + args[3] + ':' + args[4], "刪除", Emoji.fromUnicode("🗑")))
+                                Button.of(ButtonStyle.DANGER, "xs:ticket:lock:" + args[3] + ':' + args[4] + ':' + args[5], "關閉", Emoji.fromUnicode("🔒")),
+                                Button.of(ButtonStyle.DANGER, "xs:ticket:delete:" + args[3] + ':' + args[4] + ':' + args[5], "刪除", Emoji.fromUnicode("🗑")))
                 ).queue();
                 break;
             }
@@ -205,7 +245,7 @@ public class Main extends Event {
                 Member member = event.getMember();
                 Guild guild = event.getGuild();
 
-                for (JsonElement i : manager.getObj(args[3]).getAsJsonObject()
+                for (JsonElement i : manager.getAryByKey(args[3]).get(Integer.parseInt(args[5])).getAsJsonObject()
                         .getAsJsonArray("adminIDs").asList()) {
                     Role tmp = guild.getRoleById(i.getAsString());
 
@@ -233,7 +273,7 @@ public class Main extends Event {
         if (!args[0].equals("xs") || !args[1].equals("ticket")) return;
 
 
-        CreateStep step = steps.get(event.getUser().getIdLong());
+        Step step = steps.get(event.getUser().getIdLong());
         if (args[2].equals("cr")) {
             switch (args[3]) {
                 case "author": {
@@ -266,12 +306,9 @@ public class Main extends Event {
                     break;
                 }
 
-                case "btnText": {
+                case "btnContent": {
                     step.setBtnContent(event.getValue("btnText").getAsString());
-                    break;
-                }
 
-                case "btnEmoji": {
                     if (event.getValue("btnEmoji") == null) {
                         step.setBtnEmoji(null);
                         break;
@@ -290,7 +327,7 @@ public class Main extends Event {
         switch (args[2]) {
             case "push": {
                 JsonObject tmp;
-                if ((tmp = manager.getObj(args[3])) == null) {
+                if ((tmp = manager.getAryByKey(args[3]).get(Integer.parseInt(args[4])).getAsJsonObject()) == null) {
                     event.deferReply(true).addContent("錯誤").queue();
                     return;
                 }
@@ -327,8 +364,8 @@ public class Main extends Event {
                 TextChannel channel = qu.complete();
                 event.getHook().sendMessage("請到此頻道 <#" + channel.getId() + "> 並等待人員回覆繼續!").queue();
                 channel.sendMessage(builder.toString()).addActionRow(
-                        Button.of(ButtonStyle.DANGER, "xs:ticket:lock:" + args[3] + ':' + event.getUser().getId(), "關閉", Emoji.fromUnicode("🔒")),
-                        Button.of(ButtonStyle.DANGER, "xs:ticket:delete:" + args[3] + ':' + event.getUser().getId(), "刪除", Emoji.fromUnicode("🗑"))
+                        Button.of(ButtonStyle.DANGER, "xs:ticket:lock:" + args[3] + ':' + event.getUser().getId() + ':' + args[4], "關閉", Emoji.fromUnicode("🔒")),
+                        Button.of(ButtonStyle.DANGER, "xs:ticket:delete:" + args[3] + ':' + event.getUser().getId() + ':' + args[4], "刪除", Emoji.fromUnicode("🗑"))
                 ).queue();
             }
         }
@@ -339,7 +376,7 @@ public class Main extends Event {
         String[] args = event.getComponentId().split(":");
         if (!args[0].equals("xs") || !args[1].equals("ticket")) return;
 
-        CreateStep step = steps.get(event.getUser().getIdLong());
+        Step step = steps.get(event.getUser().getIdLong());
 
         switch (args[3]) {
             case "admin": {
@@ -366,7 +403,7 @@ public class Main extends Event {
         String[] args = event.getComponentId().split(":");
         if (!args[0].equals("xs") || !args[1].equals("ticket")) return;
 
-        CreateStep step = steps.get(event.getUser().getIdLong());
+        Step step = steps.get(event.getUser().getIdLong());
 
         switch (args[3]) {
             case "btnColor": {
@@ -387,7 +424,7 @@ public class Main extends Event {
     }
 
     private void categoryMenu(ButtonInteractionEvent event) {
-        CreateStep step = steps.get(event.getUser().getIdLong());
+        Step step = steps.get(event.getUser().getIdLong());
         EntitySelectMenu menu =
                 EntitySelectMenu.create("xs:ticket:cr:category", EntitySelectMenu.SelectTarget.CHANNEL)
                         .setChannelTypes(ChannelType.CATEGORY)
@@ -403,13 +440,13 @@ public class Main extends Event {
     }
 
     private void mainMenu(ButtonInteractionEvent event) {
-        CreateStep step = steps.get(event.getUser().getIdLong());
+        Step step = steps.get(event.getUser().getIdLong());
         step.updateEmbed();
         event.deferEdit().queue();
     }
 
     private void previewReason(ButtonInteractionEvent event) {
-        CreateStep step = steps.get(event.getUser().getIdLong());
+        Step step = steps.get(event.getUser().getIdLong());
         TextInput reasonInput = TextInput.create("reason", "原因", TextInputStyle.PARAGRAPH).build();
 
         event.replyModal(
@@ -422,14 +459,14 @@ public class Main extends Event {
     private void startCreate(SlashCommandInteractionEvent event) {
         DiscordLocale local = event.getUserLocale();
 
-        CreateStep step = new CreateStep(event.getHook());
+        Step step = new Step(event.getHook());
 
         step.updateEmbed();
         steps.put(event.getUser().getIdLong(), step);
     }
 
     private void authorForm(ButtonInteractionEvent event) {
-        CreateStep step = steps.get(event.getUser().getIdLong());
+        Step step = steps.get(event.getUser().getIdLong());
         TextInput nameInput = TextInput.create("author", "設定作者名稱", TextInputStyle.SHORT)
                 .setValue(step.data.author)
                 .setPlaceholder("Ticket 服務")
@@ -437,10 +474,10 @@ public class Main extends Event {
                 .setRequired(false)
                 .build();
 
-        TextInput imageInput = TextInput.create("image", "設定作者圖示", TextInputStyle.SHORT)
+        TextInput imageInput = TextInput.create("image", "設定作者圖示", TextInputStyle.PARAGRAPH)
                 .setValue(step.data.authorIconURL)
                 .setPlaceholder("https://img .... 5_wh1200.png")
-                .setMaxLength(256)
+                .setMaxLength(4000)
                 .setRequired(false)
                 .build();
 
@@ -452,7 +489,7 @@ public class Main extends Event {
     }
 
     private void content(ButtonInteractionEvent event) {
-        CreateStep step = steps.get(event.getUser().getIdLong());
+        Step step = steps.get(event.getUser().getIdLong());
         TextInput titleInput = TextInput.create("title", "設定標題", TextInputStyle.SHORT)
                 .setValue(step.data.title)
                 .setPlaceholder("\uD83D\uDEE0 聯絡我們")
@@ -477,7 +514,7 @@ public class Main extends Event {
     }
 
     private void reasonForm(ButtonInteractionEvent event) {
-        CreateStep step = steps.get(event.getUser().getIdLong());
+        Step step = steps.get(event.getUser().getIdLong());
         TextInput reasonInput = TextInput.create("reason", "設定原因", TextInputStyle.PARAGRAPH)
                 .setValue(step.data.reasonTitle)
                 .setPlaceholder("有任何可以幫助的問題嗎~")
@@ -492,7 +529,7 @@ public class Main extends Event {
     }
 
     private void adminMenu(ButtonInteractionEvent event) {
-        CreateStep step = steps.get(event.getUser().getIdLong());
+        Step step = steps.get(event.getUser().getIdLong());
         EntitySelectMenu menu =
                 EntitySelectMenu.create("xs:ticket:cr:admin", EntitySelectMenu.SelectTarget.ROLE)
                         .setMaxValues(25)
@@ -507,7 +544,7 @@ public class Main extends Event {
     }
 
     private void colorForm(ButtonInteractionEvent event) {
-        CreateStep step = steps.get(event.getUser().getIdLong());
+        Step step = steps.get(event.getUser().getIdLong());
         TextInput colorInput = TextInput.create("color", "設定顏色", TextInputStyle.SHORT)
                 .setValue(String.format("#%06X", 0xFFFFFF & step.data.color))
                 .setPlaceholder("0x00FFFF")
@@ -521,7 +558,7 @@ public class Main extends Event {
     }
 
     private void btnContentForm(ButtonInteractionEvent event) {
-        CreateStep step = steps.get(event.getUser().getIdLong());
+        Step step = steps.get(event.getUser().getIdLong());
         TextInput btnTextInput = TextInput.create("btnText", "設定按鈕文字", TextInputStyle.SHORT)
                 .setValue(step.data.btnContent)
                 .setPlaceholder("聯絡我們")
@@ -545,7 +582,7 @@ public class Main extends Event {
     }
 
     private void btnColorMenu(ButtonInteractionEvent event) {
-        CreateStep step = steps.get(event.getUser().getIdLong());
+        Step step = steps.get(event.getUser().getIdLong());
         StringSelectMenu menu =
                 StringSelectMenu.create("xs:ticket:cr:btnColor")
                         .addOption("綠色", "3")
@@ -562,9 +599,15 @@ public class Main extends Event {
     }
 
     private void confirmCreate(ButtonInteractionEvent event) {
-        CreateStep step = steps.get(event.getUser().getIdLong());
-        long id = step.confirmCreate(event.getChannel());
-        manager.getObj().add(String.valueOf(id), step.getJson());
+        Step step = steps.get(event.getUser().getIdLong());
+        long id;
+
+        if (step.message != null)
+            id = step.confirmCreate();
+        else
+            id = step.confirmCreate(event.getChannel());
+
+        manager.getOrDefaultArray(String.valueOf(id)).add(step.getJson());
         manager.save();
     }
 }

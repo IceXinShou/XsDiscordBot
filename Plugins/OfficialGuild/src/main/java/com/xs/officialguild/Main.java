@@ -8,11 +8,9 @@ import com.xs.loader.plugin.Event;
 import com.xs.loader.util.FileGetter;
 import com.xs.loader.util.JsonFileManager;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -20,6 +18,9 @@ import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.ItemComponent;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
@@ -56,6 +57,13 @@ public class Main extends Event {
     private Guild ownGuild;
     private Map<String, Map<DiscordLocale, String>> langMap; // Label, Local, Content
     private JsonFileManager manager;
+
+    private final Long GOD_ROLE_ID = 1157315773769982023L;
+    private final Long APEX_ROLE_ID = 1157316094550347859L;
+    private final Long RAIL_ROLE_ID = 1157317688721420318L;
+    private Role godRole;
+    private Role apexRole;
+    private Role railRole;
 
     public Main() {
         super(true);
@@ -100,6 +108,18 @@ public class Main extends Event {
         if (ownGuild == null) {
             logger.warn("CANNOT FOUND Main Guild!");
         }
+
+        godRole = ownGuild.getRoleById(GOD_ROLE_ID);
+        apexRole = ownGuild.getRoleById(APEX_ROLE_ID);
+        railRole = ownGuild.getRoleById(RAIL_ROLE_ID);
+
+//        TextChannel channel = ownGuild.getTextChannelById(858672865444626439L);
+//        Message message = channel.retrieveMessageById(1157603306345070612L).complete();
+//        List<ItemComponent> components = message.getActionRows().get(0).getComponents();
+//        components.add(Button.of(ButtonStyle.PRIMARY, "xs:og:role:1", "原神", Emoji.fromUnicode("💎")));
+//        components.add(Button.of(ButtonStyle.PRIMARY, "xs:og:role:2", "APEX", Emoji.fromUnicode("🔫")));
+//        components.add(Button.of(ButtonStyle.PRIMARY, "xs:og:role:3", "星鐵", Emoji.fromUnicode("🎇")));
+//        message.editMessageComponents(ActionRow.of(components)).queue();
 
 //        ownGuild.upsertCommand(
 //                Commands.slash("create_firstjoin", "if you dont know what it is, please not to touch!")
@@ -160,6 +180,42 @@ public class Main extends Event {
 
             case "verify": {
                 verifyButton(event);
+                break;
+            }
+
+            case "role": {
+                Member member = event.getMember();
+                switch (args[3]) {
+                    case "1": {
+                        if (member.getRoles().contains(godRole)) {
+                            ownGuild.removeRoleFromMember(member, godRole).queue();
+                        } else {
+                            ownGuild.addRoleToMember(member, godRole).queue();
+                        }
+                        break;
+                    }
+
+                    case "2": {
+                        if (member.getRoles().contains(apexRole)) {
+                            ownGuild.removeRoleFromMember(member, apexRole).queue();
+                        } else {
+                            ownGuild.addRoleToMember(member, apexRole).queue();
+                        }
+                        break;
+                    }
+
+                    case "3": {
+                        if (member.getRoles().contains(railRole)) {
+                            ownGuild.removeRoleFromMember(member, railRole).queue();
+                        } else {
+                            ownGuild.addRoleToMember(member, railRole).queue();
+                        }
+                        break;
+                    }
+                }
+
+                event.deferEdit().queue();
+                break;
             }
         }
     }
