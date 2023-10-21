@@ -1,7 +1,7 @@
 package com.xs.chatlogger;
 
 import com.google.gson.JsonObject;
-import com.xs.loader.util.JsonObjFileManager;
+import com.xs.loader.util.json.JsonObjFileManager;
 import net.dv8tion.jda.api.entities.Guild;
 import org.jetbrains.annotations.Nullable;
 

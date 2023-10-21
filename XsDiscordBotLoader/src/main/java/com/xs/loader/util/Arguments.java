@@ -2,7 +2,7 @@ package com.xs.loader.util;
 
 import org.apache.commons.cli.*;
 
-public class Arguments {
+public class Arguments{
     public final boolean ignore_version_check;
 
     public Arguments(String[] args) throws ParseException {

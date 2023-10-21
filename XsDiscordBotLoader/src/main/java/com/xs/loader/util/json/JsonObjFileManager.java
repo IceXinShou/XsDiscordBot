@@ -1,52 +1,28 @@
-package com.xs.loader.util;
+package com.xs.loader.util.json;
 
-import com.google.gson.*;
-import com.xs.loader.base.Loader;
-import com.xs.loader.logger.Logger;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 
-public class JsonObjFileManager {
-    private final File FILE;
-    private final Logger logger;
-    private JsonObject data;
-
-
+public class JsonObjFileManager extends JsonFileManager<JsonObject> {
     public JsonObjFileManager(String FILE_PATH, String TAG) {
-        this.FILE = new File(Loader.ROOT_PATH + '/' + FILE_PATH);
-        this.logger = new Logger(TAG);
-        initData();
+        super(FILE_PATH, TAG);
     }
 
-    private synchronized void initData() {
-        try {
-            if (FILE.exists()) {
-                try (InputStream inputStream = Files.newInputStream(FILE.toPath())) {
-                    String tmp = streamToString(inputStream);
-                    if (!tmp.isEmpty()) {
-                        data = new Gson().fromJson(tmp, JsonObject.class);
-                        return;
-                    }
-                }
-            } else {
-                FILE.createNewFile();
-            }
-
-            data = new JsonObject();
-            save();
-        } catch (IOException e) {
-            logger.warn(e.getMessage());
-        }
+    @Override
+    protected Class<JsonObject> getDataType() {
+        return JsonObject.class;
     }
 
-    public JsonObject get() {
-        return data;
+    @Override
+    protected JsonObject createData() {
+        return new JsonObject();
     }
 
     public String getAsString(String key) {
@@ -213,26 +189,5 @@ public class JsonObjFileManager {
 
     public boolean has(String key) {
         return data.has(key);
-    }
-
-    public synchronized void save() {
-        try {
-            try (OutputStreamWriter writer = new OutputStreamWriter(Files.newOutputStream(FILE.toPath()), StandardCharsets.UTF_8)) {
-                writer.write(data.toString());
-                writer.flush();
-            }
-        } catch (IOException e) {
-            logger.warn("Cannot save file: " + e.getMessage());
-        }
-    }
-
-    public static String streamToString(InputStream inputStream) throws IOException {
-        try (ByteArrayOutputStream result = new ByteArrayOutputStream()) {
-            byte[] buffer = new byte[1024];
-            for (int length; (length = inputStream.read(buffer)) != -1; ) {
-                result.write(buffer, 0, length);
-            }
-            return result.toString("UTF-8");
-        }
     }
 }

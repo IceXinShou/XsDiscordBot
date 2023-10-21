@@ -4,7 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.xs.loader.logger.Logger;
-import com.xs.loader.util.JsonObjFileManager;
+import com.xs.loader.util.json.JsonObjFileManager;
 import net.dv8tion.jda.api.entities.Message;
 
 import java.io.BufferedReader;
