@@ -6,7 +6,7 @@ import com.xs.loader.lang.LangManager;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.plugin.Event;
 import com.xs.loader.util.FileGetter;
-import com.xs.loader.util.JsonFileManager;
+import com.xs.loader.util.JsonObjFileManager;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
@@ -39,12 +39,12 @@ public class Main extends Event {
     private final String[] LANG_DEFAULT = {"en-US", "zh-TW"};
     private final String PATH_FOLDER_NAME = "plugins/ChatGPT";
     private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(3);
-    private final Map<Long, JsonFileManager> guildsManager = new HashMap<>();
+    private final Map<Long, JsonObjFileManager> guildsManager = new HashMap<>();
     private final Set<Long> waitList = new HashSet<>();
     private LangManager langManager;
     private FileGetter getter;
     private Logger logger;
-    private JsonFileManager dmManager;
+    private JsonObjFileManager dmManager;
     private Map<String, Map<DiscordLocale, String>> langMap; // Label, Local, Content
 
     public Main() {
@@ -99,7 +99,7 @@ public class Main extends Event {
         defaultAry.add(defaultObj);
 
         new File(ROOT_PATH + '/' + PATH_FOLDER_NAME + "/data").mkdirs();
-        dmManager = new JsonFileManager('/' + PATH_FOLDER_NAME + "/data/dm.json", TAG, true);
+        dmManager = new JsonObjFileManager('/' + PATH_FOLDER_NAME + "/data/dm.json", TAG);
 
         logger.log("Setting File Loaded Successfully");
     }
@@ -165,19 +165,19 @@ public class Main extends Event {
         }
 
         long guildID = event.getGuild().getIdLong();
-        JsonFileManager manager;
+        JsonObjFileManager manager;
         if (guildsManager.containsKey(guildID)) {
             manager = guildsManager.get(guildID);
         } else {
-            manager = new JsonFileManager('/' + PATH_FOLDER_NAME + "/data/" + guildID + ".json", TAG, true);
+            manager = new JsonObjFileManager('/' + PATH_FOLDER_NAME + "/data/" + guildID + ".json", TAG);
             guildsManager.put(guildID, manager);
         }
 
         process(event.getAuthor(), event.getChannel().asThreadChannel(), message, raw.substring(1), manager);
     }
 
-    private void process(User author, GuildMessageChannel channel, Message message, String msg, JsonFileManager manager) {
-        JsonObject obj = manager.getObj();
+    private void process(User author, GuildMessageChannel channel, Message message, String msg, JsonObjFileManager manager) {
+        JsonObject obj = manager.get();
         long id = author.getIdLong();
 
         if (msg.equals("結束對話") || msg.equalsIgnoreCase("end")) {

@@ -1,12 +1,13 @@
 package com.xs.ticket;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.xs.loader.lang.LangManager;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.plugin.Event;
 import com.xs.loader.util.FileGetter;
-import com.xs.loader.util.JsonFileManager;
+import com.xs.loader.util.JsonObjFileManager;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
@@ -51,7 +52,7 @@ public class Main extends Event {
     private FileGetter getter;
     private Logger logger;
     private Map<String, Map<DiscordLocale, String>> langMap; // Label, Local, Content
-    private JsonFileManager manager;
+    private JsonObjFileManager manager;
 
     public Main() {
         super(true);
@@ -61,7 +62,7 @@ public class Main extends Event {
     public void initLoad() {
         logger = new Logger(TAG);
         getter = new FileGetter(logger, PATH_FOLDER_NAME, Main.class);
-        manager = new JsonFileManager('/' + PATH_FOLDER_NAME + "/data.json", TAG, true);
+        manager = new JsonObjFileManager('/' + PATH_FOLDER_NAME + "/data.json", TAG);
         loadLang();
 
         logger.log("Loaded");
@@ -199,7 +200,7 @@ public class Main extends Event {
             case "btn": {
                 JsonObject tmp;
 
-                if ((tmp = manager.getAryByKey(event.getMessageId()).get(Integer.parseInt(args[3])).getAsJsonObject()) == null) {
+                if ((tmp = manager.getAsJsonArray(event.getMessageId()).get(Integer.parseInt(args[3])).getAsJsonObject()) == null) {
                     event.deferReply(true).addContent("錯誤").queue();
                     return;
                 }
@@ -245,7 +246,7 @@ public class Main extends Event {
                 Member member = event.getMember();
                 Guild guild = event.getGuild();
 
-                for (JsonElement i : manager.getAryByKey(args[3]).get(Integer.parseInt(args[5])).getAsJsonObject()
+                for (JsonElement i : manager.getAsJsonArray(args[3]).get(Integer.parseInt(args[5])).getAsJsonObject()
                         .getAsJsonArray("adminIDs").asList()) {
                     Role tmp = guild.getRoleById(i.getAsString());
 
@@ -327,7 +328,7 @@ public class Main extends Event {
         switch (args[2]) {
             case "push": {
                 JsonObject tmp;
-                if ((tmp = manager.getAryByKey(args[3]).get(Integer.parseInt(args[4])).getAsJsonObject()) == null) {
+                if ((tmp = manager.getAsJsonArray(args[3]).get(Integer.parseInt(args[4])).getAsJsonObject()) == null) {
                     event.deferReply(true).addContent("錯誤").queue();
                     return;
                 }
@@ -417,8 +418,8 @@ public class Main extends Event {
 
     @Override
     public void onMessageDelete(MessageDeleteEvent event) {
-        if (manager.getObj().has(event.getMessageId())) {
-            manager.getObj().remove(event.getMessageId());
+        if (manager.has(event.getMessageId())) {
+            manager.remove(event.getMessageId());
             manager.save();
         }
     }
@@ -607,7 +608,7 @@ public class Main extends Event {
         else
             id = step.confirmCreate(event.getChannel());
 
-        manager.getOrDefaultArray(String.valueOf(id)).add(step.getJson());
+        manager.getOrDefault(String.valueOf(id), new JsonArray()).getAsJsonArray().add(step.getJson());
         manager.save();
     }
 }

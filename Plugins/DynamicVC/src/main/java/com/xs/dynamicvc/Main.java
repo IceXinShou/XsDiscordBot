@@ -6,7 +6,8 @@ import com.xs.loader.lang.LangManager;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.plugin.Event;
 import com.xs.loader.util.FileGetter;
-import com.xs.loader.util.JsonFileManager;
+import com.xs.loader.util.JsonAryFileManager;
+import com.xs.loader.util.JsonObjFileManager;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
@@ -44,14 +45,14 @@ public class Main extends Event {
         super(true);
     }
 
-    private static boolean isRemoved(VoiceChannel channel, JsonFileManager fileManager) {
+    private static boolean isRemoved(VoiceChannel channel, JsonAryFileManager fileManager) {
         JsonObject targetObject = new JsonObject();
         targetObject.addProperty("category", channel.getParentCategoryIdLong());
         targetObject.addProperty("name", channel.getName());
         targetObject.addProperty("limit", channel.getUserLimit());
         targetObject.addProperty("bitrate", channel.getBitrate());
 
-        JsonArray array = fileManager.getAry();
+        JsonArray array = fileManager.get();
 
         boolean removed = false;
         for (int i = 0; i < array.size(); i++) {
@@ -88,9 +89,9 @@ public class Main extends Event {
 
         for (File i : folder.listFiles()) {
 
-            JsonFileManager fileManager = new JsonFileManager(PATH_FOLDER_NAME + "/Data/" + i.getName(), TAG, false);
+            JsonAryFileManager fileManager = new JsonAryFileManager(PATH_FOLDER_NAME + "/Data/" + i.getName(), TAG);
 
-            for (Object j : fileManager.getAry()) {
+            for (Object j : fileManager.get()) {
                 JsonObject obj = (JsonObject) j;
                 originChannel.add(new TrackedChannel(
                                 Long.parseLong(i.getName().substring(0, i.getName().length() - 5)),
@@ -170,8 +171,8 @@ public class Main extends Event {
                     object.addProperty("bitrate", bitrate);
                     object.addProperty("limit", limit);
 
-                    JsonFileManager fileManager = new JsonFileManager(PATH_FOLDER_NAME + "/Data/" + guildID + ".json", TAG, false);
-                    fileManager.getAry().add(object);
+                    JsonObjFileManager fileManager = new JsonObjFileManager(PATH_FOLDER_NAME + "/Data/" + guildID + ".json", TAG);
+                    fileManager.getAsJsonArray().add(object);
                     fileManager.save();
 
                     trackedChannel.add(channel.getIdLong());
@@ -187,7 +188,7 @@ public class Main extends Event {
             }
 
             case "removebychannel": {
-                JsonFileManager fileManager = new JsonFileManager(PATH_FOLDER_NAME + "/Data/" + guildID + ".json", TAG, false);
+                JsonAryFileManager fileManager = new JsonAryFileManager(PATH_FOLDER_NAME + "/Data/" + guildID + ".json", TAG);
                 VoiceChannel channel = event.getOption("detect").getAsChannel().asVoiceChannel();
 
                 boolean removed = isRemoved(channel, fileManager);

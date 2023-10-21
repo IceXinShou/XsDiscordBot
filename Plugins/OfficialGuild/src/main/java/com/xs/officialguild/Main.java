@@ -6,11 +6,10 @@ import com.xs.loader.lang.LangManager;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.plugin.Event;
 import com.xs.loader.util.FileGetter;
-import com.xs.loader.util.JsonFileManager;
+import com.xs.loader.util.JsonObjFileManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -18,9 +17,6 @@ import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.ItemComponent;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
@@ -56,7 +52,7 @@ public class Main extends Event {
     private Logger logger;
     private Guild ownGuild;
     private Map<String, Map<DiscordLocale, String>> langMap; // Label, Local, Content
-    private JsonFileManager manager;
+    private JsonObjFileManager manager;
 
     private final Long GOD_ROLE_ID = 1157315773769982023L;
     private final Long APEX_ROLE_ID = 1157316094550347859L;
@@ -76,7 +72,7 @@ public class Main extends Event {
         logger = new Logger(TAG);
         getter = new FileGetter(logger, PATH_FOLDER_NAME, Main.class);
         new File(PATH_FOLDER_NAME + "/data").mkdirs();
-        manager = new JsonFileManager(PATH_FOLDER_NAME + "/data/userNames.json", TAG, true);
+        manager = new JsonObjFileManager(PATH_FOLDER_NAME + "/data/userNames.json", TAG);
         loadLang();
         logger.log("Loaded");
     }
@@ -281,7 +277,7 @@ public class Main extends Event {
 
     private void verifyButton(ButtonInteractionEvent event) {
         UserStepData step = stepData.get(event.getUser().getIdLong());
-        manager.getObj().add(event.getUser().getId(), step.getObj());
+        manager.add(event.getUser().getId(), step.getObj());
         manager.save();
         event.deferEdit().queue();
         Member member = event.getMember();

@@ -1,7 +1,7 @@
 package com.xs.chatlogger;
 
 import com.google.gson.JsonObject;
-import com.xs.loader.util.JsonFileManager;
+import com.xs.loader.util.JsonObjFileManager;
 import net.dv8tion.jda.api.entities.Guild;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,7 +17,7 @@ public class JsonManager {
     public final Map<Long, Map<Long, ChannelSetting>> channelSettings = new HashMap<>();
     private final String TAG = "ChatLogger";
     private final String PATH_FOLDER_NAME = "plugins/ChatLogger";
-    private final Map<Long, JsonFileManager> fileManager = new HashMap<>();
+    private final Map<Long, JsonObjFileManager> fileManager = new HashMap<>();
 
     public void init() {
         File f = new File(PATH_FOLDER_NAME + "/setting");
@@ -35,20 +35,20 @@ public class JsonManager {
                 return;
             }
 
-            JsonFileManager manager = new JsonFileManager(PATH_FOLDER_NAME + "/setting/" + file.getName(), TAG, true);
+            JsonObjFileManager manager = new JsonObjFileManager(PATH_FOLDER_NAME + "/setting/" + file.getName(), TAG);
 
             fileManager.put(guildID, manager);
 
             // put data from json files to channelSettings map
-            for (String channelID : manager.getObj().keySet()) {
+            for (String channelID : manager.get().keySet()) {
 
                 // if channel cannot access, remove and skip it
                 if (guild.getGuildChannelById(channelID) == null) {
-                    manager.getObj().remove(channelID);
+                    manager.remove(channelID);
                     continue;
                 }
 
-                JsonObject settingObj = manager.getObjByKey(channelID).getAsJsonObject();
+                JsonObject settingObj = manager.getAsJsonObject(channelID);
                 Map<Long, ChannelSetting> tmp = new HashMap<>();
                 tmp.put(Long.parseLong(channelID), new ChannelSetting(
                         settingObj.get("whitelist").getAsBoolean(),
@@ -70,8 +70,8 @@ public class JsonManager {
                 .computeIfAbsent(channelID, k -> new ChannelSetting()).toggle();
 
         // update json file
-        JsonFileManager manager = fileManager.get(guildID);
-        JsonObject obj = manager.getObjByKey(String.valueOf(channelID));
+        JsonObjFileManager manager = fileManager.get(guildID);
+        JsonObject obj = manager.getAsJsonObject(String.valueOf(channelID));
         if (obj == null) return null; // impossible
 
         obj.addProperty("whitelist", setting.whitelistStat);
@@ -82,8 +82,8 @@ public class JsonManager {
 
     @Nullable
     public ChannelSetting addChannels(long guildID, long rootID, List<Long> channelIDs, boolean whitelist) {
-        JsonFileManager manager = fileManager.get(guildID);
-        JsonObject obj = manager.getObjByKey(String.valueOf(rootID));
+        JsonObjFileManager manager = fileManager.get(guildID);
+        JsonObject obj = manager.getAsJsonObject(String.valueOf(rootID));
         if (obj == null) return null; // WTF
 
         JsonObject channelsObj = obj.get(whitelist ? "white" : "black").getAsJsonObject();
@@ -104,7 +104,7 @@ public class JsonManager {
 
     public void delete(long guildID, long channelID) {
         channelSettings.get(guildID).remove(channelID);
-        fileManager.get(guildID).removeObj(String.valueOf(channelID)).save();
+        fileManager.get(guildID).remove(String.valueOf(channelID)).save();
     }
 
     public ChannelSetting getOrDefault(long guildID, long channelID) {
@@ -116,7 +116,7 @@ public class JsonManager {
         }
 
         // setting not exist
-        JsonFileManager manager = new JsonFileManager(PATH_FOLDER_NAME + "/setting/" + guildID + ".json", TAG, true);
+        JsonObjFileManager manager = new JsonObjFileManager(PATH_FOLDER_NAME + "/setting/" + guildID + ".json", TAG);
         fileManager.put(guildID, manager);
 
         ChannelSetting setting = new ChannelSetting();
@@ -127,7 +127,7 @@ public class JsonManager {
         tmp.addProperty("whitelist", true);
         tmp.add("white", new JsonObject());
         tmp.add("black", new JsonObject());
-        manager.getObj().add(String.valueOf(channelID), tmp);
+        manager.add(String.valueOf(channelID), tmp);
         manager.save();
 
         return setting;

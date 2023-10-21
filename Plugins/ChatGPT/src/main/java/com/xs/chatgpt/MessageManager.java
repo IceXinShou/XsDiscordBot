@@ -4,7 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.xs.loader.logger.Logger;
-import com.xs.loader.util.JsonFileManager;
+import com.xs.loader.util.JsonObjFileManager;
 import net.dv8tion.jda.api.entities.Message;
 
 import java.io.BufferedReader;
@@ -35,13 +35,13 @@ public class MessageManager {
     private Status status = Status.INIT;
 
 
-    MessageManager(JsonFileManager manager, Message replyMessage, String msg, long id, Logger logger) {
+    MessageManager(JsonObjFileManager manager, Message replyMessage, String msg, long id, Logger logger) {
         this.replyMessage = replyMessage;
         this.msg = msg;
         this.logger = logger;
 
         // 初始化部分請求內容
-        JsonObject obj = manager.getObj();
+        JsonObject obj = manager.get();
         if (!obj.has(String.valueOf(id))) {
             dataAry = defaultAry.deepCopy();
             obj.add(String.valueOf(id), dataAry);

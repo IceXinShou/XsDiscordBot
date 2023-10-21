@@ -8,7 +8,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
-import static com.xs.loader.util.JsonFileManager.streamToString;
+import static com.xs.loader.util.JsonObjFileManager.streamToString;
 
 public class UrlDataGetter {
 

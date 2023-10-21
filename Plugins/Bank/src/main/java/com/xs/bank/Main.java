@@ -5,7 +5,7 @@ import com.xs.loader.lang.LangManager;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.plugin.Event;
 import com.xs.loader.util.FileGetter;
-import com.xs.loader.util.JsonFileManager;
+import com.xs.loader.util.JsonObjFileManager;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -40,7 +40,7 @@ public class Main extends Event {
     private LangManager langManager;
     private FileGetter getter;
     private Logger logger;
-    private JsonFileManager manager;
+    private JsonObjFileManager manager;
     private Map<String, Map<DiscordLocale, String>> langMap; // Label, Local, Content
     private long workingGuildID;
     private boolean checkGuildAlive = false;
@@ -154,7 +154,7 @@ public class Main extends Event {
         }
 
         new File(ROOT_PATH + '/' + PATH_FOLDER_NAME + "/data").mkdirs();
-        manager = new JsonFileManager('/' + PATH_FOLDER_NAME + "/data/data.json", TAG, true);
+        manager = new JsonObjFileManager('/' + PATH_FOLDER_NAME + "/data/data.json", TAG);
 
         logger.log("Setting File Loaded Successfully");
     }
@@ -301,15 +301,15 @@ public class Main extends Event {
     }
 
     JsonObject checkData(String userID, String type) {
-        if (!manager.getObj().has(userID)) { // if user data is not exist
+        if (!manager.has(userID)) { // if user data is not exist
             JsonObject tmp = new JsonObject();
             tmp.addProperty(type, 0);
-            manager.getObj().add(userID, tmp);
-        } else if (!manager.getObjByKey(userID).getAsJsonObject().has(type)) { // if value data is not exist
-            manager.getObjByKey(userID).getAsJsonObject().addProperty(type, 0);
+            manager.add(userID, tmp);
+        } else if (!manager.getAsJsonObject(userID).has(type)) { // if value data is not exist
+            manager.getAsJsonObject(userID).addProperty(type, 0);
         }
 
         manager.save();
-        return manager.getObjByKey(userID).getAsJsonObject();
+        return manager.getAsJsonObject(userID);
     }
 }
