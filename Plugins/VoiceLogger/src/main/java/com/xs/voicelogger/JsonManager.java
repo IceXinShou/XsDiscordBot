@@ -60,7 +60,10 @@ public class JsonManager {
 
     public ChannelSetting toggle(long guildID, long channelID) {
         // update map
-        ChannelSetting setting = channelSettings.getOrDefault(guildID, new HashMap<>()).getOrDefault(channelID, new ChannelSetting()).toggle();
+        ChannelSetting setting = channelSettings
+                .computeIfAbsent(guildID, k -> new HashMap<>())
+                .computeIfAbsent(channelID, k -> new ChannelSetting())
+                .toggle();
 
         // update json file
         JsonFileManager manager = fileManager.get(guildID);
@@ -86,7 +89,10 @@ public class JsonManager {
         }
 
         manager.save();
-        return channelSettings.getOrDefault(guildID, new HashMap<>()).getOrDefault(rootID, new ChannelSetting()).add(channelsObj, whitelist);
+        return channelSettings
+                .computeIfAbsent(guildID, k -> new HashMap<>())
+                .computeIfAbsent(rootID, k -> new ChannelSetting())
+                .add(channelsObj, whitelist);
     }
 
     public void delete(long guildID, long channelID) {

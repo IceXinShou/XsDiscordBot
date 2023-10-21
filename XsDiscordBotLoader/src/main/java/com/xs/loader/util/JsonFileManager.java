@@ -35,7 +35,7 @@ public class JsonFileManager {
         }
     }
 
-    private void initData() {
+    private synchronized void initData() {
         try {
             if (FILE.exists()) {
                 try (InputStream inputStream = Files.newInputStream(FILE.toPath())) {

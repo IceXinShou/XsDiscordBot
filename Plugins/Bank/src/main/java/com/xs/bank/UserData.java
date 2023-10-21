@@ -20,14 +20,10 @@ public class UserData {
     }
 
     int add(String type, int value) {
-        int tmp = money.getOrDefault(type, 0) + value;
-        money.put(type, tmp);
-        return tmp;
+        return money.merge(type, value, Integer::sum);
     }
 
     int remove(String type, int value) {
-        int tmp = money.getOrDefault(type, 0) - value;
-        money.put(type, tmp);
-        return tmp;
+        return money.merge(type, -value, Integer::sum);
     }
 }

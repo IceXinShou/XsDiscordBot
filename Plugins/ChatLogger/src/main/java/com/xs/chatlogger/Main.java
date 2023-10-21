@@ -204,9 +204,16 @@ public class Main extends Event {
         messageStr = getMessageOrEmbed(event.getMessage());
 
         try {
-            Connection conn = DB_CONNS.getOrDefault(guildID, DriverManager.getConnection(
-                    "jdbc:sqlite:" + ROOT_PATH + '/' + PATH_FOLDER_NAME + "/data/" + guildID + ".db"
-            ));
+            Connection conn;
+            if (DB_CONNS.containsKey(guildID)) {
+                conn = DB_CONNS.get(guildID);
+            } else {
+                conn = DriverManager.getConnection(
+                        "jdbc:sqlite:" + ROOT_PATH + '/' + PATH_FOLDER_NAME + "/data/" + guildID + ".db"
+                );
+                DB_CONNS.put(guildID, conn);
+            }
+
 
             try (Statement stmt = conn.createStatement()) {
                 if (!stmt.executeQuery(String.format("SELECT name FROM sqlite_master WHERE type='table' AND name='%d';", channelID)).next()) {
@@ -241,9 +248,16 @@ public class Main extends Event {
         long channelID = event.getChannel().getIdLong();
 
         try {
-            Connection conn = DB_CONNS.getOrDefault(guildID, DriverManager.getConnection(
-                    "jdbc:sqlite:" + ROOT_PATH + '/' + PATH_FOLDER_NAME + "/data/" + guildID + ".db"
-            ));
+            Connection conn = DB_CONNS.computeIfAbsent(guildID, k -> {
+                try {
+                    return DriverManager.getConnection(
+                            "jdbc:sqlite:" + ROOT_PATH + '/' + PATH_FOLDER_NAME + "/data/" + guildID + ".db"
+                    );
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
 
             try (Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = findDataInTable(stmt, channelID, messageID)) {
@@ -303,54 +317,58 @@ public class Main extends Event {
         long messageID = event.getMessageIdLong();
         long channelID = event.getChannel().getIdLong();
 
-        try {
-            Connection conn = DB_CONNS.getOrDefault(guildID, DriverManager.getConnection(
-                    "jdbc:sqlite:" + ROOT_PATH + '/' + PATH_FOLDER_NAME + "/data/" + guildID + ".db"
-            ));
+        Connection conn = DB_CONNS.computeIfAbsent(guildID, k -> {
+            try {
+                return DriverManager.getConnection(
+                        "jdbc:sqlite:" + ROOT_PATH + '/' + PATH_FOLDER_NAME + "/data/" + guildID + ".db"
+                );
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
 
-            try (Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = findDataInTable(stmt, channelID, messageID)) {
-                    if (rs == null) return;
+        try (Statement stmt = conn.createStatement()) {
+            try (ResultSet rs = findDataInTable(stmt, channelID, messageID)) {
+                if (rs == null) return;
 
-                    User messageSender = getUserById(rs.getLong("user_id"));
-                    if (messageSender.getIdLong() == jdaBot.getSelfUser().getIdLong()) {
-                        return;
-                    }
-                    String messageStr = rs.getString("message");
+                User messageSender = getUserById(rs.getLong("user_id"));
+                if (messageSender.getIdLong() == jdaBot.getSelfUser().getIdLong()) {
+                    return;
+                }
+                String messageStr = rs.getString("message");
 
 
 //                    String removeMessageSql = String.format("DELETE FROM '%d' WHERE message_id = ?", channelID);
 //                    PreparedStatement removeMessage = conn.prepareStatement(removeMessageSql);
 //                    removeMessage.setLong(1, messageID);
 //                    removeMessage.executeUpdate();
-                    MANAGER.channelSettings.getOrDefault(guildID, new HashMap<>()).forEach(
-                            (i, j) -> {
-                                if (j.contains(channelID, ChannelSetting.DetectType.DELETE)) {
-                                    GuildChannel sendChannel = event.getGuild().getGuildChannelById(i);
+                MANAGER.channelSettings.getOrDefault(guildID, new HashMap<>()).forEach(
+                        (i, j) -> {
+                            if (j.contains(channelID, ChannelSetting.DetectType.DELETE)) {
+                                GuildChannel sendChannel = event.getGuild().getGuildChannelById(i);
 
-                                    if (sendChannel != null) {
-                                        String title = getChannelTitle(event.getChannel());
+                                if (sendChannel != null) {
+                                    String title = getChannelTitle(event.getChannel());
 
-                                        EmbedBuilder builder = new EmbedBuilder()
-                                                .setAuthor(getNickOrName(messageSender, event.getGuild()), null, messageSender.getAvatarUrl())
-                                                .setTitle(title)
-                                                .setDescription(messageStr)
-                                                .setFooter("刪除訊息")
-                                                .setTimestamp(OffsetDateTime.now())
-                                                .setColor(0xFF0000);
+                                    EmbedBuilder builder = new EmbedBuilder()
+                                            .setAuthor(getNickOrName(messageSender, event.getGuild()), null, messageSender.getAvatarUrl())
+                                            .setTitle(title)
+                                            .setDescription(messageStr)
+                                            .setFooter("刪除訊息")
+                                            .setTimestamp(OffsetDateTime.now())
+                                            .setColor(0xFF0000);
 
-                                        if (sendChannel instanceof TextChannel) {
-                                            ((TextChannel) sendChannel).sendMessageEmbeds(builder.build()).queue();
-                                        } else if (sendChannel instanceof VoiceChannel) {
-                                            ((VoiceChannel) sendChannel).sendMessageEmbeds(builder.build()).queue();
-                                        } else {
-                                            logger.warn("unknown chat type! : " + sendChannel.getType());
-                                        }
+                                    if (sendChannel instanceof TextChannel) {
+                                        ((TextChannel) sendChannel).sendMessageEmbeds(builder.build()).queue();
+                                    } else if (sendChannel instanceof VoiceChannel) {
+                                        ((VoiceChannel) sendChannel).sendMessageEmbeds(builder.build()).queue();
+                                    } else {
+                                        logger.warn("unknown chat type! : " + sendChannel.getType());
                                     }
                                 }
                             }
-                    );
-                }
+                        }
+                );
             }
         } catch (SQLException e) {
             sqlErrorPrinter(e);

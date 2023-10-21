@@ -27,21 +27,26 @@ public class JsonManager {
         if (files == null) return;
 
         // delete unable access guild json files
-        Arrays.stream(files).forEach(i -> {
-            if (jdaBot.getGuildById(i.getName().substring(0, i.getName().indexOf('.'))) == null) i.delete();
-        });
-
-        for (File file : files) {
-            JsonFileManager manager = new JsonFileManager(PATH_FOLDER_NAME + "/setting/" + file.getName(), TAG, true);
+        Arrays.stream(files).forEach(file -> {
             long guildID = Long.parseLong(file.getName().substring(0, file.getName().indexOf('.')));
             Guild guild = jdaBot.getGuildById(guildID);
-            if (guild == null) continue;
+            if (guild == null) {
+                file.delete();
+                return;
+            }
+
+            JsonFileManager manager = new JsonFileManager(PATH_FOLDER_NAME + "/setting/" + file.getName(), TAG, true);
+
             fileManager.put(guildID, manager);
 
             // put data from json files to channelSettings map
             for (String channelID : manager.getObj().keySet()) {
-                // if channel cannot access, skip it
-                if (guild.getGuildChannelById(channelID) == null) continue;
+
+                // if channel cannot access, remove and skip it
+                if (guild.getGuildChannelById(channelID) == null) {
+                    manager.getObj().remove(channelID);
+                    continue;
+                }
 
                 JsonObject settingObj = manager.getObjByKey(channelID).getAsJsonObject();
                 Map<Long, ChannelSetting> tmp = new HashMap<>();
@@ -52,18 +57,22 @@ public class JsonManager {
                 ));
                 channelSettings.put(guildID, tmp);
             }
-        }
+
+            manager.save();
+        });
     }
 
 
     public ChannelSetting toggle(long guildID, long channelID) {
         // update map
-        ChannelSetting setting = channelSettings.getOrDefault(guildID, new HashMap<>()).getOrDefault(channelID, new ChannelSetting()).toggle();
+        ChannelSetting setting = channelSettings
+                .computeIfAbsent(guildID, k -> new HashMap<>())
+                .computeIfAbsent(channelID, k -> new ChannelSetting()).toggle();
 
         // update json file
         JsonFileManager manager = fileManager.get(guildID);
         JsonObject obj = manager.getObjByKey(String.valueOf(channelID));
-        if (obj == null) return null; // WTF
+        if (obj == null) return null; // impossible
 
         obj.addProperty("whitelist", setting.whitelistStat);
         manager.save();
@@ -87,7 +96,10 @@ public class JsonManager {
         }
 
         manager.save();
-        return channelSettings.getOrDefault(guildID, new HashMap<>()).getOrDefault(rootID, new ChannelSetting()).add(channelsObj, whitelist);
+        return channelSettings
+                .computeIfAbsent(guildID, k -> new HashMap<>())
+                .computeIfAbsent(rootID, k -> new ChannelSetting())
+                .add(channelsObj, whitelist);
     }
 
     public void delete(long guildID, long channelID) {
@@ -96,8 +108,8 @@ public class JsonManager {
     }
 
     public ChannelSetting getOrDefault(long guildID, long channelID) {
-        if (!channelSettings.containsKey(guildID)) channelSettings.put(guildID, new HashMap<>());
-        Map<Long, ChannelSetting> settingMap = channelSettings.get(guildID);
+        Map<Long, ChannelSetting> settingMap = channelSettings.computeIfAbsent(guildID, k -> new HashMap<>());
+
         if (settingMap.containsKey(channelID)) {
             // setting exist
             return settingMap.get(channelID);

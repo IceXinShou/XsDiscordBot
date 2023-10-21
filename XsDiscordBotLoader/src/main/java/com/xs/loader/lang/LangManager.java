@@ -92,13 +92,12 @@ public class LangManager {
                 readLang(key, level, locale);
             }
         } else if (origin_json instanceof String) {
-            Map<DiscordLocale, String> tmp = langMap.getOrDefault(level, new HashMap<>());
+            Map<DiscordLocale, String> tmp = langMap.computeIfAbsent(level, k -> new HashMap<>());
             if (tmp.containsKey(locale)) {
                 tmp.put(locale, tmp.get(locale) + ';' + origin_json);
             } else {
                 tmp.put(locale, origin_json.toString());
             }
-            langMap.put(level, tmp);
         }
     }
 }

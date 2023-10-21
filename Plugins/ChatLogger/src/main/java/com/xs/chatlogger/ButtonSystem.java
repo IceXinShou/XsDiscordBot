@@ -126,7 +126,7 @@ public class ButtonSystem {
 
     private EmbedBuilder getEmbed(ChannelSetting setting, DiscordLocale local) {
         StringBuilder whiteBuilder = new StringBuilder();
-        if (setting.white.size() > 0) {
+        if (!setting.white.isEmpty()) {
             for (ChannelSetting.ListData i : setting.white) {
                 whiteBuilder.append("<#").append(i.detectID).append(">\n");
             }
@@ -135,7 +135,7 @@ public class ButtonSystem {
         }
 
         StringBuilder blackBuilder = new StringBuilder();
-        if (setting.black.size() > 0) {
+        if (!setting.black.isEmpty()) {
             for (ChannelSetting.ListData i : setting.black) {
                 blackBuilder.append("<#").append(i.detectID).append(">\n");
             }

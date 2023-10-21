@@ -195,10 +195,7 @@ public class Main extends Event {
                     }
                     loadSheet();
                     User user = getUser(event);
-                    int value = event.getOption("value").getAsInt();
-
-                    value += userData.getOrDefault(user.getIdLong(), 0);
-                    userData.put(user.getIdLong(), value);
+                    int value = userData.merge(user.getIdLong(), event.getOption("value").getAsInt(), Integer::sum);
                     update(user.getIdLong(), value);
                     event.getHook().editOriginalEmbeds(createEmbed(user.getName(),
                             langManager.get("runtime;current_point", local).replace("%point%", String.valueOf(value)), 0x00FFFF)).queue();
@@ -212,10 +209,8 @@ public class Main extends Event {
                     }
                     loadSheet();
                     User user = getUser(event);
-                    int value = event.getOption("value").getAsInt();
 
-                    value = userData.getOrDefault(user.getIdLong(), 0) - value;
-                    userData.put(user.getIdLong(), value);
+                    int value = userData.merge(user.getIdLong(), -(event.getOption("value").getAsInt()), Integer::sum);
                     update(user.getIdLong(), value);
 
                     event.getHook().editOriginalEmbeds(createEmbed(user.getName(),
