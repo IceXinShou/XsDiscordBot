@@ -133,14 +133,16 @@ public class Main extends Event {
                 if (guild == null) {
                     logger.warn("Cannot found guild by id: " + i.getKey());
                 } else {
-                    for (RichCustomEmoji e : guild.retrieveEmojis().complete()) {
-                        i.getValue().forEach(j -> {
-                            if (e.getName().equals(j)) {
-                                votes.add(e);
-                                logger.log("Added " + e.getName());
-                            }
-                        });
-                    }
+                    guild.retrieveEmojis().queue(es -> {
+                        for (RichCustomEmoji e : es) {
+                            i.getValue().forEach(j -> {
+                                if (e.getName().equals(j)) {
+                                    votes.add(e);
+                                    logger.log("Added " + e.getName());
+                                }
+                            });
+                        }
+                    });
                 }
             }
         }

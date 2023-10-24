@@ -63,10 +63,12 @@ public class Main extends Event {
             for (long i : configFile.GuildID) {
                 Guild guild = jdaBot.getGuildById(i);
                 if (guild == null) continue;
-                for (Emoji j : guild.retrieveEmojis().complete()) {
-                    emojis.computeIfAbsent(j.getName(), k -> new HashMap<>()).put(guild.getIdLong(), j);
-                    logger.log("Loaded " + j.getName());
-                }
+                guild.retrieveEmojis().queue(e -> {
+                    for (Emoji j : e) {
+                        emojis.computeIfAbsent(j.getName(), k -> new HashMap<>()).put(guild.getIdLong(), j);
+                        logger.log("Loaded " + j.getName());
+                    }
+                });
             }
         }
     }

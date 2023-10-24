@@ -31,14 +31,15 @@ public class MessageManager {
     private final String msg;
     private final JsonObject postObj = new JsonObject();
     private final JsonArray dataAry;
+    private final Status status;
     private Message latestMessage;
-    private Status status = Status.INIT;
 
 
     MessageManager(JsonObjFileManager manager, Message replyMessage, String msg, long id, Logger logger) {
         this.replyMessage = replyMessage;
         this.msg = msg;
         this.logger = logger;
+        this.status = new Status();
 
         // 初始化部分請求內容
         JsonObject obj = manager.get();
@@ -55,42 +56,46 @@ public class MessageManager {
                 getData(buildRequest());
             } catch (IOException e) {
                 replyMessage.reply("很抱歉，出現了一些錯誤。請等待修復或通知開發人員").queue();
-                status = Status.ERROR;
+                status.setStatus(Type.ERROR);
                 e.printStackTrace();
             }
         });
 
         long lastTime = 0;
-        while (status == Status.INIT || curStr.length() == 0) {
-            try {
-                Thread.sleep(300);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
+        while (!status.equals(Type.DONE)) {
+            switch (status.status) {
+                case READING: {
+                    if (System.currentTimeMillis() - lastTime > 2000) {
+                        if (lastTime == 0) { // 第一則訊息
+                            latestMessage = replyMessage.reply(curStr + "...").complete();
+                        } else {
+                            updateMessage(false);
+                        }
 
-        while (status == Status.READING) {
-            // 每 2 秒更新文字
-            if (System.currentTimeMillis() - lastTime > 2000) {
-                if (lastTime == 0) { // 第一則訊息
-                    latestMessage = replyMessage.reply(curStr + "...").complete();
-                } else {
-                    updateMessage(false);
+                        lastTime = System.currentTimeMillis();
+                    }
+                    break;
                 }
 
-                lastTime = System.currentTimeMillis();
+                case FINISH_READING: {
+                    updateMessage(true);
+                    JsonObject newObj = new JsonObject();
+                    newObj.addProperty("role", "assistant");
+                    newObj.addProperty("content", fullContent.toString());
+                    newObj.addProperty("token", getToken(fullContent.toString()));
+                    dataAry.add(newObj);
+                    manager.save();
+                    break;
+                }
+
+                case READ_FAILED: {
+                    fullContent.append("很抱歉，出現了一些錯誤。請等待修復或通知開發人員");
+                    status.setStatus(Type.DONE);
+                    break;
+                }
             }
         }
 
-        if (status == Status.DONE) {
-            updateMessage(true);
-            JsonObject newObj = new JsonObject();
-            newObj.addProperty("role", "assistant");
-            newObj.addProperty("content", fullContent.toString());
-            newObj.addProperty("token", getToken(fullContent.toString()));
-            dataAry.add(newObj);
-            manager.save();
-        }
         executor.shutdown();
     }
 
@@ -154,7 +159,7 @@ public class MessageManager {
             wr.write(postStr.getBytes(StandardCharsets.UTF_8));
         }
 
-        status = Status.READING;
+        status.setStatus(Type.READING);
         if (conn.getResponseCode() == 200) {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
                 String line;
@@ -179,7 +184,7 @@ public class MessageManager {
                     fullContent.append(newMsg);
                     curStr.append(newMsg);
                 }
-                status = Status.DONE;
+                status.setStatus(Type.FINISH_READING);
             }
         } else {
             // 例外情況
@@ -198,7 +203,7 @@ public class MessageManager {
                 logger.warn(rep.toString());
 
                 replyMessage.reply("很抱歉，出現了一些錯誤。請等待修復或通知開發人員").queue();
-                status = Status.READ_FAILED;
+                status.setStatus(Type.READ_FAILED);
             }
         }
     }
@@ -253,11 +258,24 @@ public class MessageManager {
         return msgs;
     }
 
-    private enum Status {
+    private static class Status {
+        private Type status = Type.INIT;
+
+        private synchronized void setStatus(Type newStatus) {
+            this.status = newStatus;
+        }
+
+        private synchronized boolean equals(Type type) {
+            return this.status == type;
+        }
+    }
+
+    private enum Type {
         INIT,
         READING,
-        DONE,
+        FINISH_READING,
         READ_FAILED,
         ERROR,
+        DONE
     }
 }

@@ -9,7 +9,9 @@ import com.xs.loader.util.FileGetter;
 import com.xs.loader.util.json.JsonObjFileManager;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
@@ -126,11 +128,12 @@ public class Main extends Event {
 
     @Override
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
-        if (event.getMember().getUser().isBot()) return;
+        if (event.getUser().isBot()) return;
         if (!event.getEmoji().getName().equals("\uD83E\uDD16") || !waitList.contains(event.getMessageIdLong())) return;
         waitList.remove(event.getMessageIdLong());
 
         Message message = event.retrieveMessage().complete();
+
         process(event.retrieveUser().complete(), event.getChannel().asThreadChannel(), message, message.getContentRaw(), dmManager);
     }
 
@@ -146,9 +149,8 @@ public class Main extends Event {
 
         Message message = event.getMessage();
         String raw = message.getContentRaw();
-        if (!raw.startsWith(configFile.Prefix)) return;
-
-        process(event.getAuthor(), event.getChannel().asTextChannel(), message, raw.substring(1), dmManager);
+        if (!raw.isEmpty() && !raw.startsWith(configFile.Prefix)) return;
+        process(event.getAuthor(), event.getChannel().asPrivateChannel(), message, raw.substring(1), dmManager);
     }
 
     private void forumListener(MessageReceivedEvent event) {
@@ -159,7 +161,7 @@ public class Main extends Event {
         Message message = event.getMessage();
         String raw = message.getContentRaw();
         if (!raw.startsWith(configFile.Prefix)) {
-            event.getMessage().addReaction(Emoji.fromUnicode("\uD83E\uDD16")).queue();
+            event.getMessage().addReaction(Emoji.fromUnicode("🤖")).queue();
             waitList.add(event.getMessageIdLong());
             return;
         }
@@ -176,7 +178,9 @@ public class Main extends Event {
         process(event.getAuthor(), event.getChannel().asThreadChannel(), message, raw.substring(1), manager);
     }
 
-    private void process(User author, GuildMessageChannel channel, Message message, String msg, JsonObjFileManager manager) {
+    private void process(User author, MessageChannel channel, Message message, String msg, JsonObjFileManager manager) {
+        if (msg.isEmpty()) return;
+
         JsonObject obj = manager.get();
         long id = author.getIdLong();
 
