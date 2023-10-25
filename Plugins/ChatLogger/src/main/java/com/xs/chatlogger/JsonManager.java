@@ -6,10 +6,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.xs.loader.base.Loader.jdaBot;
 
@@ -40,11 +37,14 @@ public class JsonManager {
             fileManager.put(guildID, manager);
 
             // put data from json files to channelSettings map
-            for (String channelID : manager.get().keySet()) {
+
+            Iterator<String> iterator = manager.get().keySet().iterator();
+            while (iterator.hasNext()) {
+                String channelID = iterator.next();
 
                 // if channel cannot access, remove and skip it
                 if (guild.getGuildChannelById(channelID) == null) {
-                    manager.remove(channelID);
+                    iterator.remove();
                     continue;
                 }
 
