@@ -159,8 +159,9 @@ public class MessageManager {
             wr.write(postStr.getBytes(StandardCharsets.UTF_8));
         }
 
-        status.setStatus(Type.READING);
         if (conn.getResponseCode() == 200) {
+            status.setStatus(Type.READING);
+
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
                 String line;
                 String newMsg;
@@ -188,6 +189,9 @@ public class MessageManager {
             }
         } else {
             // 例外情況
+            status.setStatus(Type.READ_FAILED);
+            replyMessage.reply("很抱歉，出現了一些錯誤。請等待修復或通知開發人員").queue();
+
             try (InputStreamReader reader = new InputStreamReader(conn.getErrorStream())) {
                 JsonObject rep = JsonParser.parseReader(reader).getAsJsonObject();
 
@@ -201,9 +205,6 @@ public class MessageManager {
 
                 logger.warn(conn.getResponseCode() + " error on requesting...");
                 logger.warn(rep.toString());
-
-                replyMessage.reply("很抱歉，出現了一些錯誤。請等待修復或通知開發人員").queue();
-                status.setStatus(Type.READ_FAILED);
             }
         }
     }
