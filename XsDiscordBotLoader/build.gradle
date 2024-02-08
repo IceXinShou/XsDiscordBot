@@ -11,8 +11,10 @@ repositories {
 }
 
 dependencies {
-    implementation group: 'net.dv8tion', name: 'JDA', version: '5.0.0-beta.16'
-    implementation group: 'org.yaml', name: 'snakeyaml', version: '1.33'
+    implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
+    implementation group: 'net.dv8tion', name: 'JDA', version: '5.0.0-beta.20'
+//    implementation group: 'org.yaml', name: 'snakeyaml', version: '1.33'
+    implementation group: 'org.yaml', name: 'snakeyaml', version: '2.2' // TODO: stability suspicious
     implementation group: 'com.knuddels', name: 'jtokkit', version: '0.6.1'
     implementation group: 'org.fusesource.jansi', name: 'jansi', version: '2.4.0'
     implementation group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.36'

@@ -63,7 +63,7 @@ public class UserStepData {
                 .queue();
     }
 
-    JsonObject getObj() {
+    public JsonObject getObj() {
         JsonObject obj = new JsonObject();
         obj.addProperty("chi", chineseName);
         obj.addProperty("eng", englishName);
@@ -72,7 +72,7 @@ public class UserStepData {
         return obj;
     }
 
-    String getNick() {
+    public String getNick() {
         if (!mc_uuid.isEmpty())
             return chineseName + " - " + uuidToName();
 
@@ -80,8 +80,11 @@ public class UserStepData {
     }
 
     @Nullable
-    String uuidToName() {
-        JsonObject respond = JsonParser.parseString(getData("https://sessionserver.mojang.com/session/minecraft/profile/" + mc_uuid)).getAsJsonObject();
+    private String uuidToName() {
+        JsonObject respond = JsonParser.parseString(
+                getData("https://sessionserver.mojang.com/session/minecraft/profile/" + mc_uuid)
+        ).getAsJsonObject();
+
         if (respond.has("name"))
             return respond.get("name").getAsString();
 

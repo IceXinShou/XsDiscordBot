@@ -45,30 +45,8 @@ public class Main extends Event {
         super(true);
     }
 
-    private static boolean isRemoved(VoiceChannel channel, JsonAryFileManager fileManager) {
-        JsonObject targetObject = new JsonObject();
-        targetObject.addProperty("category", channel.getParentCategoryIdLong());
-        targetObject.addProperty("name", channel.getName());
-        targetObject.addProperty("limit", channel.getUserLimit());
-        targetObject.addProperty("bitrate", channel.getBitrate());
-
-        JsonArray array = fileManager.get();
-
-        boolean removed = false;
-        for (int i = 0; i < array.size(); i++) {
-            JsonObject obj = array.get(i).getAsJsonObject();
-            if (obj.equals(targetObject)) {
-                array.remove(i);
-                removed = true;
-            }
-        }
-
-        return removed;
-    }
-
     @Override
     public void initLoad() {
-
         logger = new Logger(TAG);
         getter = new FileGetter(logger, PATH_FOLDER_NAME, Main.class);
         loadLang();
@@ -234,5 +212,28 @@ public class Main extends Event {
                 leftChannel.delete().queue();
             }
         }
+    }
+
+    private static boolean isRemoved(VoiceChannel channel, JsonAryFileManager fileManager) {
+        JsonObject targetObject = new JsonObject();
+        targetObject.addProperty("category", channel.getParentCategoryIdLong());
+        targetObject.addProperty("name", channel.getName());
+        targetObject.addProperty("limit", channel.getUserLimit());
+        targetObject.addProperty("bitrate", channel.getBitrate());
+
+        boolean removed = false;
+        JsonArray array = fileManager.get();
+        for (int i = 0; i < array.size(); i++) {
+            JsonObject obj = array.get(i).getAsJsonObject();
+            if (obj.equals(targetObject)) {
+                array.remove(i);
+                removed = true;
+            }
+        }
+
+        if (removed)
+            fileManager.save();
+
+        return removed;
     }
 }

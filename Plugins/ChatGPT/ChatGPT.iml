@@ -10,7 +10,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Gradle: com.google.code.gson:gson:2.10.1" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains:annotations:13.0" level="project" />
-    <orderEntry type="library" name="Gradle: org.yaml:snakeyaml:1.33" level="project" />
     <orderEntry type="module" module-name="XsDiscordBotLoader.main" />
     <orderEntry type="module" module-name="com.xs.loader.XsDiscordBotLoader.main" />
     <orderEntry type="library" name="Gradle: com.knuddels:jtokkit:0.6.1" level="project" />
@@ -35,6 +34,7 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" name="Gradle: net.dv8tion:JDA:5.0.0-beta.15" level="project" />
+    <orderEntry type="library" name="Gradle: net.dv8tion:JDA:5.0.0-beta.20" level="project" />
+    <orderEntry type="library" name="Gradle: org.yaml:snakeyaml:2.2" level="project" />
   </component>
 </module>

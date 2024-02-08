@@ -10,15 +10,28 @@ register:
 runtime:
   log:
     left:
-      title: "退出 %channel_name%"
+      title: "退出 %channel_name_left%"
       footer: "退出語音"
 
     join:
-      title: "加入 %channel_name%"
-      footer: "進入語音"
+      title: "加入 %channel_name_join%"
+      footer: "加入語音"
 
-    delete:
-      footer: "刪除訊息"
+    move:
+      title: "%channel_name_left% 移動到 %channel_name_join%"
+      footer: "移動語音"
+
+    status_remove:
+      title: "移除 %channel% 狀態 %text_remove%"
+      footer: "移除頻道狀態"
+
+    status_add:
+      title: "新增 %channel% 狀態 %text_add%"
+      footer: "新增頻道狀態"
+
+    status_edit:
+      title: "將 %channel% 狀態 %text_remove% 更改為 %text_add%"
+      footer: "更改頻道狀態"
 
   setting:
     delete_success: 刪除完成

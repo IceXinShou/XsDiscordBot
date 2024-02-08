@@ -5,9 +5,13 @@ import com.xs.loader.logger.Logger;
 import com.xs.loader.plugin.Event;
 import com.xs.loader.util.FileGetter;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.audit.ActionType;
+import net.dv8tion.jda.api.audit.AuditLogEntry;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.entities.channel.unions.AudioChannelUnion;
+import net.dv8tion.jda.api.events.channel.update.ChannelUpdateVoiceStatusEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -22,6 +26,7 @@ import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 
 import java.time.OffsetDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static net.dv8tion.jda.api.Permission.ADMINISTRATOR;
@@ -141,63 +146,205 @@ public class Main extends Event {
     }
 
     @Override
+    public void onChannelUpdateVoiceStatus(ChannelUpdateVoiceStatusEvent event) {
+        DiscordLocale local;
+        if (!event.getGuild().getFeatures().contains("COMMUNITY"))
+            local = defaultLocal;
+        else
+            local = event.getGuild().getLocale();
+
+        VoiceChannel channel = event.getChannel().asVoiceChannel();
+        String oldStr = event.getOldValue();
+        String newStr = event.getNewValue();
+        long guildID = event.getGuild().getIdLong();
+        List<AuditLogEntry> entryList = event.getGuild().retrieveAuditLogs()
+                .limit(1)
+                .type(ActionType.VOICE_CHANNEL_STATUS_UPDATE)
+                .complete();
+
+        if (entryList.isEmpty()) {
+            logger.log("why empty ??");
+            return;
+        }
+
+        Member member = event.getGuild().retrieveMemberById(entryList.get(0).getUserIdLong()).complete();
+
+        if (newStr.isEmpty()) {
+            // clear status
+            jsonManager.channelSettings.getOrDefault(guildID, new HashMap<>()).forEach(
+                    (i, j) -> {
+                        if (!j.contains(channel.getIdLong())) return;
+
+                        TextChannel sendChannel = event.getGuild().getTextChannelById(i);
+                        if (sendChannel == null) return;
+
+                        String channelStr = channel.getParentCategory() == null ?
+                                (channel.getName()) :
+                                (channel.getParentCategory().getName() + " > " + channel.getName());
+
+                        EmbedBuilder builder = new EmbedBuilder()
+                                .setAuthor(member.getEffectiveName() + (member.getNickname() != null ?
+                                        (" (" + member.getUser().getName() + ')') : ""), null, member.getEffectiveAvatarUrl())
+                                .setTitle(langManager.get("runtime;log;status_remove;title", local)
+                                        .replace("%channel%", channelStr)
+                                        .replace("%text_remove%", oldStr))
+                                .setFooter(langManager.get("runtime;log;status_remove;footer", local))
+                                .setTimestamp(OffsetDateTime.now())
+                                .setColor(0xff5151);
+
+                        sendChannel.sendMessageEmbeds(builder.build()).queue();
+                    }
+            );
+        } else {
+            if (oldStr.isEmpty()) {
+                // new status
+                jsonManager.channelSettings.getOrDefault(guildID, new HashMap<>()).forEach(
+                        (i, j) -> {
+                            if (!j.contains(channel.getIdLong())) return;
+
+                            TextChannel sendChannel = event.getGuild().getTextChannelById(i);
+                            if (sendChannel == null) return;
+
+                            String channelStr = channel.getParentCategory() == null ?
+                                    (channel.getName()) :
+                                    (channel.getParentCategory().getName() + " > " + channel.getName());
+
+                            EmbedBuilder builder = new EmbedBuilder()
+                                    .setAuthor(member.getEffectiveName() + (member.getNickname() != null ?
+                                            (" (" + member.getUser().getName() + ')') : ""), null, member.getEffectiveAvatarUrl())
+                                    .setTitle(langManager.get("runtime;log;status_add;title", local)
+                                            .replace("%channel%", channelStr)
+                                            .replace("%text_add%", newStr))
+                                    .setFooter(langManager.get("runtime;log;status_add;footer", local))
+                                    .setTimestamp(OffsetDateTime.now())
+                                    .setColor(0x34E000);
+
+                            sendChannel.sendMessageEmbeds(builder.build()).queue();
+                        }
+                );
+            } else {
+                // change
+                jsonManager.channelSettings.getOrDefault(guildID, new HashMap<>()).forEach(
+                        (i, j) -> {
+                            if (!j.contains(channel.getIdLong())) return;
+
+                            TextChannel sendChannel = event.getGuild().getTextChannelById(i);
+                            if (sendChannel == null) return;
+
+                            String channelStr = channel.getParentCategory() == null ?
+                                    (channel.getName()) :
+                                    (channel.getParentCategory().getName() + " > " + channel.getName());
+
+                            EmbedBuilder builder = new EmbedBuilder()
+                                    .setAuthor(member.getEffectiveName() + (member.getNickname() != null ?
+                                            (" (" + member.getUser().getName() + ')') : ""), null, member.getEffectiveAvatarUrl())
+                                    .setTitle(langManager.get("runtime;log;status_change;title", local)
+                                            .replace("%channel%", channelStr)
+                                            .replace("%text_add%", newStr)
+                                            .replace("%text_remove%", oldStr))
+                                    .setFooter(langManager.get("runtime;log;move;footer", local))
+                                    .setTimestamp(OffsetDateTime.now())
+                                    .setColor(0xe0b03d);
+
+                            sendChannel.sendMessageEmbeds(builder.build()).queue();
+                        }
+                );
+            }
+        }
+    }
+
+    @Override
     public void onGuildVoiceUpdate(GuildVoiceUpdateEvent event) {
-        DiscordLocale local = event.getGuild().getLocale();
+        DiscordLocale local;
+        if (!event.getGuild().getFeatures().contains("COMMUNITY"))
+            local = defaultLocal;
+        else
+            local = event.getGuild().getLocale();
 
         AudioChannelUnion joinChannel = event.getChannelJoined();
         AudioChannelUnion leftChannel = event.getChannelLeft();
         Member member = event.getMember();
         long guildID = event.getGuild().getIdLong();
 
-        if (leftChannel != null) { // left
-
+        if (joinChannel == null) {
+            // left
             jsonManager.channelSettings.getOrDefault(guildID, new HashMap<>()).forEach(
                     (i, j) -> {
-                        if (j.contains(leftChannel.getIdLong())) {
-                            TextChannel sendChannel = event.getGuild().getTextChannelById(i);
-                            if (sendChannel != null) {
-                                String title = leftChannel.getParentCategory() == null ?
-                                        (leftChannel.getName()) :
-                                        (leftChannel.getParentCategory().getName() + " > " + leftChannel.getName());
+                        if (!j.contains(leftChannel.getIdLong())) return;
 
-                                EmbedBuilder builder = new EmbedBuilder()
-                                        .setAuthor(member.getEffectiveName() + (member.getNickname() != null ?
-                                                (" (" + member.getUser().getName() + ')') : ""), null, member.getEffectiveAvatarUrl())
-                                        .setTitle(langManager.get("runtime;log;left;title", local).replace("%channel_name%", title))
-                                        .setFooter(langManager.get("runtime;log;left;footer", local))
-                                        .setTimestamp(OffsetDateTime.now())
-                                        .setColor(0xff5151);
+                        TextChannel sendChannel = event.getGuild().getTextChannelById(i);
+                        if (sendChannel == null) return;
 
-                                sendChannel.sendMessageEmbeds(builder.build()).queue();
-                            }
-                        }
+                        String leftChannelStr = leftChannel.getParentCategory() == null ?
+                                (leftChannel.getName()) :
+                                (leftChannel.getParentCategory().getName() + " > " + leftChannel.getName());
+
+                        EmbedBuilder builder = new EmbedBuilder()
+                                .setAuthor(member.getEffectiveName() + (member.getNickname() != null ?
+                                        (" (" + member.getUser().getName() + ')') : ""), null, member.getEffectiveAvatarUrl())
+                                .setTitle(langManager.get("runtime;log;left;title", local).replace("%channel_name_left%", leftChannelStr))
+                                .setFooter(langManager.get("runtime;log;left;footer", local))
+                                .setTimestamp(OffsetDateTime.now())
+                                .setColor(0xff5151);
+
+                        sendChannel.sendMessageEmbeds(builder.build()).queue();
                     }
             );
-        }
+        } else {
+            if (leftChannel == null) {
+                // new join
+                jsonManager.channelSettings.getOrDefault(guildID, new HashMap<>()).forEach(
+                        (i, j) -> {
+                            if (!j.contains(joinChannel.getIdLong())) return;
 
-        if (joinChannel != null) { // join
-            jsonManager.channelSettings.getOrDefault(guildID, new HashMap<>()).forEach(
-                    (i, j) -> {
-                        if (j.contains(joinChannel.getIdLong())) {
                             TextChannel sendChannel = event.getGuild().getTextChannelById(i);
-                            if (sendChannel != null) {
-                                String title = joinChannel.getParentCategory() == null ?
-                                        (joinChannel.getName()) :
-                                        (joinChannel.getParentCategory().getName() + " > " + joinChannel.getName());
+                            if (sendChannel == null) return;
 
-                                EmbedBuilder builder = new EmbedBuilder()
-                                        .setAuthor(member.getEffectiveName() + (member.getNickname() != null ?
-                                                (" (" + member.getUser().getName() + ')') : ""), null, member.getEffectiveAvatarUrl())
-                                        .setTitle(langManager.get("runtime;log;join;title", local).replace("%channel_name%", title))
-                                        .setFooter(langManager.get("runtime;log;join;footer", local))
-                                        .setTimestamp(OffsetDateTime.now())
-                                        .setColor(0x34E000);
+                            String joinChannelStr = joinChannel.getParentCategory() == null ?
+                                    (joinChannel.getName()) :
+                                    (joinChannel.getParentCategory().getName() + " > " + joinChannel.getName());
 
-                                sendChannel.sendMessageEmbeds(builder.build()).queue();
-                            }
+                            EmbedBuilder builder = new EmbedBuilder()
+                                    .setAuthor(member.getEffectiveName() + (member.getNickname() != null ?
+                                            (" (" + member.getUser().getName() + ')') : ""), null, member.getEffectiveAvatarUrl())
+                                    .setTitle(langManager.get("runtime;log;join;title", local).replace("%channel_name_join%", joinChannelStr))
+                                    .setFooter(langManager.get("runtime;log;join;footer", local))
+                                    .setTimestamp(OffsetDateTime.now())
+                                    .setColor(0x34E000);
+
+                            sendChannel.sendMessageEmbeds(builder.build()).queue();
                         }
-                    }
-            );
+                );
+            } else {
+                // move
+                jsonManager.channelSettings.getOrDefault(guildID, new HashMap<>()).forEach(
+                        (i, j) -> {
+                            if (!j.contains(joinChannel.getIdLong())) return;
+
+                            TextChannel sendChannel = event.getGuild().getTextChannelById(i);
+                            if (sendChannel == null) return;
+
+                            String joinChannelStr = joinChannel.getParentCategory() == null ?
+                                    (joinChannel.getName()) :
+                                    (joinChannel.getParentCategory().getName() + " > " + joinChannel.getName());
+                            String leftChannelStr = joinChannel.getParentCategory() == null ?
+                                    (joinChannel.getName()) :
+                                    (joinChannel.getParentCategory().getName() + " > " + leftChannel.getName());
+
+                            EmbedBuilder builder = new EmbedBuilder()
+                                    .setAuthor(member.getEffectiveName() + (member.getNickname() != null ?
+                                            (" (" + member.getUser().getName() + ')') : ""), null, member.getEffectiveAvatarUrl())
+                                    .setTitle(langManager.get("runtime;log;move;title", local)
+                                            .replace("%channel_name_join%", joinChannelStr)
+                                            .replace("%channel_name_left%", leftChannelStr))
+                                    .setFooter(langManager.get("runtime;log;move;footer", local))
+                                    .setTimestamp(OffsetDateTime.now())
+                                    .setColor(0xe0b03d);
+
+                            sendChannel.sendMessageEmbeds(builder.build()).queue();
+                        }
+                );
+            }
         }
     }
 }

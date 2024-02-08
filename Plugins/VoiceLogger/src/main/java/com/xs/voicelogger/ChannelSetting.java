@@ -1,6 +1,7 @@
 package com.xs.voicelogger;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,15 +30,13 @@ public class ChannelSetting {
 
     public ChannelSetting add(@NotNull JsonArray ids, boolean white) {
         if (white) {
-            for (Object i : ids) {
-                if (i instanceof Long)
-                    this.white.add((Long) i);
+            for (JsonElement i : ids) {
+                this.white.add(i.getAsLong());
             }
 
         } else {
-            for (Object i : ids) {
-                if (i instanceof Long)
-                    this.black.add((Long) i);
+            for (JsonElement i : ids) {
+                this.black.add(i.getAsLong());
             }
         }
 

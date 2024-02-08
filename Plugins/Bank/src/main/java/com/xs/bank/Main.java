@@ -13,6 +13,7 @@ import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.build.*;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.CustomClassLoaderConstructor;
 
@@ -139,7 +140,7 @@ public class Main extends Event {
     public void loadConfigFile() {
         try (InputStream inputStream = getter.readInputStreamOrDefaultFromSource("config.yml")) {
             if (inputStream == null) return;
-            configFile = new Yaml(new CustomClassLoaderConstructor(getClass().getClassLoader()))
+            configFile = new Yaml(new CustomClassLoaderConstructor(getClass().getClassLoader(), new LoaderOptions()))
                     .loadAs(inputStream, MainConfig.class);
             logger.log("Setting File Loaded Successfully");
         } catch (IOException e) {

@@ -107,14 +107,9 @@ public class RootCLI {
         Guild guild = jdaBot.getGuildById(guildID);
         notNull(ClassType.Guild, guild);
 
-        Channel channel = guild.getChannelById(Channel.class, channelID);
+        AudioChannel channel = guild.getChannelById(AudioChannel.class, channelID);
         notNull(ClassType.Channel, channel);
-
-        if (channel instanceof AudioChannel) {
-            guild.getAudioManager().openAudioConnection((AudioChannel) channel);
-        } else {
-            throw new Exceptions("unknown type of channel");
-        }
+        guild.getAudioManager().openAudioConnection(channel);
     }
 
     @Command(name = "leave", abbrev = "le", description = "make the bot leave the AudioChannel of Guild")

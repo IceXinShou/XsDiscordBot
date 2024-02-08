@@ -21,6 +21,7 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 import net.dv8tion.jda.internal.interactions.component.ButtonImpl;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.CustomClassLoaderConstructor;
 
@@ -88,7 +89,7 @@ public class Main extends Event {
     public void loadConfigFile() {
         try (InputStream inputStream = getter.readInputStreamOrDefaultFromSource("config.yml")) {
             if (inputStream == null) return;
-            configFile = new Yaml(new CustomClassLoaderConstructor(getClass().getClassLoader()))
+            configFile = new Yaml(new CustomClassLoaderConstructor(getClass().getClassLoader(), new LoaderOptions()))
                     .loadAs(inputStream, MainConfig.class);
             logger.log("Setting File Loaded Successfully");
         } catch (IOException e) {

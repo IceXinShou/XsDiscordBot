@@ -3,6 +3,7 @@ package com.xs.googlesheetapi;
 import com.xs.loader.logger.Logger;
 import com.xs.loader.plugin.Event;
 import com.xs.loader.util.FileGetter;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.CustomClassLoaderConstructor;
 
@@ -38,7 +39,7 @@ public class Main extends Event {
     public void loadConfigFile() {
         try (InputStream inputStream = getter.readInputStreamOrDefaultFromSource("config.yml")) {
             if (inputStream == null) return;
-            configFile = new Yaml(new CustomClassLoaderConstructor(getClass().getClassLoader()))
+            configFile = new Yaml(new CustomClassLoaderConstructor(getClass().getClassLoader(), new LoaderOptions()))
                     .loadAs(inputStream, MainConfig.class);
             logger.log("Setting File Loaded Successfully");
         } catch (IOException e) {

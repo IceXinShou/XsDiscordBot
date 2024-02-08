@@ -9,13 +9,29 @@ register:
 
 runtime:
   log:
-    update:
-      before: "Before"
-      after: "After"
-      footer: "Update Message"
+    left:
+      title: "Left %channel_name_left%"
+      footer: "Left Channel"
 
-    delete:
-      footer: "Delete Message"
+    join:
+      title: "Join %channel_name_join%"
+      footer: "Join Channel"
+
+    move:
+      title: "From %channel_name_left% \nMvTo %channel_name_join%"
+      footer: "Move Channel"
+
+    status_remove:
+      title: "Remove %channel% status %text_remove%"
+      footer: "Remove Channel Status"
+
+    status_add:
+      title: "Add %channel% status %text_add%"
+      footer: "Add Channel Status"
+
+    status_change:
+      title: "Change %channel% status from %text_remove% to %text_add%"
+      footer: "Change Channel Status"
 
   setting:
     delete_success: delete successfully

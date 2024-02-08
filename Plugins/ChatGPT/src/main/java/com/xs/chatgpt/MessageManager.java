@@ -56,14 +56,14 @@ public class MessageManager {
                 getData(buildRequest());
             } catch (IOException e) {
                 replyMessage.reply("很抱歉，出現了一些錯誤。請等待修復或通知開發人員").queue();
-                status.setStatus(Type.ERROR);
+                status.set(Type.ERROR);
                 e.printStackTrace();
             }
         });
 
         long lastTime = 0;
         while (!status.equals(Type.DONE)) {
-            switch (status.status) {
+            switch (status.get()) {
                 case READING: {
                     if (System.currentTimeMillis() - lastTime > 2000) {
                         if (lastTime == 0) { // 第一則訊息
@@ -90,7 +90,7 @@ public class MessageManager {
 
                 case READ_FAILED: {
                     fullContent.append("很抱歉，出現了一些錯誤。請等待修復或通知開發人員");
-                    status.setStatus(Type.DONE);
+                    status.set(Type.DONE);
                     break;
                 }
             }
@@ -160,7 +160,7 @@ public class MessageManager {
         }
 
         if (conn.getResponseCode() == 200) {
-            status.setStatus(Type.READING);
+            status.set(Type.READING);
 
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
                 String line;
@@ -185,11 +185,11 @@ public class MessageManager {
                     fullContent.append(newMsg);
                     curStr.append(newMsg);
                 }
-                status.setStatus(Type.FINISH_READING);
+                status.set(Type.FINISH_READING);
             }
         } else {
             // 例外情況
-            status.setStatus(Type.READ_FAILED);
+            status.set(Type.READ_FAILED);
             replyMessage.reply("很抱歉，出現了一些錯誤。請等待修復或通知開發人員").queue();
 
             try (InputStreamReader reader = new InputStreamReader(conn.getErrorStream())) {
@@ -262,12 +262,19 @@ public class MessageManager {
     private static class Status {
         private Type status = Type.INIT;
 
-        private synchronized void setStatus(Type newStatus) {
+        private synchronized void set(Type newStatus) {
             this.status = newStatus;
         }
 
-        private synchronized boolean equals(Type type) {
-            return this.status == type;
+        private synchronized Type get() {
+            return this.status;
+        }
+
+        @Override
+        public synchronized boolean equals(Object obj) {
+            if (obj instanceof Type)
+                return this.status == obj;
+            return false;
         }
     }
 
