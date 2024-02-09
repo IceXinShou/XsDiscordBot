@@ -185,7 +185,7 @@ public class Main extends Event {
                         EmbedBuilder builder = new EmbedBuilder()
                                 .setAuthor(member.getEffectiveName() + (member.getNickname() != null ?
                                         (" (" + member.getUser().getName() + ')') : ""), null, member.getEffectiveAvatarUrl())
-                                .setTitle(langManager.get("runtime;log;status_remove;title", local)
+                                .setDescription(langManager.get("runtime;log;status_remove;title", local)
                                         .replace("%channel%", channelStr)
                                         .replace("%text_remove%", oldStr))
                                 .setFooter(langManager.get("runtime;log;status_remove;footer", local))
@@ -212,7 +212,7 @@ public class Main extends Event {
                             EmbedBuilder builder = new EmbedBuilder()
                                     .setAuthor(member.getEffectiveName() + (member.getNickname() != null ?
                                             (" (" + member.getUser().getName() + ')') : ""), null, member.getEffectiveAvatarUrl())
-                                    .setTitle(langManager.get("runtime;log;status_add;title", local)
+                                    .setDescription(langManager.get("runtime;log;status_add;title", local)
                                             .replace("%channel%", channelStr)
                                             .replace("%text_add%", newStr))
                                     .setFooter(langManager.get("runtime;log;status_add;footer", local))
@@ -238,7 +238,7 @@ public class Main extends Event {
                             EmbedBuilder builder = new EmbedBuilder()
                                     .setAuthor(member.getEffectiveName() + (member.getNickname() != null ?
                                             (" (" + member.getUser().getName() + ')') : ""), null, member.getEffectiveAvatarUrl())
-                                    .setTitle(langManager.get("runtime;log;status_change;title", local)
+                                    .setDescription(langManager.get("runtime;log;status_change;title", local)
                                             .replace("%channel%", channelStr)
                                             .replace("%text_add%", newStr)
                                             .replace("%text_remove%", oldStr))
@@ -282,7 +282,7 @@ public class Main extends Event {
                         EmbedBuilder builder = new EmbedBuilder()
                                 .setAuthor(member.getEffectiveName() + (member.getNickname() != null ?
                                         (" (" + member.getUser().getName() + ')') : ""), null, member.getEffectiveAvatarUrl())
-                                .setTitle(langManager.get("runtime;log;left;title", local).replace("%channel_name_left%", leftChannelStr))
+                                .setDescription(langManager.get("runtime;log;left;title", local).replace("%channel_name_left%", leftChannelStr))
                                 .setFooter(langManager.get("runtime;log;left;footer", local))
                                 .setTimestamp(OffsetDateTime.now())
                                 .setColor(0xff5151);
@@ -307,7 +307,7 @@ public class Main extends Event {
                             EmbedBuilder builder = new EmbedBuilder()
                                     .setAuthor(member.getEffectiveName() + (member.getNickname() != null ?
                                             (" (" + member.getUser().getName() + ')') : ""), null, member.getEffectiveAvatarUrl())
-                                    .setTitle(langManager.get("runtime;log;join;title", local).replace("%channel_name_join%", joinChannelStr))
+                                    .setDescription(langManager.get("runtime;log;join;title", local).replace("%channel_name_join%", joinChannelStr))
                                     .setFooter(langManager.get("runtime;log;join;footer", local))
                                     .setTimestamp(OffsetDateTime.now())
                                     .setColor(0x34E000);
@@ -334,7 +334,7 @@ public class Main extends Event {
                             EmbedBuilder builder = new EmbedBuilder()
                                     .setAuthor(member.getEffectiveName() + (member.getNickname() != null ?
                                             (" (" + member.getUser().getName() + ')') : ""), null, member.getEffectiveAvatarUrl())
-                                    .setTitle(langManager.get("runtime;log;move;title", local)
+                                    .setDescription(langManager.get("runtime;log;move;title", local)
                                             .replace("%channel_name_join%", joinChannelStr)
                                             .replace("%channel_name_left%", leftChannelStr))
                                     .setFooter(langManager.get("runtime;log;move;footer", local))

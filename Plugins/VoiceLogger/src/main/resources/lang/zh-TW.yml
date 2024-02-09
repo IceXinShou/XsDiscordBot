@@ -29,7 +29,7 @@ runtime:
       title: "新增 %channel% 狀態 %text_add%"
       footer: "新增頻道狀態"
 
-    status_edit:
+    status_change:
       title: "將 %channel% 狀態 %text_remove% 更改為 %text_add%"
       footer: "更改頻道狀態"
 
