@@ -54,7 +54,7 @@ public class Main extends Event {
         getter = new FileGetter(logger, PATH_FOLDER_NAME, Main.class);
         loadLang();
         loadConfigFile();
-        logger.log("Loaded");
+        logger.logln("Loaded");
     }
 
     @Override
@@ -65,7 +65,7 @@ public class Main extends Event {
 
     @Override
     public void unload() {
-        logger.log("UnLoaded");
+        logger.logln("UnLoaded");
     }
 
     @Override
@@ -91,9 +91,9 @@ public class Main extends Event {
             if (inputStream == null) return;
             configFile = new Yaml(new CustomClassLoaderConstructor(getClass().getClassLoader(), new LoaderOptions()))
                     .loadAs(inputStream, MainConfig.class);
-            logger.log("Setting File Loaded Successfully");
+            logger.logln("Setting File Loaded Successfully");
         } catch (IOException e) {
-            logger.warn("Please configure /" + PATH_FOLDER_NAME + "/config.yml");
+            logger.warnln("Please configure /" + PATH_FOLDER_NAME + "/config.yml");
             throw new RuntimeException(e);
         }
     }
@@ -109,7 +109,7 @@ public class Main extends Event {
             String[] spl = msg.getContentRaw().split(" - ");
             if (spl.length != 3) return;
 
-            jdaBot.openPrivateChannelById(spl[0]).queue(channel->{
+            jdaBot.openPrivateChannelById(spl[0]).queue(channel -> {
                 channel.deleteMessageById(spl[2]).queue();
             });
 

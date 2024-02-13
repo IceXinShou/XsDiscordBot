@@ -34,14 +34,14 @@ public class LangManager {
         for (File i : new File(FOLDER_PATH).listFiles()) {
             DiscordLocale local = DiscordLocale.from(i.getName().replaceAll("\\.\\w+$", ""));
             if (local == DiscordLocale.UNKNOWN) {
-                logger.warn("Cannot find discord locate by file: " + i.getAbsolutePath());
+                logger.warnln("Cannot find discord locate by file: " + i.getAbsolutePath());
                 continue;
             }
 
             try {
                 readLang(getter.readFileMapByPath(i.toPath()), "", local);
             } catch (Exception e) {
-                logger.warn(e.getMessage());
+                logger.warnln(e.getMessage());
             }
         }
     }

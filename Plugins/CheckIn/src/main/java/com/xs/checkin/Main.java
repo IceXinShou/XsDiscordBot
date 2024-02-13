@@ -63,7 +63,7 @@ public class Main extends Event {
         loadConfigFile();
         loadLang();
         loadAnnouncements();
-        logger.log("Loaded");
+        logger.logln("Loaded");
     }
 
     @Override
@@ -75,7 +75,7 @@ public class Main extends Event {
 
     @Override
     public void unload() {
-        logger.log("UnLoaded");
+        logger.logln("UnLoaded");
     }
 
     @Override
@@ -137,15 +137,15 @@ public class Main extends Event {
             if (inputStream == null) return;
             configFile = new Yaml(new CustomClassLoaderConstructor(getClass().getClassLoader(), new LoaderOptions()))
                     .loadAs(inputStream, MainConfig.class);
-            logger.log("Setting File Loaded Successfully");
+            logger.logln("Setting File Loaded Successfully");
         } catch (IOException e) {
-            logger.warn("Please configure /" + PATH_FOLDER_NAME + "/config.yml");
+            logger.warnln("Please configure /" + PATH_FOLDER_NAME + "/config.yml");
             throw new RuntimeException(e);
         }
 
         adminID.addAll(Arrays.asList(configFile.adminID));
 
-        logger.log("Setting File Loaded Successfully");
+        logger.logln("Setting File Loaded Successfully");
     }
 
     @Override
@@ -263,7 +263,7 @@ public class Main extends Event {
             int annPos = announcements.indexOf(new Pair<>(channelID, messageID));
             char annChr;
             if (annPos == -1) {
-                logger.warn("cannot found announcement index in java data");
+                logger.warnln("cannot found announcement index in java data");
                 return;
             } else {
                 annChr = sheet.toUpperAlpha(annPos + 1);
@@ -281,7 +281,7 @@ public class Main extends Event {
             sheet.write(tmp, configFile.sheetLabel + "!" + annChr + (userPos.getValue() + 2), SheetRequest.ValueInputOption.RAW);
 
         } catch (IOException e) {
-            logger.warn(e.getMessage());
+            logger.warnln(e.getMessage());
         }
     }
 

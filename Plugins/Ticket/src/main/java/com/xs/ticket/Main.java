@@ -65,7 +65,7 @@ public class Main extends Event {
         manager = new JsonObjFileManager('/' + PATH_FOLDER_NAME + "/data.json", TAG);
         loadLang();
 
-        logger.log("Loaded");
+        logger.logln("Loaded");
     }
 
     @Override
@@ -75,7 +75,7 @@ public class Main extends Event {
 
     @Override
     public void unload() {
-        logger.log("UnLoaded");
+        logger.logln("UnLoaded");
     }
 
     @Override

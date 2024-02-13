@@ -7,7 +7,6 @@ import com.xs.loader.error.ClassType;
 import com.xs.loader.error.Exceptions;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.concrete.*;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
@@ -148,7 +147,7 @@ public class RootCLI {
     public void stop() {
         loader.stop();
         AnsiConsole.systemUninstall();
-        cliLogger.log("Stopped");
+        cliLogger.logln("Stopped");
         System.exit(0);
     }
 

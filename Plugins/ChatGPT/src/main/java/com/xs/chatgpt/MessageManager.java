@@ -203,8 +203,8 @@ public class MessageManager {
 //                    }
 //                }
 
-                logger.warn(conn.getResponseCode() + " error on requesting...");
-                logger.warn(rep.toString());
+                logger.warnln(conn.getResponseCode() + " error on requesting...");
+                logger.warnln(rep);
             }
         }
     }

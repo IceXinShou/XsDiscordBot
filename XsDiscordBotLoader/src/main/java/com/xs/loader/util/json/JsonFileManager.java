@@ -37,7 +37,7 @@ abstract class JsonFileManager<T extends JsonElement> {
             data = createData();
             save();
         } catch (IOException e) {
-            logger.warn(e.getMessage());
+            logger.warnln(e.getMessage());
         }
     }
 
@@ -56,7 +56,7 @@ abstract class JsonFileManager<T extends JsonElement> {
                 writer.flush();
             }
         } catch (IOException e) {
-            logger.warn("Cannot save file: " + e.getMessage());
+            logger.warnln("Cannot save file: " + e.getMessage());
         }
     }
 

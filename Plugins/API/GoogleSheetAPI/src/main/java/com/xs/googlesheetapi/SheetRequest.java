@@ -95,11 +95,11 @@ public class SheetRequest {
 
     public boolean refresh() throws IOException {
         if (sheetID.isEmpty()) {
-            logger.warn("sheetID is empty");
+            logger.warnln("sheetID is empty");
             return false;
         }
         if (sheetRange.isEmpty()) {
-            logger.warn("sheetRange is empty");
+            logger.warnln("sheetRange is empty");
             return false;
         }
 
@@ -109,7 +109,7 @@ public class SheetRequest {
 
 
         if (tmp == null || tmp.isEmpty()) {
-            logger.warn("No data found");
+            logger.warnln("No data found");
             return false;
         }
 

@@ -32,7 +32,7 @@ public class FileGetter {
         try {
             return new Yaml().load(Files.newInputStream(f));
         } catch (IOException e) {
-            logger.warn(e.getMessage());
+            logger.warnln(e.getMessage());
         }
         return null;
     }
@@ -41,14 +41,14 @@ public class FileGetter {
     public Map<String, Object> readFileMapByPathOrDefaultFromSource(String fileName) {
         File settingFile = new File(FOLDER_PATH + '/' + fileName);
         if (!settingFile.exists()) {
-            logger.warn(fileName + " not found, create default " + fileName);
+            logger.warnln(fileName + " not found, create default " + fileName);
             settingFile = exportResource(fileName);
             if (settingFile == null) {
-                logger.warn("read " + fileName + " failed");
+                logger.warnln("read " + fileName + " failed");
                 return null;
             }
         }
-        logger.log("load " + settingFile.getPath());
+        logger.logln("load " + settingFile.getPath());
 
         return readFileMapByPath(settingFile.toPath());
     }
@@ -57,19 +57,19 @@ public class FileGetter {
     public InputStream readInputStreamOrDefaultFromSource(String fileName) {
         File settingFile = new File(FOLDER_PATH + '/' + fileName);
         if (!settingFile.exists()) {
-            logger.warn(fileName + " not found, create default " + fileName);
+            logger.warnln(fileName + " not found, create default " + fileName);
             settingFile = exportResource(fileName);
             if (settingFile == null) {
-                logger.warn("read " + fileName + " failed");
+                logger.warnln("read " + fileName + " failed");
                 return null;
             }
         }
-        logger.log("load " + settingFile.getPath());
+        logger.logln("load " + settingFile.getPath());
 
         try {
             return Files.newInputStream(settingFile.toPath());
         } catch (IOException e) {
-            logger.warn(e.getMessage());
+            logger.warnln(e.getMessage());
         }
 
         return null;
@@ -90,7 +90,7 @@ public class FileGetter {
     public File exportResource(String sourceFilePath) {
         try (InputStream fileInJar = CLASS.getResourceAsStream(sourceFilePath)) {
             if (fileInJar == null) {
-                logger.warn("can not find resource: " + sourceFilePath);
+                logger.warnln("can not find resource: " + sourceFilePath);
                 return null;
             }
 
@@ -98,8 +98,8 @@ public class FileGetter {
             return new File(FOLDER_PATH + '/' + sourceFilePath);
         } catch (IOException e) {
 
-            logger.warn(e.getMessage());
-            logger.warn("read resource failed");
+            logger.warnln(e.getMessage());
+            logger.warnln("read resource failed");
         }
         return null;
     }
@@ -112,15 +112,15 @@ public class FileGetter {
     public File exportResource(String sourceFilePath, String outputPath) {
         try (InputStream fileInJar = CLASS.getResourceAsStream(sourceFilePath)) {
             if (fileInJar == null) {
-                logger.warn("can not find resource: " + sourceFilePath);
+                logger.warnln("can not find resource: " + sourceFilePath);
                 return null;
             }
 
             Files.copy(fileInJar, Paths.get(FOLDER_PATH + '/' + outputPath), StandardCopyOption.REPLACE_EXISTING);
             return new File(FOLDER_PATH + '/' + outputPath);
         } catch (IOException e) {
-            logger.warn("read resource failed");
-            logger.warn(e.getMessage());
+            logger.warnln("read resource failed");
+            logger.warnln(e.getMessage());
         }
 
         return null;

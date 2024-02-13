@@ -91,7 +91,7 @@ public class Loader {
 
         jdaBot.updateCommands().addCommands(globalCommands).queue();
         setStatus();
-        logger.log("Bot Initialized");
+        logger.logln("Bot Initialized");
     }
 
     private boolean versionCheck() {
@@ -100,10 +100,10 @@ public class Loader {
         URL downloadURL;
         URL url;
         if (arg.ignore_version_check) {
-            logger.log("You ignored the version check");
+            logger.logln("You ignored the version check");
             return false;
         }
-        logger.log("Version checking...");
+        logger.logln("Version checking...");
 
         try {
             url = new URL("https://github.com/IceXinShou/XsDiscordBot/releases/latest");
@@ -119,22 +119,22 @@ public class Loader {
 
             final String version = "v1.6";
             if (version.equals(latestVersion)) {
-                logger.log("You are running on the latest version: " + Color.GREEN + version + Color.RESET);
+                logger.logln("You are running on the latest version: " + Color.GREEN + version + Color.RESET);
                 return false;
             } else {
-                logger.warn("Your current version: " + Color.RED + version + Color.RESET + ", latest version: " + Color.GREEN + latestVersion + Color.RESET);
-                logger.log("Downloading latest version file...");
-                logger.log("Please wait...");
+                logger.warnln("Your current version: " + Color.RED + version + Color.RESET + ", latest version: " + Color.GREEN + latestVersion + Color.RESET);
+                logger.logln("Downloading latest version file...");
+                logger.logln("Please wait...");
 
                 try (FileOutputStream fos = new FileOutputStream(ROOT_PATH + '/' + fileName)) {
                     fos.getChannel().transferFrom(Channels.newChannel(downloadURL.openStream()), 0, Long.MAX_VALUE);
                 }
-                logger.log("Download Successfully");
-                logger.log("Please change to the latest version");
+                logger.logln("Download Successfully");
+                logger.logln("Please change to the latest version");
                 return true;
             }
         } catch (IOException e) {
-            logger.warn(e.getMessage());
+            logger.warnln(e.getMessage());
         }
         return true;
     }
@@ -154,7 +154,7 @@ public class Loader {
                     if (!plugin_queue.containsKey(depend))
                         loadPlugin(plugins.get(depend));
                 } else {
-                    logger.warn("plugin: " + pluginInfo.name + " lost dependency: " + depend);
+                    logger.warnln("plugin: " + pluginInfo.name + " lost dependency: " + depend);
                     return true;
                 }
             }
@@ -179,7 +179,7 @@ public class Loader {
             configFile = new Yaml().loadAs(inputStream, Setting.class);
         }
 
-        logger.log("Setting file loaded");
+        logger.logln("Setting file loaded");
     }
 
     private void loadVariables() {
@@ -193,7 +193,7 @@ public class Loader {
         int count = 0;
         int fail = 0;
         String tmp;
-        logger.log("Plugin(s) Loading...");
+        logger.logln("Plugin(s) Loading...");
 
         ClassLoader loader = new ClassLoader();
 
@@ -222,7 +222,7 @@ public class Loader {
                                     )
                             );
                         } else {
-                            logger.warn("same plugin name: " + file.getName());
+                            logger.warnln("same plugin name: " + file.getName());
                             ++fail;
                             continue;
                         }
@@ -241,7 +241,7 @@ public class Loader {
 
             // load depends
             if (loadPlugin(i)) {
-                logger.warn("stop loading plugins...");
+                logger.warnln("stop loading plugins...");
                 return;
             }
         }
@@ -263,8 +263,8 @@ public class Loader {
         }
 
         if (fail > 0)
-            logger.warn(fail + " Plugin(s) Loading Failed!");
-        logger.log(count + " Plugin(s) Loading Successfully");
+            logger.warnln(fail + " Plugin(s) Loading Failed!");
+        logger.logln(count + " Plugin(s) Loading Successfully");
     }
 
     private void setStatus() {
@@ -287,10 +287,10 @@ public class Loader {
                             Thread.sleep(Long.parseLong(arg[2]));
                         }
                     } catch (IllegalArgumentException e) {
-                        logger.warn("can not find type: " + arg[0]);
+                        logger.warnln("can not find type: " + arg[0]);
                         return;
                     } catch (InterruptedException e) {
-                        logger.warn(e.getMessage());
+                        logger.warnln(e.getMessage());
                     }
                 }
             }
@@ -331,18 +331,18 @@ public class Loader {
     private InputStream readOrDefaultYml(String name, String outName, java.lang.ClassLoader loader) {
         File settingFile = new File(System.getProperty("user.dir") + '/' + outName);
         if (!settingFile.exists()) {
-            logger.warn(outName + " not found, create default " + outName);
+            logger.warnln(outName + " not found, create default " + outName);
             settingFile = exportResource(name, outName, "", loader);
             if (settingFile == null) {
-                logger.warn("read " + name + " failed");
+                logger.warnln("read " + name + " failed");
                 return null;
             }
         }
-        logger.log("load " + settingFile.getPath());
+        logger.logln("load " + settingFile.getPath());
         try {
             return Files.newInputStream(settingFile.toPath());
         } catch (IOException e) {
-            logger.warn(e.getMessage());
+            logger.warnln(e.getMessage());
             return null;
         }
     }
@@ -351,14 +351,14 @@ public class Loader {
     private File exportResource(String sourceFile, String outputName, String outputPath, java.lang.ClassLoader loader) {
         try (InputStream fileInJar = loader.getResourceAsStream(sourceFile)) {
             if (fileInJar == null) {
-                logger.warn("can not find resource: " + sourceFile);
+                logger.warnln("can not find resource: " + sourceFile);
                 return null;
             }
             Files.copy(fileInJar, Paths.get(Loader.ROOT_PATH + '/' + outputPath + '/' + outputName), StandardCopyOption.REPLACE_EXISTING);
             return new File(Loader.ROOT_PATH + '/' + outputPath + '/' + outputName);
         } catch (IOException e) {
-            logger.warn("read resource failed");
-            logger.warn(e.getMessage());
+            logger.warnln("read resource failed");
+            logger.warnln(e.getMessage());
         }
         return null;
     }

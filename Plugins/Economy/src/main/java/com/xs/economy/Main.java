@@ -66,7 +66,7 @@ public class Main extends Event {
         getter = new FileGetter(logger, PATH_FOLDER_NAME, Main.class);
         loadConfigFile();
         loadLang();
-        logger.log("Loaded");
+        logger.logln("Loaded");
     }
 
     @Override
@@ -77,7 +77,7 @@ public class Main extends Event {
 
     @Override
     public void unload() {
-        logger.log("UnLoaded");
+        logger.logln("UnLoaded");
     }
 
 
@@ -185,9 +185,9 @@ public class Main extends Event {
             if (inputStream == null) return;
             configFile = new Yaml(new CustomClassLoaderConstructor(getClass().getClassLoader(), new LoaderOptions()))
                     .loadAs(inputStream, MainConfig.class);
-            logger.log("Setting File Loaded Successfully");
+            logger.logln("Setting File Loaded Successfully");
         } catch (IOException e) {
-            logger.warn("Please configure /" + PATH_FOLDER_NAME + "/config.yml");
+            logger.warnln("Please configure /" + PATH_FOLDER_NAME + "/config.yml");
             throw new RuntimeException(e);
         }
 
@@ -200,7 +200,7 @@ public class Main extends Event {
         new File(ROOT_PATH + '/' + PATH_FOLDER_NAME + "/data").mkdirs();
         manager = new JsonObjFileManager('/' + PATH_FOLDER_NAME + "/data/data.json", TAG);
 
-        logger.log("Setting File Loaded Successfully");
+        logger.logln("Setting File Loaded Successfully");
     }
 
     @Override
@@ -459,7 +459,7 @@ public class Main extends Event {
                 if (member != null) {
                     nameCache.put(id, (name = member.getUser().getName()));
                 } else {
-                    logger.warn("cannot found member by id: " + id);
+                    logger.warnln("cannot found member by id: " + id);
                     name = "unknown";
                 }
             }

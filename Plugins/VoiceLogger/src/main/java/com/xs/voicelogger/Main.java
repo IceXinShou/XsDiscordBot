@@ -53,7 +53,7 @@ public class Main extends Event {
         getter = new FileGetter(logger, PATH_FOLDER_NAME, Main.class);
         loadLang();
 
-        logger.log("Loaded");
+        logger.logln("Loaded");
     }
 
     @Override
@@ -63,7 +63,7 @@ public class Main extends Event {
 
     @Override
     public void unload() {
-        logger.log("UnLoaded");
+        logger.logln("UnLoaded");
     }
 
     @Override
@@ -163,7 +163,7 @@ public class Main extends Event {
                 .complete();
 
         if (entryList.isEmpty()) {
-            logger.log("why empty ??");
+            logger.logln("why empty ??");
             return;
         }
 

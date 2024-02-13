@@ -39,7 +39,7 @@ public class Main extends Event {
         logger = new Logger(TAG);
         getter = new FileGetter(logger, PATH_FOLDER_NAME, Main.class);
         loadLang();
-        logger.log("Loaded");
+        logger.logln("Loaded");
     }
 
     @Override
@@ -49,7 +49,7 @@ public class Main extends Event {
 
     @Override
     public void unload() {
-        logger.log("UnLoaded");
+        logger.logln("UnLoaded");
     }
 
     @Override

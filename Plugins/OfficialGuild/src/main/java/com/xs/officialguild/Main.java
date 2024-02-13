@@ -8,7 +8,10 @@ import com.xs.loader.plugin.Event;
 import com.xs.loader.util.FileGetter;
 import com.xs.loader.util.json.JsonObjFileManager;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
@@ -74,7 +77,7 @@ public class Main extends Event {
         new File(PATH_FOLDER_NAME + "/data").mkdirs();
         manager = new JsonObjFileManager(PATH_FOLDER_NAME + "/data/userNames.json", TAG);
         loadLang();
-        logger.log("Loaded");
+        logger.logln("Loaded");
     }
 
     @Override
@@ -84,7 +87,7 @@ public class Main extends Event {
 
     @Override
     public void unload() {
-        logger.log("UnLoaded");
+        logger.logln("UnLoaded");
         executorService.shutdown();
     }
 
@@ -102,7 +105,7 @@ public class Main extends Event {
     public void onReady(ReadyEvent event) {
         ownGuild = jdaBot.getGuildById(OWN_GUILD_ID);
         if (ownGuild == null) {
-            logger.warn("CANNOT FOUND Main Guild!");
+            logger.warnln("CANNOT FOUND Main Guild!");
         }
 
         godRole = ownGuild.getRoleById(GOD_ROLE_ID);
@@ -222,9 +225,9 @@ public class Main extends Event {
         User user = event.getUser();
         UserStepData step;
         if (stepData.containsKey(user.getIdLong())) {
-            logger.log("start get");
+            logger.logln("start get");
             step = stepData.get(user.getIdLong());
-            logger.log("get success");
+            logger.logln("get success");
         } else {
             step = new UserStepData();
             stepData.put(user.getIdLong(), step);
@@ -294,7 +297,7 @@ public class Main extends Event {
             member.modifyNickname(step.getNick()).queue();
         }
 
-        logger.log("new member: " + step.getNick());
+        logger.logln("new member: " + step.getNick());
 
         TextChannel logChannel = ownGuild.getTextChannelById(LOG_CHANNEL_ID);
         if (logChannel != null) {

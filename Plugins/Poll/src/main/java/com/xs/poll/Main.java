@@ -59,7 +59,7 @@ public class Main extends Event {
         getter = new FileGetter(logger, PATH_FOLDER_NAME, Main.class);
         loadConfigFile();
         loadLang();
-        logger.log("Loaded");
+        logger.logln("Loaded");
     }
 
     @Override
@@ -70,7 +70,7 @@ public class Main extends Event {
 
     @Override
     public void unload() {
-        logger.log("UnLoaded");
+        logger.logln("UnLoaded");
     }
 
     @Override
@@ -119,9 +119,9 @@ public class Main extends Event {
             if (inputStream == null) return;
             configFile = new Yaml(new CustomClassLoaderConstructor(getClass().getClassLoader(), new LoaderOptions()))
                     .loadAs(inputStream, MainConfig.class);
-            logger.log("Setting File Loaded Successfully");
+            logger.logln("Setting File Loaded Successfully");
         } catch (IOException e) {
-            logger.warn("Please configure /" + PATH_FOLDER_NAME + "/config.yml");
+            logger.warnln("Please configure /" + PATH_FOLDER_NAME + "/config.yml");
             throw new RuntimeException(e);
         }
     }
@@ -132,14 +132,14 @@ public class Main extends Event {
             for (Map.Entry<Long, List<String>> i : configFile.Emojis.entrySet()) {
                 Guild guild = jdaBot.getGuildById(i.getKey());
                 if (guild == null) {
-                    logger.warn("Cannot found guild by id: " + i.getKey());
+                    logger.warnln("Cannot found guild by id: " + i.getKey());
                 } else {
                     guild.retrieveEmojis().queue(es -> {
                         for (RichCustomEmoji e : es) {
                             i.getValue().forEach(j -> {
                                 if (e.getName().equals(j)) {
                                     votes.add(e);
-                                    logger.log("Added " + e.getName());
+                                    logger.logln("Added " + e.getName());
                                 }
                             });
                         }

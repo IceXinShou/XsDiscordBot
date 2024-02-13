@@ -37,12 +37,12 @@ public class Main extends Event {
         logger = new Logger(TAG);
         getter = new FileGetter(logger, PATH_FOLDER_NAME, Main.class);
         loadConfigFile();
-        logger.log("Loaded");
+        logger.logln("Loaded");
     }
 
     @Override
     public void unload() {
-        logger.log("UnLoaded");
+        logger.logln("UnLoaded");
     }
 
     @Override
@@ -51,9 +51,9 @@ public class Main extends Event {
             if (inputStream == null) return;
             configFile = new Yaml(new CustomClassLoaderConstructor(getClass().getClassLoader(), new LoaderOptions()))
                     .loadAs(inputStream, MainConfig.class);
-            logger.log("Setting File Loaded Successfully");
+            logger.logln("Setting File Loaded Successfully");
         } catch (IOException e) {
-            logger.warn("Please configure /" + PATH_FOLDER_NAME + "/config.yml");
+            logger.warnln("Please configure /" + PATH_FOLDER_NAME + "/config.yml");
             throw new RuntimeException(e);
         }
     }
@@ -67,7 +67,7 @@ public class Main extends Event {
                 guild.retrieveEmojis().queue(e -> {
                     for (Emoji j : e) {
                         emojis.computeIfAbsent(j.getName(), k -> new HashMap<>()).put(guild.getIdLong(), j);
-                        logger.log("Loaded " + j.getName());
+                        logger.logln("Loaded " + j.getName());
                     }
                 });
             }

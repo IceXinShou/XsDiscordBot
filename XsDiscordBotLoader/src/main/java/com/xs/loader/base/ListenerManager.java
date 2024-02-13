@@ -31,7 +31,7 @@ public class ListenerManager extends ListenerAdapter {
             guild.updateCommands().addCommands(guildCommands).queue();
         }
 
-        logger.log("Load Guild: " + guild.getName() + " (" + guild.getId() + ')');
+        logger.logln("Load Guild: " + guild.getName() + " (" + guild.getId() + ')');
     }
 
 
@@ -39,14 +39,14 @@ public class ListenerManager extends ListenerAdapter {
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         event.deferReply(true).queue();
 
-        logger.log(event.getUser().getName() + ": " + event.getCommandString());
+        logger.logln(event.getUser().getName() + ": " + event.getCommandString());
     }
 
     @Override
     public void onMessageContextInteraction(MessageContextInteractionEvent event) {
         event.deferReply(true).queue();
 
-        logger.log(event.getUser().getName() + ": " + event.getCommandString());
+        logger.logln(event.getUser().getName() + ": " + event.getCommandString());
     }
 
     @Override

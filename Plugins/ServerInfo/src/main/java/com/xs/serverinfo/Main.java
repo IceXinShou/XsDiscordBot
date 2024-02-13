@@ -41,7 +41,7 @@ public class Main extends Event {
         logger = new Logger(TAG);
         getter = new FileGetter(logger, PATH_FOLDER_NAME, Main.class);
         loadLang();
-        logger.log("Loaded");
+        logger.logln("Loaded");
     }
 
     @Override
@@ -51,7 +51,7 @@ public class Main extends Event {
 
     @Override
     public void unload() {
-        logger.log("UnLoaded");
+        logger.logln("UnLoaded");
     }
 
     @Override
@@ -194,7 +194,7 @@ public class Main extends Event {
                             .setColor(0x00FFFF)
                             .build()).queue();
         }).onError(i -> {
-            logger.warn("ERROR");
+            logger.warnln("ERROR");
             event.getHook().editOriginalEmbeds(createEmbed(langManager.get("runtime;error", local), 0xFF0000)).queue();
         });
     }

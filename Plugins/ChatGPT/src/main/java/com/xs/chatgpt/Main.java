@@ -9,8 +9,6 @@ import com.xs.loader.util.FileGetter;
 import com.xs.loader.util.json.JsonObjFileManager;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
-import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -60,12 +58,12 @@ public class Main extends Event {
         getter = new FileGetter(logger, PATH_FOLDER_NAME, Main.class);
         loadConfigFile();
         loadLang();
-        logger.log("Loaded");
+        logger.logln("Loaded");
     }
 
     @Override
     public void unload() {
-        logger.log("UnLoaded");
+        logger.logln("UnLoaded");
     }
 
     @Override
@@ -86,9 +84,9 @@ public class Main extends Event {
         try (InputStream inputStream = getter.readInputStreamOrDefaultFromSource("config.yml")) {
             if (inputStream == null) return;
             configFile = new Yaml(new CustomClassLoaderConstructor(getClass().getClassLoader(), new LoaderOptions())).loadAs(inputStream, MainConfig.class);
-            logger.log("Setting File Loaded Successfully");
+            logger.logln("Setting File Loaded Successfully");
         } catch (IOException e) {
-            logger.warn("Please configure /" + PATH_FOLDER_NAME + "/config.yml");
+            logger.warnln("Please configure /" + PATH_FOLDER_NAME + "/config.yml");
             throw new RuntimeException(e);
         }
 
@@ -104,7 +102,7 @@ public class Main extends Event {
         new File(ROOT_PATH + '/' + PATH_FOLDER_NAME + "/data").mkdirs();
         dmManager = new JsonObjFileManager('/' + PATH_FOLDER_NAME + "/data/dm.json", TAG);
 
-        logger.log("Setting File Loaded Successfully");
+        logger.logln("Setting File Loaded Successfully");
     }
 
 
@@ -203,10 +201,10 @@ public class Main extends Event {
         channel.sendTyping().queue();
         String name = author.getName();
         executor.submit(() -> {
-            logger.log("<- " + name + ": " + msg.replace("\n", "\\n"));
+            logger.logln("<- " + name + ": " + msg.replace("\n", "\\n"));
 
             MessageManager messageManager = new MessageManager(manager, message, msg, channel.getIdLong(), logger);
-            logger.log("-> " + name + ": " + messageManager.fullContent.toString().replace("\n", "\\n"));
+            logger.logln("-> " + name + ": " + messageManager.fullContent.toString().replace("\n", "\\n"));
             processingList.remove(id);
         });
     }

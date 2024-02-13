@@ -19,11 +19,11 @@ public class Main extends Event {
     public void initLoad() {
 
         logger = new Logger(TAG);
-        logger.log("Loaded");
+        logger.logln("Loaded");
     }
 
     @Override
     public void unload() {
-        logger.log("UnLoaded");
+        logger.logln("UnLoaded");
     }
 }

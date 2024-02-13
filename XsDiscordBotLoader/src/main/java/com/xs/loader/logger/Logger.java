@@ -11,19 +11,35 @@ public class Logger {
         this.ERRTAG = Color.RESET + '[' + Color.RED + TAG + Color.RESET + ']' + ' ';
     }
 
-    public void log(final String msg) {
-        System.out.println('[' + new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime()) + "] " + TAG + msg);
+    public static <T> void LOGln(final T msg) {
+        System.out.println('[' + new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime()) + "] " + msg.toString());
     }
 
-    public void print(final String msg) {
-        System.out.print('[' + new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime()) + "] " + TAG + msg);
+    public static <T> void LOG(final T msg) {
+        System.out.print('[' + new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime()) + "] " + msg.toString());
     }
 
-    public void warn(final String msg) {
-        System.err.println('[' + new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime()) + "] " + ERRTAG + msg);
+    public static <T> void WARNln(final T msg) {
+        System.err.println('[' + new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime()) + "] " + msg.toString());
     }
 
-    public void printWarn(final String msg) {
-        System.err.print('[' + new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime()) + "] " + ERRTAG + msg);
+    public static <T> void WARN(final T msg) {
+        System.err.print('[' + new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime()) + "] " + msg.toString());
+    }
+
+    public <T> void logln(final T msg) {
+        System.out.println('[' + new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime()) + "] " + TAG + msg.toString());
+    }
+
+    public <T> void log(final T msg) {
+        System.out.print('[' + new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime()) + "] " + TAG + msg.toString());
+    }
+
+    public <T> void warnln(final T msg) {
+        System.err.println('[' + new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime()) + "] " + ERRTAG + msg.toString());
+    }
+
+    public <T> void warn(final T msg) {
+        System.err.print('[' + new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime()) + "] " + ERRTAG + msg.toString());
     }
 }

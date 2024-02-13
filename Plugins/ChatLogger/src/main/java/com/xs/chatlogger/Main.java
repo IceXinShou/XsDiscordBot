@@ -71,7 +71,7 @@ public class Main extends Event {
         loadLang();
 
         initData();
-        logger.log("Loaded");
+        logger.logln("Loaded");
     }
 
     @Override
@@ -109,7 +109,7 @@ public class Main extends Event {
             }
         });
 
-        logger.log("UnLoaded");
+        logger.logln("UnLoaded");
     }
 
     @Override
@@ -296,7 +296,7 @@ public class Main extends Event {
                                         } else if (sendChannel instanceof VoiceChannel) {
                                             ((VoiceChannel) sendChannel).sendMessageEmbeds(builder.build()).queue();
                                         } else {
-                                            logger.warn("unknown chat type! : " + sendChannel.getType());
+                                            logger.warnln("unknown chat type! : " + sendChannel.getType());
                                         }
                                     }
                                 }
@@ -363,7 +363,7 @@ public class Main extends Event {
                                     } else if (sendChannel instanceof VoiceChannel) {
                                         ((VoiceChannel) sendChannel).sendMessageEmbeds(builder.build()).queue();
                                     } else {
-                                        logger.warn("unknown chat type! : " + sendChannel.getType());
+                                        logger.warnln("unknown chat type! : " + sendChannel.getType());
                                     }
                                 }
                             }
@@ -390,7 +390,7 @@ public class Main extends Event {
                     null : channel.getParentCategory().getName();
             channelName = channel.getName();
         } else {
-            logger.warn("unknown chat type! : " + eventChannel.getType());
+            logger.warnln("unknown chat type! : " + eventChannel.getType());
             return null;
         }
 
@@ -435,13 +435,13 @@ public class Main extends Event {
                     String.format("SELECT message_id, user_id, message FROM '%d' WHERE message_id = '%d'", channelID, messageID)
             );
         } catch (Exception e) {
-            logger.warn("the table which is named as channel_id is not exist");
+            logger.warnln("the table which is named as channel_id is not exist");
             return null;
         }
 
         try {
             if (rs.getLong("user_id") == 0) {
-                logger.warn("cannot get message history from table");
+                logger.warnln("cannot get message history from table");
                 return null;
             }
         } catch (SQLException e) {
@@ -452,7 +452,7 @@ public class Main extends Event {
     }
 
     private void sqlErrorPrinter(Exception e) {
-        logger.warn(e.getClass().getName() + ": " + e.getMessage() + '\n' +
+        logger.warnln(e.getClass().getName() + ": " + e.getMessage() + '\n' +
                 "\tat " + Arrays.stream(e.getStackTrace())
                 .filter(i -> !i.getClassName().startsWith("org.sqlite"))
                 .map(StackTraceElement::toString)

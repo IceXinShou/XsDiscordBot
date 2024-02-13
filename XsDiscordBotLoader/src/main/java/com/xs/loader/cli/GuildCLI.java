@@ -6,7 +6,6 @@ import asg.cliche.ShellFactory;
 import com.xs.loader.error.ClassType;
 import com.xs.loader.error.Exceptions;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.concrete.NewsChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;

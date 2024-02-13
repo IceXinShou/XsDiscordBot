@@ -51,7 +51,7 @@ public class Main extends Event {
         getter = new FileGetter(logger, PATH_FOLDER_NAME, Main.class);
         loadLang();
         loadData();
-        logger.log("Loaded");
+        logger.logln("Loaded");
     }
 
     @Override
@@ -85,7 +85,7 @@ public class Main extends Event {
 
     @Override
     public void unload() {
-        logger.log("UnLoaded");
+        logger.logln("UnLoaded");
     }
 
     @Override
@@ -158,8 +158,8 @@ public class Main extends Event {
                     event.getHook().editOriginalEmbeds(createEmbed(langManager.get("runtime;success", local), 0x00FFFF)).queue();
                 } catch (Exception e) {
                     event.getHook().editOriginalEmbeds(createEmbed(langManager.get("runtime;errors;unknown", local), 0xFF0000)).queue();
-                    logger.warn(Arrays.toString(e.getStackTrace()));
-                    logger.warn(e.getMessage());
+                    logger.warnln(Arrays.toString(e.getStackTrace()));
+                    logger.warnln(e.getMessage());
                 }
 
                 break;
