@@ -6,9 +6,8 @@ Prefix: "?"
 
 AllowUserID:
   - 810822763601461318 # xs._.b
+  - 270062130470846465 # xs._.dev
   - 286467027705790464 # WavJaby
-  - 747071881169076264 # krick_tw
-  - 705674606043856956 # snowball_213
 
 AllowForumChannelID:
   - 1131400932433862787

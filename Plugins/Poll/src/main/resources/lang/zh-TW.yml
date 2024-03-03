@@ -1,22 +1,44 @@
 register:
-  cmd: 投票
+  name: 投票
   description: 建立一個投票
 
   options:
-    name: 票選問題
-    a: 選項 A
-    b: 選項 B
-    c: 選項 C
-    d: 選項 D
-    e: 選項 E
-    f: 選項 F
-    g: 選項 G
-    h: 選項 H
-    i: 選項 I
-    j: 選項 J
+    question:
+      name: 問題
+      description: 什麼問題
+    a:
+      name: 選項-a
+      description: A
+    b:
+      name: 選項-b
+      description: B
+    c:
+      name: 選項-c
+      description: C
+    d:
+      name: 選項-d
+      description: D
+    e:
+      name: 選項-e
+      description: E
+    f:
+      name: 選項-f
+      description: F
+    g:
+      name: 選項-g
+      description: G
+    h:
+      name: 選項-h
+      description: H
+    i:
+      name: 選項-i
+      description: I
+    j:
+      name: 選項-j
+      description: J
 
 embed:
   footer: 投票
 
-command:
+runtime:
   success: 創建成功

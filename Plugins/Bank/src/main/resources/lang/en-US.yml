@@ -1,39 +1,54 @@
 register:
   add_money:
-    cmd: add_money
-    description: add money to an user
+    name: add-money
+    description: add money to a member
     options:
-      user: user
-      value: value
+      member:
+        name: member
+        description: who
+      value:
+        name: value
+        description: how much
 
   remove_money:
-    cmd: remove_money
-    description: remove money from an user
+    name: remove-money
+    description: remove money from a member
     options:
-      user: user
-      value: value
+      member:
+        name: member
+        description: who
+      value:
+        name: value
+        description: how much
 
   transfer_money:
-    cmd: transfer_money
-    description: transfer money to another user
+    name: transfer-money
+    description: transfer money to another member
     options:
-      user: user
-      value: value
+      member:
+        name: member
+        description: who
+      value:
+        name: value
+        description: how much
 
   check_balance:
-    cmd: check_balance
-    description: get user money
+    name: check-balance
+    description: get member money
     options:
-      user: user # only admin could use this argument
+      member:
+        name: member
+        description: who
 
 runtime:
-  add_success: "%user%'s %type% has changed from %before_value% to %after_value%"
-  remove_success: "%user%'s %type% has changed from %before_value% to %after_value%"
-  transfer_success: "transferred %value% %type% to %user%"
-  check_balance_title: "%user%'s account balance"
-  check_balance_description: "%value% %type%\n"
-  transferring: "transferring..."
-  transfer_done: "transfer successfully"
+  successes:
+    add_success: "%member%'s %type% has changed from %before_value% to %after_value%"
+    remove_success: "%member%'s %type% has changed from %before_value% to %after_value%"
+    transfer_success: "transferred %value% %type% to %member%"
+    check_balance_title: "%member%'s account balance"
+    check_balance_description: "%value% %type%\n"
+    transferring: "transferring..."
+    transfer_done: "transfer successfully"
 
   errors:
     transfer_self: you cannot transfer to yourself

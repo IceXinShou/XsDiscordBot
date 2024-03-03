@@ -1,5 +1,5 @@
 author: IceXinShou
-main: com.xs.dynamicvc.Main
+main: tw.xserver.dynamic.DynamicChannel
 name: DynamicVC
-version: '1.0'
+version: '2.0'
 prefix: DynamicVC

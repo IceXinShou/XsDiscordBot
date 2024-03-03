@@ -1,7 +1,7 @@
 author: IceXinShou
-main: com.xs.chatlogger.Main
+main: tw.xserver.logger.chat.ChatLogger
 name: ChatLogger
-version: '1.0'
+version: '2.0'
 prefix: ChatLogger
 depend:
   - SQLiteAPI

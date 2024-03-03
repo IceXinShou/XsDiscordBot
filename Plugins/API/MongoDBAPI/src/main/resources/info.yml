@@ -1,5 +1,5 @@
 author: MongoDB Inc.
-main: com.jdbc.mongodbapi.Main
+main: com.jdbc.mongodbapi.MongoAPI
 name: MongoDBAPI
-version: '1.0'
+version: '2.0'
 prefix: MongoDBAPI

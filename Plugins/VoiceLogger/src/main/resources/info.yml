@@ -1,5 +1,5 @@
 author: IceXinShou
-main: com.xs.voicelogger.Main
+main: tw.xserver.logger.voice.VoiceLogger
 name: VoiceLogger
-version: '1.0'
+version: '2.0'
 prefix: VoiceLogger

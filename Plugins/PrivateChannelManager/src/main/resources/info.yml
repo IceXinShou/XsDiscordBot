@@ -1,5 +1,5 @@
 author: IceXinShou
-main: com.xs.privatechannelmanager.Main
+main: tw.xserver.dm.DirectMessage
 name: PrivateChannelManager
-version: '1.0'
-prefix: PCM
+version: '2.0'
+prefix: DM

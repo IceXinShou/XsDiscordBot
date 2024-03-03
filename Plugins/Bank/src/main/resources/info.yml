@@ -1,5 +1,5 @@
 author: IceXinShou
-main: com.xs.bank.Main
+main: tw.xserver.bank.Bank
 name: Bank
-version: '1.0'
+version: '2.0'
 prefix: Bank

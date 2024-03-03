@@ -1,0 +1,5 @@
+author: IceXinShou
+main: tw.xserver.general.Manager
+name: GeneralCommands
+version: '3.0'
+prefix: GeneralCommands

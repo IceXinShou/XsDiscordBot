@@ -1,5 +1,7 @@
 register:
-  cmd_create: create_ticket
-  description_create: create a new ticket message with a button
-  cmd_add: add_ticket
-  description_add: add a button to a exist message
+  create:
+    name: create-ticket
+    description: create a new ticket message with a button
+  add:
+    name: add-ticket
+    description: add a button to a exist message

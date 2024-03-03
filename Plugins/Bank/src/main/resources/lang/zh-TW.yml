@@ -1,39 +1,54 @@
 register:
   add_money:
-    cmd: 增加存款
-    description: 為使用者增加存款
+    name: 增加存款
+    description: 為成員增加存款
     options:
-      user: 使用者
-      value: 金額
+      member:
+        name: 成員
+        description: 誰
+      value:
+        name: 金額
+        description: 多少
 
   remove_money:
-    cmd: 移除存款
-    description: 為使用者減少存款
+    name: 移除存款
+    description: 為成員減少存款
     options:
-      user: 使用者
-      value: 金額
+      member:
+        name: 成員
+        description: 誰
+      value:
+        name: 金額
+        description: 多少
 
   transfer_money:
-    cmd: 轉帳金錢
-    description: 將金錢轉帳給另一位使用者
+    name: 轉帳金錢
+    description: 將金錢轉帳給另一位成員
     options:
-      user: 使用者
-      value: 金額
+      member:
+        name: 成員
+        description: 誰
+      value:
+        name: 金額
+        description: 多少
 
   check_balance:
-    cmd: 查看餘額
-    description: 取得使用者餘額
+    name: 查看餘額
+    description: 取得成員餘額
     options:
-      user: 使用者 # 只有管理員才可以使用此參數
+      member:
+        name: 成員
+        description: 誰
 
 runtime:
-  add_success: "已將 %user% 的 %type% 從 %before_value% 增加至 %after_value%"
-  remove_success: "已將 %user% 的 %type% 從 %before_value% 減少至 %after_value%"
-  transfer_success: "已將 %value% %type% 轉給 %user%"
-  check_balance_title: "%user% 的銀行戶口余額為"
-  check_balance_description: "%value% %type%\n"
-  transferring: "進行轉帳中......請稍等"
-  transfer_done: "轉賬成功"
+  successes:
+    add_success: "已將 %member% 的 %type% 從 %before_value% 增加至 %after_value%"
+    remove_success: "已將 %member% 的 %type% 從 %before_value% 減少至 %after_value%"
+    transfer_success: "已將 %value% %type% 轉給 %member%"
+    check_balance_title: "%member% 的銀行戶口餘額為"
+    check_balance_description: "%value% %type%\n"
+    transferring: "進行轉帳中......請稍等"
+    transfer_done: "轉帳成功"
 
   errors:
     transfer_self: 你不能轉帳給自己

@@ -1,5 +1,5 @@
 author: IceXinShou
-main: com.xs.economy.Main
+main: tw.xserver.economy.Economy
 name: Economy
-version: '2.0'
+version: '3.0'
 prefix: Economy

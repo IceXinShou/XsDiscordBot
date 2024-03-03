@@ -1,10 +1,10 @@
 register:
-  cmd: 語音紀錄
+  name: 語音紀錄
   description: 有關語音紀錄的指令
 
   subcommand:
     setting:
-      cmd: 設定
+      name: 設定
       description: 設定語音紀錄在此頻道
 
 runtime:
@@ -53,6 +53,7 @@ runtime:
       set_white: 設定白名單
       set_black: 設定黑名單
       delete: 刪除
+      go_back: 返回
 
 
   errors:

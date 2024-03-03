@@ -1,5 +1,5 @@
 register:
-  cmd: info
+  name: info
   description: show server info
 
 runtime:

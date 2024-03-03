@@ -1,5 +1,5 @@
 register:
-  cmd: 伺服器資料
+  name: 伺服器資料
   description: 檢視伺服器資料
 
 runtime:

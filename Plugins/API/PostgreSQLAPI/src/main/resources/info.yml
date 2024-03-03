@@ -1,4 +1,4 @@
 author: PostgreSQL Global Development Group
-main: com.jdbc.postgredbapi.Main
-name: PostgreDBAPI
-version: '1.0'
+main: com.jdbc.postgredbapi.PostgreAPI
+name: PostgreDBAP
+version: '2.0'

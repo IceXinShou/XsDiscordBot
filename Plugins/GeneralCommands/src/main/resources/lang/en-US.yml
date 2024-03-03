@@ -1,0 +1,52 @@
+ban:
+  register:
+    name: ban
+    description: ban a member from your server
+
+    options:
+      member:
+        name: member
+        description: which member
+
+      day:
+        name: day
+        description: time in day(s)
+
+      reason:
+        name: reason
+        description: why
+
+  runtime:
+    successes:
+      done: Ban Successfully
+
+    errors:
+      no_user: Cannot find the member!
+      no_permission: I do not have ban permission.
+      permission_denied: My permission level is lower than member's.
+      unknown: Unknown ERROR!
+
+
+kick:
+  register:
+    name: kick
+    description: kick a member from your server
+
+    options:
+      member:
+        name: member
+        description: which member
+
+      reason:
+        name: reason
+        description: why
+
+  runtime:
+    successes:
+      done: Kick Successfully
+
+    errors:
+      no_user: Cannot find the member!
+      no_permission: I do not have kick permission.
+      permission_denied: My permission level is lower than member's.
+      unknown: Unknown ERROR!

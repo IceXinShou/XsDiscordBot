@@ -1,22 +1,30 @@
 register:
   announcement:
-    cmd: 設定公告
+    name: 設定公告
     description: 標記一則可以被簽到的訊息
 
     options:
-      id: 訊息ID
+      id:
+        name: 訊息ID
+        description: ID
 
   check:
-    cmd: 簽到
+    name: 簽到
     description: 為一則公告簽到
 
     options:
-      id: 公告訊息ID
-      content: 簽到內容
+      id:
+        name: 公告訊息ID
+        description: ID
+      content:
+        name: 簽到內容
+        description: 文字內容
+
 
 runtime:
-  announce_success: 公告新增完成
-  checkin_success: 簽到成功
+  successes:
+    announce_success: 公告新增完成
+    checkin_success: 簽到成功
 
   errors:
     wrong_guild: 無法在此伺服器內使用此指令

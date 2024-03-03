@@ -1,10 +1,10 @@
 register:
-  cmd: 訊息紀錄
+  name: 訊息紀錄
   description: 有關訊息紀錄的指令
 
   subcommand:
     setting:
-      cmd: 設定
+      name: 設定
       description: 設定訊息紀錄在此頻道
 
 runtime:
@@ -37,7 +37,7 @@ runtime:
       set_white: 設定白名單
       set_black: 設定黑名單
       delete: 刪除
-
+      go_back: 返回
 
   errors:
     unknown: 未知的錯誤

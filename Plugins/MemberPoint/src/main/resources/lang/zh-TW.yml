@@ -1,38 +1,53 @@
 register:
   refresh:
-    cmd: 重新讀取點數
+    name: 重新讀取點數
     description: 重新讀取點數資料
 
   get_point:
-    cmd: 點數
-    description: 取得使用者點數
+    name: 點數
+    description: 取得成員點數
     options:
-      user: 使用者
+      member:
+        name: 成員
+        description: 誰
 
   add_point:
-    cmd: 增加點數
-    description: 增加使用者點數
+    name: 增加點數
+    description: 增加成員點數
     options:
-      user: 使用者
-      value: 數值
+      member:
+        name: 成員
+        description: 誰
+      value:
+        name: 數值
+        description: 多少
 
   remove_point:
-    cmd: 移除點數
-    description: 移除使用者點數
+    name: 移除點數
+    description: 移除成員點數
     options:
-      user: 使用者
-      value: 數值
+      member:
+        name: 成員
+        description: 誰
+      value:
+        name: 數值
+        description: 多少
 
   set_point:
-    cmd: 設定點數
-    description: 設定使用者點數
+    name: 設定點數
+    description: 設定成員點數
     options:
-      user: 使用者
-      value: 數值
+      member:
+        name: 成員
+        description: 誰
+      value:
+        name: 數值
+        description: 多少
 
 runtime:
-  current_point: "當前點數為 %point%"
-  refresh_success: "已重新讀取"
+  successes:
+    current_point: "當前點數為 %point%"
+    refresh_success: "已重新讀取"
 
   errors:
     wrong_guild: 無法在此伺服器內使用此指令

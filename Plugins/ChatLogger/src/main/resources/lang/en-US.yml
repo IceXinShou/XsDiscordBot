@@ -1,10 +1,10 @@
 register:
-  cmd: chat_logger
+  name: chat-logger
   description: commands about chat logger
 
   subcommand:
     setting:
-      cmd: setting
+      name: setting
       description: set chat log in this channel
 
 runtime:
@@ -20,7 +20,7 @@ runtime:
   setting:
     delete_success: delete successfully
 
-    select_menu:
+    menu:
       placeholder: Select Channel(s) or Search here
 
     embed:
@@ -37,6 +37,7 @@ runtime:
       set_white: Config Whitelist
       set_black: Config Blacklist
       delete: Delete
+      go_back: Back
 
   errors:
     unknown: Unknown ERROR!

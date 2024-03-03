@@ -1,5 +1,5 @@
 author: IceXinShou
-main: com.xs.ticket.Main
+main: tw.xserver.ticket.Ticket
 name: Ticket
-version: '1.0'
+version: '2.0'
 prefix: Ticket

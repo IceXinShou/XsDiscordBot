@@ -1,71 +1,100 @@
 register:
   get_money:
-    cmd: money
-    description: get current money from user
+    name: money
+    description: get current money from member
     options:
-      user: user
+      member:
+        name: member
+        description: who
 
   get_money_history:
-    cmd: moneylog
-    description: get money log from user
+    name: money-log
+    description: get money log from member
     options:
-      user: user
+      member:
+        name: member
+        description: who
 
   add_money:
-    cmd: addmoney
-    description: add money to user
+    name: add-money
+    description: add money to member
     options:
-      user: user
-      value: value
+      member:
+        name: member
+        description: who
+      value:
+        name: value
+        description: how much
 
   remove_money:
-    cmd: removemoney
-    description: remove money from user
+    name: remove-money
+    description: remove money from member
     options:
-      user: user
-      value: value
+      member:
+        name: member
+        description: who
+      value:
+        name: value
+        description: how much
 
   set_money:
-    cmd: setmoney
-    description: set money to user
+    name: set-money
+    description: set money to member
     options:
-      user: user
-      value: value
+      member:
+        name: member
+        description: who
+      value:
+        name: value
+        description: how much
 
   add_money_history:
-    cmd: addmoneylog
-    description: add money log to user
+    name: add-money-log
+    description: add money log to member
     options:
-      user: user
-      value: value
+      member:
+        name: member
+        description: who
+      value:
+        name: value
+        description: how much
 
   remove_money_history:
-    cmd: removemoneylog
-    description: remove money log from user
+    name: remove-money-log
+    description: remove money log from member
     options:
-      user: user
-      value: value
+      member:
+        name: member
+        description: who
+      value:
+        name: value
+        description: how much
 
   set_money_history:
-    cmd: setmoneylog
-    description: set money log to user
+    name: set-money-log
+    description: set money log to member
     options:
-      user: user
-      value: value
+      member:
+        name: member
+        description: who
+      value:
+        name: value
+        description: how much
 
   money_board:
-    cmd: moneytop
+    name: top-money
     description: get board from money
 
   money_history_board:
-    cmd: moneytoplog
+    name: top-money-log
     description: get board from log money
 
 runtime:
-  money_board_title: Balance Board
-  money_history_board_title: log Balance Board
-  current_money: "Current Balance: %money%"
-  current_money_history: "Current log Balance: %log_money%"
+  successes:
+    money_board_title: Balance Board
+    money_history_board_title: log Balance Board
+    current_money: "Current Balance: %money%"
+    current_money_history: "Current log Balance: %log_money%"
 
   errors:
     no_permission: You Cannot Do This!

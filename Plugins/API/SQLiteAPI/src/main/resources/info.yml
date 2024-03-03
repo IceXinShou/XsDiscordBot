@@ -1,5 +1,5 @@
 author: JDBC
-main: com.jdbc.sqliteapi.Main
+main: com.jdbc.sqliteapi.SQLiteAPI
 name: SQLiteAPI
-version: '1.0'
+version: '2.0'
 prefix: SQLiteAPI

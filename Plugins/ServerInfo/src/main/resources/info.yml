@@ -1,5 +1,5 @@
 author: IceXinShou
-main: com.xs.serverinfo.Main
+main: tw.xserver.serverinfo.ServerInfo
 name: ServerInfo
 version: '2.0'
 prefix: ServerInfo

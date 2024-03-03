@@ -1,5 +1,5 @@
 author: IceXinShou
-main: com.xs.officialguild.Main
+main: tw.xserver.officialguild.OfficialGuild
 name: OfficialGuild
-version: '1.0'
+version: '2.0'
 prefix: OG

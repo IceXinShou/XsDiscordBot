@@ -1,22 +1,44 @@
 register:
-  cmd: poll
+  name: poll
   description: make a poll
 
   options:
-    name: question
-    a: option A
-    b: option B
-    c: option C
-    d: option D
-    e: option E
-    f: option F
-    g: option G
-    h: option H
-    i: option I
-    j: option J
+    question:
+      name: question
+      description: what question
+    a:
+      name: option-a
+      description: A
+    b:
+      name: option-b
+      description: B
+    c:
+      name: option-c
+      description: C
+    d:
+      name: option-d
+      description: D
+    e:
+      name: option-e
+      description: E
+    f:
+      name: option-f
+      description: F
+    g:
+      name: option-g
+      description: G
+    h:
+      name: option-h
+      description: H
+    i:
+      name: option-i
+      description: I
+    j:
+      name: option-j
+      description: J
 
 embed:
   footer: Poll
 
-command:
+runtime:
   success: Create Successfully

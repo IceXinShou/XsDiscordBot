@@ -1,38 +1,53 @@
 register:
   refresh:
-    cmd: refresh_point
+    name: refresh-point
     description: refresh point data
 
   get_point:
-    cmd: point
-    description: get current point from user
+    name: point
+    description: get current point from member
     options:
-      user: user
+      member:
+        name: member
+        description: who
 
   add_point:
-    cmd: add_point
-    description: add point to user
+    name: add-point
+    description: add point to member
     options:
-      user: user
-      value: value
+      member:
+        name: member
+        description: who
+      value:
+        name: value
+        description: how much
 
   remove_point:
-    cmd: remove_point
-    description: remove point from user
+    name: remove-point
+    description: remove point from member
     options:
-      user: user
-      value: value
+      member:
+        name: member
+        description: who
+      value:
+        name: value
+        description: how much
 
   set_point:
-    cmd: set_point
-    description: set point to user
+    name: set-point
+    description: set point to member
     options:
-      user: user
-      value: value
+      member:
+        name: member
+        description: who
+      value:
+        name: value
+        description: how much
 
 runtime:
-  current_point: "Current Balance: %point%"
-  refresh_success: "Reloaded"
+  successes:
+    current_point: "Current Balance: %point%"
+    refresh_success: "Reloaded"
 
   errors:
     wrong_guild: this command cannot use in this guild!

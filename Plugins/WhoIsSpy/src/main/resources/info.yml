@@ -1,5 +1,5 @@
 author: IceXinShou
-main: com.xs.whoisspy.Main
+main: tw.xserver.whoisspy.WhoIsSpy
 name: WhoIsSpy
-version: '1.0'
+version: '2.0'
 prefix: WhoIsSpy

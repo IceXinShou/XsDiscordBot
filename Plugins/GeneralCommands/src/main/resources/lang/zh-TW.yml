@@ -1,0 +1,49 @@
+ban:
+  register:
+    name: 封鎖
+    description: 自伺服器封鎖成員
+
+    options:
+      member:
+        name: 成員
+        description: 誰
+      day:
+        name: 時間
+        description: 天數
+      reason:
+        name: 原因
+        description: 為啥
+
+  runtime:
+    successes:
+      done: 已封鎖
+
+    errors:
+      no_user: 找不到此成員!
+      no_permission: 缺少封鎖權限
+      permission_denied: 權限比該成員低
+      unknown: 未知的錯誤!
+
+
+kick:
+  register:
+    name: 踢出
+    description: 自伺服器踢出成員成員
+
+    options:
+      member:
+        name: 成員
+        description: 誰
+      reason:
+        name: 原因
+        description: 為啥
+
+  runtime:
+    successes:
+      done: 已踢出
+
+    errors:
+      no_user: 找不到此成員!
+      no_permission: 缺少踢出權限
+      permission_denied: 權限比該成員低
+      unknown: 未知的錯誤!

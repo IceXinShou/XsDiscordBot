@@ -1,24 +1,29 @@
 register:
-  cmd: dynamicvc
+  name: dynamic-vc
   description: commands about dynamic voice chat
 
   subcommand:
     create:
-      cmd: createbychannel
+      name: create-by-channel
       description: create a dynamic voice chat by channel
       options:
-        detect: the channel be detected
+        detect:
+          name: channel
+          description: the channel be detected
 
     remove:
-      cmd: removebychannel
+      name: remove-by-channel
       description: remove a dynamic voice chat by channel
       options:
-        detect: the channel be detected
+        detect:
+          name: channel
+          description: the channel be detected
 
 runtime:
-  success: Setting successfully
-  remove_success: Setting remove successfully
-  no_remove_success: No Setting has been removed
+  successes:
+    done: Setting successfully
+    remove_success: Setting remove successfully
+    no_remove_success: No Setting has been removed
 
   errors:
     unknown: Unknown ERROR!

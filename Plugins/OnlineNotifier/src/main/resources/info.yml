@@ -1,0 +1,5 @@
+author: IceXinShou
+main: tw.xserver.notifier.OnlineNotifier
+name: OnlineNotifier
+version: '1.0'
+prefix: OnlineNotifier

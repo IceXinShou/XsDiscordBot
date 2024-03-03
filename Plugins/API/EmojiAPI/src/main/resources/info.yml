@@ -1,5 +1,5 @@
 author: IceXinShou
-main: com.xs.emojiapi.Main
+main: tw.xserver.api.emoji.EmojiAPI
 name: EmojiAPI
-version: '1.0'
-prefix: PAPI
+version: '2.0'
+prefix: EmojiAPI
