@@ -18,6 +18,7 @@ import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
+import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
@@ -335,7 +336,14 @@ public class ChatLogger extends Event {
             try (ResultSet rs = findDataInTable(stmt, channelID, messageID)) {
                 if (rs == null) return;
 
-                User messageSender = getUserById(rs.getLong("user_id"));
+                User messageSender;
+                try {
+                    messageSender = getUserById(rs.getLong("user_id"));
+                } catch (ErrorResponseException e) {
+                    LOGGER.warn("無法取得發送者 Id, 已跳過");
+                    return;
+                }
+
                 if (messageSender.getIdLong() == jdaBot.getSelfUser().getIdLong()) {
                     return;
                 }

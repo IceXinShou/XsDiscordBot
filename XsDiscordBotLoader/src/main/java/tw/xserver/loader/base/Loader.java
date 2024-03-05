@@ -117,7 +117,7 @@ public class Loader {
             conn.disconnect();
 
 
-            final String version = "v1.6";
+            final String version = "v1.7";
             if (version.equals(latestVersion)) {
                 LOGGER.info("you are running on the latest version: " + Color.GREEN + version + Color.RESET);
                 return false;

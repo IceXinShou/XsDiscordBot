@@ -15,5 +15,7 @@
     <orderEntry type="library" name="Gradle: org.slf4j:slf4j-api:1.7.36" level="project" />
     <orderEntry type="library" name="Gradle: com.google.code.findbugs:jsr305:3.0.2" level="project" />
     <orderEntry type="module" module-name="tw.xserver.loader.XsDiscordBotLoader.main" />
+    <orderEntry type="library" name="Gradle: com.squareup.okhttp3:okhttp:4.12.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.jsoup:jsoup:1.17.2" level="project" />
   </component>
 </module>

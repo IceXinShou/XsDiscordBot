@@ -7,10 +7,12 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
@@ -19,6 +21,8 @@ import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.interactions.modals.ModalMapping;
+import org.jsoup.Connection;
+import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tw.xserver.loader.lang.LangManager;
@@ -130,6 +134,41 @@ public class OfficialGuild extends Event {
 //                Commands.slash("create_firstjoin", "if you dont know what it is, please not to touch!")
 //                        .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR))
 //        ).queue();
+    }
+
+    @Override
+    public void onMessageReceived(@Nonnull MessageReceivedEvent event) {
+        if (!event.isFromType(ChannelType.PRIVATE)) return;
+        if (event.getAuthor().getIdLong() != 1179666947022008371L) return;
+
+        String messageMon = event.getMessage().getContentRaw();
+        if (messageMon.length() != 2) return;
+        event.getChannel().sendMessage("請稍等 ... ").queue(initialMsg -> {
+            new Thread(() -> {
+                StringBuilder builder = new StringBuilder();
+                builder.append("```yml\n");
+                try {
+                    for (int i = 1; i <= 30; i++) {
+                        Connection.Response rsp = Jsoup
+                                .connect(String.format("https://travel.wutai.gov.tw/Travel/QuotaByDate/HYCDEMO/2024-%s-%02d", messageMon, i))
+                                .referrer("https://travel.wutai.gov.tw/")
+                                .execute();
+
+                        JsonObject obj = JsonParser.parseString(rsp.body()).getAsJsonArray().get(1).getAsJsonObject();
+                        builder.append(String.format("%s/%02d used: '%3s', paid: '%3s'\n",
+                                messageMon, i, obj.get("used").getAsString(), obj.get("paid").getAsString()));
+                        Thread.sleep(150);
+                    }
+                } catch (Exception e) {
+                    LOGGER.error("custom error", e);
+                    initialMsg.editMessage("處理時發生錯誤").queue();
+                    return;
+                }
+                builder.append("```");
+
+                initialMsg.editMessage(builder.toString()).queue();
+            }).start();
+        });
     }
 
     @Override
