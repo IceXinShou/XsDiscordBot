@@ -18,7 +18,7 @@ public class PrivateChannelCLI extends RootCLI {
     @Command(name = "dm", description = "direct message to the user")
     public void dm(
             @Param(name = "content", description = "message content") String content
-    ) throws Exception {
+    ) {
         PrivateChannel privateChannel = user.openPrivateChannel().complete();
         notNull(privateChannel, "Private Channel");
 

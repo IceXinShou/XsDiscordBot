@@ -59,7 +59,7 @@ public class DirectMessage extends Event {
                     .loadAs(inputStream, MainConfig.class);
             LOGGER.info("setting file loaded successfully");
         } catch (IOException e) {
-            LOGGER.error("Please configure /" + PATH_FOLDER_NAME + "/config.yml");
+            LOGGER.error("please configure /" + PATH_FOLDER_NAME + "/config.yml");
             throw new RuntimeException(e);
         }
     }
@@ -75,9 +75,8 @@ public class DirectMessage extends Event {
             String[] spl = msg.getContentRaw().split(" - ");
             if (spl.length != 3) return;
 
-            jdaBot.openPrivateChannelById(spl[0]).queue(channel -> {
-                channel.deleteMessageById(spl[2]).queue();
-            });
+            jdaBot.openPrivateChannelById(spl[0]).queue(channel ->
+                    channel.deleteMessageById(spl[2]).queue());
 
             msg.delete().queue();
         });
@@ -106,19 +105,14 @@ public class DirectMessage extends Event {
 
             jdaBot.openPrivateChannelById(userID).queue(channel -> {
                 if (msg.getContentRaw().startsWith("[REPLY]")) {
-                    channel.retrieveMessageById(messageID).queue(message -> {
-                        message.reply(msg.getContentRaw().substring(7)).queue(newMsg -> {
-                            msg.reply(userID + " - " + messageID + " - " + newMsg.getId()).queue(log -> {
-                                log.addReaction(Emoji.fromUnicode("🗑")).queue();
-                            });
-                        });
-                    });
+                    channel.retrieveMessageById(messageID).queue(message ->
+                            message.reply(msg.getContentRaw().substring(7)).queue(newMsg ->
+                                    msg.reply(userID + " - " + messageID + " - " + newMsg.getId()).queue(log ->
+                                            log.addReaction(Emoji.fromUnicode("🗑")).queue())));
                 } else {
-                    channel.sendMessage(msg.getContentRaw()).queue(newMsg -> {
-                        msg.reply(userID + " - " + messageID + " - " + newMsg.getId()).queue(log -> {
-                            log.addReaction(Emoji.fromUnicode("🗑")).queue();
-                        });
-                    });
+                    channel.sendMessage(msg.getContentRaw()).queue(newMsg ->
+                            msg.reply(userID + " - " + messageID + " - " + newMsg.getId()).queue(log ->
+                                    log.addReaction(Emoji.fromUnicode("🗑")).queue()));
                 }
             });
 
@@ -182,9 +176,8 @@ public class DirectMessage extends Event {
         // Button reply = new ButtonImpl("xs:pcm:reply:" + authorID + ":" + event.getMessageId(), "回覆", ButtonStyle.SUCCESS, false, null);
 
         for (Long i : configFile.OwnerID) {
-            jdaBot.retrieveUserById(i).complete().openPrivateChannel().queue(c -> {
-                c.sendMessageEmbeds(builder.build()).queue();
-            });
+            jdaBot.retrieveUserById(i).complete().openPrivateChannel().queue(c ->
+                    c.sendMessageEmbeds(builder.build()).queue());
         }
 
         event.getMessage().addReaction(Emoji.fromUnicode("✅")).queue();

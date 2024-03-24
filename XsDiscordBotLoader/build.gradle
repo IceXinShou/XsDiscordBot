@@ -3,7 +3,7 @@ plugins {
 }
 
 group 'tw.xserver.loader'
-version 'v1.7'
+version 'v1.8'
 compileJava.options.encoding = 'UTF-8'
 
 repositories {
@@ -11,18 +11,18 @@ repositories {
 }
 
 dependencies {
-    implementation group: 'org.jsoup', name: 'jsoup', version: '1.17.2'
-    implementation group: 'commons-io', name: 'commons-io', version: '2.15.1'
-    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.14.0'
-    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.13'
-    implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
-    implementation group: 'net.dv8tion', name: 'JDA', version: '5.0.0-beta.20'
-    implementation group: 'org.yaml', name: 'snakeyaml', version: '2.2'
-    implementation group: 'com.knuddels', name: 'jtokkit', version: '0.6.1'
-    implementation group: 'org.fusesource.jansi', name: 'jansi', version: '2.4.0'
-    implementation group: 'com.google.code.gson', name: 'gson', version: '2.10.1'
-    implementation group: 'com.googlecode.clichemaven', name: 'cliche', version: '110413'
-    implementation group: 'commons-cli', name: 'commons-cli', version: '1.5.0'
+    implementation group: 'net.dv8tion', name: 'JDA', version: '5.0.0-beta.21' // Discord Java API
+    implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2' // Annotation
+    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.14.0' // Commons
+    implementation group: 'commons-io', name: 'commons-io', version: '2.15.1' // Commons io
+    implementation group: 'org.jsoup', name: 'jsoup', version: '1.17.2' // Connection
+    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.13' // Log
+    implementation group: 'com.google.code.gson', name: 'gson', version: '2.10.1' // Json
+    implementation group: 'org.yaml', name: 'snakeyaml', version: '2.2' // Yaml
+    implementation group: 'commons-cli', name: 'commons-cli', version: '1.5.0' // CLI arg
+    implementation group: 'com.googlecode.clichemaven', name: 'cliche', version: '110413' // CLI cmd
+    implementation group: 'org.fusesource.jansi', name: 'jansi', version: '2.4.0' // AnsiConsole
+    implementation group: 'com.knuddels', name: 'jtokkit', version: '0.6.1' // GPT Token Counter
 }
 
 jar {

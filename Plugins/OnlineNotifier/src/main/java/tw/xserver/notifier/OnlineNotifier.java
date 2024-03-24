@@ -43,7 +43,7 @@ public class OnlineNotifier extends Event {
     private static final File FOLDER = new File(ROOT_PATH + '/' + PATH_FOLDER_NAME);
     private Language lang;
 
-    private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledExecutorService executor;
     private final ConcurrentLinkedQueue<NotifierType> notifyQueue = new ConcurrentLinkedQueue<>();
 
 
@@ -56,7 +56,10 @@ public class OnlineNotifier extends Event {
 
     @Override
     public void unload() {
-        executorService.shutdown();
+        if (executor != null && !executor.isShutdown()) {
+            executor.shutdown();
+        }
+
         LOGGER.info("unLoaded OnlineNotifier");
     }
 
@@ -70,7 +73,7 @@ public class OnlineNotifier extends Event {
         try {
             lang = new LangManager<>(getter, PATH_FOLDER_NAME, CHINESE_TAIWAN, Language.class).get();
         } catch (IOException | IllegalAccessException | InstantiationException | InvocationTargetException |
-                 NoSuchMethodException | NoSuchFieldException e) {
+                 NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
     }
@@ -94,7 +97,12 @@ public class OnlineNotifier extends Event {
 
     @Override
     public void onReady() {
-        executorService.scheduleWithFixedDelay(() -> {
+        if (executor != null && !executor.isShutdown()) {
+            executor.shutdown();
+        }
+
+        executor = Executors.newSingleThreadScheduledExecutor();
+        executor.scheduleWithFixedDelay(() -> {
             if (notifyQueue.isEmpty()) return;
 
             List<NotifierType> retryList = new ArrayList<>();

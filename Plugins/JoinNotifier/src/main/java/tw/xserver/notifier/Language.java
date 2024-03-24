@@ -6,8 +6,8 @@ import tw.xserver.loader.lang.ExampleType.Member_t;
 import tw.xserver.loader.lang.LocaleData;
 
 public class Language {
-    Register_t register = new Register_t();
-    RunTime_t runtime = new RunTime_t();
+    final Register_t register = new Register_t();
+    final RunTime_t runtime = new RunTime_t();
 
     static class Register_t extends BasicCommand {
         Options_t options = new Options_t();

@@ -3,16 +3,16 @@ package tw.xserver.officialguild;
 import tw.xserver.loader.lang.LocaleData;
 
 public class Language {
-    RunTime_t runtime = new RunTime_t();
+    final RunTime_t runtime = new RunTime_t();
 
     static class RunTime_t {
-        Steps_t steps = new Steps_t();
-        Errors_t errors = new Errors_t();
+        final Steps_t steps = new Steps_t();
+        final Errors_t errors = new Errors_t();
 
         static class Steps_t {
             LocaleData updating;
-            Chi_t chi = new Chi_t();
-            Eng_t eng = new Eng_t();
+            final Chi_t chi = new Chi_t();
+            final Eng_t eng = new Eng_t();
 
 
             static class Chi_t {

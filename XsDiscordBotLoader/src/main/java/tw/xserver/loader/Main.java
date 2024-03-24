@@ -27,32 +27,5 @@ public class Main {
                     "Or the program may be broken...\n"
             );
         }
-
-
-
-        /*
-            while (true) {
-                String inp = "";
-                try {
-                    inp = sc.nextLine();
-                    shell.processLine(inp);
-                } catch (CLIException e) {
-                    switch (e.getMessage().charAt(0)) {
-                        case 'U': { // Unknown command
-                            cliLogger.warn("unknown command, type ?l to get help page");
-                            break;
-                        }
-                        case 'T': { // There's no command taking ? arguments
-                            cliLogger.warn("wrong usage of the command, please type ?l");
-                            System.out.println(shell.getCommandTable().commandsByName(inp.split(" ")[0]));
-                            break;
-                        }
-                        case 'A': { // Ambiguous command taking ? arguments
-                            break;
-                        }
-                    }
-                }
-            }
-        */
     }
 }

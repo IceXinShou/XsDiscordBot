@@ -38,7 +38,7 @@ public class ChatGPT extends Event {
     private JsonObjFileManager dmManager;
 
     public static final Set<Long> processingList = ConcurrentHashMap.newKeySet();
-    public static JsonArray defaultAry = new JsonArray();
+    public static final JsonArray defaultAry = new JsonArray();
     public static MainConfig configFile;
     public static int prompt_token;
     private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(3);
@@ -66,7 +66,7 @@ public class ChatGPT extends Event {
             configFile = new Yaml(new CustomClassLoaderConstructor(getClass().getClassLoader(), new LoaderOptions())).loadAs(inputStream, MainConfig.class);
             LOGGER.info("setting file loaded successfully");
         } catch (IOException e) {
-            LOGGER.error("Please configure /" + PATH_FOLDER_NAME + "/config.yml");
+            LOGGER.error("please configure /" + PATH_FOLDER_NAME + "/config.yml");
             throw new RuntimeException(e);
         }
 
@@ -121,7 +121,9 @@ public class ChatGPT extends Event {
 
     @Override
     public void onShutdown(@Nonnull ShutdownEvent event) {
-        executor.shutdown();
+        if (!executor.isShutdown()) {
+            executor.shutdown();
+        }
     }
 
 

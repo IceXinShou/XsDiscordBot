@@ -36,15 +36,15 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.time.OffsetDateTime;
+import java.time.YearMonth;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.regex.Pattern;
 
 import static net.dv8tion.jda.api.interactions.DiscordLocale.CHINESE_TAIWAN;
+import static net.dv8tion.jda.internal.utils.Checks.notNull;
 import static tw.xserver.loader.base.Loader.ROOT_PATH;
 import static tw.xserver.loader.base.Loader.jdaBot;
 import static tw.xserver.loader.util.EmbedCreator.createEmbed;
@@ -61,7 +61,7 @@ public class OfficialGuild extends Event {
     private final Map<Long, UserStepData> stepData = new HashMap<>();
     private final List<Long> JOINED_ROLE_ID = Arrays.asList(858672865385119755L, 858701368457953360L, 858707058530451476L, 858703314606751764L);
     private final List<Long> AUTHED_ROLE_ID = Arrays.asList(858672865385119757L, 858704345448841226L);
-    private final ScheduledExecutorService executorService;
+    @Nullable
     private Guild ownGuild;
     private JsonObjFileManager manager;
     private static final Long GOD_ROLE_ID = 1157315773769982023L;
@@ -75,13 +75,11 @@ public class OfficialGuild extends Event {
         super(true);
 
         reloadAll();
-        executorService = Executors.newScheduledThreadPool(1);
         LOGGER.info("loaded OfficialGuild");
     }
 
     @Override
     public void unload() {
-        executorService.shutdown();
         LOGGER.info("unLoaded OfficialGuild");
     }
 
@@ -101,7 +99,7 @@ public class OfficialGuild extends Event {
         try {
             lang = new LangManager<>(getter, PATH_FOLDER_NAME, CHINESE_TAIWAN, Language.class).get();
         } catch (IOException | IllegalAccessException | InstantiationException | InvocationTargetException |
-                 NoSuchMethodException | NoSuchFieldException e) {
+                 NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
     }
@@ -115,64 +113,55 @@ public class OfficialGuild extends Event {
     public void onReady(@Nonnull ReadyEvent event) {
         ownGuild = jdaBot.getGuildById(OWN_GUILD_ID);
         if (ownGuild == null) {
-            LOGGER.warn("CANNOT FOUND Main Guild!");
+            LOGGER.error("CANNOT FOUND Main Guild!");
+            return;
         }
 
         godRole = ownGuild.getRoleById(GOD_ROLE_ID);
         apexRole = ownGuild.getRoleById(APEX_ROLE_ID);
         railRole = ownGuild.getRoleById(RAIL_ROLE_ID);
-
-//        TextChannel channel = ownGuild.getTextChannelById(858672865444626439L);
-//        Message message = channel.retrieveMessageById(1157603306345070612L).complete();
-//        List<ItemComponent> components = message.getActionRows().get(0).getComponents();
-//        components.add(Button.of(ButtonStyle.PRIMARY, "xs:og:role:1", "原神", Emoji.fromUnicode("💎")));
-//        components.add(Button.of(ButtonStyle.PRIMARY, "xs:og:role:2", "APEX", Emoji.fromUnicode("🔫")));
-//        components.add(Button.of(ButtonStyle.PRIMARY, "xs:og:role:3", "星鐵", Emoji.fromUnicode("🎇")));
-//        message.editMessageComponents(ActionRow.of(components)).queue();
-
-//        ownGuild.upsertCommand(
-//                Commands.slash("create_firstjoin", "if you dont know what it is, please not to touch!")
-//                        .setDefaultPermissions(DefaultMemberPermissions.enabledFor(ADMINISTRATOR))
-//        ).queue();
     }
 
     @Override
     public void onMessageReceived(@Nonnull MessageReceivedEvent event) {
         if (!event.isFromType(ChannelType.PRIVATE)) return;
-        if (event.getAuthor().getIdLong() != 1179666947022008371L) return;
+        if (event.getAuthor().getIdLong() != 810822763601461318L) return;
 
-        String messageMon = event.getMessage().getContentRaw();
-        if (messageMon.length() != 2) return;
-        event.getChannel().sendMessage("請稍等 ... ").queue(initialMsg -> {
-            new Thread(() -> {
-                StringBuilder builder = new StringBuilder();
-                builder.append("```yml\n");
-                try {
-                    for (int i = 1; i <= 30; i++) {
-                        Connection.Response rsp = Jsoup
-                                .connect(String.format("https://travel.wutai.gov.tw/Travel/QuotaByDate/HYCDEMO/2024-%s-%02d", messageMon, i))
-                                .referrer("https://travel.wutai.gov.tw/")
-                                .execute();
+        String message = event.getMessage().getContentRaw();
+        if (message.length() != 7 || message.charAt(4) != ' ') return;
 
-                        JsonObject obj = JsonParser.parseString(rsp.body()).getAsJsonArray().get(1).getAsJsonObject();
-                        builder.append(String.format("%s/%02d used: '%3s', paid: '%3s'\n",
-                                messageMon, i, obj.get("used").getAsString(), obj.get("paid").getAsString()));
-                        Thread.sleep(150);
-                    }
-                } catch (Exception e) {
-                    LOGGER.error("custom error", e);
-                    initialMsg.editMessage("處理時發生錯誤").queue();
-                    return;
+        int year = Integer.parseInt(message.split(" ")[0]);
+        int month = Integer.parseInt(message.split(" ")[1]);
+
+        event.getChannel().sendMessage("請稍等 ... ").queue(initialMsg -> new Thread(() -> {
+
+            StringBuilder builder = new StringBuilder();
+            builder.append("```yml\n");
+            try {
+                for (int i = 1; i <= YearMonth.of(year, month).lengthOfMonth(); i++) {
+                    Connection.Response rsp = Jsoup
+                            .connect(String.format("https://travel.wutai.gov.tw/Travel/QuotaByDate/HYCDEMO/%04d-%02d-%02d", year, month, i))
+                            .referrer("https://travel.wutai.gov.tw/")
+                            .execute();
+
+                    JsonObject obj = JsonParser.parseString(rsp.body()).getAsJsonArray().get(1).getAsJsonObject();
+                    builder.append(String.format("%04d/%02d/%02d used: '%3s', paid: '%3s'\n",
+                            year, month, i, obj.get("used").getAsString(), obj.get("paid").getAsString()));
+                    Thread.sleep(300);
+
+                    initialMsg.editMessage(builder + "\n```").queue();
                 }
-                builder.append("```");
-
-                initialMsg.editMessage(builder.toString()).queue();
-            }).start();
-        });
+            } catch (Exception e) {
+                LOGGER.error("custom error", e);
+                event.getChannel().sendMessage("處理時發生錯誤").queue();
+            }
+        }).start());
     }
 
     @Override
     public void onGuildMemberJoin(GuildMemberJoinEvent event) {
+        notNull(ownGuild, "Guild");
+
         if (event.getGuild().getIdLong() != OWN_GUILD_ID) return;
         Member member = event.getMember();
         for (long i : JOINED_ROLE_ID) {
@@ -183,28 +172,14 @@ public class OfficialGuild extends Event {
         }
     }
 
-//    @Override
-//    public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
-//        switch (event.getName()) {
-//            case "create_firstjoin": {
-//                Button button = new ButtonImpl("xs:og:create", "開始驗證", SUCCESS, false, null);
-//                EmbedBuilder builder = new EmbedBuilder()
-//                        .setTitle("正式加入原之序前，需要您的暱稱等資訊，方便其他成員認識您")
-//                        .setDescription("原之序並不會要求您提供敏感資訊")
-//                        .setThumbnail("https://i.imgur.com/6ivsnRr.png")
-//                        .setFooter("公告")
-//                        .setTimestamp(OffsetDateTime.now())
-//                        .setColor(0x00FFFF);
-//                event.getMessageChannel().sendMessageEmbeds(builder.build()).setActionRow(button).queue();
-//                break;
-//            }
-//        }
-//    }
-
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
         String[] args = event.getComponentId().split(":");
         if (!args[0].equals("xs") || !args[1].equals("og")) return;
+        Member member = event.getMember();
+
+        notNull(member, "Member Executor");
+        notNull(ownGuild, "Guild");
 
         switch (args[2]) {
             case "create": {
@@ -228,7 +203,6 @@ public class OfficialGuild extends Event {
             }
 
             case "role": {
-                Member member = event.getMember();
                 switch (args[3]) {
                     case "1": {
                         if (member.getRoles().contains(godRole)) {
@@ -328,8 +302,14 @@ public class OfficialGuild extends Event {
         manager.add(event.getUser().getId(), step.getObj());
         manager.save();
         event.deferEdit().queue();
+
+
+        notNull(ownGuild, "Guild");
+        Member botMember = ownGuild.getSelfMember();
+
         Member member = event.getMember();
-        if (ownGuild == null || member == null) return;
+        notNull(member, "Member Executor");
+
 
         for (long i : AUTHED_ROLE_ID) {
             Role role = ownGuild.getRoleById(i);
@@ -338,7 +318,7 @@ public class OfficialGuild extends Event {
             ownGuild.addRoleToMember(member, role).queue();
         }
 
-        if (event.getGuild().getSelfMember().canInteract(member)) {
+        if (botMember.canInteract(member)) {
             member.modifyNickname(step.getNick()).queue();
         }
 

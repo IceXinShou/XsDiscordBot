@@ -69,7 +69,7 @@ public class VoiceLogger extends Event {
         try {
             lang = new LangManager<>(getter, PATH_FOLDER_NAME, CHINESE_TAIWAN, Language.class).get();
         } catch (IOException | IllegalAccessException | InstantiationException | InvocationTargetException |
-                 NoSuchMethodException | NoSuchFieldException e) {
+                 NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
     }
@@ -174,7 +174,7 @@ public class VoiceLogger extends Event {
             // clear status
             jsonManager.channelSettings.getOrDefault(guildID, new HashMap<>()).forEach(
                     (i, j) -> {
-                        if (!j.contains(channel.getIdLong())) return;
+                        if (j.notContains(channel.getIdLong())) return;
 
                         TextChannel sendChannel = event.getGuild().getTextChannelById(i);
                         if (sendChannel == null) return;
@@ -201,7 +201,7 @@ public class VoiceLogger extends Event {
                 // new status
                 jsonManager.channelSettings.getOrDefault(guildID, new HashMap<>()).forEach(
                         (i, j) -> {
-                            if (!j.contains(channel.getIdLong())) return;
+                            if (j.notContains(channel.getIdLong())) return;
 
                             TextChannel sendChannel = event.getGuild().getTextChannelById(i);
                             if (sendChannel == null) return;
@@ -227,7 +227,7 @@ public class VoiceLogger extends Event {
                 // change
                 jsonManager.channelSettings.getOrDefault(guildID, new HashMap<>()).forEach(
                         (i, j) -> {
-                            if (!j.contains(channel.getIdLong())) return;
+                            if (j.notContains(channel.getIdLong())) return;
 
                             TextChannel sendChannel = event.getGuild().getTextChannelById(i);
                             if (sendChannel == null) return;
@@ -271,7 +271,7 @@ public class VoiceLogger extends Event {
             // left
             jsonManager.channelSettings.getOrDefault(guildID, new HashMap<>()).forEach(
                     (i, j) -> {
-                        if (!j.contains(leftChannel.getIdLong())) return;
+                        if (j.notContains(leftChannel.getIdLong())) return;
 
                         TextChannel sendChannel = event.getGuild().getTextChannelById(i);
                         if (sendChannel == null) return;
@@ -296,7 +296,7 @@ public class VoiceLogger extends Event {
                 // new join
                 jsonManager.channelSettings.getOrDefault(guildID, new HashMap<>()).forEach(
                         (i, j) -> {
-                            if (!j.contains(joinChannel.getIdLong())) return;
+                            if (j.notContains(joinChannel.getIdLong())) return;
 
                             TextChannel sendChannel = event.getGuild().getTextChannelById(i);
                             if (sendChannel == null) return;
@@ -320,7 +320,7 @@ public class VoiceLogger extends Event {
                 // move
                 jsonManager.channelSettings.getOrDefault(guildID, new HashMap<>()).forEach(
                         (i, j) -> {
-                            if (!j.contains(joinChannel.getIdLong())) return;
+                            if (j.notContains(joinChannel.getIdLong())) return;
 
                             TextChannel sendChannel = event.getGuild().getTextChannelById(i);
                             if (sendChannel == null) return;

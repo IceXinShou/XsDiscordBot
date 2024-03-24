@@ -57,7 +57,7 @@ public class GuildCLI extends RootCLI {
     @Command(name = "join", abbrev = "jo", description = "make the bot join the AudioChannel of Guild")
     public void join(
             @Param(name = "channelID", description = "your AudioChannel id") String channelID
-    ) throws Exception {
+    ) {
         AudioChannel channel = guild.getChannelById(AudioChannel.class, channelID);
         notNull(channel, "Guild Channel");
 

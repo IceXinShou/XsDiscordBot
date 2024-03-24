@@ -91,6 +91,8 @@ public class SheetRequest {
     }
 
     public boolean refresh() throws IOException {
+        // return true, if data updated
+
         if (sheetID.isEmpty()) {
             LOGGER.error("sheetID is empty");
             return false;
@@ -137,7 +139,6 @@ public class SheetRequest {
     }
 
     public AppendValuesResponse append_down(List<List<Object>> values, String range, ValueInputOption option) throws IOException {
-
         return service.spreadsheets().values()
                 .append(sheetID, range, new ValueRange().setValues(values))
                 .setValueInputOption(option.name())

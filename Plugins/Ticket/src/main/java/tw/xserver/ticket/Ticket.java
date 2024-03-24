@@ -80,7 +80,7 @@ public class Ticket extends Event {
         try {
             lang = new LangManager<>(getter, PATH_FOLDER_NAME, CHINESE_TAIWAN, Language.class).get();
         } catch (IOException | IllegalAccessException | InstantiationException | InvocationTargetException |
-                 NoSuchMethodException | NoSuchFieldException e) {
+                 NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
     }
@@ -193,6 +193,8 @@ public class Ticket extends Event {
                     break;
                 }
             }
+
+            return;
         }
 
         switch (args[2]) {
@@ -322,6 +324,8 @@ public class Ticket extends Event {
             }
             step.updateEmbed();
             event.deferEdit().queue();
+
+            return;
         }
 
         switch (args[2]) {
@@ -405,13 +409,10 @@ public class Ticket extends Event {
 
         Step step = steps.get(event.getUser().getIdLong());
 
-        switch (args[3]) {
-            case "btnColor": {
-                step.setBtnStyle(ButtonStyle.fromKey(Integer.parseInt(event.getValues().get(0))));
-                step.updateEmbed();
-                event.deferEdit().queue();
-                break;
-            }
+        if (args[3].equals("btnColor")) {
+            step.setBtnStyle(ButtonStyle.fromKey(Integer.parseInt(event.getValues().get(0))));
+            step.updateEmbed();
+            event.deferEdit().queue();
         }
     }
 

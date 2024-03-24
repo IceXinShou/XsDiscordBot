@@ -54,7 +54,8 @@ public class CheckIn extends Event {
         try {
             sheet = new SheetRequest();
         } catch (IOException | GeneralSecurityException e) {
-            e.printStackTrace();
+            LOGGER.error("sheet init failed");
+            LOGGER.error(e.getMessage());
         }
 
         reloadAll();
@@ -83,7 +84,7 @@ public class CheckIn extends Event {
                     .loadAs(inputStream, MainConfig.class);
             LOGGER.info("setting file loaded successfully");
         } catch (IOException e) {
-            LOGGER.error("Please configure /" + PATH_FOLDER_NAME + "/config.yml");
+            LOGGER.error("please configure /" + PATH_FOLDER_NAME + "/config.yml");
             throw new RuntimeException(e);
         }
 
@@ -97,7 +98,7 @@ public class CheckIn extends Event {
         try {
             lang = new LangManager<>(getter, PATH_FOLDER_NAME, CHINESE_TAIWAN, Language.class).get();
         } catch (IOException | IllegalAccessException | InstantiationException | InvocationTargetException |
-                 NoSuchMethodException | NoSuchFieldException e) {
+                 NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
     }
@@ -117,7 +118,8 @@ public class CheckIn extends Event {
                 announcements.add(getDataFromSheet((String) tmp.get(i)));
             }
         } catch (IOException e) {
-            e.printStackTrace();
+
+            LOGGER.error(e.getMessage());
         }
     }
 
@@ -254,7 +256,8 @@ public class CheckIn extends Event {
                     configFile.sheetLabel + "!" + sheet.toUpperAlpha(sheet.getData().get(0).size()) + "1:1",
                     SheetRequest.ValueInputOption.RAW);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("sheet write failed");
+            LOGGER.error(e.getMessage());
         }
     }
 

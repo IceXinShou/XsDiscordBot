@@ -20,7 +20,6 @@ import tw.xserver.loader.lang.LangManager;
 import tw.xserver.loader.plugin.Event;
 import tw.xserver.loader.util.FileGetter;
 import tw.xserver.loader.util.json.JsonAryFileManager;
-import tw.xserver.loader.util.json.JsonObjFileManager;
 
 import javax.annotation.Nonnull;
 import java.io.File;
@@ -91,7 +90,7 @@ public class DynamicChannel extends Event {
         try {
             lang = new LangManager<>(getter, PATH_FOLDER_NAME, CHINESE_TAIWAN, Language.class).get();
         } catch (IOException | IllegalAccessException | InstantiationException | InvocationTargetException |
-                 NoSuchMethodException | NoSuchFieldException e) {
+                 NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
     }
@@ -133,7 +132,7 @@ public class DynamicChannel extends Event {
     }
 
     @Override
-    public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
+    public void onSlashCommandInteraction(@Nonnull SlashCommandInteractionEvent event) {
         if (checkCommand(event, "dynamic-vc")) return;
         if (event.getSubcommandName() == null) return;
 
@@ -162,8 +161,8 @@ public class DynamicChannel extends Event {
                     object.addProperty("bitrate", bitrate);
                     object.addProperty("limit", limit);
 
-                    JsonObjFileManager fileManager = new JsonObjFileManager(PATH_FOLDER_NAME + "/Data/" + guildID + ".json");
-                    fileManager.getAsJsonArray().add(object);
+                    JsonAryFileManager fileManager = new JsonAryFileManager(PATH_FOLDER_NAME + "/Data/" + guildID + ".json");
+                    fileManager.add(object);
                     fileManager.save();
 
                     trackedChannel.add(channel.getIdLong());

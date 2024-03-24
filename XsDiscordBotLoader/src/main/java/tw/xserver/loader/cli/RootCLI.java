@@ -63,7 +63,7 @@ public class RootCLI {
     public void dm(
             @Param(name = "userID", description = "User id") String userID,
             @Param(name = "content", description = "message content") String content
-    ) throws Exception {
+    ) {
         User user = jdaBot.retrieveUserById(userID).complete();
         notNull(user, "User");
 
@@ -104,7 +104,7 @@ public class RootCLI {
     public void join(
             @Param(name = "guildID", description = "your Guild id") String guildID,
             @Param(name = "channelID", description = "your AudioChannel id") String channelID
-    ) throws Exception {
+    ) {
         Guild guild = jdaBot.getGuildById(guildID);
         notNull(guild, "Guild");
 
@@ -116,7 +116,7 @@ public class RootCLI {
     @Command(name = "leave", abbrev = "le", description = "make the bot leave the AudioChannel of Guild")
     public void leave(
             @Param(name = "guildID", description = "your Guild id") String guildID
-    ) throws Exception {
+    ) {
         Guild guild = jdaBot.getGuildById(guildID);
         notNull(guild, "Guild");
 
@@ -126,7 +126,7 @@ public class RootCLI {
     @Command(name = "mute", abbrev = "mu", description = "make the bot muted")
     public void mute(
             @Param(name = "guildID", description = "your Guild id") String guildID
-    ) throws Exception {
+    ) {
         Guild guild = jdaBot.getGuildById(guildID);
         notNull(guild, "Guild");
 
@@ -137,7 +137,7 @@ public class RootCLI {
     @Command(name = "deafen", abbrev = "de", description = "make the bot deafened")
     public void deafen(
             @Param(name = "guildID", description = "your Guild id") String guildID
-    ) throws Exception {
+    ) {
         Guild guild = jdaBot.getGuildById(guildID);
         notNull(guild, "Guild");
 

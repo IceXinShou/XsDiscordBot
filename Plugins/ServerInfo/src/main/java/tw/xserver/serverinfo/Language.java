@@ -5,26 +5,26 @@ import tw.xserver.loader.lang.LocaleData;
 import static tw.xserver.loader.lang.ExampleType.Command_t;
 
 public class Language {
-    Command_t register = new Command_t();
-    RunTime_t runtime = new RunTime_t();
+    final Command_t register = new Command_t();
+    final RunTime_t runtime = new RunTime_t();
 
     static class RunTime_t {
         LocaleData loading;
         LocaleData footer;
         LocaleData error;
         LocaleData no_permission;
-        Fields_t fields = new Fields_t();
+        final Fields_t fields = new Fields_t();
 
         static class Fields_t {
             LocaleData roles;
             LocaleData emoji;
             LocaleData sticker;
             LocaleData language;
-            Members_t members = new Members_t();
-            MembersStatus_t members_status = new MembersStatus_t();
-            Channels_t channels = new Channels_t();
-            ChannelsStatus_t channels_status = new ChannelsStatus_t();
-            Boost_t boost = new Boost_t();
+            final Members_t members = new Members_t();
+            final MembersStatus_t members_status = new MembersStatus_t();
+            final Channels_t channels = new Channels_t();
+            final ChannelsStatus_t channels_status = new ChannelsStatus_t();
+            final Boost_t boost = new Boost_t();
 
             static class Members_t {
                 LocaleData title;

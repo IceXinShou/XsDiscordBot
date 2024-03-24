@@ -5,34 +5,34 @@ import tw.xserver.loader.lang.ExampleType.Command_t;
 import tw.xserver.loader.lang.LocaleData;
 
 public class Language {
-    Register_t register = new Register_t();
-    RunTime_t runtime = new RunTime_t();
+    final Register_t register = new Register_t();
+    final RunTime_t runtime = new RunTime_t();
 
     static class Register_t {
-        Announcement_t announcement = new Announcement_t();
-        Check_t check = new Check_t();
+        final Announcement_t announcement = new Announcement_t();
+        final Check_t check = new Check_t();
 
         static class Announcement_t extends BasicCommand {
-            Options_t options = new Options_t();
+            final Options_t options = new Options_t();
 
             static class Options_t extends BasicCommand {
-                Command_t id = new Command_t();
+                final Command_t id = new Command_t();
             }
         }
 
         static class Check_t extends BasicCommand {
-            Options_t options = new Options_t();
+            final Options_t options = new Options_t();
 
             static class Options_t {
                 Command_t id = new Command_t();
-                Command_t content = new Command_t();
+                final Command_t content = new Command_t();
             }
         }
     }
 
     static class RunTime_t {
-        Successes_t successes = new Successes_t();
-        Errors_t errors = new Errors_t();
+        final Successes_t successes = new Successes_t();
+        final Errors_t errors = new Errors_t();
 
         static class Successes_t {
             LocaleData announce_success;

@@ -23,7 +23,7 @@ public class LangManager<E> {
 
 
     public LangManager(FileGetter getter, String pathFolderName, DiscordLocale defaultLocale, Class<E> clazz)
-            throws IOException, NoSuchFieldException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+            throws IOException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         this.getter = getter;
         this.FOLDER_PATH = Loader.ROOT_PATH + '/' + pathFolderName + "/lang/";
         this.DEFAULT_LOCALE = defaultLocale;
@@ -110,11 +110,13 @@ public class LangManager<E> {
         try {
             f = clazz.getField(fieldName);
             f.setAccessible(true);
-        } catch (NoSuchFieldException e) {
+        } catch (NoSuchFieldException e1) {
             try {
                 f = clazz.getDeclaredField(fieldName);
                 f.setAccessible(true);
-            } catch (NoSuchFieldException ex) {
+            } catch (NoSuchFieldException e2) {
+                LOGGER.error("cannot find fieldName: {}", fieldName);
+                LOGGER.error(e2.getMessage());
             }
         }
 

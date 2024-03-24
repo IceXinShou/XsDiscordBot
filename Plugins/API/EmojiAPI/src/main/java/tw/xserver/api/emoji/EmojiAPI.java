@@ -28,7 +28,7 @@ public class EmojiAPI extends Event {
     private static final File FOLDER = new File(ROOT_PATH + '/' + PATH_FOLDER_NAME);
     private MainConfig configFile;
     private final boolean setup = false;
-    public static Map<String, Map<Long, Emoji>> emojis = new HashMap<>();
+    public static final Map<String, Map<Long, Emoji>> emojis = new HashMap<>();
 
     public EmojiAPI() {
         super(true);
@@ -52,7 +52,7 @@ public class EmojiAPI extends Event {
                     .loadAs(inputStream, MainConfig.class);
             LOGGER.info("setting file loaded successfully");
         } catch (IOException e) {
-            LOGGER.error("Please configure /" + PATH_FOLDER_NAME + "/config.yml");
+            LOGGER.error("please configure /" + PATH_FOLDER_NAME + "/config.yml");
             throw new RuntimeException(e);
         }
     }

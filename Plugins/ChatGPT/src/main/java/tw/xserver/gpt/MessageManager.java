@@ -54,12 +54,12 @@ public class MessageManager {
             } catch (IOException e) {
                 replyMessage.reply("很抱歉，出現了一些錯誤。請等待修復或通知開發人員").queue();
                 status.set(Type.ERROR);
-                e.printStackTrace();
+                LOGGER.error(e.getMessage());
             }
         });
 
         long lastTime = 0;
-        while (!status.equals(Type.DONE)) {
+        while (!status.isDone()) {
             switch (status.get()) {
                 case READING: {
                     if (System.currentTimeMillis() - lastTime > 2000) {
@@ -265,6 +265,10 @@ public class MessageManager {
 
         private synchronized Type get() {
             return this.status;
+        }
+
+        private synchronized boolean isDone() {
+            return status == Type.DONE;
         }
 
         @Override

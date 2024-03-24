@@ -74,7 +74,7 @@ public class MemberPoint extends Event {
             getter = new FileGetter(FOLDER, MemberPoint.class);
             sheet = new SheetRequest();
         } catch (IOException | GeneralSecurityException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage());
         }
 
         try (InputStream inputStream = getter.readInputStream("config.yml")) {
@@ -83,7 +83,7 @@ public class MemberPoint extends Event {
                     .loadAs(inputStream, MainConfig.class);
             LOGGER.info("setting file loaded successfully");
         } catch (IOException e) {
-            LOGGER.error("Please configure /" + PATH_FOLDER_NAME + "/config.yml");
+            LOGGER.error("please configure /" + PATH_FOLDER_NAME + "/config.yml");
             throw new RuntimeException(e);
         }
 
@@ -97,7 +97,7 @@ public class MemberPoint extends Event {
         try {
             lang = new LangManager<>(getter, PATH_FOLDER_NAME, CHINESE_TAIWAN, Language.class).get();
         } catch (IOException | IllegalAccessException | InstantiationException | InvocationTargetException |
-                 NoSuchMethodException | NoSuchFieldException e) {
+                 NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
     }
@@ -258,7 +258,9 @@ public class MemberPoint extends Event {
     private void loadSheet() {
         try {
             userData.clear();
-            sheet.refresh(configFile.sheetID, configFile.sheetLabel + "!A2:B");
+
+            if (!sheet.refresh(configFile.sheetID, configFile.sheetLabel + "!A2:B")) return;
+
             List<List<Object>> data = sheet.getData();
             if (data != null)
                 for (List<Object> datum : data) {
@@ -266,6 +268,7 @@ public class MemberPoint extends Event {
                 }
 
         } catch (IOException e) {
+            LOGGER.error("sheet update failed");
             LOGGER.error(e.getMessage());
         }
     }

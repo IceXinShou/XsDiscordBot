@@ -94,7 +94,7 @@ public class Economy extends Event {
         try {
             lang = new LangManager<>(getter, PATH_FOLDER_NAME, CHINESE_TAIWAN, Language.class).get();
         } catch (IOException | IllegalAccessException | InstantiationException | InvocationTargetException |
-                 NoSuchMethodException | NoSuchFieldException e) {
+                 NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
     }
@@ -286,11 +286,11 @@ public class Economy extends Event {
                 int value = event.getOption("value", 0, OptionMapping::getAsInt);
 
                 initData(user.getIdLong(), user.getName());
-                userData.get(user.getIdLong()).add(value);
+                int newValue = userData.get(user.getIdLong()).add(value);
 
                 event.getHook().editOriginalEmbeds(createEmbed(user.getName(),
                         lang.runtime.successes.current_money.get(locale)
-                                .replace("%money%", userData.get(user.getIdLong()).get() + " $"), 0x00FFFF)).queue();
+                                .replace("%money%", newValue + " $"), 0x00FFFF)).queue();
 
                 JsonObject object = manager.getAsJsonObject(user.getId());
                 object.addProperty("money", object.get("money").getAsInt() + value);
@@ -310,11 +310,11 @@ public class Economy extends Event {
                 User user = getUserID(event);
                 int value = event.getOption("value", 0, OptionMapping::getAsInt);
                 initData(user.getIdLong(), user.getName());
-                userData.get(user.getIdLong()).remove(value);
+                int newValue = userData.get(user.getIdLong()).remove(value);
 
                 event.getHook().editOriginalEmbeds(createEmbed(user.getName(),
                         lang.runtime.successes.current_money.get(locale)
-                                .replace("%money%", userData.get(user.getIdLong()).get() + " $"), 0x00FFFF)).queue();
+                                .replace("%money%", newValue + " $"), 0x00FFFF)).queue();
 
                 JsonObject object = manager.getAsJsonObject(user.getId());
                 object.addProperty("money", object.get("money").getAsInt() - value);
@@ -332,11 +332,11 @@ public class Economy extends Event {
                 User user = getUserID(event);
                 int value = event.getOption("value", 0, OptionMapping::getAsInt);
                 initData(user.getIdLong(), user.getName());
-                userData.get(user.getIdLong()).set(value);
+                int newValue = userData.get(user.getIdLong()).set(value);
 
                 event.getHook().editOriginalEmbeds(createEmbed(user.getName(),
                         lang.runtime.successes.current_money.get(locale)
-                                .replace("%money%", userData.get(user.getIdLong()).get() + " $"), 0x00FFFF)).queue();
+                                .replace("%money%", newValue + " $"), 0x00FFFF)).queue();
 
                 manager.getAsJsonObject(user.getId())
                         .addProperty("money", value);
@@ -353,11 +353,11 @@ public class Economy extends Event {
                 User user = getUserID(event);
                 int value = event.getOption("value", 0, OptionMapping::getAsInt);
                 initData(user.getIdLong(), user.getName());
-                userData.get(user.getIdLong()).addTotal(value);
+                int newValue = userData.get(user.getIdLong()).addTotal(value);
 
                 event.getHook().editOriginalEmbeds(createEmbed(user.getName(),
                         lang.runtime.successes.current_money_history.get(locale)
-                                .replace("%log_money%", userData.get(user.getIdLong()).getTotal() + " $"), 0x00FFFF)).queue();
+                                .replace("%log_money%", newValue + " $"), 0x00FFFF)).queue();
 
                 JsonObject object = manager.getAsJsonObject(user.getId());
                 object.addProperty("total", object.get("total").getAsInt() + value);
@@ -375,10 +375,11 @@ public class Economy extends Event {
                 User user = getUserID(event);
                 int value = event.getOption("value", 0, OptionMapping::getAsInt);
                 initData(user.getIdLong(), user.getName());
-                userData.get(user.getIdLong()).removeTotal(value);
+                int newValue = userData.get(user.getIdLong()).removeTotal(value);
+
                 event.getHook().editOriginalEmbeds(createEmbed(user.getName(),
                         lang.runtime.successes.current_money_history.get(locale)
-                                .replace("%log_money%", userData.get(user.getIdLong()).getTotal() + " $"), 0x00FFFF)).queue();
+                                .replace("%log_money%", newValue + " $"), 0x00FFFF)).queue();
 
                 JsonObject object = manager.getAsJsonObject(user.getId());
                 object.addProperty("total", object.get("total").getAsInt() - value);
@@ -396,10 +397,11 @@ public class Economy extends Event {
                 User user = getUserID(event);
                 int value = event.getOption("value", 0, OptionMapping::getAsInt);
                 initData(user.getIdLong(), user.getName());
-                userData.get(user.getIdLong()).setTotal(value);
+                int newValue = userData.get(user.getIdLong()).setTotal(value);
+
                 event.getHook().editOriginalEmbeds(createEmbed(user.getName(),
                         lang.runtime.successes.current_money_history.get(locale)
-                                .replace("%log_money%", userData.get(user.getIdLong()).getTotal() + " $"), 0x00FFFF)).queue();
+                                .replace("%log_money%", newValue + " $"), 0x00FFFF)).queue();
 
                 manager.getAsJsonObject(user.getId())
                         .addProperty("total", value);

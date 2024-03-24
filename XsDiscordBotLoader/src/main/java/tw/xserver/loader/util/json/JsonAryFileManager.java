@@ -79,6 +79,36 @@ public class JsonAryFileManager extends JsonFileManager<JsonArray> {
         return data.get(index).getAsNumber();
     }
 
+    public JsonAryFileManager add(Number number) {
+        data.add(number);
+        return this;
+    }
+
+    public JsonAryFileManager add(String string) {
+        data.add(string);
+        return this;
+    }
+
+    public JsonAryFileManager add(Boolean bool) {
+        data.add(bool);
+        return this;
+    }
+
+    public JsonAryFileManager add(Character character) {
+        data.add(character);
+        return this;
+    }
+
+    public JsonAryFileManager add(JsonElement element) {
+        data.add(element);
+        return this;
+    }
+
+    public JsonAryFileManager addAll(JsonArray jsonArray) {
+        data.addAll(jsonArray);
+        return this;
+    }
+
     public boolean remove(int index) {
         try {
             data.remove(index);

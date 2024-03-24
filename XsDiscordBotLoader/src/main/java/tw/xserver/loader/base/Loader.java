@@ -117,7 +117,7 @@ public class Loader {
             conn.disconnect();
 
 
-            final String version = "v1.7";
+            final String version = "v1.8";
             if (version.equals(latestVersion)) {
                 LOGGER.info("you are running on the latest version: " + Color.GREEN + version + Color.RESET);
                 return false;
@@ -226,7 +226,6 @@ public class Loader {
                         } else {
                             LOGGER.error("same plugin name: " + file.getName());
                             ++fail;
-                            continue;
                         }
                     } catch (Exception e) {
                         ++fail;
@@ -235,7 +234,8 @@ public class Loader {
                 }
             } catch (Exception e) {
                 ++fail;
-                e.printStackTrace();
+                LOGGER.error("plugin load failed");
+                LOGGER.error(e.getMessage());
             }
         }
 

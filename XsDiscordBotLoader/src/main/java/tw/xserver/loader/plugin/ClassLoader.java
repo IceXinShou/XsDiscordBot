@@ -1,6 +1,8 @@
 package tw.xserver.loader.plugin;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import tw.xserver.loader.base.Loader;
 
 import javax.annotation.Nullable;
@@ -12,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ClassLoader extends URLClassLoader {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClassLoader.class);
     private final Map<String, URL> resourcePath = new HashMap<>();
 
     public ClassLoader() {
@@ -28,7 +31,8 @@ public class ClassLoader extends URLClassLoader {
             resourcePath.put(main, url);
             addURL(url);
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            LOGGER.error("add jar file failed");
+            LOGGER.error(e.getMessage());
         }
     }
 
@@ -37,16 +41,11 @@ public class ClassLoader extends URLClassLoader {
         try {
             return loadClass(name, false);
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            LOGGER.error("cannot found class: {}", name);
+            LOGGER.error(e.getMessage());
             return null;
         }
     }
-
-//    @Override
-//    public InputStream getResourceAsStream(String name) {
-//        System.out.println("getResourceAsStream: " + name);
-//        return super.getResourceAsStream(name);
-//    }
 
     @Nullable
     @Override
@@ -60,14 +59,13 @@ public class ClassLoader extends URLClassLoader {
                     try {
                         return new URL("jar:" + i.getValue() + "!/" + name.substring(i.getKey().length() + 1));
                     } catch (MalformedURLException e) {
-                        e.printStackTrace();
+                        LOGGER.error("cannot found resource: {}", name);
+                        LOGGER.error(e.getMessage());
                         return null;
                     }
                 }
             }
         }
-//        System.out.println("findResource: " + url);
         return url;
     }
-
 }
