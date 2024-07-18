@@ -1,3 +1,5 @@
+# 改用 Kotlin 撰寫，看[這裡](https://github.com/IceXinShou/XsDiscordBotKt)
+
 # XsDiscordBotLoader
 
 Copyright © 2022-2024 IceXinShou. All rights reserved.
